@@ -15,4 +15,4 @@ vignettes/*.pdf
 .Rproj.user
 
 # Project files
-ACE-R.Rcheck/
+aceR.Rcheck/
