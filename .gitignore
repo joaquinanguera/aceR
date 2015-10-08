@@ -16,3 +16,6 @@ vignettes/*.pdf
 
 # Project files
 aceR.Rcheck/
+
+# Misc Files
+datamart-master/
