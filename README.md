@@ -8,7 +8,8 @@ Install the latest release from github using [devtools](https://github.com/hadle
 
 ```
 # install.packages("devtools")
-install_github("josegallegos07/aceR")
+GITHUB_PAT = "64235145b808f152d84467ea1362dc0b7a0def6c"
+devtools::install_github("josegallegos07/aceR", auth_token = GITHUB_PAT)
 ```
 
 ## Development
@@ -23,4 +24,4 @@ Development of new features - i.e. non-trivial changes
 
 #### master
 
-Stable release branch - what is installed when you run: `install_github("josegallegos07/aceR")`
+Stable release branch.
