@@ -1,4 +1,4 @@
-# ACE-R dev
+# aceR dev
 
 ## prereqs
 
