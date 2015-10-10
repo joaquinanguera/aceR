@@ -15,7 +15,7 @@ Please refer to [this guide](http://r-pkgs.had.co.nz/style.html) when writing ne
 
 #### tl;dr
 
-1. camel_case
+1. snake_case
 2. spaces around all infix operators (`=`, `+`, `-`, `<-`, etc)
 3. curly braces on same line as first statement  
 4. use `=` within functions. otherwise use `<-`
