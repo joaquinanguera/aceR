@@ -16,7 +16,7 @@ files_in_directory <- function(path = ".", pattern = ".csv", recursive = TRUE) {
 #' @export
 
 block_info <- function(dat) {
-  first_elements = head(dat[1], n = 10L)[dat[1] == ""]
+  first_elements = na.omit(head(dat[1], n = 10L)[dat[1] == ""])
   raw_file_header = dat[1:length(first_elements), ]
   file_header = remove_empty_cols(raw_file_header)
   colnames(file_header) = NULL
