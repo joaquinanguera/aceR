@@ -3,3 +3,6 @@
 export(aceR_description)
 export(aceR_methods)
 export(aceR_version)
+export(block_info)
+export(files_in_directory)
+export(remove_empty_cols)
