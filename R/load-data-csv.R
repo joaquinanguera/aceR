@@ -15,20 +15,25 @@ files_in_directory <- function(path = ".", pattern = ".csv", recursive = TRUE) {
 
 #' @export
 
-read_raw_csv <- function(file) {
+read_raw_csv <- function(file, verbose = FALSE) {
   # read raw file
+  ifelse(verbose, print("reading raw csv"), "")
   num_cols = max(count.fields(file, sep = ','))
   raw_dat = read.csv(file, header = FALSE, row.names = NULL, col.names = seq_len(num_cols), fill = TRUE)
   raw_dat[is.na(raw_dat)] = ""
   raw_dat = remove_empty_cols(raw_dat)
   # identify & filter the session header
+  ifelse(verbose, print("processing session header"), "")
   info = identify_block_info(raw_dat)
   dat = filter_block_info(raw_dat, info)
   # indentify sub sections
+  ifelse(verbose, print("identifying file subsections"), "")
   sections = identify_sections(dat)
   # convert subsections into data.frame
+  ifelse(verbose, print("converting to data frame"), "")
   out = data.frame()
   for (section in sections) {
+    print(section)
     sub = dat[section$data_start : section$data_end, ]
     names(sub) = unname(unlist(dat[section$header, ]))
     if (!is.na(section$category)) {
@@ -37,6 +42,7 @@ read_raw_csv <- function(file) {
     out = plyr::rbind.fill(out, sub)
   }
   # add file info
+  ifelse(verbose, print("adding file info"), "")
   row.names(out) <- NULL
   out = merge(out, info)
   out$file = file
