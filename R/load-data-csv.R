@@ -16,23 +16,27 @@ files_in_directory <- function(path = ".", pattern = ".csv", recursive = TRUE) {
 #' @export
 
 read_raw_csv <- function(file) {
-  raw_dat = read.csv(file, header = FALSE, row.names = NULL)
-  info = parse_block_info(raw_dat)
-  dat = remove_block_info(raw_dat, info)
-  sub_blocks = identify_sub_block_starting_rows(dat)
-  num_total_rows = nrow(raw_dat)
-  num_sub_blocks = length(sub_blocks)
+  # read raw file
+  num_cols = max(count.fields(file, sep = ','))
+  raw_dat = read.csv(file, header = FALSE, row.names = NULL, col.names = seq_len(num_cols), fill = TRUE)
+  raw_dat[is.na(raw_dat)] = ""
+  raw_dat = remove_empty_cols(raw_dat)
+  # identify & filter the session header
+  info = identify_block_info(raw_dat)
+  dat = filter_block_info(raw_dat, info)
+  # indentify sub sections
+  sections = identify_sections(dat)
+  # convert subsections into data.frame
   out = data.frame()
-  for(i in 1:num_sub_blocks) {
-    sub_block_desc = sub_blocks[i]
-    sub_block_col_names = sub_block_desc + 1
-    sub_block_data_start = sub_block_desc + 2
-    sub_block_data_end = ifelse(i == num_sub_blocks, num_total_rows, sub_blocks[i + 1] - 1)
-    sub_block = raw_dat[sub_block_data_start:sub_block_data_end, ]
-    names(sub_block) = unname(unlist(raw_dat[sub_block_col_names, ]))
-    sub_block$category = raw_dat[sub_block_desc, ][[1]]
-    out = plyr::rbind.fill(out, sub_block)
+  for (section in sections) {
+    sub = dat[section$data_start : section$data_end, ]
+    names(sub) = unname(unlist(dat[section$header, ]))
+    if (!is.na(section$category)) {
+      sub$category = dat[section$category, ][[1]]
+    } 
+    out = plyr::rbind.fill(out, sub)
   }
+  # add file info
   row.names(out) <- NULL
   out = merge(out, info)
   out$file = file
@@ -41,7 +45,7 @@ read_raw_csv <- function(file) {
 
 #' @keywords internal
 
-parse_block_info <- function(dat) {
+identify_block_info <- function(dat) {
   first_elements = na.omit(head(dat[1], n = 10L)[dat[1] == ""])
   raw_file_header = dat[1:length(first_elements), ]
   file_header = remove_empty_cols(raw_file_header)
@@ -53,18 +57,41 @@ parse_block_info <- function(dat) {
 
 #' @keywords internal
 
-remove_block_info <- function(dat, block_info) {
+filter_block_info <- function(dat, block_info) {
   num = length(block_info)
-  return (dat[-(1:num), ])
+  sub = dat[-(1:num), ]
+  row.names(sub) = NULL
+  return (sub)
+}
+
+#' @keywords internal 
+identify_sections <- function (dat) {
+  possible = identify_possible_starting_rows(dat)
+  num = length(possible) - 1
+  sections = list()
+  for (i in 1:num) {
+    start = possible[i]
+    end = possible[i + 1]
+    if (end - start > 1) {
+      section = list()
+      has_identifier = length(which(dat[start, ] != "")) == 1
+      section$category = ifelse(has_identifier, start, NA)
+      section$header = ifelse(has_identifier, start + 1, start)
+      section$data_start = ifelse(has_identifier, start + 2, start + 1)
+      section$data_end = end - 1
+      sections = c(sections, list(section))
+    }
+  }
+  return (sections)
 }
 
 #' @keywords internal
 
-identify_sub_block_starting_rows <- function(dat) {
-  matching_rows = apply(dat, 1, function(x) {
+identify_possible_starting_rows <- function(dat) {
+  possible_starting_rows = apply(dat, 1, function(x) {
     num_empty_cells = length(x[x == ""])
     return (num_empty_cells > 1)
   })
-  raw_indices = names(which(matching_rows))
-  return (as.numeric(as.character(raw_indices)))
+  possible_starting_rows[c(1, length(possible_starting_rows))] = TRUE
+  return (which(possible_starting_rows))
 }
