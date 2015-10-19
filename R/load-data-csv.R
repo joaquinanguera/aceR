@@ -16,12 +16,12 @@ files_in_directory <- function(path = ".", pattern = ".csv", recursive = TRUE) {
 #' @export
 
 read_raw_csv <- function(file, verbose = FALSE) {
-  # read raw file
+  # read raw csv file
   ifelse(verbose, print("reading raw csv"), "")
   num_cols = max(count.fields(file, sep = ','))
   raw_dat = read.csv(file, header = FALSE, row.names = NULL, col.names = seq_len(num_cols), fill = TRUE)
-  raw_dat[is.na(raw_dat)] = ""
-  raw_dat = remove_empty_cols(raw_dat)
+  # standardize raw csv data
+  raw_dat = standardize_raw_csv_data(raw_dat)
   # identify & filter the session header
   ifelse(verbose, print("processing session header"), "")
   info = identify_block_info(raw_dat)
@@ -29,17 +29,15 @@ read_raw_csv <- function(file, verbose = FALSE) {
   # indentify sub sections
   ifelse(verbose, print("identifying file subsections"), "")
   sections = identify_sections(dat)
-  # convert subsections into data.frame
+  # convert subsections into a usable data.frame
   ifelse(verbose, print("converting to data frame"), "")
   out = data.frame()
   for (section in sections) {
-    print(section)
     sub = dat[section$data_start : section$data_end, ]
     names(sub) = unname(unlist(dat[section$header, ]))
     if (!is.na(section$category)) {
       sub$category = paste0(dat[section$category, ])
-    } 
-    print(out)
+    }
     out = plyr::rbind.fill(out, sub)
   }
   # add file info
@@ -48,6 +46,14 @@ read_raw_csv <- function(file, verbose = FALSE) {
   out = merge(out, info)
   out$file = file
   return (out)
+}
+
+#' @keywords internal
+standardize_raw_csv_data <- function(dat) {
+  dat[is.na(dat)] = ""
+  dat = remove_empty_cols(dat)
+  dat = remove_empty_rows(dat)
+  return (dat)
 }
 
 #' @keywords internal
@@ -86,7 +92,6 @@ identify_sections <- function (dat) {
       section$header = ifelse(has_identifier, start + 1, start)
       section$data_start = ifelse(has_identifier, start + 2, start + 1)
       section$data_end = end - 1
-      print(section)
       sections = c(sections, list(section))
     }
   }
