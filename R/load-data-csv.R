@@ -37,8 +37,9 @@ read_raw_csv <- function(file, verbose = FALSE) {
     sub = dat[section$data_start : section$data_end, ]
     names(sub) = unname(unlist(dat[section$header, ]))
     if (!is.na(section$category)) {
-      sub$category = dat[section$category, ][[1]]
+      sub$category = paste0(dat[section$category, ])
     } 
+    print(out)
     out = plyr::rbind.fill(out, sub)
   }
   # add file info
@@ -85,6 +86,7 @@ identify_sections <- function (dat) {
       section$header = ifelse(has_identifier, start + 1, start)
       section$data_start = ifelse(has_identifier, start + 2, start + 1)
       section$data_end = end - 1
+      print(section)
       sections = c(sections, list(section))
     }
   }
