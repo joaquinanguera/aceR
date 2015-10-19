@@ -45,10 +45,13 @@ read_raw_csv <- function(file, verbose = FALSE) {
   row.names(out) <- NULL
   out = merge(out, info)
   out$file = file
+  # standardize output
+  names(out) = standardize_names(out)
   return (out)
 }
 
 #' @keywords internal
+
 standardize_raw_csv_data <- function(dat) {
   dat[is.na(dat)] = ""
   dat = remove_empty_cols(dat)
