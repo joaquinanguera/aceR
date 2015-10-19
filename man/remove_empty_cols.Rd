@@ -10,8 +10,7 @@ remove_empty_cols(dat)
 \item{dat}{a data frame}
 }
 \value{
-Returns a data frame where the empty columns
- have been removed
+Returns a data frame where the empty columns have been removed
 }
 \description{
 Remove empty columns from a data frame.
