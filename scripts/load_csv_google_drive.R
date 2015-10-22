@@ -2,7 +2,7 @@
 
 library(aceR)
 
-raw_data_path = "~/Google Drive/ACE Studies_Raw Data/Adapativity"
+raw_data_path = "~/Google Drive/ACE Studies_Raw Data/Adaptivity"
 setwd(raw_data_path)
 
 raw_files = files_in_directory()
