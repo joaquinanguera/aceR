@@ -20,3 +20,10 @@ remove_special_characters <- function (x) {
 replace_spaces <- function (x, replacement) {
   return (gsub('([[:punct:]])|\\s+', replacement, x))
 }
+
+#' @keywords internal
+
+replace_nas <- function(df, replacement) {
+  df[is.na(df)] = replacement
+  return (df)
+}
