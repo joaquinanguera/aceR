@@ -15,39 +15,26 @@ files_in_directory <- function(path = ".", pattern = ".csv", recursive = TRUE) {
 
 #' @export
 
-read_raw_csv <- function(file, verbose = FALSE) {
+read_raw_csv <- function(file) {
   # read raw csv file
-  ifelse(verbose, print("reading raw csv"), "")
   num_cols = max(count.fields(file, sep = ','))
-  raw_dat = read.csv(file, header = FALSE, row.names = NULL, col.names = seq_len(num_cols), fill = TRUE)
+  raw_dat = read.csv(file, header = FALSE, row.names = NULL, col.names = seq_len(num_cols), fill = TRUE, stringsAsFactors = FALSE)
   # standardize raw csv data
   raw_dat = standardize_raw_csv_data(raw_dat)
-  # identify & filter the session header
-  ifelse(verbose, print("processing session header"), "")
-  info = identify_block_info(raw_dat)
-  dat = filter_block_info(raw_dat, info)
-  # indentify sub sections
-  ifelse(verbose, print("identifying file subsections"), "")
-  sections = identify_sections(dat)
-  # convert subsections into a usable data.frame
-  ifelse(verbose, print("converting to data frame"), "")
-  out = data.frame()
-  for (section in sections) {
-    sub = dat[section$data_start : section$data_end, ]
-    names(sub) = unname(unlist(dat[section$header, ]))
-    if (!is.na(section$category)) {
-      sub$category = dat[section$category, ][[1]]
-    }
-    out = plyr::rbind.fill(out, sub)
-  }
-  # add file info
-  ifelse(verbose, print("adding file info"), "")
-  row.names(out) <- NULL
-  out = merge(out, info)
-  out$file = file
+  # remove nondata rows
+  dat = remove_nondata_rows(raw_dat)
+  # move grouping rows into column
+  dat = transform_grouping_rows(dat)
+  # standardize session info
+  dat = standardize_session_info(dat)
+  # transform session info into columns
+  dat = transform_session_info(dat)
+  # parse subsections
+  dat = parse_subsections(dat)
   # standardize output
-  names(out) = standardize_names(out)
-  return (out)
+  names(dat) = standardize_names(dat)
+  dat$file = file
+  return (dat)
 }
 
 #' @keywords internal
@@ -61,53 +48,121 @@ standardize_raw_csv_data <- function(dat) {
 
 #' @keywords internal
 
-identify_block_info <- function(dat) {
-  first_elements = na.omit(head(dat[1], n = 10L)[dat[1] == ""])
-  raw_file_header = dat[1:length(first_elements), ]
-  file_header = remove_empty_cols(raw_file_header)
-  colnames(file_header) = NULL
-  file_header = as.data.frame(t(file_header))
-  names(file_header) = as.character(unlist(file_header[1, ]))
-  return (file_header[-1, ])
+standardize_session_info <- function(dat) {
+  incomplete_rows = identify_incomplete_session_info(dat)
+  for (row in incomplete_rows) {
+    dat[row, 2] = "TIME:"
+  }
+  return(dat)
 }
 
 #' @keywords internal
 
-filter_block_info <- function(dat, block_info) {
-  num = length(block_info)
-  sub = dat[-(1:num), ]
-  row.names(sub) = NULL
-  return (sub)
+identify_grouping_rows <- function(dat) {
+  matching_rows = dat[dat[1] != "" & dat[2] == "", ]
+  return (numeric_row_names(matching_rows))
 }
 
-#' @keywords internal 
-identify_sections <- function (dat) {
-  possible = identify_possible_starting_rows(dat)
-  num = length(possible) - 1
-  sections = list()
+#' @keywords internal
+
+identify_nondata_rows <- function(dat) {
+  grouping = identify_grouping_rows(dat)
+  nondata = dat[dat[1] != "" & dat[2] != "" & dat[3] == "", ]
+  vals = c(grouping, numeric_row_names(nondata))
+  vals = sort(unique(vals))
+  if (length(vals) == 0) {
+    return (c())
+  }
+  num = length(vals) - 1
+  out = c()
   for (i in 1:num) {
-    start = possible[i]
-    end = possible[i + 1]
-    if (end - start > 1) {
-      section = list()
-      has_identifier = length(which(dat[start, ] != "")) == 1
-      section$category = ifelse(has_identifier, start, NA)
-      section$header = ifelse(has_identifier, start + 1, start)
-      section$data_start = ifelse(has_identifier, start + 2, start + 1)
-      section$data_end = end - 1
-      sections = c(sections, list(section))
+    n = vals[i]
+    m = vals[i + 1]
+    if (diff(c(n, m)) == 1) {
+      out = c(out, c(n, m))
     }
   }
-  return (sections)
+  return (unique(out))
 }
 
 #' @keywords internal
 
-identify_possible_starting_rows <- function(dat) {
-  possible_starting_rows = apply(dat, 1, function(x) {
-    num_empty_cells = length(x[x == ""])
-    return (num_empty_cells > 1)
-  })
-  possible_starting_rows[c(1, length(possible_starting_rows))] = TRUE
-  return (which(possible_starting_rows))
+identify_incomplete_session_info <- function(dat) {
+  incomplete_info_rows = dat[dat[1] == "" & dat[2] == "" & dat[3] != "", ]
+  return (numeric_row_names(incomplete_info_rows))
+}
+
+#' @keywords internal
+
+remove_nondata_rows <- function(raw_dat) {
+  rows = identify_nondata_rows(raw_dat)
+  return (remove_rows(raw_dat, rows))
+}
+
+#' @keywords internal
+
+transform_grouping_rows <- function(dat) {
+  rows = identify_grouping_rows(dat)
+  new_col = length(dat) + 1
+  dat[new_col] = NA
+  for (row in rows) {
+    group = dat[row, 1]
+    dat[row + 1, new_col] = "GROUP:"
+    dat[row + 2, new_col] = as.character(group)
+  }
+  dat = remove_rows(dat, rows)
+  dat = replace_nas(dat, "")
+  return (dat)
+}
+
+#' @keywords internal
+
+transform_session_info <- function(dat) {
+  rles = rle(dat[, 1] == "")
+  sums = consecutive_sums(rles$lengths)
+  max_len = max(rles$lengths[rles$values])
+  dat_len = length(dat)
+  new_cols = (dat_len + 1) : (dat_len + max_len + 1)
+  dat[, new_cols] = NA
+  rem = c()
+  for (i in 1:length(sums)) {
+    is_sec = rles$values[i] == TRUE
+    if (is_sec) {
+      end = sums[i]
+      first = (end - rles$lengths[i]) + 1
+      rows = seq(first, end)
+      sec_header = dat[rows, c(2, 3)]
+      sec_cols = (dat_len + 1) : (dat_len + length(rows))
+      dat[end + 1, sec_cols] = as.vector(sec_header[, 1])
+      dat[end + 2, sec_cols] = as.vector(sec_header[, 2])
+      rem = c(rem, rows)
+    }
+  }
+  dat = remove_rows(dat, rem)
+  return (standardize_raw_csv_data(dat))
+}
+
+#' @keywords internal
+
+parse_subsections <- function(dat) {
+  subs = which(dat[, 1] ==  dat[1, 1])
+  len = length(subs)
+  out = data.frame()
+  new_cols = c()
+  for (i in 1:len) {
+    header = subs[i]
+    body = (header + 1):(ifelse(i == len, nrow(dat), subs[i + 1] - 1))
+    sub = as.data.frame(dat[body, ])
+    col_names = unname(unlist(dat[header, ]))
+    valid_cols = which(col_names != "")
+    valid = sub[, valid_cols]
+    names(valid) = col_names[valid_cols]
+    is_new_col = sapply(names(valid), function(x) return(grepl(":", x)))
+    new_cols = c(new_cols, names(valid)[is_new_col])
+    valid$subid = i
+    out = plyr::rbind.fill(out, valid)
+  }
+  new_cols = unique(new_cols)
+  out[new_cols] = na_locf(out, new_cols)
+  return (out)
 }
