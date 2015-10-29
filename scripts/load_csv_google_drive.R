@@ -10,7 +10,7 @@ raw_files = files_in_directory()
 out = data.frame()
 for (raw_file in raw_files) {
   print(raw_file)
-  dat = read_raw_csv(raw_file, TRUE)
+  dat = read_raw_csv(raw_file)
   out = plyr::rbind.fill(out, dat)
 }
 
@@ -32,13 +32,4 @@ dat = read_raw_csv("12/Stroop_12.csv")
 dat = read_raw_csv("16/Discrimination_16.csv")
 
 dat = read_raw_csv("03/Discrimination_03.csv")
-
-na_locf <- function(df, cols) {
-  fill_last = sapply(df[cols], function(x) {
-    x[x == ""] = NA
-    return(zoo::na.locf(x))
-  })
-  return(fill_last)
-}
-
 
