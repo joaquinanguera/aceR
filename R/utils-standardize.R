@@ -27,3 +27,13 @@ replace_nas <- function(df, replacement) {
   df[is.na(df)] = replacement
   return (df)
 }
+
+#' @keywords internal
+
+na_locf <- function(df, cols) {
+  fill_last = sapply(df[cols], function(x) {
+    x[x == ""] = NA
+    return (zoo::na.locf(x))
+  })
+  return(fill_last)
+}
