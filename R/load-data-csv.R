@@ -13,6 +13,33 @@ files_in_directory <- function(path = ".", pattern = ".csv", recursive = TRUE) {
   return (files)
 }
 
+#' Read & Load all ACE csv files in a directory
+#'
+#' Wrapper function around \code{\link{read_raw_csv}()}. to read & parse 
+#'  all ACE csv files in a directory.
+#'
+#' @export
+#' @inheritParams base::list.files
+#' @param verbose. logical. Print details? Defaults to \code{TRUE}
+#' @return Returns a data.frame containing the content of every file in the
+#'  specified \code{path}.
+
+read_raw_csv_in_directory <- function(path = ".", pattern = NULL, verbose = TRUE) {
+  files = list.files(path = path, pattern = pattern)
+  valid = sapply(files, function(x) return(grepl(".csv", x)))
+  valid_files = files[which(valid)]
+  out = data.frame()
+  for (file in valid_files) {
+    if (verbose) {
+      print(file)
+    }
+    dat = read_raw_csv(raw_file)
+    out = plyr::rbind.fill(out, dat)
+  }
+  out = replace_nas(out, "")
+  return(out)
+}
+
 #' Read raw csv data
 #'
 #' Reads, parses, and converts an ACE csv into an R \code{\link{data.frame}}.
