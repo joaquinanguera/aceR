@@ -13,7 +13,13 @@ files_in_directory <- function(path = ".", pattern = ".csv", recursive = TRUE) {
   return (files)
 }
 
+#' Read raw csv data
+#'
+#' Reads, parses, and converts an ACE csv into an R \code{\link{data.frame}}.
+#'
 #' @export
+#' @param file The name of the file which the data is to be read from.
+#' @return Returns the file's content as an R \code{\link{data.frame}}.
 
 read_raw_csv <- function(file) {
   # read raw csv file
@@ -107,7 +113,7 @@ transform_grouping_rows <- function(dat) {
   dat[new_col] = NA
   for (row in rows) {
     group = dat[row, 1]
-    dat[row + 1, new_col] = "GROUP:"
+    dat[row + 1, new_col] = "GROUP:" # so we can identify "new" columns
     dat[row + 2, new_col] = as.character(group)
   }
   dat = remove_rows(dat, rows)
