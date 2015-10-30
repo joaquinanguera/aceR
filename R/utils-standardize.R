@@ -25,6 +25,7 @@ replace_spaces <- function (x, replacement) {
 
 replace_nas <- function(df, replacement) {
   df[is.na(df)] = replacement
+  df[df == "N/A"] = replacement # ACE artifact
   return (df)
 }
 
