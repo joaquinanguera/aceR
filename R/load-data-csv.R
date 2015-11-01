@@ -26,14 +26,13 @@ files_in_directory <- function(path = ".", pattern = ".csv", recursive = TRUE) {
 
 read_raw_csv_in_directory <- function(path = ".", pattern = NULL, verbose = TRUE) {
   files = list.files(path = path, pattern = pattern)
-  valid = sapply(files, function(x) return(grepl(".csv", x))) # TODO: write a filter function instead
-  valid_files = files[which(valid)]
+  valid_files = filter_vec(files, ".csv")
   out = data.frame()
   for (file in valid_files) {
     if (verbose) {
       print(file)
     }
-    dat = read_raw_csv(raw_file)
+    dat = read_raw_csv(file)
     out = plyr::rbind.fill(out, dat)
   }
   out = replace_nas(out, "")
