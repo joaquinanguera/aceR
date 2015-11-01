@@ -26,6 +26,9 @@ files_in_directory <- function(path = ".", pattern = ".csv", recursive = TRUE) {
 
 read_raw_csv_in_directory <- function(path = ".", pattern = NULL, verbose = TRUE) {
   files = list.files(path = path, pattern = pattern)
+  if (length(files) == 0) {
+    stop("no matching files", call. = TRUE)
+  }
   valid_files = filter_vec(files, ".csv")
   out = data.frame()
   for (file in valid_files) {
