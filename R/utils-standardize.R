@@ -1,8 +1,8 @@
 
 #' @keywords internal
 
-standardize_names <- function (dat) {
-  new_names = names(dat)
+standardize_names <- function (df) {
+  new_names = names(df)
   new_names = tolower(new_names)
   new_names = remove_special_characters(new_names)
   new_names = replace_spaces(new_names, "_")
