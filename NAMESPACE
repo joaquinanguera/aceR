@@ -3,6 +3,7 @@
 export(aceR_description)
 export(aceR_methods)
 export(aceR_version)
+export(apply_stats)
 export(files_in_directory)
 export(numeric_row_names)
 export(read_raw_csv)
