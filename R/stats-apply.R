@@ -1,5 +1,5 @@
 
-#' @export
+#' @keywords internal
 
 apply_stats <- function(x, y, col, FUN, ...){
   z = plyr::ddply(x, y, .fun = function(xx) { 
