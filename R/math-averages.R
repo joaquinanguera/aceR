@@ -16,3 +16,9 @@ ace_median <- function(x) {
 ace_mode <- function(x) {
   return (which.max(table(x))[[1]])
 }
+
+#' @keywords internal
+
+ace_averages <- function(x) {
+  c(mean = ace_mean(x), median = ace_median(x), mode = ace_mode(x))
+}
