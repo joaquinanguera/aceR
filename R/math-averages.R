@@ -20,5 +20,5 @@ ace_mode <- function(x) {
 #' @keywords internal
 
 ace_averages <- function(x) {
-  c(mean = ace_mean(x), median = ace_median(x), mode = ace_mode(x))
+  return (c(mean = ace_mean(x), median = ace_median(x), mode = ace_mode(x)))
 }

@@ -15,5 +15,5 @@ ace_se <- function(x) {
 #' @keywords internal
 
 ace_variance <- function (x) {
-  c(sd = ace_sd(x), se = ace_se(x))
+  return (c(sd = ace_sd(x), se = ace_se(x)))
 }
