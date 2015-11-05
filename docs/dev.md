@@ -5,9 +5,12 @@
 1. Install [R](http://cran.rstudio.com/)
 2. Install [RStudio](http://www.rstudio.com/products/rstudio/download/)
 
-#### R-package dependencies
+#### R-dev package dependencies
 
-TBD.
+```
+dev_deps = c("devtools", "roxygen2", "testthat")
+install.packages(dev_deps)
+```
 
 ## style guide
 
