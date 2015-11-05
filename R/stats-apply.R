@@ -15,6 +15,6 @@ apply_stats <- function(x, y, col, FUN, ...){
 
 apply_stats_transform <- function(proc_list, timevar, idvar, ...) {
   proc_merge = reshape::merge_recurse(proc_list)
-  proc_reshaped = reshape::reshape(proc_merge, timevar = timevar, idvar = idvar, direction = "wide", ...) 
+  proc_reshaped = stats::reshape(proc_merge, timevar = timevar, idvar = idvar, direction = "wide", ...) 
   return (proc_reshaped)
 }
