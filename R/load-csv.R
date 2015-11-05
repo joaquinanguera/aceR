@@ -26,6 +26,7 @@ read_raw_csv <- function(file) {
   # standardize output
   names(dat) = standardize_names(dat)
   dat$file = file
+  dat$module = identify_module(file)
   return (dat)
 }
 
