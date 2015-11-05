@@ -10,3 +10,11 @@ apply_stats <- function(x, y, col, FUN, ...){
   names(z)[ind] = sapply(names(z)[ind], function (n) paste(n, col, sep = "_"))
   return(z)
 }
+
+#' @keywords internal
+
+apply_stats_transform <- function(proc_list, timevar, idvar, ...) {
+  proc_merge = reshape::merge_recurse(proc_list)
+  proc_reshaped = reshape::reshape(proc_merge, timevar = timevar, idvar = idvar, direction = "wide", ...) 
+  return (proc_reshaped)
+}
