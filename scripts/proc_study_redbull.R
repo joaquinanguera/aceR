@@ -4,10 +4,10 @@ rm(list = ls())
 
 library(aceR)
 
-path = "~/Google Drive/ACE Studies_Raw Data/RedBull/Raw Data"
+setwd("~/Google Drive/ACE Studies_Raw Data/RedBull/Raw Data")
 
 # load & process boxed dat
-boxed = read_raw_csv_in_directory(path = path, pattern = "Boxed")
+boxed = read_raw_csv_in_directory(pattern = "Boxed")
 boxed_proc = module_boxed(boxed)
 
 setwd("~/Desktop")
