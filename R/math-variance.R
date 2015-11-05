@@ -11,9 +11,3 @@ ace_se <- function(x) {
   vals = na.omit(to_numeric(x))
   return (sqrt(var(vals)/length(vals)))
 } 
-
-#' @keywords internal
-
-ace_variance <- function (x) {
-  return (c(sd = ace_sd(x), se = ace_se(x)))
-}
