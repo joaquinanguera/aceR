@@ -4,7 +4,8 @@
 \alias{read_raw_csv_in_directory}
 \title{Read & Load all ACE csv files in a directory}
 \usage{
-read_raw_csv_in_directory(path = ".", pattern = NULL, verbose = TRUE)
+read_raw_csv_in_directory(path = ".", pattern = NULL, verbose = TRUE,
+  recursive = TRUE)
 }
 \arguments{
 \item{path}{a character vector of full path names; the default
@@ -14,6 +15,8 @@ read_raw_csv_in_directory(path = ".", pattern = NULL, verbose = TRUE)
 
 \item{pattern}{an optional \link{regular expression}.  Only file names
     which match the regular expression will be returned.}
+
+\item{recursive}{logical.  Should the listing recurse into directories?}
 
 \item{verbose.}{logical. Print details? Defaults to \code{TRUE}}
 }

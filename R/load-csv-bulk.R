@@ -24,8 +24,8 @@ files_in_directory <- function(path = ".", pattern = ".csv", recursive = TRUE) {
 #' @return Returns a data.frame containing the content of every file in the
 #'  specified \code{path}.
 
-read_raw_csv_in_directory <- function(path = ".", pattern = NULL, verbose = TRUE) {
-  files = list.files(path = path, pattern = pattern)
+read_raw_csv_in_directory <- function(path = ".", pattern = NULL, verbose = TRUE, recursive = TRUE) {
+  files = list.files(path = path, pattern = pattern, recursive = recursive)
   if (length(files) == 0) {
     stop("no matching files", call. = TRUE)
   }
