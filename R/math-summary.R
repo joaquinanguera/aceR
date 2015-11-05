@@ -1,7 +1,7 @@
 
 #' @keywords internal
 
-ace_num <- function(x) {
+ace_length <- function(x) {
   return (length(x))
 }
 
