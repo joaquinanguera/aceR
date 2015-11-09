@@ -1,5 +1,5 @@
 
-#' @export
+#' @keywords internal
 
 module_boxed <- function(df) {
   rt = apply_stats(df, c("participant_id", "group"), "response_time", ace_descriptive_statistics)
