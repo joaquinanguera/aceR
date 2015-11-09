@@ -1,5 +1,6 @@
 
 #' @keywords internal
+#' @name ace_procs
 
 module_boxed <- function(df) {
   rt = apply_stats(df, c("participant_id", "group"), "response_time", ace_descriptive_statistics)
