@@ -1,6 +1,8 @@
 
 #' @export
 
+# TODO: eval(call(paste("module", name, sep = "_", mod)))
+
 proc_by_module <- function(df) {
   all_mods = subset_by_col(df, "module")
   all_names = names(all_mods)
