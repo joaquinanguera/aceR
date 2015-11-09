@@ -3,9 +3,10 @@ Version: 1.0.2
 Authors@R: 'Jose Gallegos <josegallegos07@gmail.com> [aut,cre]'
 URL: https://github.com/josegallegos07/aceR
 BugReports: https://github.com/josegallegos07/aceR/issues
-Depends: 
+Depends:
     R (>= 3.0.0)
 Imports:
     zoo,
     plyr,
     reshape
+RoxygenNote: 5.0.0
