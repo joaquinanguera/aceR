@@ -1,8 +1,6 @@
 
 #' @export
 
-# TODO: eval(call(paste("module", name, sep = "_", mod)))
-
 proc_by_module <- function(df) {
   all_mods = subset_by_col(df, "module")
   all_names = names(all_mods)
@@ -10,28 +8,13 @@ proc_by_module <- function(df) {
   for (i in 1:length(all_mods)) {
     name = all_names[i]
     mod = all_mods[i][[1]]
-    if (grepl(BOXED, name)) {
-      proc = module_boxed(mod)
-    } else if (grepl(BRT, name)) {
-      proc = data.frame() # TODO: proc BRT
-    } else if (grepl(DISCRIMINATION, name)) {
-      proc = data.frame() # TODO: proc DISCRIMINATION
-    } else if (grepl(FLANKER, name)) {
-      proc = data.frame() # TODO: proc FLANKER
-    } else if (grepl(SAAT, name)) {
-      proc = data.frame() # TODO: proc SAAT
-    } else if (grepl(SPATIAL_SPAN, name)) {
-      proc = data.frame() # TODO: proc SPATIAL_SPAN
-    } else if (grepl(STROOP, name)) {
-      proc = data.frame() # TODO: proc STROOP
-    } else if (grepl(TASK_SWITCH, name)) {
-      proc = data.frame() # TODO: proc TASK_SWITCH
-    } else if (grepl(TNT, name)) {
-      proc = data.frame() # TODO: proc TNT
-    } else {
-      # TBD: warning? error?
-    }
-    out = plyr::rbind.fill(out, proc)
+    fun = paste("module", tolower(name), sep = "_")
+    tryCatch({
+      proc = eval(call(fun, mod))
+      out = plyr:::rbind.fill(out, proc)
+    }, error = function(e) {
+      warning(e)
+    })
   }
   return (out)
 }
