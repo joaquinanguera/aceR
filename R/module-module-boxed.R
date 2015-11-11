@@ -3,7 +3,8 @@
 #' @name ace_procs
 
 module_boxed <- function(df) {
-  rt = apply_stats(df, PARTICIPANT_BY_GROUP, "response_time", ace_descriptive_statistics)
-  acc = apply_stats(df, PARTICIPANT_BY_GROUP, "correct_button", ace_descriptive_statistics)
-  return (apply_stats_transform(list(rt, acc), "group", "participant_id"))
+  rt = apply_stats(x = df, y = PBG, col = "response_time", FUN = ace_descriptive_statistics)
+  acc = apply_stats(x = df, y = PBG, col = "correct_button", FUN = ace_descriptive_statistics)
+  rt_by_acc = apply_stats(x = df, y = PBG, col = "response_time", factor = "correct_button", FUN = ace_descriptive_statistics_by_group)
+  return (apply_stats_transform(list(rt, acc, rt_by_acc), "group", "participant_id"))
 }
