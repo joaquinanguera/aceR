@@ -1,8 +1,6 @@
 
 #' ACE module constants
 #'
-#' ACE module constants
-#'
 #' @keywords internal
 #' @name ace_module
 NULL
@@ -38,8 +36,8 @@ TNT <- "TNT"
 #'
 #' Identifies ACE module from the filename
 #'
-#' @export
-#' @inheritParams read_raw_csv
+#' @keywords internal
+#' @param file a character string containing the module name.
 #' @return Returns the name of the ACE module if found.
 
 identify_module <- function(file) {
