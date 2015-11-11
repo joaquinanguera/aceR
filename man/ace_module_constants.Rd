@@ -3,11 +3,14 @@
 \docType{data}
 \name{ace_module_constants}
 \alias{PARTICIPANT_BY_GROUP}
+\alias{PBG}
 \alias{ace_module_constants}
 \title{ACE module constants}
 \format{An object of class \code{character} of length 2.}
 \usage{
 PARTICIPANT_BY_GROUP
+
+PBG
 }
 \description{
 ACE module constants
