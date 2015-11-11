@@ -13,15 +13,12 @@ ace_median <- function(x) {
 
 #' @keywords internal
 
-ace_mode <- function(x) {
-  return (which.max(table(x))[[1]])
+ace_mean_by_group <- function(x, y) {
+  return (ace_apply_by_group(x, y, ace_mean))
 }
 
 #' @keywords internal
-ace_mean_by_group <- function(x, y) {
-  agg = aggregate(list(x), list(y), FUN = ace_mean, simplify = TRUE)
-  out = data.frame(t(agg[2]))
-  names(out) = unlist(agg[1])
-  row.names(out) <- NULL
-  return (out)
+
+ace_median_by_group <- function(x, y) {
+  return (ace_apply_by_group(x, y, ace_median))
 }
