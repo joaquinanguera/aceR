@@ -27,7 +27,7 @@ read_raw_csv <- function(file) {
   names(dat) = standardize_names(dat)
   dat$file = file
   dat$module = identify_module(file)
-  dat = standardize_ace_column_names(dat)
+  dat = standardize_ace_column_names(dat) # TODO: maybe call this after every each subsection so that we combine similar vars (e.g. correct_button & correct_response)
   return (dat)
 }
 

@@ -16,7 +16,8 @@ COL_ACC = "acc"
 standardize_ace_column_names <- function(df) {
   new = names(df)
   new[new == "response_time"] = COL_RT
-  new[new == "correct_response"] = COL_ACC
+  new[new == "correct_button"] = COL_ACC
+  # new[new == "correct_response"] = COL_ACC
   names(df) = new
   return (df)
 }
