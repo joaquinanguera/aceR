@@ -23,6 +23,13 @@ replace_spaces <- function (x, replacement) {
 
 #' @keywords internal
 
+replace_blanks <- function (x, replacement = NA) {
+  x[x == ""] = replacement
+  return (x)
+}
+
+#' @keywords internal
+
 replace_nas <- function(df, replacement) {
   df[is.na(df)] = replacement
   df[df == "N/A"] = replacement # ACE artifact
