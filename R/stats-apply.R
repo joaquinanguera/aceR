@@ -1,7 +1,7 @@
 
 #' @keywords internal
 
-apply_stats <- function(x, y, col, FUN, factor = NULL, ...){
+apply_stats <- function(x, y, col, FUN, factor = NULL, suffix = "", ...){
   if (length(y) != 2) {
     stop("y must be length of 2")
   }
@@ -16,7 +16,9 @@ apply_stats <- function(x, y, col, FUN, factor = NULL, ...){
     }
   })
   ind = (length(y) + 1):length(z)
-  names(z)[ind] = sapply(names(z)[ind], function (n) paste(col, n, sep = "_"))
+  if (suffix != "") suffix = paste0(".", suffix)
+  if (by_factor) suffix = ""
+  names(z)[ind] = sapply(names(z)[ind], function (n) paste0(col, "_", n, suffix))
   return(z)
 }
 
