@@ -2,8 +2,8 @@
 #' @keywords internal
 
 apply_stats <- function(x, y, col, FUN, factor = NULL, suffix = "", ...){
-  if (length(y) != 2) {
-    stop("y must be length of 2")
+  if (length(y) > 2) {
+    stop("y must be of equal or less than length of 2")
   }
   by_factor = !missing(factor)
   z = plyr::ddply(x, y, .fun = function(xx) { 
