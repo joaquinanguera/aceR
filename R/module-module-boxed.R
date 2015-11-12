@@ -13,6 +13,6 @@ module_boxed <- function(df) {
   rt_by_featute_and_acc = apply_stats(x = df, y = PBG, col = COL_RT, factor = COL_ACC, FUN = ace_descriptive_statistics_by_group)
   # merge
   proc_apply = apply_stats_transform(list(rt_by_feature, acc_by_feature, rt_by_featute_and_acc), "group", "participant_id")
-  proc_all = data.frame(rt_overall, acc_overall, proc_apply)
+  proc_all = multi_merge(list(rt_overall, acc_overall, proc_apply), by = "participant_id")
   return (proc_all)
 }
