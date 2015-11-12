@@ -35,6 +35,7 @@ proc_by_module <- function(df) {
     fun = paste("module", tolower(name), sep = "_")
     tryCatch({
       proc = eval(call(fun, mod))
+      proc$module = name
       out = plyr:::rbind.fill(out, proc)
     }, error = function(e) {
       warning(e)
