@@ -15,3 +15,10 @@ ace_descriptive_statistics_by_group <- function(x, y) {
   avg_by_group = c(mean = ace_mean_by_group(x, y), median = ace_median_by_group(x, y))
   return (c(var_by_group, avg_by_group))
 }
+
+#' @keywords internal 
+
+ace_average_turns <- function (x, y) {
+  avg_last_3_turns = c(turns = ace_turns(x, y))
+  return (c(avg_last_3_turns))
+}
