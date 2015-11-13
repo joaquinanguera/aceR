@@ -9,9 +9,7 @@ apply_stats <- function(x, y, col, FUN, factor = NULL, suffix = "", ...){
   z = plyr::ddply(x, y, .fun = function(xx) { 
     yy = xx[ ,col]
     if (!by_factor) {
-      calc = FUN(yy, ...)
-      out = as.data.frame(calc)
-      return (out)
+      return (FUN(yy, ...))
     } else {
       gg = xx[ ,factor]
       calc = FUN(yy, gg, ...)
