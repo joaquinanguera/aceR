@@ -4,6 +4,7 @@
 \name{ace_header}
 \alias{COL_ACC}
 \alias{COL_RT}
+\alias{COL_RW}
 \alias{ace_header}
 \alias{standardize_ace_column_names}
 \title{ACE column name constants}
@@ -12,6 +13,8 @@
 COL_RT
 
 COL_ACC
+
+COL_RW
 
 standardize_ace_column_names(df)
 }
