@@ -9,10 +9,14 @@ apply_stats <- function(x, y, col, FUN, factor = NULL, suffix = "", ...){
   z = plyr::ddply(x, y, .fun = function(xx) { 
     yy = xx[ ,col]
     if (!by_factor) {
-      return (FUN(yy, ...))
+      calc = FUN(yy, ...)
+      out = as.data.frame(calc)
+      return (out)
     } else {
       gg = xx[ ,factor]
-      return (as.data.frame(FUN(yy, gg, ...)))
+      calc = FUN(yy, gg, ...)
+      out = as.data.frame(as.list(calc))
+      return (out)
     }
   })
   ind = (length(y) + 1):length(z)
