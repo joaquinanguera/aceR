@@ -7,6 +7,7 @@
 \alias{module_discrimination}
 \alias{module_flanker}
 \alias{module_stroop}
+\alias{module_taskswitch}
 \title{ACE module procs}
 \usage{
 module_boxed(df)
@@ -18,6 +19,8 @@ module_discrimination(df)
 module_flanker(df)
 
 module_stroop(df)
+
+module_taskswitch(df)
 }
 \description{
 Methods for processing user data by \emph{group}.

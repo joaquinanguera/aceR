@@ -36,4 +36,10 @@ module_stroop <- function(df) {
 
 # TODO: spatialspan
 
+#' @keywords internal
+#' @name ace_procs
 
+module_taskswitch <- function(df) {
+  df$taskswitch_state = plyr::mapvalues(df$taskswitch_state, from = c(0, 1 , 2), to = c("start", "switch", "stay"))
+  return (proc_generic_module(df, COL_CORRECT_BUTTON, "taskswitch_state", FALSE))
+}
