@@ -2,15 +2,12 @@
 % Please edit documentation in R/module-constants.R
 \docType{data}
 \name{ace_module_constants}
-\alias{PARTICIPANT_BY_CONDITION}
 \alias{PARTICIPANT_BY_PARTICIPANT}
 \alias{ace_module_constants}
 \title{ACE module constants}
 \format{An object of class \code{character} of length 1.}
 \usage{
 PARTICIPANT_BY_PARTICIPANT
-
-PARTICIPANT_BY_CONDITION
 }
 \description{
 ACE module constants

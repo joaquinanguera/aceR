@@ -9,7 +9,10 @@ NULL
 COL_RT = "rt"
 
 #' @name ace_header
-COL_ACC = "acc"
+COL_CORRECT_BUTTON = "correct_button"
+
+#' @name ace_header
+COL_CORRECT_RESPONSE = "correct_response"
 
 #' @name ace_header
 COL_RW = "rw"
@@ -25,8 +28,6 @@ COL_PID = "pid"
 standardize_ace_column_names <- function(df) {
   new = names(df)
   new[new == "response_time"] = COL_RT
-  new[new == "correct_button"] = COL_ACC
-  # new[new == "correct_response"] = COL_ACC
   new[new == "response_window"] = COL_RW
   new[new == "participant_id"] = COL_PID
   names(df) = new

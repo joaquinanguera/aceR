@@ -2,8 +2,9 @@
 % Please edit documentation in R/load-constant-columns.R
 \docType{data}
 \name{ace_header}
-\alias{COL_ACC}
 \alias{COL_CONDITION}
+\alias{COL_CORRECT_BUTTON}
+\alias{COL_CORRECT_RESPONSE}
 \alias{COL_PID}
 \alias{COL_RT}
 \alias{COL_RW}
@@ -14,7 +15,9 @@
 \usage{
 COL_RT
 
-COL_ACC
+COL_CORRECT_BUTTON
+
+COL_CORRECT_RESPONSE
 
 COL_RW
 
