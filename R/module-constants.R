@@ -10,25 +10,42 @@ PARTICIPANT_BY_PARTICIPANT <- c(COL_PID)
 
 #' @keywords internal
 
-proc_generic_module <- function(df, col_acc, col_condition) {
-  # standard
-  rt = proc_standard(df, COL_RT, col_condition)
-  rw = proc_standard(df, COL_RW, col_condition)
-  acc = proc_standard(df, col_acc, col_condition)
-  # specific
-  rt_acc = proc_standard_factor(df, COL_RT, col_condition, col_acc, ace_descriptive_statistics_by_group)
-  turns = proc_standard_factor(df, COL_RT, col_condition, col_acc, ace_average_turns)
+proc_generic_module <- function(df, col_acc, col_condition, turns_by_factor = TRUE) {
+  # overall & broken-down by condition
+  rt = proc_by_condition(df, COL_RT, col_condition, FUN = ace_descriptive_statistics)
+  rw = proc_by_condition(df, COL_RW, col_condition, FUN = ace_descriptive_statistics)
+  acc = proc_by_condition(df, col_acc, col_condition, FUN = ace_descriptive_statistics)
+  # RT broken-down by condition & factor  
+  rt_acc = proc_standard(df, COL_RT, col_condition, factor = col_acc, FUN = ace_descriptive_statistics_by_group)
+  # turns calculations
+  if (turns_by_factor) {
+    # turns calculation by condition
+    turns = proc_standard(df, COL_RT, col_condition, factor = col_acc, FUN = ace_average_turns)
+  } else {
+    # overall turns calculation
+    turns = proc_standard(df, COL_RT, col_condition = NULL, factor = col_acc, FUN = ace_average_turns, y = c(COL_PID))
+  }
   # merge
   analy = list(rt, acc, rw, rt_acc, turns)
   merged = multi_merge(analy, by = COL_PID)
   return (merged)
 }
 
+
 #' @keywords internal
 
-proc_standard <- function(df, variable, col_condition) {
-  overall = apply_stats(x = df, y = c(COL_PID), col = variable, FUN = ace_descriptive_statistics, suffix = "overall")
-  by_condition = apply_stats(x = df, y = c(COL_PID, col_condition), col = variable, FUN = ace_descriptive_statistics)
+proc_by_condition <- function(df, variable, col_condition, FUN) {
+  overall = apply_stats(
+    x = df, 
+    y = c(COL_PID), 
+    col = variable, 
+    FUN = FUN, 
+    suffix = "overall")
+  by_condition = apply_stats(
+    x = df, 
+    y = c(COL_PID, col_condition), 
+    col = variable, 
+    FUN = FUN)
   by_condition_transform = stats::reshape(by_condition, timevar = col_condition, idvar = COL_PID, direction = "wide") 
   proc = multi_merge(list(overall, by_condition_transform), by = COL_PID)
   return(proc)
@@ -36,8 +53,16 @@ proc_standard <- function(df, variable, col_condition) {
 
 #' @keywords internal
 
-proc_standard_factor <- function (df, variable, col_condition, factor, FUN) {
-  proc = apply_stats(x = df, y = c(COL_PID, col_condition), col = variable, factor = factor, FUN = FUN)
+proc_standard <- function (df, variable, col_condition = NULL, y = c(COL_PID, col_condition), FUN, ...) {
+  proc = apply_stats(
+    x = df, 
+    y = y, 
+    col = variable, 
+    FUN = FUN, 
+    ...)
+  if (is.null(col_condition)) {
+    return (proc)
+  }
   transform = stats::reshape(proc, timevar = col_condition, idvar = COL_PID, direction = "wide")
   return (transform)
 }
