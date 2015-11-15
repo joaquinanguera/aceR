@@ -8,6 +8,7 @@
 \alias{COL_PID}
 \alias{COL_RT}
 \alias{COL_RW}
+\alias{COL_TRIAL_TYPE}
 \alias{ace_header}
 \alias{standardize_ace_column_names}
 \title{ACE column name constants}
@@ -24,6 +25,8 @@ COL_RW
 COL_CONDITION
 
 COL_PID
+
+COL_TRIAL_TYPE
 
 standardize_ace_column_names(df)
 }

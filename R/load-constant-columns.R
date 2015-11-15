@@ -24,6 +24,9 @@ COL_CONDITION = "condition"
 COL_PID = "pid"
 
 #' @name ace_header
+COL_TRIAL_TYPE = "trial_type"
+
+#' @name ace_header
 
 standardize_ace_column_names <- function(df) {
   new = names(df)
