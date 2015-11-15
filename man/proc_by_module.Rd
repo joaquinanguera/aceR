@@ -16,7 +16,7 @@ This includes data loaded with the following methods:
 }
 \value{
 Returns summary statistics for every unique module included in the 
- data. Throws warnings for modules with undefined methods. 
+ data as a list. Throws warnings for modules with undefined methods. 
  See \code{\link{ace_procs}} for a list of supported modules.
 }
 \description{

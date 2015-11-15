@@ -22,13 +22,13 @@ NULL
 #'   \item \code{\link{read_raw_csv_in_directory}}
 #' }
 #' @return Returns summary statistics for every unique module included in the 
-#'  data. Throws warnings for modules with undefined methods. 
+#'  data as a list. Throws warnings for modules with undefined methods. 
 #'  See \code{\link{ace_procs}} for a list of supported modules.
 
 proc_by_module <- function(df) {
   all_mods = subset_by_col(df, "module")
   all_names = names(all_mods)
-  out = data.frame()
+  out = list()
   for (i in 1:length(all_mods)) {
     name = all_names[i]
     mod = all_mods[i][[1]]
@@ -36,7 +36,7 @@ proc_by_module <- function(df) {
     tryCatch({
       proc = eval(call(fun, mod))
       proc$module = name
-      out = plyr:::rbind.fill(out, proc)
+      out[[name]] = proc
     }, error = function(e) {
       warning(e)
     })
