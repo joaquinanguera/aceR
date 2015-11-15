@@ -33,3 +33,7 @@ module_flanker <- function(df) {
 module_stroop <- function(df) {
   return (proc_generic_module(df, COL_CORRECT_BUTTON, COL_TRIAL_TYPE, TRUE))
 }
+
+# TODO: spatialspan
+
+
