@@ -11,6 +11,7 @@ module_boxed <- function(df) {
   rt_acc = proc_standard_factor(df, COL_RT, COL_ACC, ace_descriptive_statistics_by_group)
   turns = proc_standard_factor(df, COL_RT, COL_ACC, ace_average_turns)
   # merge
-  proc = multi_merge(list(rt, acc, rw, rt_acc, turns), by = COL_PID)
-  return (proc)
+  analy = list(rt, acc, rw, rt_acc, turns)
+  merged = multi_merge(analy, by = COL_PID)
+  return (merged)
 }
