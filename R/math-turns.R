@@ -1,12 +1,12 @@
 
-#' Average of the last 3 "turn around trials" - a correct trial that was preceded by an incorrect trial
+#' Average of the last n "turn around trials" - a correct trial that was preceded by an incorrect trial
 #'
 #' @keywords internal
 
-ace_turns <- function(x, y) {
+ace_turns <- function(x, y, n = 3) {
   indices = identify_turns(y)
-  last_3 = tail(indices, 3)
-  vals = x[last_3]
+  last_n = tail(indices, n)
+  vals = x[last_n]
   return (ace_mean(vals))
 }
 

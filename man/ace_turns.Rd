@@ -2,12 +2,12 @@
 % Please edit documentation in R/math-turns.R
 \name{ace_turns}
 \alias{ace_turns}
-\title{Average of the last 3 "turn around trials" - a correct trial that was preceded by an incorrect trial}
+\title{Average of the last n "turn around trials" - a correct trial that was preceded by an incorrect trial}
 \usage{
-ace_turns(x, y)
+ace_turns(x, y, n = 3)
 }
 \description{
-Average of the last 3 "turn around trials" - a correct trial that was preceded by an incorrect trial
+Average of the last n "turn around trials" - a correct trial that was preceded by an incorrect trial
 }
 \keyword{internal}
 
