@@ -13,6 +13,22 @@ PARTICIPANT_BY_CONDITION <- c(COL_PID, COL_CONDITION)
 
 #' @keywords internal
 
+proc_generic_module <- function(df) {
+  # standard
+  rt = proc_standard(df, COL_RT)
+  acc = proc_standard(df, COL_ACC)
+  rw = proc_standard(df, COL_RW)
+  # specific
+  rt_acc = proc_standard_factor(df, COL_RT, COL_ACC, ace_descriptive_statistics_by_group)
+  turns = proc_standard_factor(df, COL_RT, COL_ACC, ace_average_turns)
+  # merge
+  analy = list(rt, acc, rw, rt_acc, turns)
+  merged = multi_merge(analy, by = COL_PID)
+  return (merged)
+}
+
+#' @keywords internal
+
 proc_standard <- function(df, variable) {
   overall = apply_stats(x = df, y = PARTICIPANT_BY_PARTICIPANT, col = variable, FUN = ace_descriptive_statistics, suffix = "overall")
   by_condition = apply_stats(x = df, y = PARTICIPANT_BY_CONDITION, col = variable, FUN = ace_descriptive_statistics)
