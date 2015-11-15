@@ -1,13 +1,4 @@
 
-#' ACE module constants
-#'
-#' @keywords internal
-#' @name ace_module_constants
-NULL
-
-#' @name ace_module_constants
-PARTICIPANT_BY_PARTICIPANT <- c(COL_PID)
-
 #' @keywords internal
 
 proc_generic_module <- function(df, col_acc, col_condition, turns_by_factor = TRUE) {
