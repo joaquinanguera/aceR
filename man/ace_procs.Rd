@@ -5,6 +5,7 @@
 \alias{module_boxed}
 \alias{module_brt}
 \alias{module_discrimination}
+\alias{module_flanker}
 \alias{module_stroop}
 \title{ACE module procs}
 \usage{
@@ -13,6 +14,8 @@ module_boxed(df)
 module_brt(df)
 
 module_discrimination(df)
+
+module_flanker(df)
 
 module_stroop(df)
 }
