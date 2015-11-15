@@ -153,8 +153,9 @@ parse_subsections <- function(dat) {
     names(valid) = col_names[valid_cols]
     is_new_col = sapply(names(valid), function(x) return(grepl(":", x)))
     new_cols = c(new_cols, names(valid)[is_new_col])
-    valid$subid = i
-    out = plyr::rbind.fill(out, valid)
+    clean = remove_empty_rows(replace_blanks(valid, NA))
+    clean$subid = i
+    out = plyr::rbind.fill(out, clean)
   }
   new_cols = unique(new_cols)
   out[new_cols] = na_locf(out, new_cols)
