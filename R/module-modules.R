@@ -43,3 +43,11 @@ module_taskswitch <- function(df) {
   df$taskswitch_state = plyr::mapvalues(df$taskswitch_state, from = c(0, 1 , 2), to = c("start", "switch", "stay"))
   return (proc_generic_module(df, COL_CORRECT_BUTTON, "taskswitch_state", FALSE))
 }
+
+#' @keywords internal
+#' @name ace_procs
+
+module_tnt <- function(df) {
+  df$condition = plyr::mapvalues(df$condition, from = c("Tap & Trace", "Tap Only"), to = c("tap_trace", "tap_only"))
+  return (proc_generic_module(df, COL_CORRECT_BUTTON, COL_CONDITION, TRUE))
+}

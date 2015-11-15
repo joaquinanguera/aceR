@@ -8,6 +8,7 @@
 \alias{module_flanker}
 \alias{module_stroop}
 \alias{module_taskswitch}
+\alias{module_tnt}
 \title{ACE module procs}
 \usage{
 module_boxed(df)
@@ -21,6 +22,8 @@ module_flanker(df)
 module_stroop(df)
 
 module_taskswitch(df)
+
+module_tnt(df)
 }
 \description{
 Methods for processing user data by \emph{group}.
