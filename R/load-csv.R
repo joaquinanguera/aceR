@@ -101,7 +101,7 @@ transform_grouping_rows <- function(dat) {
   dat[new_col] = NA
   for (row in rows) {
     group = dat[row, 1]
-    dat[row + 1, new_col] = "GROUP:" # so we can identify "new" columns
+    dat[row + 1, new_col] = "CONDITION:" # so we can identify "new" columns
     dat[row + 2, new_col] = as.character(group)
   }
   dat = remove_rows(dat, rows)

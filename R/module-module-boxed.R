@@ -21,7 +21,7 @@ module_boxed <- function(df) {
   # merge
   proc_apply = apply_stats_transform(
     list(rw_by_feature, rt_by_feature, acc_by_feature, rt_by_featute_and_acc, turns_by_feature), 
-    "group", "participant_id")
+    "condition", "participant_id")
   proc_all = multi_merge(
     list(rw_overall, rt_overall, acc_overall, proc_apply), 
     by = "participant_id")
