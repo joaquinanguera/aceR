@@ -3,6 +3,8 @@
 \docType{data}
 \name{ace_header}
 \alias{COL_ACC}
+\alias{COL_CONDITION}
+\alias{COL_PID}
 \alias{COL_RT}
 \alias{COL_RW}
 \alias{ace_header}
@@ -15,6 +17,10 @@ COL_RT
 COL_ACC
 
 COL_RW
+
+COL_CONDITION
+
+COL_PID
 
 standardize_ace_column_names(df)
 }

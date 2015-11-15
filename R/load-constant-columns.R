@@ -15,6 +15,12 @@ COL_ACC = "acc"
 COL_RW = "rw"
 
 #' @name ace_header
+COL_CONDITION = "condition"
+
+#' @name ace_header
+COL_PID = "pid"
+
+#' @name ace_header
 
 standardize_ace_column_names <- function(df) {
   new = names(df)
@@ -22,6 +28,7 @@ standardize_ace_column_names <- function(df) {
   new[new == "correct_button"] = COL_ACC
   # new[new == "correct_response"] = COL_ACC
   new[new == "response_window"] = COL_RW
+  new[new == "participant_id"] = COL_PID
   names(df) = new
   return (df)
 }

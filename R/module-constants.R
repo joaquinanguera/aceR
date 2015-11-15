@@ -6,7 +6,7 @@
 NULL
 
 #' @name ace_module_constants
-PARTICIPANT_BY_GROUP <- c("participant_id", "condition")
+PARTICIPANT_BY_PARTICIPANT <- c(COL_PID)
 
 #' @name ace_module_constants
-PBG <- PARTICIPANT_BY_GROUP
+PARTICIPANT_BY_CONDITION <- c(COL_PID, COL_CONDITION)
