@@ -3,5 +3,5 @@
 #' @name ace_procs
 
 module_boxed <- function(df) {
-  return (proc_generic_module(df))
+  return (proc_generic_module(df, COL_CORRECT_BUTTON, COL_CONDITION))
 }
