@@ -36,8 +36,8 @@ proc_standard <- function(df, variable, col_condition) {
 
 #' @keywords internal
 
-proc_standard_factor <- function (df, variable, condition, factor, FUN) {
-  proc = apply_stats(x = df, y = c(COL_PID, condition), col = variable, factor = factor, FUN = FUN)
-  transform = stats::reshape(proc, timevar = condition, idvar = COL_PID, direction = "wide")
+proc_standard_factor <- function (df, variable, col_condition, factor, FUN) {
+  proc = apply_stats(x = df, y = c(COL_PID, col_condition), col = variable, factor = factor, FUN = FUN)
+  transform = stats::reshape(proc, timevar = col_condition, idvar = COL_PID, direction = "wide")
   return (transform)
 }
