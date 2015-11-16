@@ -6,16 +6,22 @@
 \alias{COL_CONDITION}
 \alias{COL_CORRECT_BUTTON}
 \alias{COL_CORRECT_RESPONSE}
+\alias{COL_FILE}
 \alias{COL_PID}
 \alias{COL_RT}
 \alias{COL_RW}
 \alias{COL_SUB_ID}
+\alias{COL_TIME}
 \alias{COL_TRIAL_TYPE}
 \alias{ace_header}
 \alias{standardize_ace_column_names}
 \title{ACE column name constants}
 \format{An object of class \code{character} of length 1.}
 \usage{
+COL_FILE
+
+COL_TIME
+
 COL_RT
 
 COL_CORRECT_BUTTON

@@ -6,6 +6,12 @@
 NULL
 
 #' @name ace_header
+COL_FILE = "file"
+
+#' @name ace_header
+COL_TIME = "time"
+
+#' @name ace_header
 COL_RT = "rt"
 
 #' @name ace_header
