@@ -6,6 +6,7 @@
 \alias{module_brt}
 \alias{module_discrimination}
 \alias{module_flanker}
+\alias{module_saat}
 \alias{module_stroop}
 \alias{module_taskswitch}
 \alias{module_tnt}
@@ -18,6 +19,8 @@ module_brt(df)
 module_discrimination(df)
 
 module_flanker(df)
+
+module_saat(df)
 
 module_stroop(df)
 

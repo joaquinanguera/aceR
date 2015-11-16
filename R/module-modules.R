@@ -30,6 +30,13 @@ module_flanker <- function(df) {
 #' @keywords internal
 #' @name ace_procs
 
+module_saat <- function(df) {
+  return (proc_generic_module(df, COL_CORRECT_BUTTON, COL_CONDITION, TRUE))
+}
+
+#' @keywords internal
+#' @name ace_procs
+
 module_stroop <- function(df) {
   return (proc_generic_module(df, COL_CORRECT_BUTTON, COL_TRIAL_TYPE, TRUE))
 }
