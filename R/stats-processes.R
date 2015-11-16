@@ -22,3 +22,10 @@ ace_average_turns <- function (x, y) {
   avg_last_3_turns = c(turns = ace_turns(x, y))
   return (c(avg_last_3_turns))
 }
+
+#' @keywords internal 
+
+ace_spatial_span <- function(x) {
+  sustained_span = c(span = ace_span(x))
+  return (c(sustained_span))
+}
