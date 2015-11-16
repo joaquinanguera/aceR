@@ -46,10 +46,10 @@ module_stroop <- function(df) {
 
 module_spatialspan <- function(df) {
   rt = proc_by_condition(df, COL_RT, COL_CORRECT_BUTTON, FUN = ace_descriptive_statistics)
-  acc = proc_standard(df, COL_CORRECT_BUTTON, col_condition = NULL, FUN = ace_descriptive_statistics, y = c(COL_PID))
-  span = proc_standard(df, "object_count", col_condition = NULL, FUN = ace_spatial_span, y = c(COL_PID))
+  acc = proc_standard(df, COL_CORRECT_BUTTON, col_condition = NULL, FUN = ace_descriptive_statistics, y = c(COL_BID))
+  span = proc_standard(df, "object_count", col_condition = NULL, FUN = ace_spatial_span, y = c(COL_BID))
   analy = list(rt, acc, span)
-  merged = multi_merge(analy, by = COL_PID)
+  merged = multi_merge(analy, by = COL_BID)
   return (merged)
 }
 

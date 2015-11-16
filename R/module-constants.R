@@ -14,11 +14,11 @@ proc_generic_module <- function(df, col_acc, col_condition, turns_by_factor = TR
     turns = proc_standard(df, COL_RT, col_condition, factor = col_acc, FUN = ace_average_turns)
   } else {
     # overall turns calculation
-    turns = proc_standard(df, COL_RT, col_condition = NULL, factor = col_acc, FUN = ace_average_turns, y = c(COL_PID))
+    turns = proc_standard(df, COL_RT, col_condition = NULL, factor = col_acc, FUN = ace_average_turns, y = c(COL_BID))
   }
   # merge
   analy = list(rt, acc, rw, rt_acc, turns)
-  merged = multi_merge(analy, by = COL_PID)
+  merged = multi_merge(analy, by = COL_BID)
   return (merged)
 }
 
@@ -28,23 +28,23 @@ proc_generic_module <- function(df, col_acc, col_condition, turns_by_factor = TR
 proc_by_condition <- function(df, variable, col_condition, FUN) {
   overall = apply_stats(
     x = df, 
-    y = c(COL_PID), 
+    y = c(COL_BID), 
     col = variable, 
     FUN = FUN, 
     suffix = "overall")
   by_condition = apply_stats(
     x = df, 
-    y = c(COL_PID, col_condition), 
+    y = c(COL_BID, col_condition), 
     col = variable, 
     FUN = FUN)
-  by_condition_transform = stats::reshape(by_condition, timevar = col_condition, idvar = COL_PID, direction = "wide") 
-  proc = multi_merge(list(overall, by_condition_transform), by = COL_PID)
+  by_condition_transform = stats::reshape(by_condition, timevar = col_condition, idvar = COL_BID, direction = "wide") 
+  proc = multi_merge(list(overall, by_condition_transform), by = COL_BID)
   return(proc)
 }
 
 #' @keywords internal
 
-proc_standard <- function (df, variable, col_condition = NULL, y = c(COL_PID, col_condition), FUN, ...) {
+proc_standard <- function (df, variable, col_condition = NULL, y = c(COL_BID, col_condition), FUN, ...) {
   proc = apply_stats(
     x = df, 
     y = y, 
@@ -54,6 +54,6 @@ proc_standard <- function (df, variable, col_condition = NULL, y = c(COL_PID, co
   if (is.null(col_condition)) {
     return (proc)
   }
-  transform = stats::reshape(proc, timevar = col_condition, idvar = COL_PID, direction = "wide")
+  transform = stats::reshape(proc, timevar = col_condition, idvar = COL_BID, direction = "wide")
   return (transform)
 }
