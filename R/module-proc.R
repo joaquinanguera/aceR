@@ -35,8 +35,17 @@ proc_by_module <- function(df) {
     fun = paste("module", tolower(name), sep = "_")
     tryCatch({
       proc = eval(call(fun, mod))
-      proc$module = name
-      out[[name]] = proc
+      info = plyr::ddply(mod, c(COL_BID), 
+        function(x) {
+          return (c(
+            x[, COL_PID][[1]], 
+            x[, COL_TIME][[1]], 
+            x[, COL_FILE][[1]]))
+        })
+      names(info)[2:length(info)] = c(COL_PID, COL_TIME, COL_FILE)
+      all = merge(info, proc, by = COL_BID)
+      all$module = name
+      out[[name]] = all
     }, error = function(e) {
       warning(e)
     })
