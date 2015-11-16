@@ -41,7 +41,17 @@ module_stroop <- function(df) {
   return (proc_generic_module(df, COL_CORRECT_BUTTON, COL_TRIAL_TYPE, TRUE))
 }
 
-# TODO: spatialspan
+#' @keywords internal
+#' @name ace_procs
+
+module_spatialspan <- function(df) {
+  rt = proc_by_condition(df, COL_RT, COL_CORRECT_BUTTON, FUN = ace_descriptive_statistics)
+  acc = proc_standard(df, COL_CORRECT_BUTTON, col_condition = NULL, FUN = ace_descriptive_statistics, y = c(COL_PID))
+  span = proc_standard(df, "object_count", col_condition = NULL, FUN = ace_spatial_span, y = c(COL_PID))
+  analy = list(rt, acc, span)
+  merged = multi_merge(analy, by = COL_PID)
+  return (merged)
+}
 
 #' @keywords internal
 #' @name ace_procs
