@@ -27,7 +27,8 @@ read_raw_csv <- function(file) {
   names(dat) = standardize_names(dat)
   dat$file = file
   dat$module = identify_module(file)
-  dat = standardize_ace_column_names(dat) # TODO: maybe call this after every each subsection so that we combine similar vars (e.g. correct_button & correct_response)
+  dat = standardize_ace_column_names(dat)
+  dat[, COL_BID] = paste(dat[, COL_PID], dat[, COL_SUB_ID], sep = ".")
   return (dat)
 }
 
@@ -154,7 +155,7 @@ parse_subsections <- function(dat) {
     is_new_col = sapply(names(valid), function(x) return(grepl(":", x)))
     new_cols = c(new_cols, names(valid)[is_new_col])
     clean = remove_empty_rows(replace_blanks(valid, NA))
-    clean$subid = i
+    clean[, COL_SUB_ID] = i
     out = plyr::rbind.fill(out, clean)
   }
   new_cols = unique(new_cols)

@@ -2,12 +2,14 @@
 % Please edit documentation in R/load-constant-columns.R
 \docType{data}
 \name{ace_header}
+\alias{COL_BID}
 \alias{COL_CONDITION}
 \alias{COL_CORRECT_BUTTON}
 \alias{COL_CORRECT_RESPONSE}
 \alias{COL_PID}
 \alias{COL_RT}
 \alias{COL_RW}
+\alias{COL_SUB_ID}
 \alias{COL_TRIAL_TYPE}
 \alias{ace_header}
 \alias{standardize_ace_column_names}
@@ -25,6 +27,10 @@ COL_RW
 COL_CONDITION
 
 COL_PID
+
+COL_BID
+
+COL_SUB_ID
 
 COL_TRIAL_TYPE
 

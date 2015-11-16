@@ -24,6 +24,12 @@ COL_CONDITION = "condition"
 COL_PID = "pid"
 
 #' @name ace_header
+COL_BID = "bid"
+
+#' @name ace_header
+COL_SUB_ID = "subid"
+
+#' @name ace_header
 COL_TRIAL_TYPE = "trial_type"
 
 #' @name ace_header
