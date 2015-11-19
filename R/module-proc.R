@@ -35,6 +35,7 @@ proc_by_module <- function(df) {
     fun = paste("module", tolower(name), sep = "_")
     tryCatch({
       proc = eval(call(fun, mod))
+      names(proc) = standardized_proc_column_names(proc)
       info = plyr::ddply(mod, c(COL_BID), 
         function(x) {
           return (c(
@@ -51,4 +52,18 @@ proc_by_module <- function(df) {
     })
   }
   return (out)
+}
+
+#' @keywords internal
+
+PROC_COL_OLD = c("[.]0[.]", "[.]1[.]", COL_CORRECT_BUTTON, COL_CORRECT_RESPONSE)
+
+#' @keywords internal
+
+PROC_COL_NEW = c(".incorrect.", ".correct.", "acc", "acc")
+
+#' @keywords internal
+
+standardized_proc_column_names <- function(df) {
+  return (multi_gsub(PROC_COL_OLD, PROC_COL_NEW, names(df)))
 }
