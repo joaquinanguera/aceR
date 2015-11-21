@@ -15,6 +15,7 @@
 \alias{COL_TRIAL_TYPE}
 \alias{ace_header}
 \alias{standardize_ace_column_names}
+\alias{standardize_ace_values}
 \title{ACE column name constants}
 \format{An object of class \code{character} of length 1.}
 \usage{
@@ -41,6 +42,8 @@ COL_SUB_ID
 COL_TRIAL_TYPE
 
 standardize_ace_column_names(df)
+
+standardize_ace_values(df)
 }
 \description{
 ACE column name constants
