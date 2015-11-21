@@ -29,6 +29,7 @@ read_raw_csv <- function(file) {
   dat$module = identify_module(file)
   dat = standardize_ace_column_names(dat)
   dat[, COL_BID] = paste(dat[, COL_PID], dat[, COL_TIME], sep = ".")
+  dat = standardize_ace_values(dat)
   return (dat)
 }
 
