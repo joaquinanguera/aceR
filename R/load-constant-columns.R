@@ -48,3 +48,16 @@ standardize_ace_column_names <- function(df) {
   names(df) = new
   return (df)
 }
+
+#' @name ace_header
+
+standardize_ace_values <- function(df) {
+  cols = names(df)
+  if (COL_CORRECT_BUTTON %in% cols) {
+    df[, COL_CORRECT_BUTTON] = plyr::mapvalues(df[, COL_CORRECT_BUTTON], from = c(0, 1), to = c("incorrect", "correct"), warn_missing = FALSE)
+  }
+  if (COL_CORRECT_RESPONSE %in% cols) {
+    df[, COL_CORRECT_RESPONSE] = plyr::mapvalues(df[, COL_CORRECT_RESPONSE], from = c(0, 1), to = c("incorrect", "correct"), warn_missing = FALSE)
+  }
+  return (df)  
+}
