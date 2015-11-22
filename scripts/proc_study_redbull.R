@@ -8,7 +8,7 @@ setwd("~/Google Drive/ACE Studies_Raw Data/RedBull/Raw Data")
 
 # load & process dat
 dat = read_raw_csv_in_directory()
-proc = proc_by_module(dat)
+proc = proc_by_module(dat, TRUE)
 
 setwd("~/Desktop/process")
 export_csv(proc)
