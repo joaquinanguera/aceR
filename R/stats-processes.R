@@ -13,7 +13,8 @@ ace_descriptive_statistics <- function(x) {
 ace_descriptive_statistics_by_group <- function(x, y) {
   var_by_group = c(sd = ace_sd_by_group(x, y), se = ace_se_by_group(x, y))
   avg_by_group = c(mean = ace_mean_by_group(x, y), median = ace_median_by_group(x, y))
-  return (c(var_by_group, avg_by_group))
+  sum_by_group = c(count = ace_count_by_group(x, y), length = ace_length_by_group(x, y))
+  return (c(var_by_group, avg_by_group, sum_by_group))
 }
 
 #' @keywords internal 
