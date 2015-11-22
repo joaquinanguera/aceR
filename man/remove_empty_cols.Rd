@@ -15,4 +15,5 @@ Returns a data frame where the empty columns have been removed
 \description{
 Remove empty columns from a data frame.
 }
+\keyword{internal}
 

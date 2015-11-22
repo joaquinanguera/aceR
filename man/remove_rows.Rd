@@ -19,4 +19,5 @@ Returns a data frame where the specified rows have been removed
 \description{
 Remove specified rows from a data frame
 }
+\keyword{internal}
 

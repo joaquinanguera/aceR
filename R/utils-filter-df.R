@@ -1,7 +1,7 @@
 
 #' Remove empty columns from a data frame.
 #'
-#' @export
+#' @keywords internal
 #' @param df a data frame
 #' @return Returns a data frame where the empty columns have been removed
 
@@ -11,7 +11,7 @@ remove_empty_cols <- function(df) {
 
 #' Remove empty rows from a data frame.
 #'
-#' @export
+#' @keywords internal
 #' @inheritParams remove_empty_cols
 #' @return Returns a data frame where the empty rows have been removed
 
@@ -21,7 +21,7 @@ remove_empty_rows <- function(df) {
 
 #' Remove specified rows from a data frame
 #'
-#' @export
+#' @keywords internal
 #' @inheritParams remove_empty_cols
 #' @param rows a vector containing the names of the the rows to remove
 #' @param reset reset the row numbers?
@@ -40,7 +40,7 @@ remove_rows <- function(df, rows = c(), reset = TRUE) {
 
 #' Numeric row names
 #'
-#' @export
+#' @keywords internal
 #' @inheritParams remove_empty_cols
 #' @return Returns numeric row names
 

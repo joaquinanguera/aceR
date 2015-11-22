@@ -15,4 +15,5 @@ Returns numeric row names
 \description{
 Numeric row names
 }
+\keyword{internal}
 
