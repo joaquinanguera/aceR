@@ -4,10 +4,12 @@
 \alias{proc_by_module}
 \title{Process ACE data by module}
 \usage{
-proc_by_module(df)
+proc_by_module(df, verbose = FALSE)
 }
 \arguments{
-\item{df}{a \code{\link{data.frame}} containing formatted ACE data. 
+\item{df}{a \code{\link{data.frame}} containing formatted ACE data.}
+
+\item{verbose}{logical. Print details? Defaults to \code{FALSE}.
 
 This includes data loaded with the following methods: 
 \enumerate{

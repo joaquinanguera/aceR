@@ -16,6 +16,7 @@ NULL
 #'
 #' @export
 #' @param df a \code{\link{data.frame}} containing formatted ACE data. 
+#' @param verbose logical. Print details? Defaults to \code{FALSE}.
 #'
 #' This includes data loaded with the following methods: 
 #' \enumerate{
@@ -25,7 +26,7 @@ NULL
 #'  data as a list. Throws warnings for modules with undefined methods. 
 #'  See \code{\link{ace_procs}} for a list of supported modules.
 
-proc_by_module <- function(df) {
+proc_by_module <- function(df, verbose = FALSE) {
   all_mods = subset_by_col(df, "module")
   all_names = names(all_mods)
   out = list()
@@ -34,6 +35,7 @@ proc_by_module <- function(df) {
     mod = all_mods[i][[1]]
     fun = paste("module", tolower(name), sep = "_")
     tryCatch({
+      if (verbose) print(paste("processing", name, sep = " "))
       proc = eval(call(fun, mod))
       names(proc) = standardized_proc_column_names(proc)
       info = plyr::ddply(mod, c(COL_BID), 
