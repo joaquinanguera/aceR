@@ -39,6 +39,7 @@ proc_by_condition <- function(df, variable, col_condition, FUN) {
     FUN = FUN)
   by_condition_transform = stats::reshape(by_condition, timevar = col_condition, idvar = COL_BID, direction = "wide") 
   proc = multi_merge(list(overall, by_condition_transform), by = COL_BID)
+  names(proc) = tolower(names(proc))
   return(proc)
 }
 
@@ -55,5 +56,6 @@ proc_standard <- function (df, variable, col_condition = NULL, y = c(COL_BID, co
     return (proc)
   }
   transform = stats::reshape(proc, timevar = col_condition, idvar = COL_BID, direction = "wide")
+  names(transform) = tolower(names(transform))
   return (transform)
 }
