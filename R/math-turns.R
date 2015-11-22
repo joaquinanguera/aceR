@@ -4,7 +4,7 @@
 #' @keywords internal
 
 ace_turns <- function(x, y, n = 3) {
-  indices = identify_turns(y)
+  indices = identify_turns(to_numeric(y))
   last_n = tail(indices, n)
   vals = x[last_n]
   return (ace_mean(vals))
@@ -23,7 +23,7 @@ identify_turns <- function(y) {
   for (i in 2:length(y)) {
     n = y[i] # current trial
     m = y[i - 1] # previous trial
-    if (n == "1" & m == "0") {
+    if (n == 1 & m == 0) {
       turns = c(turns, i)
     }
   }
