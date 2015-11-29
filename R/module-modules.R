@@ -42,7 +42,9 @@ module_saat <- function(df) {
 #' @name ace_procs
 
 module_stroop <- function(df) {
-  return (proc_generic_module(df, COL_CORRECT_BUTTON, COL_TRIAL_TYPE, TRUE))
+  gen = proc_generic_module(df, COL_CORRECT_BUTTON, COL_TRIAL_TYPE, TRUE)
+  cost = multi_subtract(gen, "\\.incongruent", "\\.congruent", "\\.cost")
+  return (data.frame(gen, cost))
 }
 
 #' @keywords internal
