@@ -74,5 +74,7 @@ module_taskswitch <- function(df) {
 
 module_tnt <- function(df) {
   df$condition = plyr::mapvalues(df$condition, from = c("Tap & Trace", "Tap Only"), to = c("tap_trace", "tap_only"))
-  return (proc_generic_module(df, COL_CORRECT_BUTTON, COL_CONDITION, TRUE))
+  gen = proc_generic_module(df, COL_CORRECT_BUTTON, COL_CONDITION, TRUE)
+  cost = multi_subtract(gen, "\\.tap_trace", "\\.tap_only", "\\.cost")
+  return (data.frame(gen, cost))
 }
