@@ -64,7 +64,9 @@ module_spatialspan <- function(df) {
 
 module_taskswitch <- function(df) {
   df$taskswitch_state = plyr::mapvalues(df$taskswitch_state, from = c(0, 1 , 2), to = c("start", "switch", "stay"))
-  return (proc_generic_module(df, COL_CORRECT_BUTTON, "taskswitch_state", FALSE))
+  gen = proc_generic_module(df, COL_CORRECT_BUTTON, "taskswitch_state", FALSE)
+  cost = multi_subtract(gen, "\\.switch", "\\.stay", "\\.cost")
+  return (data.frame(gen, cost))
 }
 
 #' @keywords internal
