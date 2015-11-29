@@ -8,5 +8,6 @@ Depends:
 Imports:
     zoo,
     plyr,
-    reshape
+    reshape,
+    stringr
 RoxygenNote: 5.0.0
