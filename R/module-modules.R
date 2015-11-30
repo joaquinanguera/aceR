@@ -38,7 +38,6 @@ module_flanker <- function(df) {
 #' @name ace_procs
 
 module_saat <- function(df) {
-  df$trial_type = plyr::mapvalues(df$position_is_top, from = c("0", "1"), to = c("nontarget", "target"))
   gen = proc_generic_module(df, COL_CORRECT_BUTTON, COL_CONDITION, TRUE)
   return (gen)
 }
