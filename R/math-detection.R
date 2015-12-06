@@ -30,6 +30,7 @@ ace_detection <- function(x, y) {
     out$false_alarm_rate = NA
     out$hit_rate = NA
   }
+  # TODO: pr, dprime (also snodgrass corrections)
   return (out)
 }
   
