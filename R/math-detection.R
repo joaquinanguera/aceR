@@ -14,6 +14,6 @@ identify_correct_rejections <- function(response_window, reaction_time) {
     }
     out = c(out, rej)
   }
-  out = c(out, NA) # last trial
+  out = as.factor(c(out, NA)) # last trial
   return (out)
 }
