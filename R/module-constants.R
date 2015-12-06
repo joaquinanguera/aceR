@@ -1,7 +1,7 @@
 
 #' @keywords internal
 
-proc_generic_module <- function(df, col_acc, col_condition, turns_by_factor = TRUE) {
+proc_generic_module <- function(df, col_acc, col_condition, by_factor = TRUE) {
   # overall & broken-down by condition
   rt = proc_by_condition(df, COL_RT, col_condition, FUN = ace_descriptive_statistics)
   rw = proc_by_condition(df, COL_RW, col_condition, FUN = ace_descriptive_statistics)
@@ -9,15 +9,19 @@ proc_generic_module <- function(df, col_acc, col_condition, turns_by_factor = TR
   # RT broken-down by condition & factor  
   rt_acc = proc_standard(df, COL_RT, col_condition, factor = col_acc, FUN = ace_descriptive_statistics_by_group)
   # turns calculations
-  if (turns_by_factor) {
+  if (by_factor) {
     # turns calculation by condition
     turns = proc_standard(df, COL_RT, col_condition, factor = col_acc, FUN = ace_average_turns)
+    # detection rates by condition
+    detection = proc_standard(df, COL_RW, col_condition, factor = COL_RT, FUN = ace_detection_rate)
   } else {
     # overall turns calculation
     turns = proc_standard(df, COL_RT, col_condition = NULL, factor = col_acc, FUN = ace_average_turns, y = c(COL_BID))
+    # overall detection rates
+    detection = proc_standard(df, COL_RW, col_condition = NULL, factor = COL_RT, FUN = ace_detection_rate, y = c(COL_BID))
   }
   # merge
-  analy = list(rt, acc, rw, rt_acc, turns)
+  analy = list(rt, acc, rw, rt_acc, turns, detection)
   merged = multi_merge(analy, by = COL_BID)
   return (merged)
 }
