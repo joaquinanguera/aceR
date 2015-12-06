@@ -30,3 +30,10 @@ ace_spatial_span <- function(x) {
   sustained_span = c(span = ace_span(x))
   return (c(sustained_span))
 }
+
+#' @keywords internal
+
+ace_detection_rate <- function(x, y) {
+  rate = c(rate = ace_detection(x, y))
+  return (c(rate))
+}
