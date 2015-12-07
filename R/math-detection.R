@@ -9,6 +9,7 @@ ace_detection <- function(x, y) {
   types = na.omit(types)
   num_targets = length(which(types == "target"))
   num_nontargets = length(which(types == "nontarget"))
+  num_total = num_targets + num_nontargets
   freq = as.data.frame(t(summary(rejs)))
   cols = names(freq)
   if (!("false_alarm" %in% cols)) freq$false_alarm = 0
@@ -30,8 +31,17 @@ ace_detection <- function(x, y) {
     out$false_alarm_rate = NA
     out$hit_rate = NA
   }
-  # TODO: pr, dprime (also snodgrass corrections)
+  out$pr = out$hit_rate - out$false_alarm_rate
+  out$dprime = qnorm(out$hit_rate) - qnorm(out$false_alarm_rate)
+  out$pr_snodgrass = snodgrass_correction(out$hit_rate, num_total) - snodgrass_correction(out$false_alarm_rate, num_total)
+  out$dprime_snodgrass = qnorm(snodgrass_correction(out$hit_rate, num_total)) - qnorm(snodgrass_correction(out$false_alarm_rate, num_total))
   return (out)
+}
+
+#' @keywords internal
+
+snodgrass_correction <- function(rate, num) {
+  return (((rate * num) + 0.50) / num)
 }
   
 #' @keywords internal
