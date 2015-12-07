@@ -34,6 +34,7 @@ ace_detection <- function(x, y) {
   out$pr = out$hit_rate - out$false_alarm_rate
   out$dprime = qnorm(out$hit_rate) - qnorm(out$false_alarm_rate)
   out$pr_snodgrass = snodgrass_correction(out$hit_rate, num_total) - snodgrass_correction(out$false_alarm_rate, num_total)
+  # TODO: this throws warnings if rate > 1
   out$dprime_snodgrass = qnorm(snodgrass_correction(out$hit_rate, num_total)) - qnorm(snodgrass_correction(out$false_alarm_rate, num_total))
   return (out)
 }
