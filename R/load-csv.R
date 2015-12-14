@@ -29,6 +29,10 @@ read_raw_csv <- function(file) {
   dat$module = identify_module(file)
   dat = standardize_ace_column_names(dat)
   cols = names(dat)
+  if (!(COL_TIME) %in% cols) {
+    # make "time" column from subid & filename if file doesn't contain time
+    dat[, COL_TIME] = paste(dat$file, dat[, COL_SUB_ID], sep = ".")
+  }
   if (COL_PID %in% cols) {
     # make block id from pid & time
     dat[, COL_BID] = paste(dat[, COL_PID], dat[, COL_TIME], sep = ".")
