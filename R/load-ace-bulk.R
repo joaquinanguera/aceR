@@ -15,7 +15,7 @@ files_in_directory <- function(path = ".", pattern = ".csv", recursive = TRUE) {
 
 #' Read & Load all ACE csv files in a directory
 #'
-#' Wrapper function around \code{\link{read_raw_csv}()}. to read & parse 
+#' Wrapper function around \code{\link{read_ace_file}()}. to read & parse 
 #'  all ACE csv files in a directory.
 #'
 #' @export
@@ -24,7 +24,7 @@ files_in_directory <- function(path = ".", pattern = ".csv", recursive = TRUE) {
 #' @return Returns a data.frame containing the content of every file in the
 #'  specified \code{path}.
 
-read_raw_csv_in_directory <- function(path = ".", pattern = NULL, verbose = TRUE, recursive = TRUE) {
+load_ace_bulk <- function(path = ".", pattern = NULL, verbose = TRUE, recursive = TRUE) {
   files = list.files(path = path, pattern = pattern, recursive = recursive)
   if (length(files) == 0) {
     stop("no matching files", call. = TRUE)
@@ -35,7 +35,7 @@ read_raw_csv_in_directory <- function(path = ".", pattern = NULL, verbose = TRUE
     if (verbose) {
       print(file)
     }
-    dat = read_raw_csv(file)
+    dat = read_ace_file(file)
     out = plyr::rbind.fill(out, dat)
   }
   out = replace_nas(out, "")
