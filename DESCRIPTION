@@ -9,5 +9,6 @@ Imports:
     zoo,
     plyr,
     reshape,
-    stringr
+    stringr,
+    XLConnect
 RoxygenNote: 5.0.0
