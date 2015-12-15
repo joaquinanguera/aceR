@@ -7,7 +7,7 @@ library(aceR)
 setwd("~/Google Drive/ACE Studies_Raw Data/RedBull/Raw Data")
 
 # load & process dat
-dat = read_raw_csv_in_directory()
+dat = load_ace_bulk()
 proc = proc_by_module(dat, TRUE)
 
 setwd("~/Desktop/process")
