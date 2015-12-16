@@ -3,8 +3,14 @@
 
 load_excel <- function(file, sheet = "Pre Raw") {
   wk = XLConnect::loadWorkbook(file)
-  df = XLConnect:::readWorksheet(wk, sheet = sheet, header = FALSE)
-  return (df)
+  sheet = tryCatch({
+    df = XLConnect:::readWorksheet(wk, sheet = sheet, header = FALSE)
+    return (df)
+  }, error = function(e) {
+    df = XLConnect:::readWorksheet(wk, sheet = 1, header = FALSE)
+    return (df)
+  })
+  return (sheet)
 }
 
 #' @keywords internal
