@@ -27,7 +27,7 @@ files_in_directory <- function(path = ".", pattern = ".csv", recursive = TRUE) {
 load_ace_bulk <- function(path = ".", verbose = TRUE, recursive = TRUE) {
   csv = list.files(path = path, pattern = ".csv", recursive = recursive)
   xls = list.files(path = path, pattern = ".xls", recursive = recursive)
-  files = c(csv, xls)
+  files = sort(c(csv, xls))
   if (length(files) == 0) {
     stop("no matching files", call. = TRUE)
   }
