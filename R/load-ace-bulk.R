@@ -20,14 +20,18 @@ files_in_directory <- function(path = ".", pattern = ".csv", recursive = TRUE) {
 #'
 #' @export
 #' @inheritParams base::list.files
-#' @param verbose. logical. Print details? Defaults to \code{TRUE}
+#' @param verbose logical. Print details? Defaults to \code{TRUE}
+#' @param exclude a list of patterns to exclude
 #' @return Returns a data.frame containing the content of every file in the
 #'  specified \code{path}.
 
-load_ace_bulk <- function(path = ".", verbose = TRUE, recursive = TRUE) {
+load_ace_bulk <- function(path = ".", verbose = TRUE, recursive = TRUE, exclude = c()) {
   csv = list.files(path = path, pattern = ".csv", recursive = recursive)
   xls = list.files(path = path, pattern = ".xls", recursive = recursive)
   files = sort(c(csv, xls))
+  for (ex in exclude) {
+    files = filter_out_vec(files, ex)
+  }
   if (length(files) == 0) {
     stop("no matching files", call. = TRUE)
   }
