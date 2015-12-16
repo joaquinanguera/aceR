@@ -1,7 +1,7 @@
 
 #' @keywords internal
 
-load_excel <- function(file, sheet = "Pre Raw") {
+load_excel <- function(file, sheet = "Post Raw") {
   wk = XLConnect::loadWorkbook(file)
   sheet = tryCatch({
     df = XLConnect:::readWorksheet(wk, sheet = sheet, header = FALSE)
