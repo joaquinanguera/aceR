@@ -1,16 +1,39 @@
 
 #' @keywords internal
 
-load_excel <- function(file, sheet = "Post Raw") {
+load_excel <- function(file) {
   wk = XLConnect::loadWorkbook(file)
+  sheets = sheet_names(wk)
+  valid_sheets = tolower(c("Pre Raw", "Post Raw"))
+  if (length(sheets) == 0) {
+    return (load_sheet(wk, sheet = 1))
+  }
+  out = data.frame()
+  for (sheet in sheets) {
+    if (tolower(sheet) %in% valid_sheets) {
+      sh = load_sheet(wk, sheet = sheet)
+      out = plyr:::rbind.fill(out, sh)
+    }
+  }
+  return (out)
+}
+
+#' @keywords internal
+
+load_sheet <- function(wk, sheet) {
   sheet = tryCatch({
     df = XLConnect:::readWorksheet(wk, sheet = sheet, header = FALSE)
     return (df)
   }, error = function(e) {
-    df = XLConnect:::readWorksheet(wk, sheet = 1, header = FALSE)
-    return (df)
+    return (data.frame())
   })
   return (sheet)
+}
+
+#' @keywords internal
+
+sheet_names <- function(wk) {
+  return (XLConnect::getSheets(wk))
 }
 
 #' @keywords internal
