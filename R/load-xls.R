@@ -5,7 +5,7 @@ load_excel <- function(file) {
   wk = XLConnect::loadWorkbook(file)
   sheets = sheet_names(wk)
   valid_sheets = tolower(c("Pre Raw", "Post Raw"))
-  if (length(sheets) == 0) {
+  if (length(sheets) == 1) {
     return (load_sheet(wk, sheet = 1))
   }
   out = data.frame()
