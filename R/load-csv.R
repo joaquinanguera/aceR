@@ -40,7 +40,7 @@ identify_nondata_rows <- function(dat) {
   nondata = dat[dat[1] != "" & dat[2] != "" & dat[3] == "", ]
   vals = c(grouping, numeric_row_names(nondata))
   vals = sort(unique(vals))
-  if (length(vals) == 0) {
+  if (length(vals) <= 1) {
     return (c())
   }
   num = length(vals) - 1
