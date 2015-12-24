@@ -17,5 +17,5 @@ filter_out_vec <- function(vec = c(), pattern = NULL) {
 #' @keywords internal
 
 all_equal_in_vec <- function (vec = c()) {
-  return (length(unique(vec) == 1))
+  return (length(unique(vec)) == 1)
 }
