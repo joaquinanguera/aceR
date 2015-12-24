@@ -14,6 +14,7 @@ read_ace_file <- function(file) {
   } else {
     raw_dat = load_csv(file)   
   }
+  if (nrow(raw_dat) == 0) return (data.frame())
   # standardize raw csv data
   raw_dat = standardize_raw_csv_data(raw_dat)
   # remove nondata rows
