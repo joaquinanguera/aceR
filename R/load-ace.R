@@ -14,8 +14,23 @@ read_ace_file <- function(file) {
   } else {
     raw_dat = load_csv(file)   
   }
+  if (is.vector(raw_dat)) {
+    out = data.frame()
+    for (raw in raw_dat) {
+      df = transform_raw_ace_data(file, raw)
+      out = plyr:::rbind.fill(out, df)
+    }
+    return (out)
+  } else {
+    return (transform_raw_ace_data(file, raw_dat))
+  }
+}
+
+#' @keywords internal
+
+transform_raw_ace_data <- function (file, raw_dat) {
   if (nrow(raw_dat) == 0) return (data.frame())
-  # standardize raw csv data
+  # standardize raw data
   raw_dat = standardize_raw_csv_data(raw_dat)
   # remove nondata rows
   dat = remove_nondata_rows(raw_dat)
