@@ -16,8 +16,10 @@ read_ace_file <- function(file) {
   }
   if (is.vector(raw_dat)) {
     out = data.frame()
-    for (raw in raw_dat) {
-      df = transform_raw_ace_data(file, raw)
+    dfs = names(raw_dat)
+    for (i in 1:length(dfs)) {
+      name = paste(file, dfs[i], sep = "-")
+      df = transform_raw_ace_data(name, raw_dat[[i]])
       out = plyr:::rbind.fill(out, df)
     }
     return (out)
