@@ -53,6 +53,8 @@ transform_raw_ace_data <- function (file, raw_dat) {
   if (!(COL_TIME) %in% cols) {
     # make "time" column from subid & filename if file doesn't contain time
     dat[, COL_TIME] = paste(dat$file, dat[, COL_SUB_ID], sep = ".")
+  } else {
+    dat[, COL_TIME] = as.vector(dat[, COL_TIME])
   }
   if (COL_PID %in% cols) {
     # make block id from pid & time
