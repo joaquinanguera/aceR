@@ -6,7 +6,7 @@ rm(list = ls())
 library(aceR)
 
 # ACE Raw Data (*Processed Data Omitted)
-setwd("~/Desktop/ACE Studies_Raw Data")
+setwd("~/Desktop/ACE Studies_Raw Data/Summer 2015 School Data")
 
 subdirs_to_ignore = c(
   "Brighten", 
@@ -21,14 +21,21 @@ files_to_ignore = c(
   "FlankerAll", 
   "FlankerAllWithDate", 
   "FlankerCatchAllPost",
-  "FlankerCatchAllPre"
+  "FlankerCatchAllPre",
   "SAATAll",
   "SAATAllWithDate",
   "SAATCatchAllPost",
   "SAATCatchAllPre",
   "SpatialSpanAll",
   "SpatialSpanAllWithDate",
-  "SpatialSpanCatchAllPre")
+  "SpatialSpanCatchAllPre",
+  "AE/BRT-67.csv",
+  "AE/TNT-1.csv",
+  "AE/TNT.csv",
+  "i3/BRT-94.csv",
+  "i3/BRT-104.csv",
+  "i3/i018/SpatialSpan.csv",
+  "i3/BRTAll.csv")
 
 to_ignore = c(subdirs_to_ignore, files_to_ignore)
 
