@@ -5,7 +5,7 @@ rm(list = ls())
 
 library(aceR)
 
-DATA_PATH = "~/Desktop/ACE Studies_Raw Data/Summer 2015 School Data"
+DATA_PATH = "~/Desktop/ACE Studies_Raw Data"
 RELEASE_PATH = "~/Desktop/ACE Processed"
 
 # ACE Raw Data (*Processed Data Omitted)
