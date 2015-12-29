@@ -36,6 +36,7 @@ files_to_ignore = c(
   "AE/BRT-67.csv",
   "AE/TNT-1.csv",
   "AE/TNT.csv",
+  "AE/Flanker-139.csv",
   "i3/BRT-94.csv",
   "i3/BRT-104.csv",
   "i3/i018/SpatialSpan.csv",
