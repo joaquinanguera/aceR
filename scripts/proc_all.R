@@ -5,8 +5,11 @@ rm(list = ls())
 
 library(aceR)
 
+DATA_PATH = "~/Desktop/ACE Studies_Raw Data/Summer 2015 School Data"
+RELEASE_PATH = "~/Desktop/ACE Processed"
+
 # ACE Raw Data (*Processed Data Omitted)
-setwd("~/Desktop/ACE Studies_Raw Data/Summer 2015 School Data")
+setwd(DATA_PATH)
 
 subdirs_to_ignore = c(
   "Brighten", 
@@ -42,5 +45,8 @@ to_ignore = c(subdirs_to_ignore, files_to_ignore)
 
 raw_dat = load_ace_bulk(exclude = to_ignore)
 proc_dat = proc_by_module(raw_dat, verbose = TRUE)
+
+setwd(RELEASE_PATH)
+export_csv(proc_dat)
 
 # TODO: load "filtered" ace data
