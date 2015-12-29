@@ -7,7 +7,7 @@
 #' @param file The name of the file which the data is to be read from.
 #' @return Returns the file's content as an R \code{\link{data.frame}}.
 
-read_ace_file <- function(file) {
+load_ace_file <- function(file) {
   # read raw csv file
   if (is_excel(file)) {
     raw_dat = load_excel(file)

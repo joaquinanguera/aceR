@@ -24,7 +24,7 @@ Returns a data.frame containing the content of every file in the
  specified \code{path}.
 }
 \description{
-Wrapper function around \code{\link{read_ace_file}()}. to read & parse 
+Wrapper function around \code{\link{load_ace_file}()}. to read & parse 
  all ACE csv files in a directory.
 }
 
