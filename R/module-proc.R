@@ -16,12 +16,14 @@ NULL
 #'
 #' @export
 #' @param df a \code{\link{data.frame}} containing formatted ACE data. 
-#' @param verbose logical. Print details? Defaults to \code{FALSE}.
 #'
 #' This includes data loaded with the following methods: 
 #' \enumerate{
-#'   \item \code{\link{read_raw_csv_in_directory}}
+#'   \item \code{\link{load_ace_file}}
+#'   \item \code{\link{load_ace_bulk}}
 #' }
+#' @param verbose logical. Print details? Defaults to \code{FALSE}.
+#'
 #' @return Returns summary statistics for every unique module included in the 
 #'  data as a list. Throws warnings for modules with undefined methods. 
 #'  See \code{\link{ace_procs}} for a list of supported modules.

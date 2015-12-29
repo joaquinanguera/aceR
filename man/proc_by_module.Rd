@@ -7,14 +7,15 @@
 proc_by_module(df, verbose = FALSE)
 }
 \arguments{
-\item{df}{a \code{\link{data.frame}} containing formatted ACE data.}
-
-\item{verbose}{logical. Print details? Defaults to \code{FALSE}.
+\item{df}{a \code{\link{data.frame}} containing formatted ACE data. 
 
 This includes data loaded with the following methods: 
 \enumerate{
-  \item \code{\link{read_raw_csv_in_directory}}
+  \item \code{\link{load_ace_file}}
+  \item \code{\link{load_ace_bulk}}
 }}
+
+\item{verbose}{logical. Print details? Defaults to \code{FALSE}.}
 }
 \value{
 Returns summary statistics for every unique module included in the 

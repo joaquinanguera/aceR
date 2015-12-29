@@ -15,7 +15,7 @@ files_in_directory <- function(path = ".", pattern = ".csv", recursive = TRUE) {
 
 #' Read & Load all ACE csv & xls files in a directory
 #'
-#' Wrapper function around \code{\link{load_ace_file}()}. to read & parse 
+#' Wrapper function around \code{\link{load_ace_file}()} to read & parse 
 #'  all ACE csv files in a directory.
 #'
 #' @export
