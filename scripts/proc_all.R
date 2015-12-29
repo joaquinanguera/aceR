@@ -29,6 +29,7 @@ files_to_ignore = c(
   "SpatialSpanAll",
   "SpatialSpanAllWithDate",
   "SpatialSpanCatchAllPre",
+  "SpatialSpanCatchAllPost",
   "AE/BRT-67.csv",
   "AE/TNT-1.csv",
   "AE/TNT.csv",
