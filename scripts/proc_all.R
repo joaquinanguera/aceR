@@ -41,5 +41,6 @@ files_to_ignore = c(
 to_ignore = c(subdirs_to_ignore, files_to_ignore)
 
 standard_ace_dat = load_ace_bulk(exclude = to_ignore)
+proc_ace_dat = proc_by_module(standard_ace_dat, verbose = TRUE)
 
 # TODO: load "filtered" ace data
