@@ -1,5 +1,5 @@
-# script for processing ALL data.
-# assumes all files are unprocessed
+# script for processing ALL raw ACE data in specified directory
+# assumes all files are unprocessed 'by hand'
 
 rm(list = ls())
 
@@ -8,15 +8,16 @@ library(aceR)
 DATA_PATH = "~/Desktop/ACE Studies_Raw Data"
 RELEASE_PATH = "~/Desktop/ACE Processed"
 
-# ACE Raw Data (*Processed Data Omitted)
 setwd(DATA_PATH)
 
+# exclude problematic subdirectories
 subdirs_to_ignore = c(
   "Brighten", 
   "Remaining _Jyoti", 
   "Remaining Raw Data (Brighten, BBT-MT, India, 16p-Adaptivity)", 
   "Dan's Raw ACE Data")
 
+# exclude problematic files
 files_to_ignore = c(
   "AgileAcademic-IAN", 
   "AgileEnvironments_ACE_pre-assessment-rankings_only", 
