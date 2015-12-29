@@ -10,7 +10,7 @@ multi_merge <- function(df_list = list(), ...) {
 flatten_df_list <- function (df_list = list()) {
   out = data.frame()
   for (df in df_list) {
-    out = plyr:::rbind.fill(out, df)
+    out = plyr::rbind.fill(out, df)
   }
   return (out)
 }

@@ -21,7 +21,7 @@ load_excel <- function(file) {
 
 load_sheet <- function(wk, sheet) {
   sheet = tryCatch({
-    df = XLConnect:::readWorksheet(wk, sheet = sheet, header = FALSE)
+    df = XLConnect::readWorksheet(wk, sheet = sheet, header = FALSE)
     return (df)
   }, error = function(e) {
     return (data.frame())

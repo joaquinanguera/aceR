@@ -20,7 +20,7 @@ load_ace_file <- function(file) {
     for (i in 1:length(dfs)) {
       name = paste(file, dfs[i], sep = "-")
       df = transform_raw_ace_data(name, raw_dat[[i]])
-      out = plyr:::rbind.fill(out, df)
+      out = plyr::rbind.fill(out, df)
     }
     return (out)
   } else {
