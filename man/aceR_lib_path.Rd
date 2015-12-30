@@ -12,5 +12,4 @@ Returns the root directory of the aceR package.
 \description{
 aceR package path
 }
-\keyword{internal}
 

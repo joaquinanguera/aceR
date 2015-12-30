@@ -1,7 +1,7 @@
 
 #' aceR package path
 #'
-#' @keywords internal
+#' @export
 #' @return Returns the root directory of the aceR package.
 
 aceR_lib_path <- function() {
