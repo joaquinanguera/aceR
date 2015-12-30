@@ -9,6 +9,16 @@ aceR_lib_path <- function() {
   return (base_path)
 }
 
+#' aceR sample data path
+#'
+#' @export
+#' @return Returns the path containing sample aceR data
+
+aceR_sample_data_path <- function() {
+  path = paste(aceR_lib_path(), "extdata", sep = "/")
+  return (path)
+}
+
 #' aceR description
 #'
 #' @export
