@@ -8,7 +8,7 @@
 #### R-dev package dependencies
 
 ```
-dev_deps = c("devtools", "roxygen2", "testthat")
+dev_deps = c("devtools", "roxygen2", "testthat", "sciplot")
 install.packages(dev_deps)
 ```
 
