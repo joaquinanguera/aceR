@@ -19,18 +19,30 @@ load_ace_file <- function(file) {
     dfs = names(raw_dat)
     for (i in 1:length(dfs)) {
       name = paste(file, dfs[i], sep = "-")
-      df = transform_raw_ace_data(name, raw_dat[[i]])
+      df = attempt_transform(name, raw_dat[[i]])
       out = plyr::rbind.fill(out, df)
     }
     return (out)
   } else {
-    return (transform_raw_ace_data(file, raw_dat))
+    return (attempt_transform(file, raw_dat))
   }
 }
 
 #' @keywords internal
 
-transform_raw_ace_data <- function (file, raw_dat) {
+attempt_transform <- function(file, raw_dat) {
+  df = tryCatch ({
+    return (transform_raw(file, raw_dat))
+  }, error = function(e) {
+    warning("unable to load ", file)
+    return (data.frame())
+  })
+  return (df)
+}
+
+#' @keywords internal
+
+transform_raw <- function (file, raw_dat) {
   if (nrow(raw_dat) == 0) return (data.frame())
   # standardize raw data
   raw_dat = standardize_raw_csv_data(raw_dat)
