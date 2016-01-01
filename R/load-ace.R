@@ -32,18 +32,19 @@ load_ace_file <- function(file) {
 
 attempt_transform <- function(file, raw_dat) {
   # transform data to data frame
-  tryCatch ({
-    df = transform_raw(file, raw_dat)
+  df = tryCatch ({
+    transformed = transform_raw(file, raw_dat)
+    # test if data is usable
+    st = paste(transformed, collapse = "")
+    if (grepl("}", st)) {
+      warning(file, " contains invalid data ")
+      return (data.frame())
+    }
+    return (transformed)
   }, error = function(e) {
     warning("unable to load ", file)
     return (data.frame())
   })
-  # check if our transformed data is usable.
-  st = paste(df, collapse = "")
-  if (grepl("}", st)) {
-    warning(file, " contains invalid data ")
-    return (data.frame())
-  }
   return (df)
 }
 
