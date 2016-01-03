@@ -3,6 +3,8 @@
 
 rm(list = ls())
 
+options(nwarnings = 500)
+
 library(aceR)
 
 DATA_PATH = "~/Desktop/ACE Studies_Raw Data"
@@ -45,10 +47,39 @@ files_to_ignore = c(
 
 to_ignore = c(subdirs_to_ignore, files_to_ignore)
 
-raw_dat = load_ace_bulk(exclude = to_ignore)
-proc_dat = proc_by_module(raw_dat, verbose = TRUE)
+# load and process each subdirectory individually
+# b/c there's > 2000 files and it takes ~1 hour to load them all from scratch.
 
-setwd(RELEASE_PATH)
-export_csv(proc_dat)
+subdirs = c(
+  "16 Person Study", 
+  "Adaptivity", 
+  "CanDo", 
+  "Control Boys", 
+  "Control Girls", 
+  "Redbull", 
+  "SPD Boys", 
+  "SPD Girls", 
+  "Summer 2015 School Data",
+  "Test Retest"
+)
 
-# TODO: load "filtered" ace data
+for (subdir in subdirs) {
+  
+  # reset base directory
+  setwd(DATA_PATH)
+  
+  # define paths
+  rel_path = paste(RELEASE_PATH, subdir, sep = "/")
+  sub_path = paste(DATA_PATH, subdir, sep = "/")
+  dir.create(file.path(RELEASE_PATH, subdir), showWarnings = FALSE)
+  
+  # load & process data
+  setwd(sub_path)
+  raw_dat = load_ace_bulk(exclude = to_ignore)
+  proc_dat = proc_by_module(raw_dat, verbose = TRUE)
+  
+  # export
+  setwd(rel_path)
+  export_csv(proc_dat)
+  
+}
