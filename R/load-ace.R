@@ -82,6 +82,7 @@ transform_raw <- function (file, raw_dat) {
   } else {
     # make block id from file name & time if file doesn't contain PID
     dat[, COL_BID] = paste(dat$file, dat[, COL_TIME], sep = ".")
+    dat[, COL_PID] = NA
   }
   dat = standardize_ace_values(dat)
   return (dat)
