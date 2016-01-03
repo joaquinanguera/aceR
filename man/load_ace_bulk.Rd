@@ -5,7 +5,7 @@
 \title{Read & Load all ACE csv & xls files in a directory}
 \usage{
 load_ace_bulk(path = ".", verbose = TRUE, recursive = TRUE,
-  exclude = c())
+  exclude = c(), pattern = NULL)
 }
 \arguments{
 \item{path}{a character vector of full path names; the default
@@ -18,6 +18,9 @@ load_ace_bulk(path = ".", verbose = TRUE, recursive = TRUE,
 \item{recursive}{logical.  Should the listing recurse into directories?}
 
 \item{exclude}{a list of patterns to exclude}
+
+\item{pattern}{an optional \link{regular expression}.  Only file names
+    which match the regular expression will be returned.}
 }
 \value{
 Returns a data.frame containing the content of every file in the

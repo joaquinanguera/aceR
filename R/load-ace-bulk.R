@@ -25,12 +25,15 @@ files_in_directory <- function(path = ".", pattern = ".csv", recursive = TRUE) {
 #' @return Returns a data.frame containing the content of every file in the
 #'  specified \code{path}.
 
-load_ace_bulk <- function(path = ".", verbose = TRUE, recursive = TRUE, exclude = c()) {
+load_ace_bulk <- function(path = ".", verbose = TRUE, recursive = TRUE, exclude = c(), pattern = NULL) {
   csv = list.files(path = path, pattern = ".csv", recursive = recursive)
   xls = list.files(path = path, pattern = ".xls", recursive = recursive)
   files = sort(c(csv, xls))
   for (ex in exclude) {
     files = filter_out_vec(files, ex)
+  }
+  if (!is.null(pattern)) {
+    files = filter_vec(files, pattern)
   }
   if (length(files) == 0) {
     stop("no matching files", call. = TRUE)
