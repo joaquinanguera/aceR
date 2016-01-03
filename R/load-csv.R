@@ -2,7 +2,7 @@
 #' @keywords internal
 
 load_csv <- function(file) {
-  num_cols = max(count.fields(file, sep = ','))
+  num_cols = max(count.fields(file, sep = ','), na.rm = TRUE)
   df = read.csv(file, header = FALSE, row.names = NULL, col.names = seq_len(num_cols), fill = TRUE, stringsAsFactors = FALSE) 
   return (df)
 }
