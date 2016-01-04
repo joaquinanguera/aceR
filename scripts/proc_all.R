@@ -12,12 +12,27 @@ RELEASE_PATH = "~/Desktop/ACE Processed"
 
 setwd(DATA_PATH)
 
+load_proc_and_write = function(subdir, FUN, ...) {
+  # reset base directory
+  setwd(DATA_PATH)
+  
+  # define paths
+  rel_path = paste(RELEASE_PATH, subdir, sep = "/")
+  sub_path = paste(DATA_PATH, subdir, sep = "/")
+  dir.create(file.path(RELEASE_PATH, subdir), showWarnings = FALSE)
+  
+  # load & process data
+  setwd(sub_path)
+  raw_dat = FUN(...)
+  proc_dat = proc_by_module(raw_dat, verbose = TRUE)
+  
+  # export
+  setwd(rel_path)
+  export_csv(proc_dat)  
+}
+
 # exclude problematic subdirectories
-subdirs_to_ignore = c(
-  "Brighten", 
-  "Remaining _Jyoti", 
-  "Remaining Raw Data (Brighten, BBT-MT, India, 16p-Adaptivity)", 
-  "Dan's Raw ACE Data")
+subdirs_to_ignore = c("Dan's Raw ACE Data", "Original Files")
 
 # exclude problematic files
 files_to_ignore = c(
@@ -63,28 +78,15 @@ subdirs = c(
   "SPD Boys", 
   "SPD Girls", 
   "Summer 2015 School Data",
-  "Test Retest"
+  "Test Retest")
+  
+subdirs_filtered = c(
+  "Brighten", 
+  "Remaining _Jyoti", 
+  "Remaining Raw Data (Brighten, BBT-MT, India, 16p-Adaptivity)"
 )
 
-# load raw ace ("sent-by-email") files 
 
-for (subdir in subdirs) {
-  
-  # reset base directory
-  setwd(DATA_PATH)
-  
-  # define paths
-  rel_path = paste(RELEASE_PATH, subdir, sep = "/")
-  sub_path = paste(DATA_PATH, subdir, sep = "/")
-  dir.create(file.path(RELEASE_PATH, subdir), showWarnings = FALSE)
-  
-  # load & process data
-  setwd(sub_path)
-  raw_dat = load_ace_bulk(exclude = to_ignore)
-  proc_dat = proc_by_module(raw_dat, verbose = TRUE)
-  
-  # export
-  setwd(rel_path)
-  export_csv(proc_dat)
-  
-}
+# load raw ace ("sent-by-email") files
+sapply(subdirs, function(x) load_proc_and_write(x, load_ace_bulk, exclude = to_ignore))
+
