@@ -40,6 +40,11 @@ attempt_transform <- function(file, raw_dat) {
       warning(file, " contains invalid data ")
       return (data.frame())
     }
+    # technically a 'valid' file, BUT contains no data.
+    if (nrow(transformed) < 2) {
+      warning(file, "is valid, but contains no data!")
+      return (data.frame())
+    }
     return (transformed)
   }, error = function(e) {
     warning("unable to load ", file)
