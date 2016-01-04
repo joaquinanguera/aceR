@@ -1,7 +1,7 @@
 Package: aceR
 Title: Tools for processing ACE data
 Description: An R package for processing ACE data.
-Version: 1.1.3
+Version: 1.1.4
 Authors@R: 'Jose Gallegos <josegallegos07@gmail.com> [aut,cre]'
 URL: https://github.com/josegallegos07/aceR
 BugReports: https://github.com/josegallegos07/aceR/issues
