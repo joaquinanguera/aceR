@@ -9,6 +9,7 @@ library(aceR)
 
 DATA_PATH = "~/Desktop/ACE Studies_Raw Data"
 RELEASE_PATH = "~/Desktop/ACE Processed"
+PROC_ALL = "_all"
 
 setwd(DATA_PATH)
 
@@ -89,4 +90,14 @@ subdirs_filtered = c(
 
 # load raw ace ("sent-by-email") files
 sapply(subdirs, function(x) load_proc_and_write(x, load_ace_bulk, exclude = to_ignore))
+
+# combine all data by task (TODO: clean this up)
+setwd(RELEASE_PATH)
+proc_files = load_files(recursive = TRUE)
+proc_files$module = as.character(proc_files$module)
+by_module = aceR:::subset_by_col(proc_files, "module")
+
+dir.create(file.path(RELEASE_PATH, PROC_ALL), showWarnings = FALSE)
+setwd(PROC_ALL)
+export_csv(by_module)
 
