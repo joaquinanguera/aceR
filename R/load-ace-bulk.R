@@ -1,18 +1,4 @@
 
-#' List the files in a directory/folder
-#'
-#' Wrapper around \code{\link{list.files}()}
-#'
-#' @export
-#' @inheritParams base::list.files
-#' @return Returns a character vector containing the names of the files 
-#'   in the specified directory.
-
-files_in_directory <- function(path = ".", pattern = ".csv", recursive = TRUE) {
-  files = list.files(path = path, pattern = pattern, recursive = recursive)
-  return (files)
-}
-
 #' Read & Load all ACE csv & xls files in a directory
 #'
 #' Wrapper function around \code{\link{load_ace_file}()} to read & parse 
