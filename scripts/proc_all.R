@@ -66,6 +66,8 @@ subdirs = c(
   "Test Retest"
 )
 
+# load raw ace ("sent-by-email") files 
+
 for (subdir in subdirs) {
   
   # reset base directory
