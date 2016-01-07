@@ -40,7 +40,7 @@ ace_detection <- function(x, y) {
 #' @keywords internal
 
 snodgrass_correction <- function(rate, num) {
-  return (((rate * num) + 0.50) / num)
+  return ((rate + 0.50) / (num + 1))
 }
   
 #' @keywords internal
