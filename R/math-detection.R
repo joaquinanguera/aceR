@@ -34,6 +34,7 @@ ace_detection <- function(x, y) {
   out$pr = out$hit_rate - out$false_alarm_rate
   out$dprime = qnorm(out$hit_rate) - qnorm(out$false_alarm_rate)
   out$dprime_snodgrass = qnorm(snodgrass_correction(out$hit_rate, num_total)) - qnorm(snodgrass_correction(out$false_alarm_rate, num_total))
+  out$dprime_wixted = qnorm(wixted_hit_rate_correction(out$hit_rate, num_targets)) - qnorm(wixted_false_alarm_correction(out$false_alarm_rate, num_nontargets))
   return (out)
 }
 
@@ -42,7 +43,27 @@ ace_detection <- function(x, y) {
 snodgrass_correction <- function(rate, num) {
   return ((rate + 0.50) / (num + 1))
 }
-  
+
+#' @keywords internal
+
+wixted_hit_rate_correction <- function(hit_rate, num_targets) {
+  if (hit_rate == 1) {
+    return (1 - (0.5 / num_targets))
+  } else {
+    return (hit_rate)
+  }
+}
+
+#' @keywords internal
+
+wixted_false_alarm_correction <- function(false_alarm_rate, num_nontargets) {
+  if (false_alarm_rate == 0) {
+    return (0 + (0.5 / num_nontargets))
+  } else {
+    return (false_alarm_rate)
+  }
+}
+
 #' @keywords internal
 
 identify_correct_rejections <- function(response_window, reaction_time) {
