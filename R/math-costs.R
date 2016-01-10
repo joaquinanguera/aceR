@@ -9,7 +9,11 @@ multi_fun <- function(df, first_pattern, second_pattern, suffix, FUN) {
   out = sapply(indices, function (x) {
     return (apply(data.frame(p1[, x], p2[, x]), 1, FUN))
   })
-  out = as.data.frame(out)
+  if (is.vector(out)) {
+    out = as.data.frame(t(out))
+  } else {
+    out = as.data.frame(out)
+  }
   names(out) = sapply(names(p1), function(x) gsub(first_pattern, suffix, x))
   return(out)
 }
