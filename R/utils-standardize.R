@@ -47,6 +47,12 @@ na_locf <- function(df, cols) {
 }
 
 #' @keywords internal
+to_snake_case <- function (x) {
+  sc = gsub("([a-z])([A-Z])", "\\1_\\L\\2", x, perl = TRUE)
+  return (sub("^(.[a-z])", "\\L\\1", sc, perl = TRUE))
+}
+
+#' @keywords internal
 
 multi_gsub <- function(pattern, replacement, x, ...) {
   if (length(pattern) != length(replacement)) {
