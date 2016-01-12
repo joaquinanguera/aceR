@@ -6,8 +6,8 @@ DATA_PATH = "~/Desktop/ACE Studies_Raw Data/Brighten"
 
 setwd(DATA_PATH)
 
-file = "brt_filtered.xlsx" # has "key" column
-# file = "saat_filtered.xlsx" # no "key" column
+#file = "brt_filtered.xlsx" # has "key" column
+file = "saat_filtered.xlsx" # no "key" column
 
 if (aceR:::is_excel(file)) {
   df = openxlsx::read.xlsx(file, sheet = 1)
@@ -17,3 +17,4 @@ if (aceR:::is_excel(file)) {
 cols = names(df)
 pid_col = cols[grep("id", cols)[1]]
 has_key = "key" %in% cols
+names(df) = sapply(cols, function(x) aceR:::to_snake_case(x))
