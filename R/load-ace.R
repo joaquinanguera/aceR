@@ -30,6 +30,24 @@ load_ace_file <- function(file) {
 
 #' @keywords internal
 
+load_ace_filtered_file <- function(file) {
+  if (is_excel(file)) {
+    df = openxlsx::read.xlsx(file, sheet = 1)
+  } else {
+    df = read.csv(file, header = TRUE, sep = ",")
+  }
+  cols = names(df)
+  pid_col = cols[grep("id", cols)[1]]
+  has_key = "key" %in% cols
+  names(df) = sapply(cols, function(x) to_snake_case(x))
+  df$file = file
+  df$module = identify_module(file)
+  df = replace_nas(df, "")
+  return (df)
+}
+
+#' @keywords internal
+
 attempt_transform <- function(file, raw_dat) {
   # transform data to data frame
   df = tryCatch ({
