@@ -38,8 +38,8 @@ load_ace_filtered_file <- function(file) {
   }
   cols = names(df)
   pid_col = cols[grep("id", cols)[1]]
-  has_key = "key" %in% cols
-  names(df) = sapply(cols, function(x) to_snake_case(x))
+  names(df)[names(df) == pid_col] = COL_PID
+  names(df) = sapply(names(df), function(x) to_snake_case(x))
   df$file = file
   df$module = identify_module(file)
   df = replace_nas(df, "")
