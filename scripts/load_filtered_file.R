@@ -18,5 +18,6 @@ for (file in files) {
   proc = proc_by_module(dat)
   
   setwd(RELEASE_PATH)
-  export_csv(proc)
+  out = paste0("proc-", file, ".csv")
+  write.csv(proc, out)
 }
