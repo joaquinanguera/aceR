@@ -2,7 +2,10 @@
 #' @keywords internal
 
 ace_detection <- function(x, y) {
+  DETT <<- x
+  DEYY <<- y
   rejs = identify_correct_rejections(x, y)
+  REJS <<- rejs
   types = plyr::mapvalues(rejs, warn_missing = FALSE,
     from = c("correct_rejection", "miss", "false_alarm", "hit"), 
     to = c("target", "target", "nontarget", "nontarget"))
@@ -47,6 +50,7 @@ snodgrass_correction <- function(rate, num) {
 #' @keywords internal
 
 wixted_hit_rate_correction <- function(hit_rate, num_targets) {
+  if (is.na(hit_rate)) return (NA)
   if (hit_rate == 1) {
     return (1 - (0.5 / num_targets))
   } else {
@@ -57,7 +61,8 @@ wixted_hit_rate_correction <- function(hit_rate, num_targets) {
 #' @keywords internal
 
 wixted_false_alarm_correction <- function(false_alarm_rate, num_nontargets) {
-  if (false_alarm_rate == 0) {
+  if (is.na(false_alarm_rate)) return (NA)
+  if (false_alarm_rate == 0 && !is.na(false_alarm_rate)) {
     return (0 + (0.5 / num_nontargets))
   } else {
     return (false_alarm_rate)
