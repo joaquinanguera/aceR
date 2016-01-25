@@ -1,12 +1,22 @@
 
+rm(list = ls())
+
 library("aceR")
 library("openxlsx")
 
 DATA_PATH = "~/Desktop/ACE Studies_Raw Data/Brighten"
+RELEASE_PATH = "~/Desktop/brighten_test"
 
 setwd(DATA_PATH)
+files = list.files(pattern = "xlsx", recursive = FALSE)
 
-file = "BRT_filtered.xlsx" # has "key" column
-#file = "saat_filtered.xlsx" # no "key" column
-
-dat = aceR:::load_ace_filtered_file(file)
+for (file in files) {
+  
+  setwd(DATA_PATH)
+  
+  dat = aceR:::load_ace_filtered_file(file)
+  proc = proc_by_module(dat)
+  
+  setwd(RELEASE_PATH)
+  export_csv(proc)
+}
