@@ -40,9 +40,13 @@ load_ace_filtered_file <- function(file) {
   pid_col = cols[grep("id", cols)[1]]
   names(df)[names(df) == pid_col] = COL_PID
   names(df) = sapply(names(df), function(x) to_snake_case(x))
+  df = standardize_ace_column_names(df)
   df$file = file
   df$module = identify_module(file)
   df = replace_nas(df, "")
+  df[, COL_TIME] = df$time_gameplayed_utc
+  df[, COL_CONDITION] = df$details
+  df[, COL_BID] = paste(df[, COL_PID], df[, COL_TIME])
   return (df)
 }
 
