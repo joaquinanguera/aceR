@@ -2,10 +2,15 @@
 #' @keywords internal
 
 ace_detection <- function(x, y) {
-  DETT <<- x
-  DEYY <<- y
+  if (length(x) == 1) {
+    out = c()
+    out$pr = NA
+    out$dprime = NA
+    out$dprime_snodgrass = NA
+    out$dprime_wixted = NA
+    return (out)  
+  }
   rejs = identify_correct_rejections(x, y)
-  REJS <<- rejs
   types = plyr::mapvalues(rejs, warn_missing = FALSE,
     from = c("correct_rejection", "miss", "false_alarm", "hit"), 
     to = c("target", "target", "nontarget", "nontarget"))
