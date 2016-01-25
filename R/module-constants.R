@@ -11,12 +11,12 @@ proc_generic_module <- function(df, col_acc, col_condition, by_factor = TRUE) {
   # turns calculations
   if (by_factor) {
     # turns calculation by condition
-    turns = proc_standard(df, COL_RT, col_condition, factor = col_acc, FUN = ace_average_turns)
+    turns = proc_standard(df, COL_RW, col_condition, factor = col_acc, FUN = ace_average_turns)
     # detection rates by condition
     detection = proc_standard(df, COL_RW, col_condition, factor = COL_RT, FUN = ace_detection_rate)
   } else {
     # overall turns calculation
-    turns = proc_standard(df, COL_RT, col_condition = NULL, factor = col_acc, FUN = ace_average_turns, y = c(COL_BID))
+    turns = proc_standard(df, COL_RW, col_condition = NULL, factor = col_acc, FUN = ace_average_turns, y = c(COL_BID))
     # overall detection rates
     detection = proc_standard(df, COL_RW, col_condition = NULL, factor = COL_RT, FUN = ace_detection_rate, y = c(COL_BID))
   }
