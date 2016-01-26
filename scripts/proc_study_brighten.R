@@ -4,7 +4,7 @@ rm(list = ls())
 
 library(aceR)
 
-setwd("~/Google Drive/ACE Studies_Raw Data/Brighten")
+setwd("~/Desktop/ACE Studies_Raw Data/Brighten")
 
 # load & process dat
 dat = load_ace_bulk(recursive = FALSE)
