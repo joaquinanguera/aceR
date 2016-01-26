@@ -72,6 +72,7 @@ to_ignore = c(subdirs_to_ignore, files_to_ignore)
 subdirs = c(
   "16 Person Study", 
   "Adaptivity", 
+  "Brighten",
   "CanDo", 
   "Control Boys", 
   "Control Girls", 
@@ -80,13 +81,6 @@ subdirs = c(
   "SPD Girls", 
   "Summer 2015 School Data",
   "Test Retest")
-  
-subdirs_filtered = c(
-  "Brighten", 
-  "Remaining _Jyoti", 
-  "Remaining Raw Data (Brighten, BBT-MT, India, 16p-Adaptivity)"
-)
-
 
 # load raw ace ("sent-by-email") files
 sapply(subdirs, function(x) load_proc_and_write(x, load_ace_bulk, exclude = to_ignore))
