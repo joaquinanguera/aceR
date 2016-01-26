@@ -5,6 +5,8 @@
 
 ace_turns <- function(x, y, n = 3) {
   if (length(x) == 1) return (NA)
+  if (any(x == "")) return (NA)
+  if (any(y == "")) return (NA)
   indices = identify_turns(to_numeric(y))
   last_n = tail(indices, n)
   vals = x[last_n]
