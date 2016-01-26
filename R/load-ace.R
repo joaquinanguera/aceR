@@ -9,6 +9,9 @@
 
 load_ace_file <- function(file) {
   # read raw csv file
+  if (is_filtered(file)) {
+    return (load_ace_filtered_file(file))
+  }
   if (is_excel(file)) {
     raw_dat = load_excel(file)
   } else {
@@ -48,6 +51,12 @@ load_ace_filtered_file <- function(file) {
   df[, COL_CONDITION] = df$details
   df[, COL_BID] = paste(df[, COL_PID], df[, COL_TIME])
   return (df)
+}
+
+#' @keywords internal
+
+is_filtered <- function (filename) {
+  return (grepl("filtered", filename))
 }
 
 #' @keywords internal
