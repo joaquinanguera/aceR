@@ -45,6 +45,7 @@ standardize_ace_column_names <- function(df) {
   new[new == "response_time"] = COL_RT
   new[new == "response_window"] = COL_RW
   new[new == "participant_id"] = COL_PID
+  new[new == "user_id"] = COL_PID
   names(df) = new
   return (df)
 }
