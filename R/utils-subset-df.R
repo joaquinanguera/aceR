@@ -10,5 +10,7 @@ subset_by_col <- function(df, col) {
     out[[i]] = df[match, ]
   }
   names(out) = unique_groups
+  out = replace_nas(out, "")
+  out = remove_empty_cols(out)
   return (out)
 }
