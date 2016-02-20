@@ -50,7 +50,13 @@ proc_by_module <- function(df, verbose = FALSE) {
       names(info)[2:length(info)] = c(COL_PID, COL_TIME, COL_FILE)
       all = merge(info, proc, by = COL_BID)
       all$module = name
-      out[[name]] = all
+      # UGLY MONKEY PATCH: get rid of invalid columns
+      # One example where this happens is when we apply stats to a variable by a grouping column 
+      # but the grouping variable is blank for a given row. We end up with columns that end in "."
+      # just removing them for now here.
+      valid_cols = sapply(names(all), function(x) stringr::str_sub(x, start = -1) != ".")
+      valid = all[valid_cols]
+      out[[name]] = valid
     }, error = function(e) {
       warning(e)
     })
