@@ -36,23 +36,23 @@ identify_grouping_rows <- function(dat) {
 #' @keywords internal
 
 identify_nondata_rows <- function(dat) {
-  grouping = identify_grouping_rows(dat)
-  nondata = dat[dat[1] != "" & dat[2] != "" & dat[3] == "", ]
-  vals = c(grouping, numeric_row_names(nondata))
+  possible_groups = identify_grouping_rows(dat)
+  consec = group_consecutive_integers(possible_groups)
+  # for consecutive 'non-data' rows we're assuming the last value is the grouping value and everything is throwaway
+  non_data = sapply(consec, function(x) {
+    if (length(x) > 1) {
+      return (head(x, -1))
+    } else 
+    return (c())
+  })
+  throw_away = dat[dat[1] != "" & dat[2] != "" & dat[3] == "", ]
+  vals = c(unlist(non_data), numeric_row_names(throw_away))
   vals = sort(unique(vals))
   if (length(vals) <= 1) {
     return (c())
+  } else {
+    return (vals)
   }
-  num = length(vals) - 1
-  out = c()
-  for (i in 1:num) {
-    n = vals[i]
-    m = vals[i + 1]
-    if (diff(c(n, m)) == 1) {
-      out = c(out, c(n, m))
-    }
-  }
-  return (unique(out))
 }
 
 #' @keywords internal
