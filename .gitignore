@@ -1,3 +1,6 @@
+# MACOSX files
+.DS_Store
+
 # History files
 .RData
 .Rhistory
