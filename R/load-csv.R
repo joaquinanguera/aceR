@@ -42,8 +42,9 @@ identify_nondata_rows <- function(dat) {
   non_data = sapply(consec, function(x) {
     if (length(x) > 1) {
       return (head(x, -1))
-    } else 
-    return (c())
+    } else {
+      return (c())
+    }
   })
   throw_away = dat[dat[1] != "" & dat[2] != "" & dat[3] == "", ]
   vals = c(unlist(non_data), numeric_row_names(throw_away))
