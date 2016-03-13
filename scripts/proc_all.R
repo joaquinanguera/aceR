@@ -7,7 +7,7 @@ options(nwarnings = 500)
 
 library(aceR)
 
-DATA_PATH = "~/Desktop/ACE Studies_Raw Data"
+DATA_PATH = "~/Google Drive/ACE Studies_Raw Data"
 RELEASE_PATH = "~/Desktop/ace_processed"
 PROC_ALL = "_all"
 
