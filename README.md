@@ -16,6 +16,10 @@ devtools::install_github("josegallegos07/aceR", auth_token = GITHUB_PAT)
 
 See [here](inst/docs/dev.md) for development notes.
 
+## Example Scripts
+
+See [here](scripts/) for example scripts.
+
 ### Branches
 
 #### development 
