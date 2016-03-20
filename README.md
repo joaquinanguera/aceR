@@ -1,5 +1,11 @@
 # aceR
 
+`aceR` is an R package around ACE data. 
+
+## Getting Started
+
+See [here](inst/docs/getting-started.md) for a detailed install guide and annotated example.
+
 ## Installation
 
 `aceR` is currently only available on github.
@@ -11,14 +17,13 @@ Install the latest release from github using [devtools](https://github.com/hadle
 GITHUB_PAT = "64235145b808f152d84467ea1362dc0b7a0def6c"
 devtools::install_github("josegallegos07/aceR", auth_token = GITHUB_PAT)
 ```
+## Example Scripts
+
+See [here](scripts/) for example scripts.
 
 ## Development
 
 See [here](inst/docs/dev.md) for development notes.
-
-## Example Scripts
-
-See [here](scripts/) for example scripts.
 
 ### Branches
 
