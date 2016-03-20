@@ -11,13 +11,13 @@
 4. Install `devtools` R-package.
   
   Open RStudio, and run the following command in the console:
-  ```
+  ```{r}
   install.packages("devtools")
   ```
   
 5. Finally, install `aceR` using `devtools`
 
-  ```
+  ```{r}
   GITHUB_PAT = "64235145b808f152d84467ea1362dc0b7a0def6c"
   devtools::install_github("josegallegos07/aceR", auth_token = GITHUB_PAT)
   ```
@@ -27,7 +27,7 @@ The following section describes how to set up a simple script for loading and pr
 
 ### 1. Load `aceR`
 
-```
+```{r}
 library(aceR)
 ```
 
@@ -36,13 +36,13 @@ _Working directory_ refers to the directory you want R to load data from (or wri
 
 If we wanted to process RedBull data:
 
-```
+```{r}
 setwd("~/Google Drive/ACE Studies_Raw Data/RedBull")
 ```
 
 We can also set up our script to process "all" ACE data in one go:
 
-```
+```{r}
 setwd("~/Google Drive/ACE Studies_Raw Data")
 ```
 
@@ -52,7 +52,7 @@ setwd("~/Google Drive/ACE Studies_Raw Data")
 
 ### 3. Load our Data
 
-```
+```{r}
 dat = load_ace_bulk()
 ```
 
@@ -61,7 +61,7 @@ dat = load_ace_bulk()
 
 ### 4. Process our data
 
-```
+```{r}
 proc = proc_by_module(dat, verbose = TRUE)
 ```
 
@@ -71,7 +71,7 @@ proc = proc_by_module(dat, verbose = TRUE)
 ### 5. Change our working directory to output directory
 To avoid running into issues, save our processed data into a different directory:
 
-```
+```{r}
 setwd("~/Desktop/processed")
 ```
 
@@ -80,13 +80,13 @@ setwd("~/Desktop/processed")
 
 ### 6. Finally, export our processed Data
 
-```
+```{r}
 export_csv(proc)
 ```
 
 ### All Together
 
-```
+```{r}
 # load aceR
 library(aceR)
 
