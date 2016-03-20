@@ -103,3 +103,7 @@ proc = proc_by_module(dat, verbose = TRUE)
 setwd("~/Desktop/processed")
 export_csv(proc)
 ```
+
+## More examples
+
+See [example scripts](https://github.com/josegallegos07/aceR/tree/master/scripts)
