@@ -4,6 +4,7 @@ rm(list = ls())
 
 library(aceR)
 library(reshape)
+library(plyr)
 
 # helper functions
 
@@ -15,7 +16,8 @@ capitalize <- function(x) {
 
 # load
 WORKING_DIR = "~/Desktop"
-file_name = "School Pilot WJ Data GRADE.xlsx"
+file_name = "School Pilot WJ Data AGE.xlsx" # "School Pilot WJ Data GRADE.xlsx"
+out_name = "wj_transform_age.csv" #"wj_transform_grade.csv"
 file = paste(WORKING_DIR, file_name, sep = "/")
 dat = openxlsx::read.xlsx(file, sheet = 1, colNames = FALSE)
 
@@ -68,4 +70,6 @@ for (i in grows) {
   out = plyr::rbind.fill(out, wood)
 }
 
+# export
+write.csv(out, out_name)
 
