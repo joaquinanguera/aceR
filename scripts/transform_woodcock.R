@@ -6,14 +6,6 @@ library(aceR)
 library(reshape)
 library(plyr)
 
-# helper functions
-
-capitalize <- function(x) {
-  cap = gsub("(^|[[:space:]])([[:alpha:]])", "\\1\\U\\2", x, perl = TRUE)
-  return (cap)
-}
-
-
 # load
 WORKING_DIR = "~/Desktop"
 file_name = "School Pilot WJ Data AGE.xlsx" # "School Pilot WJ Data GRADE.xlsx"
@@ -46,7 +38,7 @@ for (i in grows) {
   # transform
 
   prefix = tolower(sdat[, 3 ])
-  prefix = capitalize(prefix)
+  prefix = aceR:::to_title_case(prefix)
   prefix = aceR:::replace_spaces(prefix, "")
   
   wood_dat = sdat[, 3:length(sdat)]

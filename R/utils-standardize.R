@@ -54,6 +54,13 @@ to_snake_case <- function (x) {
 
 #' @keywords internal
 
+to_title_case <- function(x) {
+  cap = gsub("(^|[[:space:]])([[:alpha:]])", "\\1\\U\\2", x, perl = TRUE)
+  return (cap)
+}
+
+#' @keywords internal
+
 multi_gsub <- function(pattern, replacement, x, ...) {
   if (length(pattern) != length(replacement)) {
     stop("pattern and replacement do not have the same length")
