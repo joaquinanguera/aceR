@@ -8,8 +8,8 @@ library(plyr)
 
 # load
 WORKING_DIR = "~/Desktop"
-file_name = "School Pilot WJ Data AGE.xlsx" # "School Pilot WJ Data GRADE.xlsx"
-out_name = "wj_transform_age.csv" #"wj_transform_grade.csv"
+file_name = "School Pilot WJ Data GRADE.xlsx" # "School Pilot WJ Data AGE.xlsx"
+out_name = "wj_transform_grade.csv" #"wj_transform_age.csv"
 file = paste(WORKING_DIR, file_name, sep = "/")
 dat = openxlsx::read.xlsx(file, sheet = 1, colNames = FALSE)
 
@@ -44,7 +44,17 @@ for (i in grows) {
   wood_dat = sdat[, 3:length(sdat)]
   wood_dat[, 1] = prefix
   id = names(wood_dat)[1]
-  wood_melt = reshape::melt(wood_dat, id=id)
+  wood_melt = reshape::melt(wood_dat, id = id)
+  
+  clust_prefix = unique(wood_melt[, 1])
+  clust_suffix = unique(wood_melt[, 2])
+  clust_seq = seq(clust_prefix)
+  clust_num = length(clust_suffix)
+  corrected_order = sapply(clust_seq, function(x) {
+    cname = sapply(clust_suffix, function(y) paste(clust_prefix[x], y, sep = "_"))
+    return (cname)
+  }) 
+  corrected_order = as.vector(corrected_order)
   
   user_dat = data.frame(
     val = wood_melt$value
@@ -57,9 +67,22 @@ for (i in grows) {
   wood = data.frame(
     sid = sdat[1, 1],
     date = sdat[1, 2]
-  )
-  wood = merge(wood, user_dat_t)
+  ) 
+  
+  wood = merge(wood, user_dat_t[corrected_order])
   out = plyr::rbind.fill(out, wood)
+  
+  # sort
+  
+  out$sid = gsub(" ", "", out$sid)
+  out = out[order(as.character(out$sid)), ] 
+  
+  # remove unneeded columns
+  
+  good_column_names = aceR:::filter_out_vec(names(out), "_to")
+  out = out[good_column_names]
+  
+  # order columns 
 }
 
 # export
