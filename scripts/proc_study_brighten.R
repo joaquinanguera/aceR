@@ -9,14 +9,24 @@ library(aceR)
 setwd("~/Desktop/ACE data")
 
 # load & process dat
-dat = load_ace_bulk(pattern = "BRT", recursive = FALSE)
+dat = load_ace_bulk(recursive = FALSE)
 proc = proc_by_module(dat, TRUE)
 
-all_tasks = data.frame()
+# TODO: this is sloooooow...
+subset_first_block = function(df) {
+  sorted_bid = df[order(as.character(df$bid)), ]
+  sub_pid = aceR:::subset_by_col(sorted_bid, "pid")
+  out = data.frame()
+  for (sub in sub_pid) {
+    out = plyr::rbind.fill(out, sub[1, ])
+  }
+  return (out)
+}
+
+all_tasks = data.frame(pid = "dummy")
 module_names = names(proc)
-for (i in 1:seq(length(proc))) {
+for (i in seq(length(module_names))) {
   module = proc[[i]]
-  module = module[order(as.character(module$bid)), ]
   module_name = module_names[i]
   first_block = subset_first_block(module)
   col_names = names(first_block)
@@ -24,12 +34,20 @@ for (i in 1:seq(length(proc))) {
     if (grepl("pid", x)) {
       new_name = x
     } else {
-      new_name = paste(module_name, x, sep = "_")
+      new_name = paste(module_name, x, sep = "-")
     }
     return (new_name)
   })
-  all_tasks = plyr::join(all_tasks, first_block, by = "pid")
+  if (i == 1) {
+    all_tasks = first_block
+  } else {
+    all_tasks = plyr::join(all_tasks, first_block, by = "pid")
+  }
 }
 
-setwd("~/Desktop/brighten_test")
-export_csv(proc)
+# cleanup
+clean = aceR:::replace_nas(all_tasks, "")
+clean = aceR:::remove_empty_cols(clean)
+
+setwd("~/Desktop")
+write.csv(clean, "first_block.csv")
