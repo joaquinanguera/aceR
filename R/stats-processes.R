@@ -20,8 +20,9 @@ ace_descriptive_statistics_by_group <- function(x, y) {
 #' @keywords internal 
 
 ace_average_turns <- function (x, y) {
-  avg_last_3_turns = c(turns = ace_turns(x, y))
-  return (c(avg_last_3_turns))
+  avg_last_3_turns = c(turns_three = ace_turns(x, y, n = 3))
+  avg_last_5_turns = c(turns_five = ace_turns(x, y, n = 5))
+  return (c(avg_last_3_turns, avg_last_5_turns))
 }
 
 #' @keywords internal 
