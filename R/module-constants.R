@@ -8,6 +8,9 @@ proc_generic_module <- function(df, col_acc, col_condition, by_factor = TRUE) {
   acc = proc_by_condition(df, col_acc, col_condition, FUN = ace_descriptive_statistics)
   # RT broken-down by condition & factor  
   rt_acc = proc_standard(df, COL_RT, col_condition, factor = col_acc, FUN = ace_descriptive_statistics_by_group)
+  # RW & RT by block half
+  rt_block_half = proc_standard(df, COL_RT, NULL, factor = COL_BLOCK_HALF, FUN = ace_descriptive_statistics_by_group)
+  rw_block_half = proc_standard(df, COL_RW, NULL, factor = COL_BLOCK_HALF, FUN = ace_descriptive_statistics_by_group)
   # turns calculations
   if (by_factor) {
     # turns calculation by condition
@@ -21,7 +24,7 @@ proc_generic_module <- function(df, col_acc, col_condition, by_factor = TRUE) {
     detection = proc_standard(df, COL_RW, col_condition = NULL, factor = COL_RT, FUN = ace_detection_rate, y = c(COL_BID))
   }
   # merge
-  analy = list(rt, acc, rw, rt_acc, turns, detection)
+  analy = list(rt, acc, rw, rt_acc, rt_block_half, rw_block_half, turns, detection)
   merged = multi_merge(analy, by = COL_BID)
   return (merged)
 }

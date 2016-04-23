@@ -58,7 +58,8 @@ module_spatialspan <- function(df) {
   rt = proc_by_condition(df, COL_RT, COL_CORRECT_BUTTON, FUN = ace_descriptive_statistics)
   acc = proc_standard(df, COL_CORRECT_BUTTON, col_condition = NULL, FUN = ace_descriptive_statistics, y = c(COL_BID), suffix = "overall")
   span = proc_standard(df, "object_count", col_condition = NULL, FUN = ace_spatial_span, y = c(COL_BID), suffix = "overall")
-  analy = list(rt, acc, span)
+  rt_block_half = proc_standard(df, COL_RT, NULL, factor = COL_BLOCK_HALF, FUN = ace_descriptive_statistics_by_group)
+  analy = list(rt, acc, span, rt_block_half)
   merged = multi_merge(analy, by = COL_BID)
   return (merged)
 }

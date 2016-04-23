@@ -39,6 +39,9 @@ COL_SUB_ID = "subid"
 COL_TRIAL_TYPE = "trial_type"
 
 #' @name ace_header
+COL_BLOCK_HALF = "half"
+
+#' @name ace_header
 
 standardize_ace_column_names <- function(df) {
   new = names(df)
