@@ -29,6 +29,9 @@ load_ace_bulk <- function(path = ".", verbose = TRUE, recursive = TRUE, exclude 
     if (verbose) {
       print(file)
     }
+    if (path != ".") {
+      file = paste(path, file, sep = "/")
+    }
     dat = load_ace_file(file)
     out = plyr::rbind.fill(out, dat)
   }
