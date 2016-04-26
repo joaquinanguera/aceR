@@ -18,6 +18,10 @@ make_out_name = function(x) {
   return (out)
 }
 
+# load demographics data
+demographics_file = "All Participant Demographics.xlsx"
+demographics = load_ace_demographics(demographics_file)
+
 # loop
 
 files = c("School Pilot WJ Data GRADE.xlsx", "School Pilot WJ Data AGE.xlsx")
@@ -96,8 +100,14 @@ for (file in files) {
     good_column_names = aceR:::filter_out_vec(names(out), "_to")
     out = out[good_column_names]
     
+    # add demographics data
+    
+    out$pid = paste("ADMIN-UCSF", out$sid, sep = "-")
+    out$pid = gsub("SP", "", out$pid)
+    woodcock = merge(out, demographics, by = "pid")
+    
   }
   # export
-  write.csv(out, out_name)
+  write.csv(woodcock, out_name)
 }
 
