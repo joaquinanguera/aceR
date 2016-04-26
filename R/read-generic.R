@@ -24,11 +24,19 @@ files_in_directory <- function(path = ".", pattern = ".csv", recursive = TRUE) {
 #' @inheritParams base::list.files
 #' @return all files in a directory as one data frame
 
-load_files <- function (...) {
-  files = list.files(...)
+load_files <- function (path = ".", verbose = FALSE, ...) {
+  files = list.files(path, ...)
   out = data.frame()
   for (i in files) {
-    df = read.table(i, header = TRUE, sep = ",")
+    if (path != ".") {
+      file = paste(path, i, sep = "/")
+    } else {
+      file = i
+    }
+    if (verbose) {
+      print(paste("loading", file, sep = " "))
+    }
+    df = read.table(file, header = TRUE, sep = ",")
     out = plyr::rbind.fill(out, df)
   }
   return (out)
