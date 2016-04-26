@@ -1,42 +1,24 @@
-# script for processing ALL raw ACE data in specified directory
-# assumes all files are unprocessed 'by hand'
+# load and process all files
 
 rm(list = ls())
 
 options(nwarnings = 500)
 
+# load aceR
 library(aceR)
 
-DATA_PATH = "~/Google Drive/ACE Studies_Raw Data"
-RELEASE_PATH = "~/Desktop/ace_processed"
-PROC_ALL = "_all"
-
+# set paths
+DATA_PATH = "~/Desktop/ACE Studies_Raw Data"
+RELEASE_PATH = "~/Desktop/ace_process"
 setwd(DATA_PATH)
 
-load_proc_and_write = function(subdir, FUN, ...) {
-  # reset base directory
-  setwd(DATA_PATH)
-  
-  # define paths
-  rel_path = paste(RELEASE_PATH, subdir, sep = "/")
-  sub_path = paste(DATA_PATH, subdir, sep = "/")
-  dir.create(file.path(RELEASE_PATH, subdir), showWarnings = FALSE)
-  
-  # load & process data
-  setwd(sub_path)
-  raw_dat = FUN(...)
-  proc_dat = proc_by_module(raw_dat, verbose = TRUE)
-  
-  # export
-  setwd(rel_path)
-  export_csv(proc_dat)  
-}
-
 # exclude problematic subdirectories
-subdirs_to_ignore = c("Dan's Raw ACE Data", "Original Files")
+problematic_subdirectories = c(
+  "Dan's Raw ACE Data", 
+  "Original Files")
 
 # exclude problematic files
-files_to_ignore = c(
+problematic_files = c(
   "AgileAcademic-IAN", 
   "AgileEnvironments_ACE_pre-assessment-rankings_only", 
   "final_ae_rankings",
@@ -64,34 +46,21 @@ files_to_ignore = c(
   "i3/i018/SpatialSpan.csv",
   "i3/BRTAll.csv")
 
-to_ignore = c(subdirs_to_ignore, files_to_ignore)
+problematic_files = c(problematic_subdirectories, problematic_files)
 
 # load and process each subdirectory individually
-# b/c there's > 2000 files and it takes ~1 hour to load them all from scratch.
 
-subdirs = c(
-  "16 Person Study", 
-  "Adaptivity", 
-  "Brighten",
-  "CanDo", 
-  "Control Boys", 
-  "Control Girls", 
-  "Redbull", 
-  "SPD Boys", 
-  "SPD Girls", 
-  "Summer 2015 School Data",
-  "Test Retest")
-
-# load raw ace ("sent-by-email") files
-sapply(subdirs, function(x) load_proc_and_write(x, load_ace_bulk, exclude = to_ignore))
-
-# combine all data by task (TODO: clean this up)
-setwd(RELEASE_PATH)
-proc_files = load_files(recursive = TRUE)
-proc_files$module = as.character(proc_files$module)
-by_module = aceR:::subset_by_col(proc_files, "module")
-
-dir.create(file.path(RELEASE_PATH, PROC_ALL), showWarnings = FALSE)
-setwd(PROC_ALL)
-export_csv(by_module)
+# datasets = list.dirs(recursive = FALSE)
+datasets = c("Brighten")
+for (dset in datasets) {
+  
+  # load and process
+  dat = load_ace_bulk(path = dset, exclude = problematic_files)
+  proc = proc_by_module(dat, verbose = TRUE)
+  
+  # export 
+  out_path = paste(RELEASE_PATH, study, sep = "/")
+  export_csv(proc, out_path)
+  
+}
 
