@@ -8,9 +8,7 @@ library(aceR)
 
 # load demographics data
 demographics_file = "All Participant Demographics.xlsx"
-demographics = openxlsx::read.xlsx(demographics_file, sheet = 1, colNames = TRUE)
-demographics$pid = demographics[, 1]
-names(demographics) = tolower(gsub("[.]", "_", names(demographics)))
+demographics = load_ace_demographics(demographics_file)
 
 # load & process data by module
 all_data_path = "ace_process"
