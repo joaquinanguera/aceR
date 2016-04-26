@@ -17,4 +17,4 @@ Imports:
     XLConnect,
     openxlsx
 License: file LICENSE
-RoxygenNote: 5.0.0
+RoxygenNote: 5.0.1

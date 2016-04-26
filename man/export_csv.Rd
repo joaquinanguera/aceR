@@ -4,7 +4,7 @@
 \alias{export_csv}
 \title{Export CSV}
 \usage{
-export_csv(dat, path = ".")
+export_csv(dat, path = ".", showWarnings = FALSE)
 }
 \arguments{
 \item{dat}{a list of data frames to save}

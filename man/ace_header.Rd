@@ -3,6 +3,7 @@
 \docType{data}
 \name{ace_header}
 \alias{COL_BID}
+\alias{COL_BLOCK_HALF}
 \alias{COL_CONDITION}
 \alias{COL_CORRECT_BUTTON}
 \alias{COL_CORRECT_RESPONSE}
@@ -40,6 +41,8 @@ COL_BID
 COL_SUB_ID
 
 COL_TRIAL_TYPE
+
+COL_BLOCK_HALF
 
 standardize_ace_column_names(df)
 
