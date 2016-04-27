@@ -46,6 +46,7 @@ load_ace_filtered_file <- function(file) {
   df = standardize_ace_column_names(df)
   df$file = file
   df$module = identify_module(file)
+  df = standardize_ace_values(df)
   df = replace_nas(df, "")
   df[, COL_TIME] = df$time_gameplayed_utc
   df[, COL_CONDITION] = df$details
