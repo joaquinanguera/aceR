@@ -15,6 +15,7 @@ Imports:
     reshape,
     stringr,
     XLConnect,
-    openxlsx
+    openxlsx,
+    ggplot2
 License: file LICENSE
 RoxygenNote: 5.0.1
