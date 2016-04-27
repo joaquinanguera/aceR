@@ -31,6 +31,6 @@ for (module in mods) {
   
   # putut
   mod_file_name = paste(out_path, module, sep ="/")
-  write.csv(mod_demo, mod_file_name)
+  write.csv(mod_demo, mod_file_name, na = "")
   
 }
