@@ -61,7 +61,7 @@ for (dset in datasets) {
   proc = proc_by_module(dat, verbose = TRUE)
   
   # export 
-  out_path = paste(RELEASE_PATH, study, sep = "/")
+  out_path = paste(RELEASE_PATH, dset, sep = "/")
   export_csv(proc, out_path)
   
 }
