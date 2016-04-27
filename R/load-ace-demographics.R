@@ -11,3 +11,17 @@ load_ace_demographics <- function(file) {
   names(demographics) = tolower(gsub("[.]", "_", names(demographics)))
   return (demographics)
 }
+
+# TODO: this doesn't go here!!!!!!!!!
+
+#' @keywords internal
+
+subset_first_block = function(df) {
+  sorted_bid = df[order(as.character(df[, COL_BID])), ]
+  sub_pid = subset_by_col(sorted_bid, COL_PID)
+  out = data.frame()
+  for (sub in sub_pid) {
+    out = plyr::rbind.fill(out, sub[1, ])
+  }
+  return (out)
+}
