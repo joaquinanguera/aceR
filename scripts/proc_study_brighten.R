@@ -8,8 +8,14 @@ library(aceR)
 
 setwd("~/Desktop/ACE Studies_Raw Data/Brighten")
 
+# load demographics
+demographics_file = "~/Desktop/All Participant Demographics.xlsx"
+demographics = load_ace_demographics(demographics_file)
+
+problematic_brighten = c("brt_filtered.xlsx", "saat_filtered.xlsx")
+
 # load & process dat
-dat = load_ace_bulk(recursive = FALSE)
+dat = load_ace_bulk(recursive = FALSE, exclude = problematic_brighten)
 proc = proc_by_module(dat, TRUE)
 
 # TODO: this is sloooooow...
@@ -27,6 +33,7 @@ all_tasks = data.frame(pid = "dummy")
 module_names = names(proc)
 for (i in seq(length(module_names))) {
   module = proc[[i]]
+  module = merge(module, demographics, by = "pid")
   module_name = module_names[i]
   first_block = subset_first_block(module)
   col_names = names(first_block)
@@ -48,6 +55,7 @@ for (i in seq(length(module_names))) {
 # cleanup
 clean = aceR:::replace_nas(all_tasks, "")
 clean = aceR:::remove_empty_cols(clean)
+
 
 setwd("~/Desktop")
 write.csv(clean, "first_block.csv")
