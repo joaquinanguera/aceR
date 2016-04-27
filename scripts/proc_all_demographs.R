@@ -2,7 +2,9 @@
 
 rm(list = ls())
 
-setwd("~/Desktop")
+BASE = "~/Desktop"
+FIRST_BLOCK = "first_block"
+setwd(BASE)
 
 library(aceR)
 
@@ -13,10 +15,15 @@ demographics = load_ace_demographics(demographics_file)
 # load & process data by module
 all_data_path = "ace_process"
 out_path = "ace_process_demographs"
+out_path_first_block = paste(out_path, FIRST_BLOCK, sep = "/")
 
-# make ouput directory
+# make ouput directories
 if (!dir.exists(out_path)) {
   dir.create(file.path(out_path), showWarnings = FALSE)
+}
+# make ouput directories
+if (!dir.exists(out_path_first_block)) {
+  dir.create(file.path(out_path_first_block), showWarnings = FALSE)
 }
 
 all_files = list.files(path = all_data_path, recursive = TRUE)
@@ -29,8 +36,13 @@ for (module in mods) {
   mod_demo = mod_demo[order(as.character(mod_demo$pid)), ]
   row.names(mod_demo) = NULL
   
-  # putut
+  # output by tasks - nothing subsetted here
   mod_file_name = paste(out_path, module, sep ="/")
   write.csv(mod_demo, mod_file_name, na = "")
+  
+  # only look at first block
+  mod_demo_first_block = aceR:::subset_first_block(mod_demo)
+  mod_demo_first_block_file_name = paste(out_path, "first_block", module, sep = "/")
+  write.csv(mod_demo_first_block, mod_demo_first_block_file_name, na = "")
   
 }
