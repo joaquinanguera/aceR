@@ -18,24 +18,13 @@ problematic_brighten = c("brt_filtered.xlsx", "saat_filtered.xlsx")
 dat = load_ace_bulk(recursive = FALSE, exclude = problematic_brighten)
 proc = proc_by_module(dat, TRUE)
 
-# TODO: this is sloooooow...
-subset_first_block = function(df) {
-  sorted_bid = df[order(as.character(df$bid)), ]
-  sub_pid = aceR:::subset_by_col(sorted_bid, "pid")
-  out = data.frame()
-  for (sub in sub_pid) {
-    out = plyr::rbind.fill(out, sub[1, ])
-  }
-  return (out)
-}
-
 all_tasks = data.frame(pid = "dummy")
 module_names = names(proc)
 for (i in seq(length(module_names))) {
   module = proc[[i]]
   module = merge(module, demographics, by = "pid")
   module_name = module_names[i]
-  first_block = subset_first_block(module)
+  first_block = aceR:::subset_first_block(module)
   col_names = names(first_block)
   names(first_block) = sapply(col_names, function(x) {
     if (grepl("pid", x)) {
