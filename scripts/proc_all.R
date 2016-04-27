@@ -46,7 +46,9 @@ problematic_files = c(
   "i3/i018/SpatialSpan.csv",
   "i3/BRTAll.csv")
 
-problematic_files = c(problematic_subdirectories, problematic_files)
+problematic_brighten = c("brt_filtered.xlsx", "saat_filtered.xlsx")
+
+ninety_nine_problems = c(problematic_subdirectories, problematic_files, problematic_brighten)
 
 # load and process each subdirectory individually
 
@@ -55,7 +57,7 @@ datasets = c("Brighten")
 for (dset in datasets) {
   
   # load and process
-  dat = load_ace_bulk(path = dset, exclude = problematic_files)
+  dat = load_ace_bulk(path = dset, exclude = ninety_nine_problems)
   proc = proc_by_module(dat, verbose = TRUE)
   
   # export 
