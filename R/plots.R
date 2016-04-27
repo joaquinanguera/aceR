@@ -1,6 +1,20 @@
 
+#' Export plot
+#'
+#' Write plot to file
+#' 
 #' @export
-#' @inheritParams base::list.files
+#' @inheritParams base::write.csv
+#' @param plot a plot
+
+export_plot <- function(plot, file) {
+  pdf(file)
+  print(plot)
+  dev.off()
+}
+
+#' @export
+#' @inheritParams ggplot2::ggplot
 
 make_box_plot <- function(df, x, y, title, xlab, ylab, ...) {
   if (missing(title)) {
