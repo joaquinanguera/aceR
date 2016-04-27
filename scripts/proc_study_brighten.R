@@ -6,7 +6,7 @@ library(aceR)
 
 # this is data from dropbox NOT Google Drive
 
-setwd("~/Desktop/ACE data")
+setwd("~/Desktop/ACE Studies_Raw Data/Brighten")
 
 # load & process dat
 dat = load_ace_bulk(recursive = FALSE)
