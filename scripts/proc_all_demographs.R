@@ -1,4 +1,4 @@
-# loads processed files, adds demographics
+# loads processed files, adds demographics, spits out a bunch of plots
 
 rm(list = ls())
 
@@ -18,13 +18,8 @@ out_path = "ace_process_demographs"
 out_path_first_block = paste(out_path, FIRST_BLOCK, sep = "/")
 
 # make ouput directories
-if (!dir.exists(out_path)) {
-  dir.create(file.path(out_path), showWarnings = FALSE)
-}
-# make ouput directories
-if (!dir.exists(out_path_first_block)) {
-  dir.create(file.path(out_path_first_block), showWarnings = FALSE)
-}
+make_directory(out_path)
+make_directory(out_path_first_block)
 
 all_files = list.files(path = all_data_path, recursive = TRUE)
 mods = unique(basename(all_files))
@@ -44,5 +39,5 @@ for (module in mods) {
   mod_demo_first_block = aceR:::subset_first_block(mod_demo)
   mod_demo_first_block_file_name = paste(out_path, "first_block", module, sep = "/")
   write.csv(mod_demo_first_block, mod_demo_first_block_file_name, na = "")
-  
+
 }
