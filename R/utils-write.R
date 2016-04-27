@@ -1,4 +1,17 @@
 
+#' Make a directory
+#'
+#' Create a directory if it doesn't exist
+#'
+#' @export
+#' @inheritParams base::dir.exists
+
+make_directory <- function(path, showWarnings = FALSE) {
+  if (!dir.exists(path)) {
+    dir.create(file.path(path), showWarnings = FALSE)
+  }
+}
+
 #' Export CSV
 #'
 #' Exports a list of data frames as csv into named directory
