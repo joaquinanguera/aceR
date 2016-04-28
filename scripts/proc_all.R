@@ -46,9 +46,7 @@ problematic_files = c(
   "i3/i018/SpatialSpan.csv",
   "i3/BRTAll.csv")
 
-problematic_brighten = c("brt_filtered.xlsx", "saat_filtered.xlsx")
-
-ninety_nine_problems = c(problematic_subdirectories, problematic_files, problematic_brighten)
+ninety_nine_problems = c(problematic_subdirectories, problematic_files)
 
 # load and process each subdirectory individually
 
