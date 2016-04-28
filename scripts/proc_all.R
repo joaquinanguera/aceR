@@ -50,8 +50,7 @@ ninety_nine_problems = c(problematic_subdirectories, problematic_files)
 
 # load and process each subdirectory individually
 
-# datasets = list.dirs(recursive = FALSE)
-datasets = c("Brighten")
+datasets = list.dirs(recursive = FALSE)
 for (dset in datasets) {
   
   # load and process
