@@ -26,7 +26,7 @@ out_path_first_block_plots = paste(out_path_first_block, "plots", sep = "/")
 # make ouput directories
 make_directory(out_path)
 make_directory(out_path_first_block)
-make_directory(paste(out_path_first_block_plots, "plots", sep = "/"))
+make_directory(out_path_first_block_plots)
 
 all_files = list.files(path = all_data_path, recursive = TRUE)
 mods = unique(basename(all_files))
