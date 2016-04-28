@@ -4,14 +4,19 @@
 \alias{make_box_plot_bulk}
 \title{Make box plots in bulk}
 \usage{
-make_box_plot_bulk(df, x, y = c(), prefix = "", path = NULL)
+make_box_plot_bulk(df, x, y = c(), title_prefix = "", file_prefix = "",
+  path = NULL)
 }
 \arguments{
 \item{x}{the name of x variable}
 
 \item{y}{a character vector containing a list of y variables to make plots of}
 
-\item{prefix}{Added to every plot title and file name if \code{!is.null(path)}.}
+\item{title_prefix}{Added to every plot title if \code{!is.null(path)}.}
+
+\item{file_prefix}{Added to every plot title if \code{!is.null(path)}.}
+
+\item{path}{Directory to write plots to.}
 }
 \description{
 A wrapper function around \code{\link{make_box_plot}}.

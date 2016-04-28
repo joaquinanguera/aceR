@@ -28,16 +28,18 @@ make_box_plot <- function(df, x, y, title, xlab, ylab, ...) {
 #' @export
 #' @param x the name of x variable
 #' @param y a character vector containing a list of y variables to make plots of
-#' @param prefix Added to every plot title and file name if \code{!is.null(path)}.
+#' @param title_prefix Added to every plot title if \code{!is.null(path)}.
+#' @param file_prefix Added to every plot title if \code{!is.null(path)}.
+#' @param path Directory to write plots to.
 
-make_box_plot_bulk <- function(df, x, y = c(), prefix = "", path = NULL) {
+make_box_plot_bulk <- function(df, x, y = c(), title_prefix = "", file_prefix = "", path = NULL) {
   for (yval in y) {
-    plot_title = paste(prefix, ":", yval, "by", x, sep = " ")
+    plot_title = paste(title_prefix, ":", yval, "by", x, sep = " ")
     plot = make_box_plot(df, x, yval, title = plot_title)
     if (!is.null(path)) {
-      file_name = paste0(path, "/", prefix, "_", yval, ".pdf")
+      file_name = paste0(path, "/", file_prefix, "_", yval, ".pdf")
     } else {
-      file_name = paste0(prefix, "_", yval, ".pdf")
+      file_name = paste0(file_prefix, "_", yval, ".pdf")
     }
     export_plot(plot, file_name)
   }
