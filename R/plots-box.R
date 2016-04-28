@@ -20,3 +20,25 @@ make_box_plot <- function(df, x, y, title, xlab, ylab, ...) {
     ggplot2::ylab(ylab)
   return (boxplot)
 }
+
+#' Make box plots in bulk
+#'
+#' A wrapper function around \code{\link{make_box_plot}}.
+#'
+#' @export
+#' @param x the name of x variable
+#' @param y a character vector containing a list of y variables to make plots of
+#' @param prefix Added to every plot title and file name if \code{!is.null(path)}.
+
+make_box_plot_bulk <- function(df, x, y = c(), prefix = "", path = NULL) {
+  for (yval in y) {
+    plot_title = paste(prefix, ":", yval, "by", x, sep = " ")
+    plot = make_box_plot(df, x, yval, title = plot_title)
+    if (!is.null(path)) {
+      file_name = paste0(path, "/", prefix, "_", yval, ".pdf")
+    } else {
+      file_name = paste0(prefix, "_", yval, ".pdf")
+    }
+    export_plot(plot, file_name)
+  }
+}
