@@ -34,7 +34,8 @@ make_box_plot <- function(df, x, y, title, xlab, ylab, ...) {
 
 make_box_plot_bulk <- function(df, x, y = c(), title_prefix = "", file_prefix = "", path = NULL) {
   for (yval in y) {
-    plot_title = paste(title_prefix, ":", yval, "by", x, sep = " ")
+    plot_desc = paste(yval, "by", pretty_title(x), sep = " ")
+    plot_title = paste(title_prefix, ":", plot_desc, sep = " ")
     plot = make_box_plot(df, x, yval, title = plot_title)
     if (!is.null(path)) {
       file_name = paste0(path, "/", file_prefix, "_", yval, ".pdf")
