@@ -11,8 +11,8 @@ standardize_names <- function (df) {
 
 #' @keywords internal
 
-remove_special_characters <- function (x) {
-  return (gsub("[^[:alnum:][:blank:]+?&/\\-]", "", x))
+remove_special_characters <- function (x, repacement = "") {
+  return (gsub("[^[:alnum:][:blank:]+?&/\\-]", repacement, x))
 }
 
 #' @keywords internal
