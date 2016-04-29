@@ -31,6 +31,7 @@ make_directory(out_path_first_block_plots)
 all_files = list.files(path = all_data_path, recursive = TRUE)
 mods = unique(basename(all_files))
 for (module in mods) {
+  print(paste("processing", module, sep = " "))
   # load data
   mod_dat = load_files(path = all_data_path, pattern = module, recursive = TRUE)
   mod_name = gsub(".csv", "", module)
