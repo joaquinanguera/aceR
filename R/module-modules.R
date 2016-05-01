@@ -40,6 +40,8 @@ module_flanker <- function(df) {
 #' @name ace_procs
 
 module_saat <- function(df) {
+  df = replace_empty_values(df, COL_CONDITION, "saattype")
+  df[, COL_CONDITION] = tolower(df[, COL_CONDITION])
   gen = proc_generic_module(df, COL_CORRECT_BUTTON, COL_CONDITION, TRUE)
   return (gen)
 }
