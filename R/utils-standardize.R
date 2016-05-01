@@ -9,6 +9,18 @@ standardize_names <- function (df) {
   return (new_names)
 }
 
+#'  Replaces empty values in one column with the values of another column
+#'
+#' @keywords internal
+
+replace_empty_values <- function(df, column, replacement) {
+  if (replacement %in% colnames(df)) {
+    missing_vals = unique(which(c(is.na(df[, column]), df[, column] == "")))
+    df[missing_vals, column] = df[missing_vals, replacement]
+  }
+  return (df)
+}
+
 #' @keywords internal
 
 remove_special_characters <- function (x, repacement = "") {
