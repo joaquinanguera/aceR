@@ -15,8 +15,10 @@ standardize_names <- function (df) {
 
 replace_empty_values <- function(df, column, replacement) {
   if (replacement %in% colnames(df)) {
-    missing_vals = unique(which(c(is.na(df[, column]), df[, column] == "")))
-    df[missing_vals, column] = df[missing_vals, replacement]
+    missing_vals = unique(c(which(is.na(df[, column])), which(df[, column] == "")))
+    if (length(missing_vals) > 0) {
+      df[missing_vals, column] = df[missing_vals, replacement]
+    }
   }
   return (df)
 }
