@@ -12,10 +12,8 @@ setwd("~/Desktop/ACE Studies_Raw Data/Brighten")
 demographics_file = "~/Desktop/All Participant Demographics.xlsx"
 demographics = load_ace_demographics(demographics_file)
 
-problematic_brighten = c("brt_filtered.xlsx", "saat_filtered.xlsx")
-
 # load & process dat
-dat = load_ace_bulk(recursive = FALSE, exclude = problematic_brighten)
+dat = load_ace_bulk(recursive = FALSE)
 proc = proc_by_module(dat, TRUE)
 
 all_tasks = data.frame(pid = "dummy")
