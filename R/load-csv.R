@@ -132,10 +132,18 @@ parse_subsections <- function(dat) {
     new_cols = c(new_cols, names(valid)[is_new_col])
     clean = remove_empty_rows(replace_blanks(valid, NA))
     clean[, COL_SUB_ID] = i
-    clean[, COL_BLOCK_HALF] = plyr::mapvalues(rep(1:2, len = nrow(clean), each = nrow(clean)/2), from = c(1, 2), to = c("first_half", "second_half"))
+    clean[, COL_BLOCK_HALF] = plyr::mapvalues(make_half_seq(nrow(clean)), from = c(1, 2), to = c("first_half", "second_half"))
     out = plyr::rbind.fill(out, clean)
   }
   new_cols = unique(new_cols)
   out[new_cols] = na_locf(out, new_cols)
   return (out)
+}
+
+#' @keywords internal
+
+make_half_seq <- function(num) {
+  len = ifelse(num %% 2 == 0, num, num + 1)
+  hseq = rep(1:2, len = len, each = len/2)
+  return (hseq[1:num])
 }

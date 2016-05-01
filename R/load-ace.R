@@ -61,7 +61,7 @@ load_ace_filtered_file <- function(file) {
 add_block_half = function(x) {
   df_list = lapply(x, function(x) {
     df = x
-    df[, COL_BLOCK_HALF] =  plyr::mapvalues(rep(1:2, len = nrow(x), each = nrow(x)/2), from = c(1, 2), to = c("first_half", "second_half"))
+    df[, COL_BLOCK_HALF] =  plyr::mapvalues(make_half_seq(nrow(clean)), from = c(1, 2), to = c("first_half", "second_half"))
     return(df)
   })
   return (df_list)
