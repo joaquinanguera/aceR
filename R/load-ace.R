@@ -132,8 +132,16 @@ transform_raw <- function (file, raw_dat) {
   } else {
     # make block id from file name & time if file doesn't contain PID
     dat[, COL_BID] = paste(dat$file, dat[, COL_TIME], sep = ".")
-    dat[, COL_PID] = NA
+    dat[, COL_PID] = guess_pid(dat$file)
   }
   dat = standardize_ace_values(dat)
   return (dat)
+}
+
+#' @keywords internal
+
+guess_pid <- function(x) {
+  file = basename(x)
+  maybe_pid = stringr::str_extract(file, "^[a-zA-Z0-9]*")
+  return (maybe_pid)
 }
