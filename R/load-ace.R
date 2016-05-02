@@ -142,6 +142,7 @@ transform_raw <- function (file, raw_dat) {
 
 guess_pid <- function(x) {
   file = basename(x)
-  maybe_pid = stringr::str_extract(file, "^[a-zA-Z0-9]*")
+  # maybe_pid = stringr::str_extract(file, "^[a-zA-Z0-9]*")
+  maybe_pid = unique(na.omit(as.numeric(unlist(strsplit(unlist(file), "[^0-9]+")))))[1]
   return (maybe_pid)
 }
