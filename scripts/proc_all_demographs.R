@@ -56,7 +56,10 @@ for (module in mods) {
   for (group in factors) {
     title_prefix = mod_name
     file_prefix = paste(mod_name, group, sep = "_")
-    make_box_plot_bulk(mod_demo_first_block, group, mod_demo_first_block_variables, title_prefix, file_prefix, out_path_first_block_plots)
+    box_plots = make_box_plot_bulk(mod_demo_first_block, group, mod_demo_first_block_variables, title_prefix, file_prefix, out_path_first_block_plots)
+    for (boxplot in box_plots) {
+      plot(boxplot)
+    }
   }
 
 }
