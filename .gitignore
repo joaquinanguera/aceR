@@ -22,3 +22,7 @@ aceR.Rcheck/
 
 # Misc Files
 datamart-master/
+
+scripts/*spin
+scripts/*.html
+
