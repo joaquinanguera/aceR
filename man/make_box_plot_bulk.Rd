@@ -5,7 +5,7 @@
 \title{Make box plots in bulk}
 \usage{
 make_box_plot_bulk(df, x, y = c(), title_prefix = "", file_prefix = "",
-  path = NULL)
+  path = NULL, export = FALSE)
 }
 \arguments{
 \item{x}{the name of x variable}
@@ -17,6 +17,8 @@ make_box_plot_bulk(df, x, y = c(), title_prefix = "", file_prefix = "",
 \item{file_prefix}{Added to every plot title if \code{!is.null(path)}.}
 
 \item{path}{Directory to write plots to.}
+
+\item{export}{Write plots to pdf?}
 }
 \description{
 A wrapper function around \code{\link{make_box_plot}}.
