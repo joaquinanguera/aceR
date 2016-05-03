@@ -44,7 +44,7 @@ make_box_plot_bulk <- function(df, x, y = c(), title_prefix = "", file_prefix = 
       file_name = paste0(file_prefix, "_", yval, ".pdf")
     }
     plots = c(plots, plot)
-    # export_plot(plot, file_name)
+    export_plot(plot, file_name)
   }
   return (plots)
 }
