@@ -85,3 +85,16 @@ multi_gsub <- function(pattern, replacement, x, ...) {
   }
   return (result)
 }
+
+#' @keywords internal
+
+first_number <- function(x) {
+  return (ifelse(is.na(x), NA, str_extract(x, "(^|\\s)([0-9]+)($|\\s)")))
+}
+
+#' @keywords internal
+
+remove_whitespace <- function(x) {
+  return (ifelse(is.na(x), NA, gsub("[[:space:]]", "", x)))
+}
+
