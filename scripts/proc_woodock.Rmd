@@ -6,6 +6,7 @@ output: html_document
 
 - [Age effects on Woodcock scores](#age-effects-on-woodcock-scores)
 - [Age effects on ACE scores](#age-effects-on-ace-scores)
+- [Regression between ACE and Woodcock metrics](#regression-between-ace-and-woodcock-metrics)
 
 ### Set-up
 
@@ -52,6 +53,15 @@ grab_ace = function(df, include = c(), skip = c()) {
 is_empty = function(col) {
   return (sum(is.na(col)) == length(col))
 }
+
+valid_cols = function(df, cols) {
+  valid = sapply(cols, function(y) {
+    invalid = is_empty(df[, y])
+    return (!invalid)
+  })
+  return (names(which(valid)))
+}
+
 
 ```
 
@@ -121,35 +131,76 @@ print(modules)
 
 ```{r, warning = FALSE, message = FALSE}
 
+# for (module in ace_by_task) {
+# 
+#   ace_ys = grab_ace(module, ACE_INCLUDE, ACE_IGNORE)
+#   module_demographs = merge(module, woodcock_ss_score, by = "pid")
+#   valid_ace_ys = valid_cols(module_demographs, ace_ys)
+#   
+#   # get rid of infinites
+#   is.na(module_demographs) = sapply(module_demographs, is.infinite)
+#   
+#   for (ace_y in valid_ace_ys) {
+# 
+#       ace_formula_str = paste0(ace_y, " ~ ", AGE)
+#       ace_formula = formula(ace_formula_str)
+#       ace_mod = lm(formula = ace_formula, data = module_demographs)
+#       ace_mod_summary = summary(ace_mod)
+#       
+#       # make plot and print
+#       ace_title = paste(module_demographs$module[1], ":", ace_y, "by", AGE)
+#       ace_plot = make_box_plot(module_demographs, AGE, ace_y, ace_title)
+#   
+#       ace_mod_summary$call = ace_formula_str
+#       print(ace_plot)
+#       print(ace_mod_summary)
+#   }
+# 
+# }
+
+```
+
+# Regression between ACE and Woodcock metrics
+
+```{r, warning = FALSE, message = FALSE}
+
 for (module in ace_by_task) {
 
-  ace_ys = grab_ace(module, ACE_INCLUDE, ACE_IGNORE)
+  reg_ys = grab_ace(module, ACE_INCLUDE, ACE_IGNORE)
   module_demographs = merge(module, woodcock_ss_score, by = "pid")
-  valid_ace_ys = sapply(ace_ys, function(y) {
-    invalid = is_empty(module_demographs[, y])
-    return (!invalid)
-  })
+  valid_reg_ys = valid_cols(module_demographs, reg_ys)
   
   # get rid of infinites
   is.na(module_demographs) = sapply(module_demographs, is.infinite)
-  
-  for (ace_y in ace_ys[which(valid_ace_ys)]) {
 
-      ace_formula_str = paste0(ace_y, " ~ ", AGE)
-      ace_formula = formula(ace_formula_str)
-      ace_mod = lm(formula = ace_formula, data = module_demographs)
-      ace_mod_summary = summary(ace_mod)
+  for (reg_y in valid_reg_ys) {
+    reg_xs = ss_ys
+    for (reg_x in reg_xs) {
+      reg_formula_str = paste0(reg_y, " ~ ", reg_x)
+      reg_formula = formula(reg_formula_str)
+      reg_mod = lm(formula = reg_formula, data = module_demographs)
+      reg_mod_summary = summary(reg_mod)
+      reg_mod_summary_coef = reg_mod_summary$coefficients
       
-      # make plot and print
-      ace_title = paste(module_demographs$module[1], ":", ace_y, "by", AGE)
-      ace_plot = make_box_plot(module_demographs, AGE, ace_y, ace_title)
-  
-      ace_mod_summary$call = ace_formula_str
-      print(ace_plot)
-      print(ace_mod_summary)
+      slope = reg_mod_summary_coef[2]
+      intercept = reg_mod_summary_coef[1]
+      plot_desc = paste(module$module[1], ":", reg_y, "by", reg_x, sep = " ")
+      
+      lplot = ggplot() + 
+        geom_point(aes(module_demographs[, reg_x], module_demographs[, reg_y]), module_demographs) +
+        ggtitle(plot_desc) + 
+        xlab(reg_x) + 
+        ylab(reg_y) +
+        geom_abline(slope = slope, intercept = intercept, colour='#E41A1C')
+      
+      reg_mod_summary$call = reg_formula_str
+      print(lplot)
+      print(reg_mod_summary)
+    }
+    
   }
 
 }
 
-```
 
+```
