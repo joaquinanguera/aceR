@@ -20,10 +20,10 @@ library(stringr)
 library(ggplot2)
 library(lme4)
 
-# working directory
+# paths
 
-WORKING_DIR = "~/Desktop"
-setwd(WORKING_DIR)
+DESKTOP_PATH = "~/Desktop"
+SEACREST_PROC_PATH = paste(DESKTOP_PATH, "ace_process/Sea Crest School", sep = "/")
 
 # constants
 
@@ -60,7 +60,7 @@ is_empty = function(col) {
 ```{r}
 
 # load transformed woodcock data
-woodcock = load_files(pattern = "transform")
+woodcock = load_files(path = DESKTOP_PATH, pattern = "transform")
 cols = names(woodcock)
 
 # prepare woodcock data
@@ -109,7 +109,7 @@ for (ss_y in ss_ys) {
 
 ```{r, warning = FALSE, message = FALSE}
 
-ace = load_files(path = "ace_process/Sea Crest School")
+ace = load_files(path = SEACREST_PROC_PATH)
 ace$module = as.character(ace$module)
 ace$pid = as.character(ace$pid)
 ace_by_task = aceR:::subset_by_col(ace, "module")
