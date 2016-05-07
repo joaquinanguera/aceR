@@ -171,43 +171,43 @@ for (module in ace_by_task) {
 
 ```{r, warning = FALSE, message = FALSE}
 
-# for (module in ace_by_task) {
-# 
-#   reg_ys = grab_ace(module, ACE_INCLUDE, ACE_IGNORE)
-#   module_demographs = merge(module, woodcock_ss_score, by = "pid")
-#   valid_reg_ys = valid_cols(module_demographs, reg_ys)
-#   
-#   # get rid of infinites
-#   is.na(module_demographs) = sapply(module_demographs, is.infinite)
-# 
-#   for (reg_y in valid_reg_ys) {
-#     reg_xs = ss_ys
-#     for (reg_x in reg_xs) {
-#       reg_formula_str = paste0(reg_y, " ~ ", reg_x)
-#       reg_formula = formula(reg_formula_str)
-#       reg_mod = lm(formula = reg_formula, data = module_demographs)
-#       reg_mod_summary = summary(reg_mod)
-#       reg_mod_summary_coef = reg_mod_summary$coefficients
-#       
-#       slope = reg_mod_summary_coef[2]
-#       intercept = reg_mod_summary_coef[1]
-#       plot_desc = paste(module$module[1], ":", reg_y, "by", reg_x, sep = " ")
-#       
-#       lplot = ggplot() + 
-#         geom_point(aes(module_demographs[, reg_x], module_demographs[, reg_y]), module_demographs) +
-#         ggtitle(plot_desc) + 
-#         xlab(reg_x) + 
-#         ylab(reg_y) +
-#         geom_abline(slope = slope, intercept = intercept, colour='#E41A1C')
-#       
-#       reg_mod_summary$call = reg_formula_str
-#       print(lplot)
-#       print(reg_mod_summary)
-#     }
-#     
-#   }
-# 
-# }
+for (module in ace_by_task) {
+
+  reg_ys = grab_ace(module, ACE_INCLUDE, ACE_IGNORE)
+  module_demographs = merge(module, woodcock_ss_score, by = "pid")
+  valid_reg_ys = valid_cols(module_demographs, reg_ys)
+
+  # get rid of infinites
+  is.na(module_demographs) = sapply(module_demographs, is.infinite)
+
+  for (reg_y in valid_reg_ys) {
+    reg_xs = ss_ys
+    for (reg_x in reg_xs) {
+      reg_formula_str = paste0(reg_y, " ~ ", reg_x)
+      reg_formula = formula(reg_formula_str)
+      reg_mod = lm(formula = reg_formula, data = module_demographs)
+      reg_mod_summary = summary(reg_mod)
+      reg_mod_summary_coef = reg_mod_summary$coefficients
+
+      slope = reg_mod_summary_coef[2]
+      intercept = reg_mod_summary_coef[1]
+      plot_desc = paste(module$module[1], ":", reg_y, "by", reg_x, sep = " ")
+
+      lplot = ggplot() +
+        geom_point(aes(module_demographs[, reg_x], module_demographs[, reg_y]), module_demographs) +
+        ggtitle(plot_desc) +
+        xlab(reg_x) +
+        ylab(reg_y) +
+        geom_abline(slope = slope, intercept = intercept, colour='#E41A1C')
+
+      reg_mod_summary$call = reg_formula_str
+      print(lplot)
+      print(reg_mod_summary)
+    }
+
+  }
+
+}
 
 
 ```
