@@ -34,8 +34,8 @@ AGE = "grade"
 SS_ID = "SS"
 BAND_ID = "Band"
 
-ACE_INCLUDE = c("rt_", "acc_", "rw_")
-ACE_IGNORE = c("cohort", "count", "length", "se", "sd", "incorrect", "correct")
+ACE_INCLUDE = c("rt_", "acc_", "rw_", "correct", "object_count")
+ACE_IGNORE = c("cohort", "length", "se", "sd", "incorrect", "rt_count", "rw_count")
 
 # helper functions 
 
