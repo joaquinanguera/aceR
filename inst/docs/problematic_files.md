@@ -29,7 +29,7 @@ EVO/Control Boys/1014/1014_SAAT.xlsx
  - saved as .xlsx
  - removed first "id" column
  - manually changed all column names to snake_case
- - make pid column programmatically:
+ - make pid column programmatically (note: this needs to be first column in data frame...):
  
  ```
 file = "~/Desktop/ACE Studies_Raw Data/Brighten/newflanker_BRIGHTEN_filtered.xlsx"
