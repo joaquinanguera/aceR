@@ -13,10 +13,6 @@ factors = c("study_name", "age_group", "cohort_group")
 variable_patterns = c("rt_", "acc_", "rw_")
 variable_skip = c("cohort", "count", "length")
 
-# load demographics data
-demographics_file = "All Participant Demographics.xlsx"
-demographics = load_ace_demographics(demographics_file)
-
 # load & process data by module
 all_data_path = "ace_process"
 out_path = "ace_process_demographs"
@@ -35,9 +31,8 @@ for (module in mods) {
   # load data
   mod_dat = load_files(path = all_data_path, pattern = module, recursive = TRUE)
   mod_name = gsub(".csv", "", module)
-  # add demographic data
-  mod_demo = merge(mod_dat, demographics, by = "pid", all = FALSE)
-  mod_demo = mod_demo[order(as.character(mod_demo$pid)), ]
+  mod_dat$pid = as.character(mod_dat$pid)
+  mod_demo = mod_dat[order(mod_dat$pid), ]
   row.names(mod_demo) = NULL
   
   # remove rows with out study_name
@@ -48,6 +43,7 @@ for (module in mods) {
   write.csv(mod_demo, mod_file_name, na = "")
   
   # only look at first block
+
   mod_demo_first_block = aceR:::subset_first_block(mod_demo)
   mod_demo_first_block_file_name = paste(out_path, "first_block", module, sep = "/")
   write.csv(mod_demo_first_block, mod_demo_first_block_file_name, na = "")
