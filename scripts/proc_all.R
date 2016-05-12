@@ -12,6 +12,9 @@ DATA_PATH = "~/Desktop/ACE Studies_Raw Data"
 RELEASE_PATH = "~/Desktop/ace_process"
 setwd(DATA_PATH)
 
+demographics_file = "~/Desktop/All Participant Demographics.xlsx"
+demographics = load_ace_demographics(demographics_file)
+
 # exclude problematic subdirectories
 problematic_subdirectories = c(
   "Dan's Raw ACE Data", 
@@ -56,10 +59,13 @@ for (dset in datasets) {
   # load and process
   dat = load_ace_bulk(path = dset, exclude = ninety_nine_problems)
   proc = proc_by_module(dat, verbose = TRUE)
+  proc_demo = lapply(proc, function(x){
+    merge(x, demographics, by = "pid", all = FALSE)
+  })
   
   # export 
   out_path = paste(RELEASE_PATH, dset, sep = "/")
-  export_csv(proc, out_path)
+  export_csv(proc_demo, out_path)
   
 }
 
