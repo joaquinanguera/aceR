@@ -10,24 +10,27 @@ EVO/Control Boys/1014/1014_SAAT.xlsx
  - Removed random chunk of rows in `Post Raw` sheet.
  
  
+ 
  ```
  Brighten/newsaat_filtered.xls
  ```
- 
+   
  - saved as .xlsx
  - removed first "id" column
  - renamed "brightenid" to "pid"
  - manually changed all column names to snake_case
  
  
+ 
  ```
  Brighten/newflanker_BRIGHTEN_filtered.xls
  ```
- 
+   
  - saved as .xlsx
  - removed first "id" column
  - manually changed all column names to snake_case
  - make pid column programmatically:
+ 
  ```
 file = "~/Desktop/ACE Studies_Raw Data/Brighten/newflanker_BRIGHTEN_filtered.xlsx"
 raw = openxlsx::read.xlsx(file, sheet = 1)
