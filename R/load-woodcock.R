@@ -22,6 +22,7 @@ load_woodcock_transformed = function(path = ".", pattern = "transform") {
     new_name = gsub("Band", "_Band", new_name)
     return (new_name)
   })
-  woodcock_ss_score = cbind(woodcock[, c(COL_PID, "age_group")], woodcock_ss_score)
+  woodcock_ss_score = cbind(woodcock[, c(COL_PID)], woodcock_ss_score)
+  names(woodcock_ss_score)[1] = COL_PID
   return (woodcock_ss_score)
 }
