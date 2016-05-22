@@ -89,7 +89,7 @@ multi_gsub <- function(pattern, replacement, x, ...) {
 #' @keywords internal
 
 first_number <- function(x) {
-  return (ifelse(is.na(x), NA, str_extract(x, "(^|\\s)([0-9]+)($|\\s)")))
+  return (ifelse(is.na(x), NA, stringr::str_extract(x, "(^|\\s)([0-9]+)($|\\s)")))
 }
 
 #' @keywords internal
