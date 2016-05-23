@@ -8,11 +8,11 @@ options(nwarnings = 500)
 library(aceR)
 
 # set paths
-DATA_PATH = "~/Desktop/ACE Studies_Raw Data"
-RELEASE_PATH = "~/Desktop/ace_process"
+DATA_PATH = "~/Desktop/ace/ACE Studies_Raw Data"
+RELEASE_PATH = "~/Desktop/ace/ace_processed"
 setwd(DATA_PATH)
 
-demographics_file = "~/Desktop/All Participant Demographics.xlsx"
+demographics_file = "~/Desktop/ace/ACE Participant Demographics.xlsx"
 demographics = load_ace_demographics(demographics_file)
 
 # exclude problematic subdirectories
