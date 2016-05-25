@@ -89,6 +89,10 @@ EFA_VARS = c(
 
 demo = load_ace_demographics(DEMOGRAPHICS_FILE)
 
+# remove duplicates
+duplicated_pids = which(duplicated(demo$pid))
+demo_clean = demo[-duplicated_pids, ]
+
 # load & process dat
 dat = load_files(path = PROCESSED_DAT_DIRECTORY, pattern = ".csv", recursive = TRUE, verbose = TRUE)
 dat$module = as.character(dat$module)
@@ -127,6 +131,7 @@ write.csv(clean, "first_block.csv")
 # subset & add new demographics
 
 clean_subset = clean[, c("pid", EFA_VARS)]
-clean_demo = merge(clean_subset, demo, by = "pid")
-write.csv(clean_demo, "first_block_concise.csv")
+clean_concise = merge(clean_subset, demo_clean, by = "pid")
+clean_concise = clean_concise[order(clean_concise$pid),]
+write.csv(clean_concise, "first_block_concise.csv")
 
