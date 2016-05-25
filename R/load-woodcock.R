@@ -66,6 +66,9 @@ transform_woodcock = function(file) {
     out = out[order(as.character(out$sid)), ] 
     good_column_names = filter_out_vec(names(out), "_to")
     out = out[good_column_names]
+    
+    out$pid = paste("ADMIN-UCSF", out$sid, sep = "-")
+    out$pid = gsub("SP", "", out$pid)
   }
   return (out)
 }
