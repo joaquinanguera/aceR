@@ -75,7 +75,7 @@ transform_woodcock = function(file) {
 
 #' @keywords internal
 
-load_woodcock_transformed = function(file) {
+load_woodcock_transformed = function(file, suffix = NULL) {
   # load file
   woodcock = read.csv(file)
   cols = names(woodcock)
@@ -92,6 +92,9 @@ load_woodcock_transformed = function(file) {
     new_name = remove_special_characters(x, "")
     new_name = gsub("SS", "_SS_", new_name)
     new_name = gsub("Band", "_Band", new_name)
+    if (!is.null(suffix)) {
+      new_name = paste(new_name, suffix, sep = ".")
+    }
     return (new_name)
   })
   woodcock_ss_score = cbind(woodcock[, c(COL_PID)], woodcock_ss_score)
