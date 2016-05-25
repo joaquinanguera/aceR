@@ -10,7 +10,8 @@ BASE_DIRECTORY = "~/Desktop/ace"
 SEACREST_DIRECTORY = paste(BASE_DIRECTORY, "ace_processed", "Sea Crest School", sep = "/")
 WOODCOCK_DIRECTORY = paste(BASE_DIRECTORY, "woodcock", sep = "/")
 DEMOGRAPHICS_FILE = paste(BASE_DIRECTORY, "Sea Crest Demographics.xlsx", sep = "/")
-TRANSFORMED_PATTERN = "transform"
+TRANSFORMED_AGE = paste(WOODCOCK_DIRECTORY, "wj_transform_age.csv", sep = "/")
+TRANSFORMED_GRADE = paste(WOODCOCK_DIRECTORY, "wj_transform_grade.csv", sep = "/")
 OUT_FILE = paste(BASE_DIRECTORY, "ace_processed_first_block", "seacrest_first_block_concise.csv", sep = "/")
 
 EFA_VARS = c(
@@ -44,7 +45,8 @@ EFA_VARS = c(
 demographics = load_ace_demographics(DEMOGRAPHICS_FILE)
 
 # load transformed woodcock metrics
-woodcock = aceR:::load_woodcock_transformed(WOODCOCK_DIRECTORY, TRANSFORMED_PATTERN)
+woodcock_age = aceR:::load_woodcock_transformed(TRANSFORMED_AGE, "age")
+woodcock_grade = aceR:::load_woodcock_transformed(TRANSFORMED_GRADE, "grade")
 
 # load processed dat
 
@@ -81,4 +83,4 @@ for (i in seq(length(module_names))) {
 clean_subset = all_tasks[, c("pid", EFA_VARS)]
 clean_demo = merge(clean_subset, demographics, by = "pid")
 clean_woodcock = merge(clean_demo, woodcock, by = "pid")
-write.csv(clean_woodcock, OUT_FILE)
+write.csv(clean_woodcock, OUT_FILE, na = "")
