@@ -5,7 +5,16 @@
 
 load_woodcock_transformed = function(path = ".", pattern = "transform") {
   # load files
-  woodcock = load_files(path = path, pattern = pattern)
+  files = list.files(path, pattern)
+  woodcock = data.frame()
+  for (file in files) {
+    transformed = read.csv(paste(path, file, sep = "/"))
+    if (length(woodcock) == 0) {
+      woodcock = transformed
+    } else {
+      woodcock = merge(woodcock, transformed, by = "pid")
+    }
+  }
   cols = names(woodcock)
   # prepare woodcock data
   woodcock_ss = woodcock[stringr::str_detect(cols, "SS")]
