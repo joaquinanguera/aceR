@@ -82,5 +82,6 @@ for (i in seq(length(module_names))) {
 
 clean_subset = all_tasks[, c("pid", EFA_VARS)]
 clean_demo = merge(clean_subset, demographics, by = "pid")
-clean_woodcock = merge(clean_demo, woodcock, by = "pid")
+clean_woodcock = merge(clean_demo, woodcock_age, by = "pid")
+clean_woodcock = merge(clean_woodcock, woodcock_grade, by = "pid")
 write.csv(clean_woodcock, OUT_FILE, na = "")
