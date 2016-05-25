@@ -81,6 +81,3 @@ clean_subset = all_tasks[, c("pid", EFA_VARS)]
 clean_demo = merge(clean_subset, demographics, by = "pid")
 clean_woodcock = merge(clean_demo, woodcock, by = "pid")
 write.csv(clean_woodcock, "seacrest_first_block_concise.csv")
-
-# setwd("~/Desktop/process")
-# export_csv(proc)
