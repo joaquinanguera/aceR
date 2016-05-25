@@ -11,6 +11,7 @@ SEACREST_DIRECTORY = paste(BASE_DIRECTORY, "ace_processed", "Sea Crest School", 
 WOODCOCK_DIRECTORY = paste(BASE_DIRECTORY, "woodcock", sep = "/")
 DEMOGRAPHICS_FILE = paste(BASE_DIRECTORY, "Sea Crest Demographics.xlsx", sep = "/")
 TRANSFORMED_PATTERN = "transform"
+OUT_FILE = paste(BASE_DIRECTORY, "ace_processed_first_block", "seacrest_first_block_concise.csv", sep = "/")
 
 EFA_VARS = c(
   "BRT-rt_mean.left",
@@ -80,4 +81,4 @@ for (i in seq(length(module_names))) {
 clean_subset = all_tasks[, c("pid", EFA_VARS)]
 clean_demo = merge(clean_subset, demographics, by = "pid")
 clean_woodcock = merge(clean_demo, woodcock, by = "pid")
-write.csv(clean_woodcock, "seacrest_first_block_concise.csv")
+write.csv(clean_woodcock, OUT_FILE)
