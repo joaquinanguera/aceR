@@ -24,7 +24,7 @@ for (file in files) {
   
   # subset seacrest data
   pids = dat$participant_id
-  seacrest = sapply(pids, function (x) grepl("ADMIN", x))
+  seacrest = sapply(pids, function (x) grepl("ADMIN", x, ignore.case = TRUE))
   out = dat[which(seacrest), ]
   
   # export
