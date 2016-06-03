@@ -64,6 +64,7 @@ woodcock_grade = aceR:::load_woodcock_transformed(TRANSFORMED_GRADE, "grade")
 
 # load raw data and process it
 dat = load_ace_bulk(path = RAW_SEACREST_DIRECTORY, pattern = ".csv", recursive = FALSE)
+dat$pid = standardize_pid(dat$pid)
 proc = proc_by_module(dat, verbose = TRUE)
 
 all_tasks = aceR:::subset_first_block_for_tasks(proc)
@@ -77,6 +78,6 @@ woodcock_grade$pid = standardize_pid(woodcock_grade$pid)
 # merge, clean, and export
 clean_subset = all_tasks[, c("pid", EFA_VARS)]
 clean_demo = merge(clean_subset, seacrest_demographics, by = "pid")
-clean_woodcock = merge(clean_demo, woodcock_age, by = "pid")
-clean_woodcock = merge(clean_woodcock, woodcock_grade, by = "pid")
+clean_woodcock = merge(clean_demo, woodcock_age, by = "pid", all = TRUE)
+clean_woodcock = merge(clean_woodcock, woodcock_grade, by = "pid", all = TRUE)
 write.csv(clean_woodcock, OUT_FILE, na = "")
