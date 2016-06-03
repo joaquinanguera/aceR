@@ -25,3 +25,35 @@ subset_first_block = function(df) {
   }
   return (out)
 }
+
+# TODO: this also doesn't go here + should generalize this. super ugly.
+
+#' @keywords internal
+
+subset_first_block_for_tasks <- function(by_task = list(), verbose = TRUE) {
+  all_tasks = data.frame(pid = "dummy")
+  module_names = names(by_task)
+  for (i in seq(length(module_names))) {
+    module = by_task[[i]]
+    module_name = module_names[i]
+    if (verbose) {
+      print(module_name)
+    }
+    first_block = subset_first_block(module)
+    col_names = names(first_block)
+    names(first_block) = sapply(col_names, function(x) {
+      if (grepl("pid", x)) {
+        new_name = x
+      } else {
+        new_name = paste(module_name, x, sep = "-")
+      }
+      return (new_name)
+    })
+    if (i == 1) {
+      all_tasks = first_block
+    } else {
+      all_tasks = plyr::join(all_tasks, first_block, by = "pid")
+    }
+  }
+  return (all_tasks)
+}
