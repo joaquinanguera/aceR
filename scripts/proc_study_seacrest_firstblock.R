@@ -4,11 +4,13 @@ rm(list = ls())
 
 library(aceR)
 library(stringr)
+library(plyr)
 
 # define constants
 
 BASE_DIRECTORY = "~/Desktop/ace"
 RAW_SEACREST_DIRECTORY = paste(BASE_DIRECTORY, "ACE Studies_Raw Data", "Sea Crest School", sep = "/")
+MISSING_FILES_DIRECTORY = paste(BASE_DIRECTORY, "ACE Studies_Raw Data", "Sea Crest School Missing", sep = "/")
 WOODCOCK_DIRECTORY = paste(BASE_DIRECTORY, "woodcock", sep = "/")
 DEMOGRAPHICS_FILE = paste(BASE_DIRECTORY, "ACE Participant Demographics.xlsx", sep = "/")
 TRANSFORMED_AGE = paste(WOODCOCK_DIRECTORY, "wj_transform_age.csv", sep = "/")
@@ -62,8 +64,14 @@ seacrest_demographics = subset(demographics, study_name == "Sea Crest Pilot")
 woodcock_age = aceR:::load_woodcock_transformed(TRANSFORMED_AGE, "age")
 woodcock_grade = aceR:::load_woodcock_transformed(TRANSFORMED_GRADE, "grade")
 
-# load raw data and process it
+# load raw data
 dat = load_ace_bulk(path = RAW_SEACREST_DIRECTORY, pattern = ".csv", recursive = FALSE)
+
+# load missing data
+dat_missing = load_files(path = MISSING_FILES_DIRECTORY)
+
+# merge missing files with 
+dat = plyr::rbind.fill(dat, dat_missing)
 dat$pid = standardize_pid(dat$pid)
 proc = proc_by_module(dat, verbose = TRUE)
 
