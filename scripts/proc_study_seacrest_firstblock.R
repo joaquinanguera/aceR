@@ -44,7 +44,8 @@ EFA_VARS = c(
   "TNT-acc_mean.cost"
   )
 
-# helper function 
+# helper functions
+
 standardize_pid = function(x) {
   standardized = sapply(x, function(y) { 
     id_split = stringr::str_split(y, "-")[[1]]
@@ -52,6 +53,17 @@ standardize_pid = function(x) {
     return (paste0("ADMIN-UCSF-", gsub("b", "", id)))
   })
   return (as.vector(standardized))
+}
+
+load_missing_files = function(path) {
+  files = list.files(path, pattern = ".csv")
+  out = data.frame()
+  for (file in files) {
+    file_path = paste(path, file, sep = "/")
+    dat = aceR:::load_ace_filtered_file(file_path)
+    out = plyr::rbind.fill(out, dat)
+  }
+  return (out)
 }
 
 # load demographics
@@ -68,7 +80,8 @@ woodcock_grade = aceR:::load_woodcock_transformed(TRANSFORMED_GRADE, "grade")
 dat = load_ace_bulk(path = RAW_SEACREST_DIRECTORY, pattern = ".csv", recursive = FALSE)
 
 # load missing data
-dat_missing = load_files(path = MISSING_FILES_DIRECTORY)
+dat_missing = load_missing_files(path = MISSING_FILES_DIRECTORY)
+dat_missing$pid = standardize_pid(dat_missing$pid)
 
 # merge missing files with 
 dat = plyr::rbind.fill(dat, dat_missing)
