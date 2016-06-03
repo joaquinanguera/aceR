@@ -3,13 +3,14 @@
 rm(list = ls())
 
 library(aceR)
+library(stringr)
 
 # define constants
 
 BASE_DIRECTORY = "~/Desktop/ace"
-SEACREST_DIRECTORY = paste(BASE_DIRECTORY, "ace_processed", "Sea Crest School", sep = "/")
+RAW_SEACREST_DIRECTORY = paste(BASE_DIRECTORY, "ACE Studies_Raw Data", "Sea Crest School", sep = "/")
 WOODCOCK_DIRECTORY = paste(BASE_DIRECTORY, "woodcock", sep = "/")
-DEMOGRAPHICS_FILE = paste(BASE_DIRECTORY, "Sea Crest Demographics.xlsx", sep = "/")
+DEMOGRAPHICS_FILE = paste(BASE_DIRECTORY, "ACE Participant Demographics.xlsx", sep = "/")
 TRANSFORMED_AGE = paste(WOODCOCK_DIRECTORY, "wj_transform_age.csv", sep = "/")
 TRANSFORMED_GRADE = paste(WOODCOCK_DIRECTORY, "wj_transform_grade.csv", sep = "/")
 OUT_FILE = paste(BASE_DIRECTORY, "ace_processed_first_block", "seacrest_first_block_concise.csv", sep = "/")
@@ -41,47 +42,41 @@ EFA_VARS = c(
   "TNT-acc_mean.cost"
   )
 
+# helper function 
+standardize_pid = function(x) {
+  standardized = sapply(x, function(y) { 
+    id_split = stringr::str_split(y, "-")[[1]]
+    id = id_split[3]
+    return (paste0("ADMIN-UCSF-", gsub("b", "", id)))
+  })
+  return (as.vector(standardized))
+}
+
 # load demographics
 demographics = load_ace_demographics(DEMOGRAPHICS_FILE)
+
+# subset demographics
+seacrest_demographics = subset(demographics, study_name == "Sea Crest Pilot")
 
 # load transformed woodcock metrics
 woodcock_age = aceR:::load_woodcock_transformed(TRANSFORMED_AGE, "age")
 woodcock_grade = aceR:::load_woodcock_transformed(TRANSFORMED_GRADE, "grade")
 
-# load processed dat
+# load raw data and process it
+dat = load_ace_bulk(path = RAW_SEACREST_DIRECTORY, pattern = ".csv", recursive = FALSE)
+proc = proc_by_module(dat, verbose = TRUE)
 
-dat = load_files(path = SEACREST_DIRECTORY, pattern = ".csv", recursive = FALSE, verbose = TRUE)
-dat$module = as.character(dat$module)
-dat$pid = as.character(dat$pid)
-by_task = aceR:::subset_by_col(dat, "module")
+all_tasks = aceR:::subset_first_block_for_tasks(proc)
 
-# this is straight copy-paste from proc_study_all_firstblock.R
-# TODO: put into aceR
-all_tasks = data.frame(pid = "dummy")
-module_names = names(by_task)
-for (i in seq(length(module_names))) {
-  module = by_task[[i]]
-  module_name = module_names[i]
-  print(module_name)
-  first_block = aceR:::subset_first_block(module)
-  col_names = names(first_block)
-  names(first_block) = sapply(col_names, function(x) {
-    if (grepl("pid", x)) {
-      new_name = x
-    } else {
-      new_name = paste(module_name, x, sep = "-")
-    }
-    return (new_name)
-  })
-  if (i == 1) {
-    all_tasks = first_block
-  } else {
-    all_tasks = plyr::join(all_tasks, first_block, by = "pid")
-  }
-}
+# standardize pids all around
+seacrest_demographics$pid = standardize_pid(seacrest_demographics$pid)
+all_tasks$pid = standardize_pid(all_tasks$pid)
+woodcock_age$pid = standardize_pid(woodcock_age$pid)
+woodcock_grade$pid = standardize_pid(woodcock_grade$pid)
 
+# merge, clean, and export
 clean_subset = all_tasks[, c("pid", EFA_VARS)]
-clean_demo = merge(clean_subset, demographics, by = "pid")
+clean_demo = merge(clean_subset, seacrest_demographics, by = "pid")
 clean_woodcock = merge(clean_demo, woodcock_age, by = "pid")
 clean_woodcock = merge(clean_woodcock, woodcock_grade, by = "pid")
 write.csv(clean_woodcock, OUT_FILE, na = "")
