@@ -1,6 +1,5 @@
 
 #' @keywords internal
-# TODO: this needs work
 
 multi_fun <- function(df, first_pattern, second_pattern, suffix, FUN) {
   p1 = df[stringr::str_detect(names(df), first_pattern)]

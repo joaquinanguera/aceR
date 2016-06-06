@@ -7,7 +7,7 @@
 load_ace_demographics(file)
 }
 \arguments{
-\item{file}{The name demographics file name.}
+\item{file}{The path to the demographics file name.}
 }
 \value{
 Returns demographic data

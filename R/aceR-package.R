@@ -24,8 +24,7 @@ aceR_sample_data_path <- function() {
 #' @export
 #' @return Returns the contents of the aceR DESCRIPTION file
 
-aceR_description <- function ()
-{
+aceR_description <- function () {
   return (packageDescription("aceR"))
 }
 
@@ -44,7 +43,6 @@ aceR_version <- function() {
 #' @export
 #' @return Returns a list of available aceR methods
 
-aceR_methods <- function ()
-{
+aceR_methods <- function () {
   return (lsf.str("package:aceR"))
 }

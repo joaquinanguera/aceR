@@ -2,7 +2,7 @@
 #' Load demographics file from source
 #'
 #' @export
-#' @param file The name demographics file name.
+#' @param file The path to the demographics file name.
 #' @return Returns demographic data
 
 load_ace_demographics <- function(file) {
