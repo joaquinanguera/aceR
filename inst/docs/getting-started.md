@@ -37,13 +37,13 @@ _Working directory_ refers to the directory you want R to load data from (or wri
 If we wanted to process RedBull data:
 
 ```{r}
-setwd("~/Google Drive/ACE/All Raw ACE Data/Redbull")
+setwd("~/Google Drive/ACE/All Raw ACE Data/ACE Studies_Raw Data/Redbull")
 ```
 
 We can also set up our script to process "all" ACE data in one go:
 
 ```{r}
-setwd("~/Google Drive/ACE/All Raw ACE Data")
+setwd("~/Google Drive/ACE/All Raw ACE Data/ACE Studies_Raw Data")
 ```
 
 #### Protips:
@@ -91,7 +91,7 @@ export_csv(proc)
 library(aceR)
 
 # set working directory
-setwd("~/Google Drive/ACE/All Raw ACE Data/Redbull")
+setwd("~/Google Drive/ACE/All Raw ACE Data/ACE Studies_Raw Data/Redbull")
 
 # load raw data
 dat = load_ace_bulk()
