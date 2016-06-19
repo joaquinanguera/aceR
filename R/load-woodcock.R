@@ -75,9 +75,8 @@ transform_woodcock = function(file) {
 
 #' @keywords internal
 
-load_woodcock_transformed = function(file, suffix = NULL) {
-  # load file
-  woodcock = read.csv(file)
+grab_woodcock_data = function(dat, suffix = NULL) {
+  woodcock = dat
   cols = names(woodcock)
   # prepare woodcock data
   woodcock_ss = woodcock[stringr::str_detect(cols, "SS")]
