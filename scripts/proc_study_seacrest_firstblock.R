@@ -8,14 +8,16 @@ library(plyr)
 
 # define constants
 
-BASE_DIRECTORY = "~/Desktop/ace"
-RAW_SEACREST_DIRECTORY = paste(BASE_DIRECTORY, "ACE Studies_Raw Data", "Sea Crest School", sep = "/")
-MISSING_FILES_DIRECTORY = paste(BASE_DIRECTORY, "ACE Studies_Raw Data", "Sea Crest School Missing", sep = "/")
-WOODCOCK_DIRECTORY = paste(BASE_DIRECTORY, "woodcock", sep = "/")
-DEMOGRAPHICS_FILE = paste(BASE_DIRECTORY, "ACE Participant Demographics.xlsx", sep = "/")
-TRANSFORMED_AGE = paste(WOODCOCK_DIRECTORY, "wj_transform_age.csv", sep = "/")
-TRANSFORMED_GRADE = paste(WOODCOCK_DIRECTORY, "wj_transform_grade.csv", sep = "/")
-OUT_FILE = paste(BASE_DIRECTORY, "ace_processed_first_block", "seacrest_first_block_concise.csv", sep = "/")
+BASE_DIRECTORY = "~/Desktop/seacrest"
+RAW_SEACREST_DIRECTORY = paste(BASE_DIRECTORY, "raw_email_files", sep = "/")
+MISSING_FILES_DIRECTORY = paste(BASE_DIRECTORY, "remaining_files", sep = "/")
+PARTICIPANT_INFO_DIRECTORY = paste(BASE_DIRECTORY, "participant_info_files", sep = "/")
+
+DEMOGRAPHICS_FILE = paste(PARTICIPANT_INFO_DIRECTORY, "All Participant Demographics.xlsx", sep = "/")
+AGE_FILE = paste(PARTICIPANT_INFO_DIRECTORY, "School Pilot WJ Data AGE.xlsx", sep = "/")
+GRADE_FILE = paste(PARTICIPANT_INFO_DIRECTORY, "School Pilot WJ Data GRADE.xlsx", sep = "/")
+
+OUT_FILE = paste(BASE_DIRECTORY, "seacrest_first_block_concise.csv", sep = "/")
 
 EFA_VARS = c(
   "BRT-rt_mean.left",
@@ -77,9 +79,13 @@ demographics = load_ace_demographics(DEMOGRAPHICS_FILE)
 # subset demographics
 seacrest_demographics = subset(demographics, study_name == "Sea Crest Pilot")
 
-# load transformed woodcock metrics
-woodcock_age = aceR:::load_woodcock_transformed(TRANSFORMED_AGE, "age")
-woodcock_grade = aceR:::load_woodcock_transformed(TRANSFORMED_GRADE, "grade")
+# load & transform woodcock metrics
+woodcock_age_transformed = aceR:::transform_woodcock(AGE_FILE)
+woodcock_grade_transformed = aceR:::transform_woodcock(GRADE_FILE)
+
+# grab woodcock variables
+woodcock_age = aceR:::grab_woodcock_data(woodcock_age_transformed, "age")
+woodcock_grade = aceR:::grab_woodcock_data(woodcock_grade_transformed, "grade")
 
 # load raw data
 dat = load_ace_bulk(path = RAW_SEACREST_DIRECTORY, pattern = ".csv", recursive = FALSE)
