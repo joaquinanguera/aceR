@@ -38,7 +38,7 @@ PARTICIPANT_INFO_DIRECTORY = paste(BASE_DIRECTORY, "participant_info_files", sep
 
 # files
 
-DEMOGRAPHICS_FILE = paste(PARTICIPANT_INFO_DIRECTORY, "All Participant Demographics.xlsx", sep = "/")
+DEMOGRAPHICS_FILE = paste(PARTICIPANT_INFO_DIRECTORY, "Sea Crest Demographics.xlsx", sep = "/")
 GRADE_FILE = paste(PARTICIPANT_INFO_DIRECTORY, "School Pilot WJ Data GRADE.xlsx", sep = "/")
 
 # constants
@@ -77,6 +77,16 @@ valid_cols = function(df, cols) {
   return (names(which(valid)))
 }
 
+load_missing_files = function(path) {
+  files = list.files(path, pattern = ".csv")
+  out = data.frame()
+  for (file in files) {
+    file_path = paste(path, file, sep = "/")
+    dat = aceR:::load_ace_filtered_file(file_path)
+    out = plyr::rbind.fill(out, dat)
+  }
+  return (out)
+}
 
 ```
 
@@ -86,9 +96,11 @@ valid_cols = function(df, cols) {
 
 # load demographics
 demographics = load_ace_demographics(DEMOGRAPHICS_FILE)
+demographics$pid = standardize_seacrest_pid(demographics$pid)
 
 # load & woodcock metris
 woodcock = aceR:::transform_woodcock(GRADE_FILE)
+woodcock = merge(demographics, woodcock, by = "pid")
 
 cols = names(woodcock)
 
@@ -105,9 +117,11 @@ names(woodcock_ss_score) = sapply(names(woodcock_ss_score), function(x) {
   new_name = aceR:::remove_special_characters(x, "")
   new_name = gsub(SS_ID, "_SS_", new_name)
   new_name = gsub(BAND_ID, "_Band", new_name)
+  new_name = gsub(" ", "", new_name)
   return (new_name)
 })
 
+woodcock_ss_score = cbind(woodcock[, c(PID, AGE)], woodcock_ss_score)
 
 ```
 
@@ -137,10 +151,10 @@ for (ss_y in ss_ys) {
 
 ```{r, warning = FALSE, message = FALSE}
 
-ace = load_files(path = SEACREST_PROC_PATH)
-ace$module = as.character(ace$module)
-ace$pid = as.character(ace$pid)
-ace_by_task = aceR:::subset_by_col(ace, "module")
+ace = load_ace_bulk(path = RAW_SEACREST_DIRECTORY, pattern = ".csv", recursive = FALSE)
+ace_missing = load_missing_files(path = MISSING_FILES_DIRECTORY)
+ace = plyr::rbind.fill(ace, ace_missing)
+ace_by_task = proc_by_module(ace, verbose = TRUE)
 
 modules = names(ace_by_task)
 print(modules)
@@ -157,6 +171,7 @@ for (module in ace_by_task) {
 
   # get rid of infinites
   is.na(module_demographs) = sapply(module_demographs, is.infinite)
+  
 
   for (ace_y in valid_ace_ys) {
 
