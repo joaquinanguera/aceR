@@ -62,6 +62,7 @@ demographics = load_ace_demographics(DEMOGRAPHICS_FILE)
 
 # subset demographics
 seacrest_demographics = subset(demographics, study_name == "Sea Crest Pilot")
+seacrest_demographics$pid = standardize_seacrest_pid(seacrest_demographics$pid)
 
 # load & transform woodcock metrics
 woodcock_age_transformed = aceR:::transform_woodcock(AGE_FILE)
@@ -84,9 +85,6 @@ dat$pid = standardize_seacrest_pid(dat$pid)
 proc = proc_by_module(dat, verbose = TRUE)
 
 all_tasks = aceR:::subset_first_block_for_tasks(proc)
-
-# standardize pids all around
-seacrest_demographics$pid = standardize_seacrest_pid(seacrest_demographics$pid)
 all_tasks$pid = standardize_seacrest_pid(all_tasks$pid)
 
 # merge, clean, and export
