@@ -46,22 +46,6 @@ EFA_VARS = c(
   "TNT-acc_mean.cost"
   )
 
-# helper functions
-
-standardize_pid = function(x) {
-  standardized = sapply(x, function(y) { 
-    id_split = stringr::str_split(y, "-")[[1]]
-    id = id_split[3]
-    if (nchar(id) == 1) {
-      id = paste0("00", id)
-    } else if (nchar(id) == 2) {
-      id = paste0("0", id)
-    }
-    return (paste0("ADMIN-UCSF-", gsub("b", "", id)))
-  })
-  return (as.vector(standardized))
-}
-
 load_missing_files = function(path) {
   files = list.files(path, pattern = ".csv")
   out = data.frame()
@@ -92,20 +76,18 @@ dat = load_ace_bulk(path = RAW_SEACREST_DIRECTORY, pattern = ".csv", recursive =
 
 # load missing data
 dat_missing = load_missing_files(path = MISSING_FILES_DIRECTORY)
-dat_missing$pid = standardize_pid(dat_missing$pid)
+dat_missing$pid = standardize_seacrest_pid(dat_missing$pid)
 
 # merge missing files with 
 dat = plyr::rbind.fill(dat, dat_missing)
-dat$pid = standardize_pid(dat$pid)
+dat$pid = standardize_seacrest_pid(dat$pid)
 proc = proc_by_module(dat, verbose = TRUE)
 
 all_tasks = aceR:::subset_first_block_for_tasks(proc)
 
 # standardize pids all around
-seacrest_demographics$pid = standardize_pid(seacrest_demographics$pid)
-all_tasks$pid = standardize_pid(all_tasks$pid)
-woodcock_age$pid = standardize_pid(woodcock_age$pid)
-woodcock_grade$pid = standardize_pid(woodcock_grade$pid)
+seacrest_demographics$pid = standardize_seacrest_pid(seacrest_demographics$pid)
+all_tasks$pid = standardize_seacrest_pid(all_tasks$pid)
 
 # merge, clean, and export
 clean_subset = all_tasks[, c("pid", EFA_VARS)]
