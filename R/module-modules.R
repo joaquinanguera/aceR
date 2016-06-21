@@ -72,7 +72,7 @@ module_spatialspan <- function(df) {
 #' @name ace_procs
 
 module_taskswitch <- function(df) {
-  df$taskswitch_state = plyr::mapvalues(df$taskswitch_state, from = c(0, 1 , 2), to = c("start", "switch", "stay"))
+  df$taskswitch_state = plyr::mapvalues(df$taskswitch_state, from = c(0, 1 , 2), to = c("start", "switch", "stay"), warn_missing = FALSE)
   gen = proc_generic_module(df, COL_CORRECT_BUTTON, "taskswitch_state", FALSE)
   cost = multi_subtract(gen, "\\.switch", "\\.stay", "\\.cost")
   return (data.frame(gen, cost))
@@ -82,7 +82,7 @@ module_taskswitch <- function(df) {
 #' @name ace_procs
 
 module_tnt <- function(df) {
-  df$condition = plyr::mapvalues(df$condition, from = c("Tap & Trace", "Tap Only"), to = c("tap_trace", "tap_only"))
+  df$condition = plyr::mapvalues(df$condition, from = c("Tap & Trace", "Tap Only"), to = c("tap_trace", "tap_only"), warn_missing = FALSE)
   gen = proc_generic_module(df, COL_CORRECT_BUTTON, COL_CONDITION, TRUE)
   cost = multi_subtract(gen, "\\.tap_trace", "\\.tap_only", "\\.cost")
   return (data.frame(gen, cost))
