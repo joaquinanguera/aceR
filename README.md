@@ -18,9 +18,9 @@ GITHUB_PAT = "64235145b808f152d84467ea1362dc0b7a0def6c"
 devtools::install_github("josegallegos07/aceR", auth_token = GITHUB_PAT)
 ```
 
-## Updating to Newer Version
+## Updates
 
-Re-install aceR to update to the latest version:
+Reinstall the package to update to the latest version:
 
 ```
 GITHUB_PAT = "64235145b808f152d84467ea1362dc0b7a0def6c"
