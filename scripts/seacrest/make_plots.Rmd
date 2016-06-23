@@ -48,8 +48,22 @@ AGE = "grade"
 SS_ID = "SS"
 BAND_ID = "Band"
 
-ACE_INCLUDE = c("rt_", "acc_", "rw_", "correct", "object_count")
-ACE_IGNORE = c("cohort", "length", "se", "sd", "incorrect", "rt_count", "rw_count")
+ACE_INCLUDE = c(
+  "rt_", 
+  "acc_", 
+  "rw_",
+  "correct", 
+  "object_count")
+
+ACE_IGNORE = c(
+  "cohort",
+  "median",
+  "length",
+  "se", 
+  "sd", 
+  "incorrect",
+  "rt_count", 
+  "rw_count")
 
 # helper functions 
 
@@ -165,6 +179,7 @@ print(modules)
 
 for (module in ace_by_task) {
 
+  module$pid = standardize_seacrest_pid(module$pid)
   ace_ys = grab_ace(module, ACE_INCLUDE, ACE_IGNORE)
   module_demographs = merge(module, woodcock_ss_score, by = "pid")
   valid_ace_ys = valid_cols(module_demographs, ace_ys)
@@ -172,7 +187,6 @@ for (module in ace_by_task) {
   # get rid of infinites
   is.na(module_demographs) = sapply(module_demographs, is.infinite)
   
-
   for (ace_y in valid_ace_ys) {
 
       ace_formula_str = paste0(ace_y, " ~ ", AGE)
@@ -199,6 +213,7 @@ for (module in ace_by_task) {
 
 for (module in ace_by_task) {
 
+  module$pid = standardize_seacrest_pid(module$pid)
   reg_ys = grab_ace(module, ACE_INCLUDE, ACE_IGNORE)
   module_demographs = merge(module, woodcock_ss_score, by = "pid")
   valid_reg_ys = valid_cols(module_demographs, reg_ys)
@@ -220,7 +235,7 @@ for (module in ace_by_task) {
       plot_desc = paste(module$module[1], ":", reg_y, "by", reg_x, sep = " ")
 
       lplot = ggplot() +
-        geom_point(aes(module_demographs[, reg_x], module_demographs[, reg_y]), module_demographs) +
+        geom_point(aes(module_demographs[, reg_x], module_demographs[, reg_y]), module_demographs, na.rm = TRUE) +
         ggtitle(plot_desc) +
         xlab(reg_x) +
         ylab(reg_y) +
