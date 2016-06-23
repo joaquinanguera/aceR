@@ -198,7 +198,7 @@ for (module in ace_by_task) {
       ace_title = paste(module_demographs$module[1], ":", ace_y, "by", AGE)
       ace_plot = make_box_plot(module_demographs, AGE, ace_y, ace_title)
 
-      ace_mod_summary$call = ace_formula_str
+      ace_mod_summary$call = paste(module_demographs$module[1], ":", ace_formula_str, sep = " ")
       print(ace_plot)
       print(ace_mod_summary)
   }
@@ -241,7 +241,7 @@ for (module in ace_by_task) {
         ylab(reg_y) +
         geom_abline(slope = slope, intercept = intercept, colour='#E41A1C')
 
-      reg_mod_summary$call = reg_formula_str
+      reg_mod_summary$call = paste(module$module[1], ":", reg_formula_str, sep = " ")
       print(lplot)
       print(reg_mod_summary)
     }
