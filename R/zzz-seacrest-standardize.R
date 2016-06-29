@@ -8,7 +8,7 @@
 
 standardize_seacrest_pid = function(x) {
   standardized = sapply(x, function(y) { 
-    id_split = stringr::str_split(y, "-")[[1]]
+    id_split = stringr::str_split(y, "[-/]")[[1]]
     id = id_split[3]
     if (!is.na(nchar(id))) {
       if (nchar(id) == 1) {
@@ -17,7 +17,7 @@ standardize_seacrest_pid = function(x) {
         id = paste0("0", id)
       }
     } else {
-      stop(paste("Invalid ID: ", y))
+      print(paste("Invalid ID: ", y))
     }
     return (paste0("ADMIN-UCSF-", gsub("b", "", id)))
   })
