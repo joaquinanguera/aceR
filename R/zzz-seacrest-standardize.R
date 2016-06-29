@@ -17,7 +17,7 @@ standardize_seacrest_pid = function(x) {
         id = paste0("0", id)
       }
     } else {
-      stop(paste("Invalid ID: ", y)
+      stop(paste("Invalid ID: ", y))
     }
     return (paste0("ADMIN-UCSF-", gsub("b", "", id)))
   })
