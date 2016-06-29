@@ -16,6 +16,8 @@ standardize_seacrest_pid = function(x) {
       } else if (nchar(id) == 2) {
         id = paste0("0", id)
       }
+    } else {
+      stop(paste("Invalid ID: ", y)
     }
     return (paste0("ADMIN-UCSF-", gsub("b", "", id)))
   })
