@@ -26,6 +26,7 @@ standardize_raw_csv_data <- function(dat) {
   dat[is.na(dat)] = ""
   dat = remove_empty_cols(dat)
   dat = remove_empty_rows(dat)
+  row.names(dat) = NULL
   return (dat)
 }
 
