@@ -15,7 +15,8 @@ load_ace_file <- function(file) {
   if (is_excel(file)) {
     raw_dat = load_excel(file)
   } else {
-    raw_dat = load_csv(file)   
+    raw_dat = load_csv(file)
+    raw_dat = breakup_by_user(raw_dat)
   }
   if (is.vector(raw_dat)) {
     out = data.frame()

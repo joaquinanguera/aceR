@@ -9,10 +9,24 @@ load_csv <- function(file) {
 
 #' @keywords internal
 
+breakup_by_user <- function(raw) {
+  subs = which(grepl("USER ID:|PARTICIPANT ID:", raw[, 2])) - 1
+  if (length(subs) !=  0) {
+    out = split(raw, cumsum(1:nrow(raw) %in% subs))
+    out = lapply(out, "rownames<-", NULL)
+  } else {
+    out = raw
+  }
+  return (out)
+}
+
+#' @keywords internal
+
 standardize_raw_csv_data <- function(dat) {
   dat[is.na(dat)] = ""
   dat = remove_empty_cols(dat)
   dat = remove_empty_rows(dat)
+  row.names(dat) = NULL
   return (dat)
 }
 

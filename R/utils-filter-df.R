@@ -16,7 +16,7 @@ remove_empty_cols <- function(df) {
 #' @return Returns a data frame where the empty rows have been removed
 
 remove_empty_rows <- function(df) {
-  return(df[rowSums(is.na(df)) != ncol(df),])
+  return (df[!apply(is.na(df) | df == "", 1, all),])
 }
 
 #' Remove specified rows from a data frame
