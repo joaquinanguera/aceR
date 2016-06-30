@@ -13,6 +13,7 @@ breakup_by_user <- function(raw) {
   subs = which(grepl("USER ID:|PARTICIPANT ID:", raw[, 2])) - 1
   if (length(subs) !=  0) {
     out = split(raw, cumsum(1:nrow(raw) %in% subs))
+    out = lapply(out, "rownames<-", NULL)
   } else {
     out = raw
   }
