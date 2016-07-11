@@ -45,6 +45,7 @@ GRADE_FILE = paste(PARTICIPANT_INFO_DIRECTORY, "School Pilot WJ Data GRADE.xlsx"
 
 PID = "pid"
 AGE = "grade"
+GENDER = "gender"
 SS_ID = "SS"
 BAND_ID = "Band"
 
@@ -152,7 +153,7 @@ for (ss_y in ss_ys) {
   ss_mod_summary = summary(ss_mod)
   
   # make plot and print
-  ss_plot = make_box_plot(woodcock_ss_score, AGE, ss_y)
+  ss_plot = make_box_plot(woodcock_ss_score, AGE, ss_y, cohort = GENDER)
   
   ss_mod_summary$call = ss_formula_str
   print(ss_plot)
@@ -196,7 +197,7 @@ for (module in ace_by_task) {
 
       # make plot and print
       ace_title = paste(module_demographs$module[1], ":", ace_y, "by", AGE)
-      ace_plot = make_box_plot(module_demographs, AGE, ace_y, ace_title)
+      ace_plot = make_box_plot(module_demographs, AGE, ace_y, ace_title, cohort = GENDER)
 
       ace_mod_summary$call = paste(module_demographs$module[1], ":", ace_formula_str, sep = " ")
       print(ace_plot)
