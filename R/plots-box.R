@@ -13,8 +13,8 @@ make_box_plot <- function(df, x, y, title, xlab, ylab, cohort = NULL, ...) {
     ylab = y
   }
   boxplot = ggplot2::ggplot(df, 
-    ggplot2::aes(x = df[, x], y = df[, y])) +
-    ggplot2::geom_boxplot(aes(fill = cohort)) +
+    ggplot2::aes(x = df[, x], y = df[, y], fill = df[, "gender"])) +
+    ggplot2::geom_boxplot() +
     ggplot2::ggtitle(title) + 
     ggplot2::xlab(xlab) + 
     ggplot2::ylab(ylab)
