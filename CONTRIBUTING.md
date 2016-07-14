@@ -46,4 +46,4 @@ Use [roxygen2](http://r-pkgs.had.co.nz/man.html) for documenting functions.
 
 ## tests
 
-We use the [testthat](https://github.com/hadley/testthat) package to run basic unit tests. Please make sure your code passes before building the package for distribution. Add [unit tests](aceR/tests/testthat/) when possible.
+We use the [testthat](https://github.com/hadley/testthat) package to run basic unit tests. Please make sure your code passes before building the package for distribution. Add [unit tests](tests/testthat/) when possible.
