@@ -190,37 +190,9 @@ for (module in ace_by_task) {
   is.na(module_demographs) = sapply(module_demographs, is.infinite)
   
   for (ace_y in valid_ace_ys) {
-
-      ace_formula_str = paste0(ace_y, " ~ ", GENDER)
-      ace_formula = formula(ace_formula_str)
-      match_male = which(module_demographs[, "gender"]=="Male")
-      match_female = which(module_demographs[, "gender"]=="Female")
-      match_thirdgrade = which(module_demographs[, "grade"]=="3rd Grade")
-      match_fifthgrade = which(module_demographs[, "grade"]=="5th Grade")
-      match_seventhgrade = which(module_demographs[, "grade"]=="7th Grade")
-      ace_mod_thirdgrade = lm(formula = ace_formula, data = module_demographs[match_thirdgrade,])
-      ace_mod_fifthgrade = lm(formula = ace_formula, data = module_demographs[match_fifthgrade,])
-      ace_mod_seventhgrade = lm(formula = ace_formula, data = module_demographs[match_seventhgrade,])
-
-      ace_mod_thirdgrade_summary = summary(ace_mod_thirdgrade)
-      ace_mod_fifthgrade_summary = summary(ace_mod_fifthgrade)
-      ace_mod_seventhgrade_summary = summary(ace_mod_seventhgrade)
-
-      # make plot and print
-      ace_title = paste(module_demographs$module[1], ":", ace_y, "by", GENDER)
-      ace_plot_thirdgrade = make_box_plot(module_demographs[match_thirdgrade,], AGE, ace_y, ace_title)
-      ace_plot_fifthgrade = make_box_plot(module_demographs[match_fifthgrade,], AGE, ace_y, ace_title)
-      ace_plot_seventhgrade = make_box_plot(module_demographs[match_seventhgrade,], AGE, ace_y, ace_title)
-
-      ace_mod_thirdgrade_summary$call = paste(module_demographs$module[1], ":", ace_formula_str, sep = " ")
-      ace_mod_fifthgrade_summary$call = paste(module_demographs$module[1], ":", ace_formula_str, sep = " ")
-      ace_mod_seventhgrade_summary$call = paste(module_demographs$module[1], ":", ace_formula_str, sep = " ")
-      print(ace_plot_thirdgrade)
-      print(ace_mod_thirdgrade_summary)
-      print(ace_plot_fifthgrade)
-      print(ace_mod_fifthgrade_summary)
-      print(ace_plot_seventhgrade)
-      print(ace_mod_seventhgrade_summary)
+      aceR:::generate_plots_and_stats(module_demographs, AGE, ace_y)
+      aceR:::generate_plots_and_stats(module_demographs, GENDER, ace_y)
+      aceR:::generate_plots_and_stats(module_demographs, AGE, ace_y, cohort = GENDER)
   }
 
 }
