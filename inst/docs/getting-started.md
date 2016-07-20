@@ -18,8 +18,7 @@
 5. Finally, install `aceR` using `devtools`
 
   ```{r}
-  GITHUB_PAT = "64235145b808f152d84467ea1362dc0b7a0def6c"
-  devtools::install_github("josegallegos07/aceR", auth_token = GITHUB_PAT)
+  devtools::install_github("josegallegos07/aceR")
   ```
 
 ## Example
