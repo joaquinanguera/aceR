@@ -5,10 +5,11 @@
 #'
 #' @export
 #' @inheritParams base::dir.exists
+#' @inheritParams base::dir.create
 
 make_directory <- function(path, showWarnings = FALSE) {
   if (!dir.exists(path)) {
-    dir.create(file.path(path), showWarnings = FALSE)
+    dir.create(file.path(path), showWarnings = showWarnings)
   }
 }
 
@@ -19,6 +20,7 @@ make_directory <- function(path, showWarnings = FALSE) {
 #' @export
 #' @param dat a list of data frames to save
 #' @param path the named release directory
+#' @inheritParams base::dir.create
 
 export_csv <- function (dat, path = ".", showWarnings = FALSE) {
   names = names(dat)

@@ -10,6 +10,8 @@ export_csv(dat, path = ".", showWarnings = FALSE)
 \item{dat}{a list of data frames to save}
 
 \item{path}{the named release directory}
+
+\item{showWarnings}{logical; should the warnings on failure be shown?}
 }
 \description{
 Exports a list of data frames as csv into named directory

@@ -11,6 +11,10 @@ load_files(path = ".", verbose = FALSE, ...)
     corresponds to the working directory, \code{\link{getwd}()}.  Tilde
     expansion (see \code{\link{path.expand}}) is performed.  Missing
     values will be ignored.}
+
+\item{verbose}{print details?}
+
+\item{...}{see \code{\link{list.files}}}
 }
 \value{
 all files in a directory as one data frame

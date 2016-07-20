@@ -4,8 +4,8 @@
 #' Write plot to file
 #' 
 #' @export
-#' @inheritParams base::write.csv
 #' @param plot a plot
+#' @param file a character string giving the name of the file.
 
 export_plot <- function(plot, file) {
   pdf(file)

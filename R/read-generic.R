@@ -22,6 +22,8 @@ files_in_directory <- function(path = ".", pattern = ".csv", recursive = TRUE) {
 #'
 #' @export
 #' @inheritParams base::list.files
+#' @param verbose print details?
+#' @param ... see \code{\link{list.files}}
 #' @return all files in a directory as one data frame
 
 load_files <- function (path = ".", verbose = FALSE, ...) {

@@ -8,6 +8,8 @@ export_plot(plot, file)
 }
 \arguments{
 \item{plot}{a plot}
+
+\item{file}{a character string giving the name of the file.}
 }
 \description{
 Write plot to file

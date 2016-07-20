@@ -8,6 +8,8 @@ make_box_plot_bulk(df, x, y = c(), title_prefix = "", file_prefix = "",
   path = NULL, export = FALSE)
 }
 \arguments{
+\item{df}{a data.frame}
+
 \item{x}{the name of x variable}
 
 \item{y}{a character vector containing a list of y variables to make plots of}

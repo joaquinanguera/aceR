@@ -1,8 +1,18 @@
 
+#' Make a box plot
+#'
+#' Makes a box plot
+#'
 #' @export
 #' @inheritParams ggplot2::ggplot
+#' @param df a data.frame
+#' @param x the name of the x variables
+#' @param y the name of the y variables
+#' @param title the plot title
+#' @param xlab the x label. defaults to x variable.
+#' @param ylab the y label. defaults to y variable.
 
-make_box_plot <- function(df, x, y, title, xlab, ylab, cohort = NULL, ...) {
+make_box_plot <- function(df, x, y, title, xlab, ylab, ...) {
   if (missing(title)) {
     title = paste(y, "by", x, sep = " ")
   }
@@ -18,9 +28,9 @@ make_box_plot <- function(df, x, y, title, xlab, ylab, cohort = NULL, ...) {
     ggplot2::ggtitle(title) + 
     ggplot2::xlab(xlab) + 
     ggplot2::ylab(ylab)
-  if (!is.null(cohort)) {
-    boxplot = boxplot + ggplot2::aes(fill = df[, cohort])
-  }
+  # if (!is.null(cohort)) {
+  #   boxplot = boxplot + ggplot2::aes(fill = df[, cohort])
+  # }
   return (boxplot)
 }
 
@@ -29,6 +39,7 @@ make_box_plot <- function(df, x, y, title, xlab, ylab, cohort = NULL, ...) {
 #' A wrapper function around \code{\link{make_box_plot}}.
 #'
 #' @export
+#' @param df a data.frame
 #' @param x the name of x variable
 #' @param y a character vector containing a list of y variables to make plots of
 #' @param title_prefix Added to every plot title if \code{!is.null(path)}.
