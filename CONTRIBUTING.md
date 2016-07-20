@@ -28,6 +28,10 @@ Build `->` Build & Reload
 
 Test your changes.
 
+Check changes 
+
+Build `->` Check Package
+
 ## style guide
 
 Please refer to [this guide](http://r-pkgs.had.co.nz/style.html) when writing new functions or refactoring old ones.
