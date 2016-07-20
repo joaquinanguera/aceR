@@ -2,3 +2,4 @@
 ^\.Rproj\.user$
 datamart-master/
 scripts/
+^\.travis\.yml$
