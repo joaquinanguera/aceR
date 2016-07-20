@@ -3,3 +3,4 @@
 datamart-master/
 scripts/
 ^\.travis\.yml$
+CONTRIBUTING.md
