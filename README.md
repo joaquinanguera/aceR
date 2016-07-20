@@ -1,5 +1,7 @@
 # aceR
 
+[![Build Status](https://travis-ci.org/josegallegos07/aceR.svg?branch=master)](https://travis-ci.org/josegallegos07/steamR)
+
 `aceR` is an R package around ACE data. 
 
 ## Getting Started
@@ -14,8 +16,7 @@ Install the latest release from github using [devtools](https://github.com/hadle
 
 ```
 # install.packages("devtools")
-GITHUB_PAT = "64235145b808f152d84467ea1362dc0b7a0def6c"
-devtools::install_github("josegallegos07/aceR", auth_token = GITHUB_PAT)
+devtools::install_github("josegallegos07/aceR")
 ```
 
 ## Updates
@@ -23,8 +24,7 @@ devtools::install_github("josegallegos07/aceR", auth_token = GITHUB_PAT)
 Reinstall the package to update to the latest version:
 
 ```
-GITHUB_PAT = "64235145b808f152d84467ea1362dc0b7a0def6c"
-devtools::install_github("josegallegos07/aceR", auth_token = GITHUB_PAT)
+devtools::install_github("josegallegos07/aceR")
 ```
 
 ## Example Scripts
