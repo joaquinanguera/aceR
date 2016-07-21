@@ -76,6 +76,8 @@ Use [roxygen2](http://r-pkgs.had.co.nz/man.html) for documenting functions.
 
 We use the [testthat](https://github.com/hadley/testthat) package to run basic unit tests. Please make sure your code passes before checking-in your changes. Please add [unit tests](tests/testthat/) when possible.
 
+**Never merge `development` into `master` if the tests are failing**
+
 ### Travis 
 
 Tests are automatically deployed on Travis after every push. 
