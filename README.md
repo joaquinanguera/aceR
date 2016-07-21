@@ -1,6 +1,6 @@
 # aceR
 
-[![Build Status](https://travis-ci.org/josegallegos07/aceR.svg?branch=master)](https://travis-ci.org/josegallegos07/steamR)
+[![Build Status](https://travis-ci.org/josegallegos07/aceR.svg?branch=master)](https://travis-ci.org/josegallegos07/aceR)
 
 `aceR` is an R package around ACE data. 
 
