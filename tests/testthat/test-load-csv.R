@@ -6,4 +6,4 @@ sample_boxed = paste(aceR_sample_data_path(), "sample-boxed.csv", sep = "/")
 
 expect_warning(load_ace_file(sample_bad))
 expect_warning(load_ace_file(sample_valid_but_bad_because_empty))
-expect_more_than(nrow(load_ace_file(sample_boxed)), 0)
+expect_gt(nrow(load_ace_file(sample_boxed)), 0)
