@@ -33,6 +33,15 @@ COL_PID = "pid"
 COL_BID = "bid"
 
 #' @name ace_header
+COL_AGE = "user_age"
+
+#' @name ace_header
+COL_GRADE = "user_grade"
+
+#' @name ace_header
+COL_GENDER = "user_gender"
+
+#' @name ace_header
 COL_SUB_ID = "subid"
 
 #' @name ace_header
