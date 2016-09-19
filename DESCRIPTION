@@ -11,6 +11,7 @@ Suggests:
     testthat
 Imports:
     zoo,
+    tidyr,
     plyr,
     reshape,
     stringr,
