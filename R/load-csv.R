@@ -63,7 +63,7 @@ identify_nondata_rows <- function(dat) {
   throw_away = dat[dat[1] != "" & dat[2] != "" & dat[3] == "", ]
   vals = c(unlist(non_data), numeric_row_names(throw_away))
   vals = sort(unique(vals))
-  if (length(vals) <= 1) {
+  if (length(vals) < 1) { # MT 9/18/16 changing to < to throw away single rows
     return (c())
   } else {
     return (vals)
