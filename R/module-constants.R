@@ -52,7 +52,7 @@ proc_by_condition <- function(df, variable, col_condition, FUN) {
 
 #' @keywords internal
 
-proc_standard <- function (df, variable, col_condition = NULL, y = c(COL_BID, col_condition), FUN, transform_dir = "wide", ...) {
+proc_standard <- function (df, variable, col_condition = NULL, col_condition2 = NULL, y = c(COL_BID, col_condition), FUN, transform_dir = "wide", ...) {
   proc = apply_stats(
     x = df, 
     y = y, 
@@ -63,7 +63,7 @@ proc_standard <- function (df, variable, col_condition = NULL, y = c(COL_BID, co
     return (proc)
   }
   if (transform_dir == "wide") {
-  transform = stats::reshape(proc, timevar = col_condition, idvar = COL_BID, direction = transform_dir)
+    transform = stats::reshape(proc, timevar = col_condition, idvar = COL_BID, direction = "wide")
   } else {transform = proc}
   names(transform) = tolower(names(transform))
   return (transform)
