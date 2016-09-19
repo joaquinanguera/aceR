@@ -45,6 +45,7 @@ load_ace_filtered_file <- function(file) {
   names(df)[names(df) == pid_col] = COL_PID
   names(df) = sapply(names(df), function(x) to_snake_case(x))
   df = standardize_ace_column_names(df)
+  df[, COL_PID] = as.character(df[, COL_PID])
   df$file = file
   df$module = identify_module(file)
   df = standardize_ace_values(df)
