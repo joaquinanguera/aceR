@@ -101,6 +101,9 @@ module_backwardsspatialspan <- function(df) {
   return (merged)
 }
 
+#' @keywords internal
+#' @name ace_procs
+
 module_filter <- function(df) {
   # MT: implementing long format for filter only because it appears only appropriate for this module. open to changing if later modules benefit from this
   df$cue_rotated = base::as.factor(df$cue_rotated)
@@ -109,10 +112,13 @@ module_filter <- function(df) {
   df = tidyr::separate_(df, COL_CONDITION, c("targets", "distractors"), sep = 2, remove = TRUE)
   df$targets = as.numeric(plyr::mapvalues(df$targets, from = c("R2", "R4"), to = c(2, 4)))
   df$distractors = as.numeric(plyr::mapvalues(df$distractors, from = c("B0", "B2", "B4"), to = c(0, 2, 4)))
-  # MT: will try to bring this implementation in line w/ proc_standard later, but it asks for 3 inputs and is long form so maybe not
-  filter_k = ace_wm_k(df$correct_button_mean.change, 1 - df$correct_button_mean.no_change, df$targets)
-  return (data.frame(df, k = filter_k))
+  # TODO: implement k w/ proc_standard (if possible)
+  df$k = ace_wm_k(df$correct_button_mean.change, 1 - df$correct_button_mean.no_change, df$targets)
+  return (stats::reshape(df, timevar = "targets", idvar = c(COL_BID, "distractors"), direction = "wide"))
 }
+
+#' @keywords internal
+#' @name ace_procs
 
 module_ishihara <- function(df) {
   return (proc_standard(df, "trial_correct", col_condition = NULL, FUN = ace_ishihara, y = c(COL_BID)))
