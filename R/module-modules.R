@@ -102,9 +102,14 @@ module_backwardsspatialspan <- function(df) {
 }
 
 module_filter <- function(df) {
+  # MT: implementing long format for filter only because it appears only appropriate for this module. open to changing if later modules benefit from this
   df$cue_rotated = base::as.factor(df$cue_rotated)
   df$cue_rotated = plyr::mapvalues(df$cue_rotated, from = c("0", "1"), to = c("no_change", "change"), warn_missing = FALSE)
-  rate = proc_standard(df, COL_CORRECT_BUTTON, COL_CONDITION, factor = "cue_rotated", FUN = ace_descriptive_statistics_by_group)
+  df = proc_standard(df, COL_CORRECT_BUTTON, COL_CONDITION, factor = "cue_rotated", FUN = ace_descriptive_statistics_by_group, transform_dir = "long")
+  df = tidyr::separate_(df, COL_CONDITION, c("targets", "distractors"), sep = 2, remove = TRUE)
+  df$targets = as.numeric(plyr::mapvalues(df$targets, from = c("R2", "R4"), to = c(2, 4)))
+  df$distractors = as.numeric(plyr::mapvalues(df$distractors, from = c("B0", "B2", "B4"), to = c(0, 2, 4)))
+  return(df)
 }
 
 module_ishihara <- function(df) {
