@@ -43,5 +43,5 @@ ace_detection_rate <- function(x, y) {
 
 ace_ishihara <- function(x) {
   if (sum(x != 1) == 0) {return (1)
-    } else {return (0)}
+  } else {return (0)}
 }

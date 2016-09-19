@@ -48,6 +48,12 @@ ace_detection <- function(x, y) {
 
 #' @keywords internal
 
+ace_wm_k <- function(hit, fa, targets) {
+  return (targets * (hit - fa))
+}
+
+#' @keywords internal
+
 snodgrass_correction <- function(rate, num) {
   return ((rate + 0.50) / (num + 1))
 }
