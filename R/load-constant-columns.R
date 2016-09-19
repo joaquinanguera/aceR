@@ -33,13 +33,13 @@ COL_PID = "pid"
 COL_BID = "bid"
 
 #' @name ace_header
-COL_AGE = "user_age"
+COL_AGE = "age"
 
 #' @name ace_header
-COL_GRADE = "user_grade"
+COL_GRADE = "grade"
 
 #' @name ace_header
-COL_GENDER = "user_gender"
+COL_GENDER = "gender"
 
 #' @name ace_header
 COL_SUB_ID = "subid"
@@ -58,6 +58,9 @@ standardize_ace_column_names <- function(df) {
   new[new == "response_window"] = COL_RW
   new[new == "participant_id"] = COL_PID
   new[new == "user_id"] = COL_PID
+  new[new == "user_age"] = COL_AGE
+  new[new == "user_grade"] = COL_GRADE
+  new[new == "user_gender"] = COL_GENDER
   names(df) = new
   return (df)
 }
