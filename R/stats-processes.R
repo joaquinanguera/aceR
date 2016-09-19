@@ -38,3 +38,10 @@ ace_detection_rate <- function(x, y) {
   rate = c(rate = ace_detection(x, y))
   return (c(rate))
 }
+
+#' @keywords internal 
+
+ace_ishihara <- function(x) {
+  if (sum(x != 1) == 0) {return (1)
+    } else {return (0)}
+}

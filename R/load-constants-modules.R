@@ -32,6 +32,15 @@ TASK_SWITCH <- "TASKSWITCH"
 #' @name ace_module
 TNT <- "TNT"
 
+#' @name ace_module
+FILTER <- "FILTER"
+
+#' @name ace_module
+BACK_SPATIAL_SPAN <- "BACKWARDSSPATIALSPAN"
+
+#' @name ace_module
+ISHIHARA <- "ISHIHARA"
+
 #' Identify ACE module from filename
 #'
 #' Identifies ACE module from the filename
@@ -52,7 +61,9 @@ identify_module <- function(file) {
     return (FLANKER)
   } else if (grepl(SAAT, file)) {
     return (SAAT)
-  } else if (grepl(SPATIAL_SPAN, file)) {
+  } else if (grepl(BACK_SPATIAL_SPAN, file)) {
+    return (BACK_SPATIAL_SPAN) # More specific module name must be listed first if using this if else chain
+  }else if (grepl(SPATIAL_SPAN, file)) {
     return (SPATIAL_SPAN)
   } else if (grepl(STROOP, file)) {
     return (STROOP)
@@ -60,6 +71,10 @@ identify_module <- function(file) {
     return (TASK_SWITCH)
   } else if (grepl(TNT, file)) {
     return (TNT)
+  } else if (grepl(FILTER, file)) {
+    return (FILTER)
+  }  else if (grepl(ISHIHARA, file)) {
+    return (ISHIHARA)
   }
   return ("unknown")
 }

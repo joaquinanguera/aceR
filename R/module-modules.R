@@ -87,3 +87,26 @@ module_tnt <- function(df) {
   cost = multi_subtract(gen, "\\.tap_trace", "\\.tap_only", "\\.cost")
   return (data.frame(gen, cost))
 }
+
+#' @keywords internal
+#' @name ace_procs
+
+module_backwardsspatialspan <- function(df) {
+  rt = proc_by_condition(df, COL_RT, COL_CORRECT_BUTTON, FUN = ace_descriptive_statistics)
+  acc = proc_standard(df, COL_CORRECT_BUTTON, col_condition = NULL, FUN = ace_descriptive_statistics, y = c(COL_BID), suffix = "overall")
+  span = proc_standard(df, "object_count", col_condition = NULL, FUN = ace_spatial_span, y = c(COL_BID), suffix = "overall")
+  rt_block_half = proc_standard(df, COL_RT, NULL, factor = COL_BLOCK_HALF, FUN = ace_descriptive_statistics_by_group)
+  analy = list(rt, acc, span, rt_block_half)
+  merged = multi_merge(analy, by = COL_BID)
+  return (merged)
+}
+
+module_filter <- function(df) {
+  df$cue_rotated = base::as.factor(df$cue_rotated)
+  df$cue_rotated = plyr::mapvalues(df$cue_rotated, from = c("0", "1"), to = c("no_change", "change"), warn_missing = FALSE)
+  rate = proc_standard(df, COL_CORRECT_BUTTON, COL_CONDITION, factor = "cue_rotated", FUN = ace_descriptive_statistics_by_group)
+}
+
+module_ishihara <- function(df) {
+  return(proc_standard(df, "trial_correct", col_condition = NULL, FUN = ace_ishihara, y = c(COL_BID)))
+}
