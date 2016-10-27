@@ -1,9 +1,13 @@
 
 #' @keywords internal
 
-load_csv <- function(file) {
-  num_cols = max(count.fields(file, sep = ','), na.rm = TRUE)
-  df = read.csv(file, header = FALSE, row.names = NULL, col.names = seq_len(num_cols), fill = TRUE, stringsAsFactors = FALSE) 
+load_csv <- function(file, pulvinar = FALSE) {
+  if (pulvinar) {
+    df = read.csv(file, header = TRUE, fill = TRUE, stringsAsFactors = FALSE)
+  } else {
+    num_cols = max(count.fields(file, sep = ','), na.rm = TRUE)
+    df = read.csv(file, header = FALSE, row.names = NULL, col.names = seq_len(num_cols), fill = TRUE, stringsAsFactors = FALSE) 
+  }
   return (df)
 }
 
@@ -151,6 +155,26 @@ parse_subsections <- function(dat) {
   }
   new_cols = unique(new_cols)
   out[new_cols] = na_locf(out, new_cols)
+  return (out)
+}
+
+#' @keywords internal
+
+parse_subsections_pulvinar <- function(dat) {
+  subs = unique(dat[, COL_SUB_ID]) # use "subid" bc is unique for each data submission (2 submissions by same PID will have diff subids)
+  len = length(subs)
+  out = data.frame()
+  # TODO: implement sql code to handle duplicate dataset rejection, this for loop is SLOW AS BALLS
+  for (i in 1:len) {
+    sub = subs[i]
+    clean = dat[dat[, COL_SUB_ID] == sub, ] # iterate through dat by subid to only collect one data session at a time
+    clean[, COL_BLOCK_HALF] = plyr::mapvalues(make_half_seq(nrow(clean)), from = c(1, 2), to = c("first_half", "second_half"))
+    if (i == 1) { # fence post condition
+      out = plyr::rbind.fill(out, clean)
+    } else if (!(clean[1, COL_PID] %in% unique(out[, COL_PID]))) { # in general, only append sub if not duplicate
+      out = plyr::rbind.fill(out, clean)
+    }
+  }
   return (out)
 }
 

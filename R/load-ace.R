@@ -14,6 +14,10 @@ load_ace_file <- function(file) {
   }
   if (is_excel(file)) {
     raw_dat = load_excel(file)
+  } 
+  if (is_pulvinar(file)) { # TODO: can we get a common phrase in all pulvinar export filenames? 
+    raw_dat = load_csv(file, pulvinar = T)
+    return(transform_pulvinar(name, raw_dat))
   } else {
     raw_dat = load_csv(file)
     raw_dat = breakup_by_user(raw_dat)
@@ -77,6 +81,12 @@ is_filtered <- function (filename) {
 
 #' @keywords internal
 
+is_pulvinar <- function (filename) {
+  return (grepl("pulvinar", filename))
+}
+
+#' @keywords internal
+
 attempt_transform <- function(file, raw_dat) {
   # transform data to data frame
   df = tryCatch ({
@@ -136,6 +146,24 @@ transform_raw <- function (file, raw_dat) {
     dat[, COL_BID] = paste(dat$file, dat[, COL_TIME], sep = ".")
     dat[, COL_PID] = guess_pid(dat$file)
   }
+  dat = standardize_ace_values(dat)
+  return (dat)
+}
+
+#' @keywords internal
+
+transform_pulvinar <- function (file, dat) {
+  if (nrow(dat) == 0) return (data.frame())
+  # pulvinar data are already pretty clean, don't need to do as much
+  # standardize output
+  names(dat) = standardize_names(dat, pulvinar = T)
+  dat$file = file
+  dat$module = identify_module(file)
+  dat = standardize_ace_column_names(dat)
+  # parse subsections, currently SLOW version
+  dat = parse_subsections_pulvinar(dat)
+  # make block id from pid & time
+  dat[, COL_BID] = paste(dat[, COL_PID], dat[, COL_TIME], sep = ".")
   dat = standardize_ace_values(dat)
   return (dat)
 }
