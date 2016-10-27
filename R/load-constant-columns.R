@@ -61,6 +61,9 @@ standardize_ace_column_names <- function(df) {
   new[new == "user_age"] = COL_AGE
   new[new == "user_grade"] = COL_GRADE
   new[new == "user_gender"] = COL_GENDER
+  new[new == "time_gameplayed_utc"] = COL_TIME
+  new[new == "id"] = COL_SUB_ID
+  new[new == "details"] = COL_CONDITION
   names(df) = new
   return (df)
 }
