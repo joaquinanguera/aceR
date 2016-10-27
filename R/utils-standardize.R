@@ -1,10 +1,14 @@
 
 #' @keywords internal
 
-standardize_names <- function (df) {
+standardize_names <- function (df, pulvinar = FALSE) {
   new_names = names(df)
   new_names = tolower(new_names)
-  new_names = remove_special_characters(new_names)
+  if (pulvinar) {
+    new_names = remove_special_characters(new_names, replacement = "_")
+  } else {
+    new_names = remove_special_characters(new_names)
+  }
   new_names = replace_spaces(new_names, "_")
   return (new_names)
 }
@@ -25,8 +29,8 @@ replace_empty_values <- function(df, column, replacement) {
 
 #' @keywords internal
 
-remove_special_characters <- function (x, repacement = "") {
-  return (gsub("[^[:alnum:][:blank:]+?&/\\-]", repacement, x))
+remove_special_characters <- function (x, replacement = "") {
+  return (gsub("[^[:alnum:][:blank:]+?&/\\-]", replacement, x))
 }
 
 #' @keywords internal
@@ -45,8 +49,7 @@ replace_blanks <- function (x, replacement = NA) {
 #' @keywords internal
 
 replace_nas <- function(df, replacement) {
-  df[is.na(df)] = replacement
-  df[df == "N/A"] = replacement # ACE artifact
+  df[is.na(df) | df == "N/A"] = replacement # "N/A": ACE artifact
   return (df)
 }
 
