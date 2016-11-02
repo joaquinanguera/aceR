@@ -2,6 +2,7 @@
 #' @keywords internal
 
 apply_stats <- function(x, y, col, FUN, factor = NULL, suffix = "", ...){
+  # TODO: rewrite ddply call using data.table or dplyr for speed boost
   if (length(y) > 2) {
     stop("y must be of equal or less than length of 2")
   }
