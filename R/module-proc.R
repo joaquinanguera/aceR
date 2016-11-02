@@ -41,15 +41,15 @@ proc_by_module <- function(df, verbose = FALSE) {
       proc = eval(call(fun, mod))
       names(proc) = standardized_proc_column_names(proc)
       info = plyr::ddply(mod, c(COL_BID), 
-        function(x) {
-          return (c(
-            x[, COL_PID][[1]],
-            x[, COL_AGE][[1]],
-            x[, COL_GRADE][[1]],
-            x[, COL_GENDER][[1]],
-            x[, COL_TIME][[1]], 
-            x[, COL_FILE][[1]]))
-        })
+                         function(x) {
+                           return (c(
+                             x[, COL_PID][[1]],
+                             x[, COL_AGE][[1]],
+                             x[, COL_GRADE][[1]],
+                             x[, COL_GENDER][[1]],
+                             x[, COL_TIME][[1]], 
+                             x[, COL_FILE][[1]]))
+                         })
       names(info)[2:length(info)] = c(COL_PID, COL_AGE, COL_GRADE, COL_GENDER, COL_TIME, COL_FILE)
       all = merge(info, proc, by = COL_BID)
       all$module = name
