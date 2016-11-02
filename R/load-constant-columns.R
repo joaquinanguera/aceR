@@ -33,6 +33,9 @@ COL_PID = "pid"
 COL_BID = "bid"
 
 #' @name ace_header
+COL_NAME = "name"
+
+#' @name ace_header
 COL_AGE = "age"
 
 #' @name ace_header
@@ -64,6 +67,7 @@ standardize_ace_column_names <- function(df) {
   new[new == "time_gameplayed_utc"] = COL_TIME
   new[new == "id"] = COL_SUB_ID
   new[new == "details"] = COL_CONDITION
+  new[new == "task_switch_state"] = "taskswitch_state" # for cross compatibility b/w emailed and pulvinar
   names(df) = new
   return (df)
 }
