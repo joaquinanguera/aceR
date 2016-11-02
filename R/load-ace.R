@@ -17,7 +17,7 @@ load_ace_file <- function(file) {
   } 
   if (is_pulvinar(file)) { # TODO: can we get a common phrase in all pulvinar export filenames? 
     raw_dat = load_csv(file, pulvinar = T)
-    return(transform_pulvinar(name, raw_dat))
+    return(transform_pulvinar(file, raw_dat))
   } else {
     raw_dat = load_csv(file)
     raw_dat = breakup_by_user(raw_dat)
@@ -82,7 +82,7 @@ is_filtered <- function (filename) {
 #' @keywords internal
 
 is_pulvinar <- function (filename) {
-  return (grepl("pulvinar", filename))
+  return (grepl("pulvinar", filename, ignore.case = T))
 }
 
 #' @keywords internal
@@ -165,7 +165,36 @@ transform_pulvinar <- function (file, dat) {
   # make block id from pid & time
   dat[, COL_BID] = paste(dat[, COL_PID], dat[, COL_TIME], sep = ".")
   dat = standardize_ace_values(dat)
+  # flag sets where pid and name don't match
+  dat = clean_invalid_subs(dat)
   return (dat)
+}
+
+#' @keywords internal
+
+clean_invalid_subs <- function(dat) {
+  # leaving this function here for now in case it becomes necessary later.
+  # currently this function is made obsolete by remove_nondata_rows_pulvinar() and the rejection criterion of only matching PID-names in parse_subsections_pulvinar()
+  # using data.table internally for speed & reduction of with() calls
+  # using bare colnames here because we can assume these cols will exist under this name and data.table doesn't like quoted varnames
+  # repairing those with valid but not matching pid_num and name
+  dat = as.data.table(dat)
+  dat_good = dat[pid_num == name]
+  dat_bad = dat[pid_num != name]
+  subs = unique(dat_bad[[COL_PID]])
+  for (sub in subs) {
+    this_name = unique(dat_bad[pid == sub, name])
+    # if pid_num already exists as matching data, change this pid_num to name
+    if (dim(dat_good[pid_num == this_name])[1] > 0) {
+      dat_bad[, pid_num := ifelse(pid == sub, name, pid_num)]
+      dat_bad[, pid := ifelse(pid == sub, paste0(pid_stem, name), pid)]
+    } else if (dim(dat_good[name == this_name])[1] > 0) {
+      # else if name already exists as matching data, change this name to pid_num
+      dat_bad[, name := ifelse(pid == sub, pid_num, name)]
+    }
+  }
+  clean = rbind(dat_good, dat_bad)
+  return(as.data.frame(clean[, c("pid_stem", "pid_num") := NULL]))
 }
 
 #' @keywords internal
