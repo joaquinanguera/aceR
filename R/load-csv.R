@@ -3,7 +3,7 @@
 
 load_csv <- function(file, pulvinar = FALSE) {
   if (pulvinar) {
-    df = read.csv(file, header = TRUE, fill = TRUE, stringsAsFactors = FALSE)
+    df = as.data.frame(data.table::fread(file, header = T))
   } else {
     num_cols = max(count.fields(file, sep = ','), na.rm = TRUE)
     df = read.csv(file, header = FALSE, row.names = NULL, col.names = seq_len(num_cols), fill = TRUE, stringsAsFactors = FALSE) 
@@ -90,6 +90,25 @@ remove_nondata_rows <- function(raw_dat) {
 
 #' @keywords internal
 
+remove_nondata_rows_pulvinar <- function(dat) {
+  # using data.table internally for speed & reduction of with() calls
+  # using bare colnames here because we can assume these cols will exist under this name and data.table doesn't like quoted varnames
+  # split pid col for comparing short identifier in pid column with identifier in name column
+  dat = as.data.table(tidyr::separate_(dat, COL_PID, into = c("pid_stem", "pid_num"), sep = 11, remove = F))
+  dat[, name := tolower(name)]
+  # keep only those whose PID isn't just a 4 digit number (testers)
+  suppressWarnings({dat = dat[is.na(as.numeric(pid_num))]})
+  # repair PIDs for those where PID was left blank but there is something in the name field
+  dat[, pid_num := ifelse(pid == pid_stem, name, pid_num)]
+  dat[, pid := ifelse(pid == pid_stem, paste0(pid_stem, name), pid)]
+  # keep only those that have a 5 character PID where the last 3 chars are numbers
+  suppressWarnings({dat = dat[nchar(pid_num) == 5 & !is.na(as.numeric(substr(pid_num, 3, 5)))]})
+  # return data.table object (since will only be used internally to another data.table using function)
+  return(dat[, c("pid_stem", "pid_num") := NULL])
+}
+
+#' @keywords internal
+
 transform_grouping_rows <- function(dat) {
   rows = identify_grouping_rows(dat)
   new_col = length(dat) + 1
@@ -161,21 +180,26 @@ parse_subsections <- function(dat) {
 #' @keywords internal
 
 parse_subsections_pulvinar <- function(dat) {
-  subs = unique(dat[, COL_SUB_ID]) # use "subid" bc is unique for each data submission (2 submissions by same PID will have diff subids)
+  dat = as.data.table(dat)
+  subs = unique(dat[, pid]) # use "subid" bc is unique for each data submission (2 submissions by same PID will have diff subids)
   len = length(subs)
   out = data.frame()
-  # TODO: implement sql code to handle duplicate dataset rejection, this for loop is SLOW AS BALLS
+  dat = remove_nondata_rows_pulvinar(dat)
+  # STRICT DATASET REJECTION HERE, too many submitted datasets where pid and name don't match, so ONLY including ones where they do bc can't be confident about demographic data otherwise
+  pb = txtProgressBar(min = 0, max = len, style = 3) # progress bar for this for loop
   for (i in 1:len) {
     sub = subs[i]
-    clean = dat[dat[, COL_SUB_ID] == sub, ] # iterate through dat by subid to only collect one data session at a time
-    clean[, COL_BLOCK_HALF] = plyr::mapvalues(make_half_seq(nrow(clean)), from = c(1, 2), to = c("first_half", "second_half"))
-    if (i == 1) { # fence post condition
-      out = plyr::rbind.fill(out, clean)
-    } else if (!(clean[1, COL_PID] %in% unique(out[, COL_PID]))) { # in general, only append sub if not duplicate
-      out = plyr::rbind.fill(out, clean)
+    clean = dat[pid == sub & name == substr(sub, 12, 17), ] # grab only data where name and pid match, for now
+    clean = clean[timesent_utc == unique(timesent_utc)[1], ] # in this subset, delimit by timesent_utc to only collect one data session at a time (STRINGENT)
+    if (nrow(clean) > 0) {
+      clean[, COL_BLOCK_HALF] = plyr::mapvalues(make_half_seq(nrow(clean)), from = c(1, 2), to = c("first_half", "second_half"))
     }
+      out = plyr::rbind.fill(out, clean)
+   # } else if (!(clean[1, COL_PID] %in% unique(out[, COL_PID]))) { # in general, only append sub if not duplicate
+    setTxtProgressBar(pb, i)
   }
-  return (out)
+  close(pb)
+  return (as.data.frame(out))
 }
 
 #' @keywords internal
