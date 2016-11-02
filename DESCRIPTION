@@ -11,6 +11,7 @@ Suggests:
     testthat
 Imports:
     zoo,
+    data.table,
     tidyr,
     plyr,
     reshape,
