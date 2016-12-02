@@ -154,7 +154,6 @@ transform_raw <- function (file, raw_dat) {
 
 transform_pulvinar <- function (file, dat) {
   if (nrow(dat) == 0) return (data.frame())
-  # pulvinar data are already pretty clean, don't need to do as much
   # standardize output
   names(dat) = standardize_names(dat, pulvinar = T)
   dat$file = file
@@ -178,7 +177,7 @@ clean_invalid_subs <- function(dat) {
   # using data.table internally for speed & reduction of with() calls
   # using bare colnames here because we can assume these cols will exist under this name and data.table doesn't like quoted varnames
   # repairing those with valid but not matching pid_num and name
-  dat = as.data.table(dat)
+  dat = as.data.table(tidyr::separate_(dat, COL_PID, into = c("pid_stem", "pid_num"), sep = 11, remove = F))
   dat_good = dat[pid_num == name]
   dat_bad = dat[pid_num != name]
   subs = unique(dat_bad[[COL_PID]])
