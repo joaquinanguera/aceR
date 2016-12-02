@@ -49,7 +49,7 @@ replace_blanks <- function (x, replacement = NA) {
 #' @keywords internal
 
 replace_nas <- function(df, replacement) {
-  df[is.na(df) | df == "N/A"] = replacement # "N/A": ACE artifact
+  df[is.na(df) | df == "N/A" | df == "(null)"] = replacement # "N/A": ACE artifact
   return (df)
 }
 
