@@ -30,7 +30,7 @@ NULL
 #'  data as a list. Throws warnings for modules with undefined methods. 
 #'  See \code{\link{ace_procs}} for a list of supported modules.
 
-proc_by_module <- function(df, conditions, verbose = FALSE) {
+proc_by_module <- function(df, conditions = NULL, verbose = FALSE) {
   all_mods = subset_by_col(df, "module")
   all_names = names(all_mods)
   out = list()
@@ -42,25 +42,13 @@ proc_by_module <- function(df, conditions, verbose = FALSE) {
       if (verbose) print(paste("processing", name, sep = " "))
       proc = eval(call(fun, mod))
       names(proc) = standardized_proc_column_names(proc)
-      info = plyr::ddply(mod, c(COL_BID), 
-                         function(x) {
-                           return (c(
-                             x[, COL_PID][[1]],
-                             x[, COL_AGE][[1]],
-                             x[, COL_GRADE][[1]],
-                             x[, COL_GENDER][[1]],
-                             x[, COL_TIME][[1]], 
-                             x[, COL_FILE][[1]]))
-                         })
-      names(info)[2:length(info)] = c(COL_PID, COL_AGE, COL_GRADE, COL_GENDER, COL_TIME, COL_FILE)
-      all = merge(info, proc, by = COL_BID)
-      all$module = name
-      if (!missing(conditions)) {
-        all$study_condition = NA
-        for (cond in 1:length(conditions)) {
-          all[grepl(conditions[cond], all[, COL_FILE], ignore.case = T), COL_STUDY_COND] = tolower(conditions[cond])
-        }
+      # TODO: clean up implementation of this... should do this in a tryCatch
+      if(!is.null(conditions)) {
+        all = get_proc_info(mod, proc, conditions)
+      } else {
+        all = get_proc_info(mod, proc)
       }
+      all$module = name
       # UGLY MONKEY PATCH: get rid of invalid columns
       # One example where this happens is when we apply stats to a variable by a grouping column 
       # but the grouping variable is blank for a given row. We end up with columns that end in "."
@@ -73,6 +61,47 @@ proc_by_module <- function(df, conditions, verbose = FALSE) {
     })
   }
   return (out)
+}
+
+#' @keywords internal
+
+get_proc_info <- function(mod, proc, conditions) {
+  if(exists("mod[, COL_GRADE]")) {
+    info = plyr::ddply(mod, c(COL_BID),
+                       function(x) {
+                         return (c(
+                           x[, COL_PID][[1]],
+                           x[, COL_AGE][[1]],
+                           x[, COL_GRADE][[1]],
+                           x[, COL_GENDER][[1]],
+                           x[, COL_TIME][[1]], 
+                           x[, COL_FILE][[1]]))
+                       })
+    names(info)[2:length(info)] = c(COL_PID, COL_AGE, COL_GRADE, COL_GENDER, COL_TIME, COL_FILE)
+  } else {
+    info = plyr::ddply(mod, c(COL_BID),
+                       function(x) {
+                         return (c(
+                           x[, COL_PID][[1]],
+                           x[, COL_AGE][[1]],
+                           x[, COL_GENDER][[1]],
+                           x[, COL_TIME][[1]], 
+                           x[, COL_FILE][[1]]))
+                       })
+    names(info)[2:length(info)] = c(COL_PID, COL_AGE, COL_GENDER, COL_TIME, COL_FILE)
+  }
+  if (!missing(conditions)) {info = label_study_conditions(info, conditions)}
+  return (merge(info, proc, by = COL_BID))
+}
+
+#' @keywords internal
+
+label_study_conditions = function(info, conditions) {
+    info$study_condition = NA
+    for (cond in 1:length(conditions)) {
+      info[grepl(conditions[cond], info[, COL_FILE], ignore.case = T), COL_STUDY_COND] = tolower(conditions[cond])
+    }
+    return (info)
 }
 
 #' @keywords internal
