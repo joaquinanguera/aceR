@@ -94,17 +94,26 @@ remove_nondata_rows_pulvinar <- function(dat) {
   # using data.table internally for speed & reduction of with() calls
   # using bare colnames here because we can assume these cols will exist under this name and data.table doesn't like quoted varnames
   # split pid col for comparing short identifier in pid column with identifier in name column
-  dat = as.data.table(tidyr::separate_(dat, COL_PID, into = c("pid_stem", "pid_num"), sep = 11, remove = F))
+  dat = tidyr::separate_(dat, COL_PID, into = c("pid_stem", "pid_num"), sep = 11, remove = F)
   dat[, name := tolower(name)]
-  # keep only those whose PID isn't just a 4 digit number (testers)
+  # keep only those whose PID/name isn't just a 4 digit number (testers)
   suppressWarnings({dat = dat[is.na(as.numeric(pid_num))]})
+  suppressWarnings({dat = dat[is.na(as.numeric(name))]})
+  # keep only those that have a 5 character PID where the last 3 chars are numbers
+  # also passes through stem-only PIDs (these cannot be fixed here, must be patched later)
+  suppressWarnings({dat = dat[pid_num == "" | (nchar(pid_num) == 5 & !is.na(as.numeric(substr(pid_num, 3, 5))))]})
+  # return data.table object (since will only be used internally to another data.table using function)
+  dat = dat[!(name == "" & pid_num == "")] # scrubbing truly empty datasets (no PID no name)
+  return (dat[, c("pid_stem", "pid_num") := NULL])
+}
+
+#' @keywords internal
+fix_blank_pids <- function(dat) {
+  dat = as.data.table(tidyr::separate_(dat, COL_PID, into = c("pid_stem", "pid_num"), sep = 11, remove = F))
   # repair PIDs for those where PID was left blank but there is something in the name field
   dat[, pid_num := ifelse(pid == pid_stem, name, pid_num)]
   dat[, pid := ifelse(pid == pid_stem, paste0(pid_stem, name), pid)]
-  # keep only those that have a 5 character PID where the last 3 chars are numbers
-  suppressWarnings({dat = dat[nchar(pid_num) == 5 & !is.na(as.numeric(substr(pid_num, 3, 5)))]})
-  # return data.table object (since will only be used internally to another data.table using function)
-  return(dat[, c("pid_stem", "pid_num") := NULL])
+  return (dat[, c("pid_stem", "pid_num") := NULL])
 }
 
 #' @keywords internal
@@ -186,6 +195,7 @@ parse_subsections_pulvinar <- function(dat) {
   out = data.frame()
   dat = remove_nondata_rows_pulvinar(dat)
   # STRICT DATASET REJECTION HERE, too many submitted datasets where pid and name don't match, so ONLY including ones where they do bc can't be confident about demographic data otherwise
+  cat("Stage 1 PID search: only matching datasets\n")
   pb = txtProgressBar(min = 0, max = len, style = 3) # progress bar for this for loop
   for (i in 1:len) {
     sub = subs[i]
@@ -194,8 +204,28 @@ parse_subsections_pulvinar <- function(dat) {
     if (nrow(clean) > 0) {
       clean[, COL_BLOCK_HALF] = plyr::mapvalues(make_half_seq(nrow(clean)), from = c(1, 2), to = c("first_half", "second_half"))
     }
+    out = plyr::rbind.fill(out, clean)
+    # } else if (!(clean[1, COL_PID] %in% unique(out[, COL_PID]))) { # in general, only append sub if not duplicate
+    setTxtProgressBar(pb, i)
+  }
+  close(pb)
+  # stage 2: patch blank PIDs, then append any subs where they ONLY existed as a blank pid
+  cat("Stage 2 PID search: empty PID datasets\n")
+  dat_empty_pid = dat[pid == "ADMIN-UCSF-"]
+  dat_empty_pid = fix_blank_pids(dat_empty_pid)
+  subs = unique(dat_empty_pid[, pid])
+  len = length(subs)
+  pb = txtProgressBar(min = 0, max = len, style = 3) # progress bar for this for loop
+  for (i in 1:len) {
+    sub = subs[i]
+    clean = dat_empty_pid[pid == sub & name == substr(sub, 12, 17), ] # grab only data where name and pid match, for now
+    clean = clean[timesent_utc == unique(timesent_utc)[1], ] # in this subset, delimit by timesent_utc to only collect one data session at a time (STRINGENT)
+    if (nrow(clean) > 0) {
+      clean[, COL_BLOCK_HALF] = plyr::mapvalues(make_half_seq(nrow(clean)), from = c(1, 2), to = c("first_half", "second_half"))
+    }
+    if (!(clean[1, COL_PID] %in% unique(out[, COL_PID]))) { # in general, only append sub if not duplicate
       out = plyr::rbind.fill(out, clean)
-   # } else if (!(clean[1, COL_PID] %in% unique(out[, COL_PID]))) { # in general, only append sub if not duplicate
+    }
     setTxtProgressBar(pb, i)
   }
   close(pb)
