@@ -22,13 +22,15 @@ NULL
 #'   \item \code{\link{load_ace_file}}
 #'   \item \code{\link{load_ace_bulk}}
 #' }
+#' @param verbose vector of strings. If data contains multiple study conditions
+#' (e.g. pre & post), specify their labels here. Case insensitive.
 #' @param verbose logical. Print details? Defaults to \code{FALSE}.
 #'
 #' @return Returns summary statistics for every unique module included in the 
 #'  data as a list. Throws warnings for modules with undefined methods. 
 #'  See \code{\link{ace_procs}} for a list of supported modules.
 
-proc_by_module <- function(df, verbose = FALSE) {
+proc_by_module <- function(df, conditions, verbose = FALSE) {
   all_mods = subset_by_col(df, "module")
   all_names = names(all_mods)
   out = list()
@@ -53,6 +55,12 @@ proc_by_module <- function(df, verbose = FALSE) {
       names(info)[2:length(info)] = c(COL_PID, COL_AGE, COL_GRADE, COL_GENDER, COL_TIME, COL_FILE)
       all = merge(info, proc, by = COL_BID)
       all$module = name
+      if (!missing(conditions)) {
+        all$study_condition = NA
+        for (cond in 1:length(conditions)) {
+          all[grepl(conditions[cond], all[, COL_FILE], ignore.case = T), COL_STUDY_COND] = tolower(conditions[cond])
+        }
+      }
       # UGLY MONKEY PATCH: get rid of invalid columns
       # One example where this happens is when we apply stats to a variable by a grouping column 
       # but the grouping variable is blank for a given row. We end up with columns that end in "."

@@ -27,6 +27,9 @@ COL_RW = "rw"
 COL_CONDITION = "condition"
 
 #' @name ace_header
+COL_STUDY_COND = "study_condition"
+
+#' @name ace_header
 COL_PID = "pid"
 
 #' @name ace_header
