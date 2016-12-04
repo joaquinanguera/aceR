@@ -66,7 +66,7 @@ proc_by_module <- function(df, conditions = NULL, verbose = FALSE) {
 #' @keywords internal
 
 get_proc_info <- function(mod, proc, conditions) {
-  if(exists("mod[, COL_GRADE]")) {
+  if (COL_GRADE %in% names(mod)) {
     info = plyr::ddply(mod, c(COL_BID),
                        function(x) {
                          return (c(
@@ -78,7 +78,7 @@ get_proc_info <- function(mod, proc, conditions) {
                            x[, COL_FILE][[1]]))
                        })
     names(info)[2:length(info)] = c(COL_PID, COL_AGE, COL_GRADE, COL_GENDER, COL_TIME, COL_FILE)
-  } else {
+  } else if (COL_GENDER %in% names(mod)){
     info = plyr::ddply(mod, c(COL_BID),
                        function(x) {
                          return (c(
@@ -89,6 +89,15 @@ get_proc_info <- function(mod, proc, conditions) {
                            x[, COL_FILE][[1]]))
                        })
     names(info)[2:length(info)] = c(COL_PID, COL_AGE, COL_GENDER, COL_TIME, COL_FILE)
+  } else { # if NO demos included
+    info = plyr::ddply(mod, c(COL_BID),
+                       function(x) {
+                         return (c(
+                           x[, COL_PID][[1]],
+                           x[, COL_TIME][[1]], 
+                           x[, COL_FILE][[1]]))
+                       })
+    names(info)[2:length(info)] = c(COL_PID, COL_TIME, COL_FILE)
   }
   if (!missing(conditions)) {info = label_study_conditions(info, conditions)}
   return (merge(info, proc, by = COL_BID))
