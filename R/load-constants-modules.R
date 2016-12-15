@@ -63,7 +63,7 @@ identify_module <- function(file) {
     return (SAAT)
   } else if (grepl(BACK_SPATIAL_SPAN, file)) {
     return (BACK_SPATIAL_SPAN) # More specific module name must be listed first if using this if else chain
-  }else if (grepl(SPATIAL_SPAN, file)) {
+  } else if (grepl(SPATIAL_SPAN, file)) {
     return (SPATIAL_SPAN)
   } else if (grepl(STROOP, file)) {
     return (STROOP)
