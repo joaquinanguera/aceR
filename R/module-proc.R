@@ -22,7 +22,7 @@ NULL
 #'   \item \code{\link{load_ace_file}}
 #'   \item \code{\link{load_ace_bulk}}
 #' }
-#' @param verbose vector of strings. If data contains multiple study conditions
+#' @param conditions vector of strings. If data contains multiple study conditions
 #' (e.g. pre & post), specify their labels here. Case insensitive.
 #' @param verbose logical. Print details? Defaults to \code{FALSE}.
 #'
