@@ -17,7 +17,7 @@ load_ace_file <- function(file) {
   } 
   if (is_pulvinar(file)) { # TODO: can we get a common phrase in all pulvinar export filenames? 
     raw_dat = load_csv(file, pulvinar = T)
-    return(transform_pulvinar(file, raw_dat))
+    return (transform_pulvinar(file, raw_dat))
   } else {
     raw_dat = load_csv(file)
     raw_dat = breakup_by_user(raw_dat)
@@ -164,8 +164,8 @@ transform_pulvinar <- function (file, dat) {
   # make block id from pid & time
   dat[, COL_BID] = paste(dat[, COL_PID], dat[, COL_TIME], sep = ".")
   dat = standardize_ace_values(dat)
-  # flag sets where pid and name don't match
-  dat = clean_invalid_subs(dat)
+  # was flagging sets where pid and name don't match--this is being somewhat handled in parse_subsections_pulvinar
+  # dat = clean_invalid_subs(dat)
   return (dat)
 }
 
