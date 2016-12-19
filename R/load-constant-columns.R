@@ -64,6 +64,7 @@ standardize_ace_column_names <- function(df) {
   new[new == "response_window"] = COL_RW
   new[new == "participant_id"] = COL_PID
   new[new == "user_id"] = COL_PID
+  new[new == "user_name"] = COL_NAME
   new[new == "user_age"] = COL_AGE
   new[new == "user_grade"] = COL_GRADE
   new[new == "user_gender"] = COL_GENDER
