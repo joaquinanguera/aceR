@@ -31,8 +31,9 @@ load_ace_bulk <- function(path = ".", verbose = TRUE, recursive = TRUE, exclude 
     temp_out = data.frame()
     sorted_files = sort_files_by_module(files) # files LISTED by module type
     for (i in 1:length(sorted_files)) {
-      for (j in 1:length(sorted_files[[i]])) {
-        file = sorted_files[[i]][j]
+      these_files = sorted_files[[i]]
+      for (j in 1:length(these_files)) {
+        file = these_files[j]
         if (verbose) {
           print(file)
         }
@@ -41,7 +42,7 @@ load_ace_bulk <- function(path = ".", verbose = TRUE, recursive = TRUE, exclude 
         }
         dat = load_ace_file(file)
         temp_out = plyr::rbind.fill(temp_out, dat)
-        if (i %% 50 == 0 | i == length(files)) {
+        if (j %% 50 == 0 | j == length(these_files)) {
           module_out = plyr::rbind.fill(module_out, temp_out)
           temp_out = data.frame()
         }
