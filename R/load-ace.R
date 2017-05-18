@@ -7,7 +7,7 @@
 #' @param file The name of the file which the data is to be read from.
 #' @return Returns the file's content as an R \code{\link{data.frame}}.
 
-load_ace_file <- function(file) {
+load_ace_file <- function(file, pid_stem = "ADMIN-UCSF-", pulvinar = NULL) {
   # read raw csv file
   if (is_filtered(file)) {
     return (load_ace_filtered_file(file))
@@ -15,7 +15,7 @@ load_ace_file <- function(file) {
   if (is_excel(file)) {
     raw_dat = load_excel(file)
   } 
-  if (is_pulvinar(file)) { # TODO: can we get a common phrase in all pulvinar export filenames? 
+  if (is_pulvinar(file) | pulvinar) { # TODO: can we get a common phrase in all pulvinar export filenames? 
     raw_dat = load_csv(file, pulvinar = T)
     return (transform_pulvinar(file, raw_dat))
   } else {
@@ -56,8 +56,12 @@ load_ace_filtered_file <- function(file) {
   df = replace_nas(df, "")
   df[, COL_TIME] = df$time_gameplayed_utc
   df[, COL_CONDITION] = df$details
-  df[, COL_BID] = paste(df[, COL_PID], df[, COL_TIME])
-  by_block = add_block_half(subset_by_col(df, "bid"))
+  by_block = tryCatch({
+    df[, COL_BID] = paste(df[, COL_PID], df[, COL_TIME])
+    return (add_block_half(subset_by_col(df, "bid")))
+  }, error = function(e) {
+    return (add_block_half(subset_by_col(df, "pid")))
+  })
   out = flatten_df_list(by_block)
   return (out)
 }
@@ -139,6 +143,9 @@ transform_raw <- function (file, raw_dat) {
     dat[, COL_TIME] = as.vector(dat[, COL_TIME])
   }
   if (COL_PID %in% cols) {
+    # very band-aid: attempt to repair PID using name field if PID is empty stem or otherwise filler
+    if (unique(dat[, COL_PID]) %in% c("ADMIN-UCSF-", "ADMIN-UCSF-0", "ADMIN-UCSF-0000")) dat[, COL_PID] = paste0("ADMIN-UCSF-", dat[, COL_NAME])
+    
     # make block id from pid & time
     dat[, COL_BID] = paste(dat[, COL_PID], dat[, COL_TIME], sep = ".")
   } else {
@@ -146,6 +153,17 @@ transform_raw <- function (file, raw_dat) {
     dat[, COL_BID] = paste(dat$file, dat[, COL_TIME], sep = ".")
     dat[, COL_PID] = guess_pid(dat$file)
   }
+  if (COL_GENDER %in% cols) {
+    # this patch to propagate gender down has to be done for OLD files where gender was called "age1"
+    if (length(unique(dat[, COL_GENDER])) > 1) {
+      if ("FEMALE" %in% unique(dat[, COL_GENDER])) { 
+        this_gender = "FEMALE"
+      } else if ("MALE" %in% unique(dat[, COL_GENDER])) {
+        this_gender = "MALE"
+      } else {this_gender = "OTHER"}
+      dat[, COL_GENDER] = this_gender
+    }
+}
   dat = standardize_ace_values(dat)
   return (dat)
 }
