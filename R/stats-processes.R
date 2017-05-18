@@ -8,6 +8,17 @@ ace_descriptive_statistics <- function(x) {
   return (c(variance, summary, averages))
 }
 
+#' @keywords internal
+
+ace_descriptive_statistics_dplyr <- function(x, col) {
+  out = dplyr::summarize_at(x, dplyr::vars(dplyr::one_of(col)), dplyr::funs(
+    mean = ace_mean,
+    median = ace_median,
+    count = ace_count,
+    length = ace_length))
+  return (out)
+}
+
 #' @keywords internal 
 
 ace_descriptive_statistics_by_group <- function(x, y) {
@@ -27,9 +38,10 @@ ace_average_turns <- function (x, y) {
 
 #' @keywords internal 
 
-ace_spatial_span <- function(x) {
-  sustained_span = c(span = ace_span(x))
-  return (c(sustained_span))
+ace_spatial_span <- function(x, col) {
+  sustained_span = dplyr::summarize_at(x, dplyr::vars(dplyr::one_of(col)), dplyr::funs(
+    span = ace_span))
+  return (sustained_span)
 }
 
 #' @keywords internal
@@ -37,6 +49,14 @@ ace_spatial_span <- function(x) {
 ace_detection_rate <- function(x, y) {
   rate = c(rate = ace_detection(x, y))
   return (c(rate))
+}
+
+#' @keywords internal 
+
+ace_ishihara_dplyr <- function(x, col) {
+  out = dplyr::summarize_at(x, dplyr::vars(dplyr::one_of(col)), dplyr::funs(
+    colorblind = ace_ishihara))
+  return (sustained_span)
 }
 
 #' @keywords internal 
