@@ -108,6 +108,7 @@ remove_nondata_rows_pulvinar <- function(dat) {
 }
 
 #' @keywords internal
+#' 
 fix_blank_pids <- function(dat) {
   dat = as.data.table(tidyr::separate_(dat, COL_PID, into = c("pid_stem", "pid_num"), sep = 11, remove = F))
   # repair PIDs for those where PID was left blank but there is something in the name field
@@ -190,10 +191,10 @@ parse_subsections <- function(dat) {
 
 parse_subsections_pulvinar <- function(dat) {
   subs = unique(dat[, COL_PID]) # use "subid" bc is unique for each data submission (2 submissions by same PID will have diff subids)
-  dat = as.data.table(dat)
+  dat = data.table::as.data.table(dat)
   len = length(subs)
   out = data.frame()
-  if ("name" %in% names(dat)) { # this function expects a "name" column by which to do the matching
+  if ("name" %in% names(dat) & grepl("ADMIN-UCSF", dat[1, COL_PID])) { # this function expects a "name" column by which to do the matching
     dat = remove_nondata_rows_pulvinar(dat)
   }
   # STRICT DATASET REJECTION HERE, too many submitted datasets where pid and name don't match, so ONLY including ones where they do bc can't be confident about demographic data otherwise
@@ -205,15 +206,19 @@ parse_subsections_pulvinar <- function(dat) {
       clean = dat[pid == sub & name == substr(sub, 12, 17), ] # grab only data where name and pid match, for now
     }
     clean = dat[pid == sub, ] # currently data doesn't include the name field
-    clean = clean[timesent_utc == unique(timesent_utc)[1], ] # in this subset, delimit by timesent_utc to only collect one data session at a time (STRINGENT)
-    if (nrow(clean) > 0) {
-      clean[, COL_BLOCK_HALF] = plyr::mapvalues(make_half_seq(nrow(clean)), from = c(1, 2), to = c("first_half", "second_half"))
+    # TODO: here is where automatic detection of pre and post can be implemented
+    for (this_time in unique(clean[, timesent_utc])) {
+      this_clean = clean[timesent_utc == this_time, ] # in this subset, delimit by timesent_utc to collect pre and post data
+      if (nrow(this_clean) > 0) {
+        this_clean[, COL_BLOCK_HALF] = plyr::mapvalues(make_half_seq(nrow(this_clean)), from = c(1, 2), to = c("first_half", "second_half"))
+      }
+      out = plyr::rbind.fill(out, this_clean)
     }
-    out = plyr::rbind.fill(out, clean)
     # } else if (!(clean[1, COL_PID] %in% unique(out[, COL_PID]))) { # in general, only append sub if not duplicate
     setTxtProgressBar(pb, i)
   }
   close(pb)
+  
   if ("name" %in% names(dat) & nrow(dat[pid == "ADMIN-UCSF-"]) > 0) { # can only run if there ARE blank PIDs and a name column
     # stage 2: patch blank PIDs, then append any subs where they ONLY existed as a blank pid
     cat("Stage 2 PID search: empty PID datasets\n")
@@ -225,12 +230,14 @@ parse_subsections_pulvinar <- function(dat) {
     for (i in 1:len) {
       sub = subs[i]
       clean = dat_empty_pid[pid == sub & name == substr(sub, 12, 17), ] # grab only data where name and pid match, for now
-      clean = clean[timesent_utc == unique(timesent_utc)[1], ] # in this subset, delimit by timesent_utc to only collect one data session at a time (STRINGENT)
-      if (nrow(clean) > 0) {
-        clean[, COL_BLOCK_HALF] = plyr::mapvalues(make_half_seq(nrow(clean)), from = c(1, 2), to = c("first_half", "second_half"))
-      }
-      if (!(clean[1, COL_PID] %in% unique(out[, COL_PID]))) { # in general, only append sub if not duplicate
-        out = plyr::rbind.fill(out, clean)
+      for (this_time in unique(clean[, timesent_utc])) {
+        this_clean = clean[timesent_utc == this_time, ] # in this subset, delimit by timesent_utc to collect pre and post data
+        if (nrow(this_clean) > 0) {
+          this_clean[, COL_BLOCK_HALF] = plyr::mapvalues(make_half_seq(nrow(this_clean)), from = c(1, 2), to = c("first_half", "second_half"))
+        }
+        if (!(clean[1, COL_PID] %in% unique(out[, COL_PID]))) { # in general, only append sub if not duplicate
+          out = plyr::rbind.fill(out, clean)
+        }
       }
       setTxtProgressBar(pb, i)
     }
@@ -247,20 +254,24 @@ parse_subsections_pulvinar <- function(dat) {
     dat_mismatched_pid = dat_mismatched_pid[pid_num != name]
     subs = unique(dat_mismatched_pid[, pid])
     len = length(subs)
-    pb = txtProgressBar(min = 0, max = len, style = 3) # progress bar for this for loop
-    for (i in 1:len) {
-      sub = subs[i]
-      clean = dat_mismatched_pid[pid == sub & name %in% clean_subnames] # grab only data where name matches an already matched PID
-      clean = clean[timesent_utc == unique(timesent_utc)[1], ] # in this subset, delimit by timesent_utc to only collect one data session at a time (STRINGENT)
-      if (nrow(clean) > 0) {
-        clean[, COL_BLOCK_HALF] = plyr::mapvalues(make_half_seq(nrow(clean)), from = c(1, 2), to = c("first_half", "second_half"))
+    if (len > 0) {
+      pb = txtProgressBar(min = 0, max = len, style = 3) # progress bar for this for loop
+      for (i in 1:len) {
+        sub = subs[i]
+        clean = dat_mismatched_pid[pid == sub & name %in% clean_subnames] # grab only data where name matches an already matched PID
+        for (this_time in unique(clean[, timesent_utc])) {
+          this_clean = clean[timesent_utc == this_time, ] # in this subset, delimit by timesent_utc to collect pre and post data
+          if (nrow(this_clean) > 0) {
+            this_clean[, COL_BLOCK_HALF] = plyr::mapvalues(make_half_seq(nrow(this_clean)), from = c(1, 2), to = c("first_half", "second_half"))
+          }
+          if (!(clean[1, COL_PID] %in% unique(out[, COL_PID]))) { # in general, only append sub if not duplicate
+            out = plyr::rbind.fill(out, clean)
+          }
+        }
+        setTxtProgressBar(pb, i)
       }
-      if (!(clean[1, COL_PID] %in% unique(out[, COL_PID]))) { # in general, only append sub if not duplicate
-        out = plyr::rbind.fill(out, clean)
-      }
-      setTxtProgressBar(pb, i)
+      close(pb)
     }
-    close(pb)
     
     # stage 4: append any subs where the PID ONLY exists w/ mismatched name
     # and said name also exists w/ a stage 3 orphan-matched PID
@@ -271,20 +282,24 @@ parse_subsections_pulvinar <- function(dat) {
     dat_mismatched_pid = dat_mismatched_pid[pid_num != name]
     subs = unique(dat_mismatched_pid[, pid])
     len = length(subs)
-    pb = txtProgressBar(min = 0, max = len, style = 3) # progress bar for this for loop
-    for (i in 1:len) {
-      sub = subs[i]
-      clean = dat_mismatched_pid[pid == sub & name %in% clean_subnames] # grab only data where name matches an already matched PID
-      clean = clean[timesent_utc == unique(timesent_utc)[1], ] # in this subset, delimit by timesent_utc to only collect one data session at a time (STRINGENT)
-      if (nrow(clean) > 0) {
-        clean[, COL_BLOCK_HALF] = plyr::mapvalues(make_half_seq(nrow(clean)), from = c(1, 2), to = c("first_half", "second_half"))
+    if (len > 0) {
+      pb = txtProgressBar(min = 0, max = len, style = 3) # progress bar for this for loop
+      for (i in 1:len) {
+        sub = subs[i]
+        clean = dat_mismatched_pid[pid == sub & name %in% clean_subnames] # grab only data where name matches an already matched PID
+        for (this_time in unique(clean[, timesent_utc])) {
+          this_clean = clean[timesent_utc == this_time, ] # in this subset, delimit by timesent_utc to collect pre and post data
+          if (nrow(this_clean) > 0) {
+            this_clean[, COL_BLOCK_HALF] = plyr::mapvalues(make_half_seq(nrow(this_clean)), from = c(1, 2), to = c("first_half", "second_half"))
+          }
+          if (!(clean[1, COL_PID] %in% unique(out[, COL_PID]))) { # in general, only append sub if not duplicate
+            out = plyr::rbind.fill(out, clean)
+          }
+        }
+        setTxtProgressBar(pb, i)
       }
-      if (!(clean[1, COL_PID] %in% unique(out[, COL_PID]))) { # in general, only append sub if not duplicate
-        out = plyr::rbind.fill(out, clean)
-      }
-      setTxtProgressBar(pb, i)
+      close(pb)
     }
-    close(pb)
     dat[, c("pid_stem", "pid_num") := NULL]
   }
   return (as.data.frame(out))
