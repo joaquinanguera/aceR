@@ -24,6 +24,9 @@ COL_CORRECT_RESPONSE = "correct_response"
 COL_RW = "rw"
 
 #' @name ace_header
+COL_LATE_RESPONSE = "late_response"
+
+#' @name ace_header
 COL_CONDITION = "condition"
 
 #' @name ace_header
@@ -68,6 +71,8 @@ standardize_ace_column_names <- function(df) {
   new[new == "user_age"] = COL_AGE
   new[new == "user_grade"] = COL_GRADE
   new[new == "user_gender"] = COL_GENDER
+  new[new == "age1"] = COL_GENDER
+  new[new == "user_age1"] = COL_GENDER
   new[new == "time_gameplayed_utc"] = COL_TIME
   new[new == "id"] = COL_SUB_ID
   new[new == "details"] = COL_CONDITION
@@ -85,6 +90,9 @@ standardize_ace_values <- function(df) {
   }
   if (COL_CORRECT_RESPONSE %in% cols) {
     df[, COL_CORRECT_RESPONSE] = plyr::mapvalues(df[, COL_CORRECT_RESPONSE], from = c(0, 1), to = c("incorrect", "correct"), warn_missing = FALSE)
+  }
+  if (COL_LATE_RESPONSE %in% cols) {
+    df[, COL_LATE_RESPONSE] = plyr::mapvalues(df[, COL_LATE_RESPONSE], from = c(0, 1), to = c("early", "late"), warn_missing = FALSE)
   }
   return (df)  
 }
