@@ -42,6 +42,10 @@ proc_by_module <- function(df, conditions = NULL, verbose = FALSE) {
       if (verbose) print(paste("processing", name, sep = " "))
       proc = eval(call(fun, mod))
       names(proc) = standardized_proc_column_names(proc)
+      # scrubbing instances of data with too few trials (likely false starts)
+      if (!(name %in% c(SPATIAL_SPAN, BACK_SPATIAL_SPAN))) {
+        proc = proc[proc$rt_length.overall > .75 * median(proc$rt_length.overall), ]
+      }
       # TODO: clean up implementation of this... should do this in a tryCatch
       if(!is.null(conditions)) {
         all = get_proc_info(mod, proc, conditions)
@@ -78,7 +82,7 @@ get_proc_info <- function(mod, proc, conditions) {
                            x[, COL_FILE][[1]]))
                        })
     names(info)[2:length(info)] = c(COL_PID, COL_AGE, COL_GRADE, COL_GENDER, COL_TIME, COL_FILE)
-  } else if (COL_GENDER %in% names(mod)){
+  } else if (COL_AGE %in% names(mod)){
     info = plyr::ddply(mod, c(COL_BID),
                        function(x) {
                          return (c(
@@ -89,6 +93,16 @@ get_proc_info <- function(mod, proc, conditions) {
                            x[, COL_FILE][[1]]))
                        })
     names(info)[2:length(info)] = c(COL_PID, COL_AGE, COL_GENDER, COL_TIME, COL_FILE)
+  } else if (COL_GENDER %in% names(mod)){
+    info = plyr::ddply(mod, c(COL_BID),
+                       function(x) {
+                         return (c(
+                           x[, COL_PID][[1]],
+                           x[, COL_GENDER][[1]],
+                           x[, COL_TIME][[1]], 
+                           x[, COL_FILE][[1]]))
+                       })
+    names(info)[2:length(info)] = c(COL_PID, COL_GENDER, COL_TIME, COL_FILE)
   } else { # if NO demos included
     info = plyr::ddply(mod, c(COL_BID),
                        function(x) {
