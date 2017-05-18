@@ -50,7 +50,7 @@ ISHIHARA <- "ISHIHARA"
 #' @return Returns the name of the ACE module if found.
 
 identify_module <- function(file) {
-  file = toupper(file)
+  file = gsub(" ", "", toupper(file), fixed = TRUE) # must be matched with NO spaces in the module name
   if (grepl(BOXED, file)) {
     return (BOXED)
   } else if (grepl(BRT, file)) {
