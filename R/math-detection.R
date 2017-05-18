@@ -13,7 +13,7 @@ ace_detection <- function(x, y) {
   rejs = identify_correct_rejections(x, y)
   types = plyr::mapvalues(rejs, warn_missing = FALSE,
     from = c("correct_rejection", "miss", "false_alarm", "hit"), 
-    to = c("target", "target", "nontarget", "nontarget"))
+    to = c("nontarget", "target", "nontarget", "target"))
   types = na.omit(types)
   num_targets = length(which(types == "target"))
   num_nontargets = length(which(types == "nontarget"))
