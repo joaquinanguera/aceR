@@ -38,8 +38,12 @@ standardize_raw_csv_data <- function(dat) {
 
 standardize_session_info <- function(dat) {
   incomplete_rows = identify_incomplete_session_info(dat)
+  null_trial_rows = identify_null_trials(dat)
   for (row in incomplete_rows) {
     dat[row, 2] = "TIME:"
+  }
+  for (row in null_trial_rows) {
+    dat[row, 1] = "0" # need this to avoid having null trials accidentally detected as new data subsets
   }
   return(dat)
 }
@@ -77,8 +81,16 @@ identify_nondata_rows <- function(dat) {
 #' @keywords internal
 
 identify_incomplete_session_info <- function(dat) {
-  incomplete_info_rows = dat[dat[1] == "" & dat[2] == "" & dat[3] != "", ]
+  # for some reason this doesn't return a logical vector if using %in%
+  incomplete_info_rows = dat[dat[1] == "" & dat[2] == "" & dat[3] != "" & dat[3] != "0" , ] # if 0 is in the 3rd col then it is probably REAL DATA where S failed to respond
   return (numeric_row_names(incomplete_info_rows))
+}
+
+#' @keywords internal
+
+identify_null_trials <- function(dat) {
+  null_trials = dat[dat[1] == "" & dat[2] == "" & dat[3] == "0" , ] # if 0 is in the 3rd col then it is probably REAL DATA where S failed to respond
+  return (numeric_row_names(null_trials))
 }
 
 #' @keywords internal
