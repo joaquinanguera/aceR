@@ -44,9 +44,9 @@ proc_by_module <- function(df, conditions = NULL, verbose = FALSE) {
       names(proc) = standardized_proc_column_names(proc)
       # scrubbing instances of data with too few trials (likely false starts)
       if (!(name %in% c(SPATIAL_SPAN, BACK_SPATIAL_SPAN, FILTER))) {
-        proc = proc[proc$rt_length.overall > .75 * median(proc$rt_length.overall), ]
+        proc = proc[proc$rt_length.overall > .5 * median(proc$rt_length.overall), ]
       } else if (name == FILTER) {
-        proc = proc[proc$rt_length.overall.2 > .75 * median(proc$rt_length.overall.2), ]
+        proc = proc[proc$rt_length.overall.2 > .5 * median(proc$rt_length.overall.2), ]
       }
       # TODO: clean up implementation of this... should do this in a tryCatch
       if(!is.null(conditions)) {
