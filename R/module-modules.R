@@ -132,5 +132,15 @@ module_filter <- function(df) {
 #' @name ace_procs
 
 module_ishihara <- function(df) {
-  return (proc_by_condition(df, "trial_correct", FUN = ace_ishihara_dplyr))
+  df = dplyr::group_by_(df, COL_BID)
+  return (dplyr::ungroup(ace_ishihara_dplyr(df, "rg_color_deficiency")))
+}
+
+#' @keywords internal
+#' @name ace_procs
+
+module_spatialcueing <- function(df) {
+  gen = proc_generic_module(df, COL_CORRECT_BUTTON, COL_TRIAL_TYPE)
+  cost = multi_subtract(gen, "\\.incongruent", "\\.congruent", "\\.cost")
+  return (data.frame(gen, cost))
 }

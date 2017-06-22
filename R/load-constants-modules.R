@@ -41,6 +41,9 @@ BACK_SPATIAL_SPAN <- "BACKWARDSSPATIALSPAN"
 #' @name ace_module
 ISHIHARA <- "ISHIHARA"
 
+#' @name ace_module
+SPATIAL_CUE <- "SPATIALCUEING"
+
 #' Identify ACE module from filename
 #'
 #' Identifies ACE module from the filename
@@ -75,6 +78,8 @@ identify_module <- function(file) {
     return (FILTER)
   }  else if (grepl(ISHIHARA, file)) {
     return (ISHIHARA)
+  }  else if (grepl(SPATIAL_CUE, file)) {
+    return (SPATIAL_CUE)
   }
   return ("unknown")
 }

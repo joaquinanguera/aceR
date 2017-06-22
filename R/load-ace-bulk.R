@@ -93,7 +93,7 @@ load_ace_bulk <- function(path = ".",
 
 #' @keywords internal
 
-sort_files_by_module <- function(files, modules = c(BOXED, BRT, FLANKER, SAAT, SPATIAL_SPAN, STROOP, TASK_SWITCH, TNT, BACK_SPATIAL_SPAN, FILTER)) {
+sort_files_by_module <- function(files, modules = c(BOXED, BRT, FLANKER, SAAT, SPATIAL_SPAN, STROOP, TASK_SWITCH, TNT, BACK_SPATIAL_SPAN, FILTER, SPATIAL_CUE, ISHIHARA)) {
   files_nospace = gsub(" ", "", files, fixed = T) # strip spaces from module names for searching ONLY!
   sorted_files = list()
   for (module in modules) {
