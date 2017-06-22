@@ -74,6 +74,7 @@ standardize_ace_column_names <- function(df) {
   new[new == "age1"] = COL_GENDER
   new[new == "user_age1"] = COL_GENDER
   new[new == "time_gameplayed_utc"] = COL_TIME
+  new[new == "time_sent_utc"] = "timesent_utc"
   new[new == "id"] = COL_SUB_ID
   new[new == "details"] = COL_CONDITION
   new[new == "task_switch_state"] = "taskswitch_state" # for cross compatibility b/w emailed and pulvinar
