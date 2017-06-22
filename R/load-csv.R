@@ -219,8 +219,8 @@ parse_subsections_pulvinar <- function(dat) {
     }
     clean = dat[pid == sub, ] # currently data doesn't include the name field
     # TODO: here is where automatic detection of pre and post can be implemented
-    for (this_time in unique(clean[, timesent_utc])) {
-      this_clean = clean[timesent_utc == this_time, ] # in this subset, delimit by timesent_utc to collect pre and post data
+    for (this_time in unique(clean[, COL_TIME])) {
+      this_clean = clean[COL_TIME == this_time, ] # in this subset, delimit by time gameplayed to collect pre and post data
       if (nrow(this_clean) > 0) {
         this_clean[, COL_BLOCK_HALF] = plyr::mapvalues(make_half_seq(nrow(this_clean)), from = c(1, 2), to = c("first_half", "second_half"))
       }
@@ -242,8 +242,8 @@ parse_subsections_pulvinar <- function(dat) {
     for (i in 1:len) {
       sub = subs[i]
       clean = dat_empty_pid[pid == sub & name == substr(sub, 12, 17), ] # grab only data where name and pid match, for now
-      for (this_time in unique(clean[, timesent_utc])) {
-        this_clean = clean[timesent_utc == this_time, ] # in this subset, delimit by timesent_utc to collect pre and post data
+      for (this_time in unique(clean[, COL_TIME])) {
+        this_clean = clean[COL_TIME == this_time, ] # in this subset, delimit by time gameplayed to collect pre and post data
         if (nrow(this_clean) > 0) {
           this_clean[, COL_BLOCK_HALF] = plyr::mapvalues(make_half_seq(nrow(this_clean)), from = c(1, 2), to = c("first_half", "second_half"))
         }
@@ -271,8 +271,8 @@ parse_subsections_pulvinar <- function(dat) {
       for (i in 1:len) {
         sub = subs[i]
         clean = dat_mismatched_pid[pid == sub & name %in% clean_subnames] # grab only data where name matches an already matched PID
-        for (this_time in unique(clean[, timesent_utc])) {
-          this_clean = clean[timesent_utc == this_time, ] # in this subset, delimit by timesent_utc to collect pre and post data
+        for (this_time in unique(clean[, COL_TIME])) {
+          this_clean = clean[COL_TIME == this_time, ] # in this subset, delimit by time gameplayed to collect pre and post data
           if (nrow(this_clean) > 0) {
             this_clean[, COL_BLOCK_HALF] = plyr::mapvalues(make_half_seq(nrow(this_clean)), from = c(1, 2), to = c("first_half", "second_half"))
           }
@@ -299,8 +299,8 @@ parse_subsections_pulvinar <- function(dat) {
       for (i in 1:len) {
         sub = subs[i]
         clean = dat_mismatched_pid[pid == sub & name %in% clean_subnames] # grab only data where name matches an already matched PID
-        for (this_time in unique(clean[, timesent_utc])) {
-          this_clean = clean[timesent_utc == this_time, ] # in this subset, delimit by timesent_utc to collect pre and post data
+        for (this_time in unique(clean[, COL_TIME])) {
+          this_clean = clean[COL_TIME == this_time, ] # in this subset, delimit by time gameplayed to collect pre and post data
           if (nrow(this_clean) > 0) {
             this_clean[, COL_BLOCK_HALF] = plyr::mapvalues(make_half_seq(nrow(this_clean)), from = c(1, 2), to = c("first_half", "second_half"))
           }

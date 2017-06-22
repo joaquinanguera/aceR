@@ -56,12 +56,12 @@ ace_detection_rate <- function(x, y) {
 ace_ishihara_dplyr <- function(x, col) {
   out = dplyr::summarize_at(x, dplyr::vars(dplyr::one_of(col)), dplyr::funs(
     colorblind = ace_ishihara))
-  return (sustained_span)
+  return (out)
 }
 
 #' @keywords internal 
 
-ace_ishihara <- function(x) {
-  if (sum(x != 1) == 0) {return (1)
-  } else {return (0)}
+ace_ishihara <- function(x) { # uses y/n readings from "rg_color_deficiency" column
+  if ("YES" %in% x) {return ("YES")
+  } else {return ("NO")}
 }
