@@ -10,12 +10,14 @@
 #' @param exclude a list of patterns to exclude
 #' @return Returns a data.frame containing the content of every file in the
 #'  specified \code{path}.
+#' @param which_modules Specify modules to process. Defaults to all modules.
 
 load_ace_bulk <- function(path = ".",
                           verbose = TRUE,
                           recursive = TRUE,
                           exclude = c(),
                           pattern = NULL,
+                          which_modules = NULL,
                           pid_stem = "ADMIN-UCSF-",
                           force_pid_name_match = F,
                           pulvinar = F) {
@@ -31,15 +33,20 @@ load_ace_bulk <- function(path = ".",
   if (length(files) == 0) {
     stop("no matching files", call. = TRUE)
   }
-  # out =
+  if (!is.null(which_modules)) { }
   if (length(files) > 50) {
     out = list()
     module_out = data.frame()
     temp_out = data.frame()
-    sorted_files = sort_files_by_module(files) # files LISTED by module type
+    if (!is.null(which_modules)) { # files LISTED by module type
+      sorted_files = sort_files_by_module(files, modules = which_modules)
+    } else {
+      sorted_files = sort_files_by_module(files)
+      }
+     
     for (i in 1:length(sorted_files)) {
       these_files = sorted_files[[i]]
-      existing_pids = NULL
+      existing_bids = NULL
       for (j in 1:length(these_files)) {
         file = these_files[j]
         if (verbose) {
@@ -57,12 +64,12 @@ load_ace_bulk <- function(path = ".",
         }
         
         # coarse duplicate rejection; should only activate in cases where the data is emailed
-        # and it can be assumed (for better or worse) every version of the data w/ same PID is same data
-        # if the PIDs in the current extracted data are in the previously extracted data, remove the dupe data from the current extract
-        if (!pulvinar) dat = remove_email_dupes(dat, existing_pids)
+        # removes duplicate BIDs (if PID and time are both the same, kick em out)
+        # should preserve multiple timepoint info
+        if (!pulvinar) dat = remove_email_dupes(dat, existing_bids)
         
         temp_out = plyr::rbind.fill(temp_out, dat)
-        existing_pids = c(existing_pids, temp_out[, COL_PID])
+        existing_bids = c(existing_bids, temp_out[, COL_BID])
         
         if (j %% 50 == 0 | j == length(these_files)) {
           module_out = plyr::rbind.fill(module_out, temp_out)
@@ -105,8 +112,8 @@ sort_files_by_module <- function(files, modules = c(BOXED, BRT, FLANKER, SAAT, S
 
 #' @keywords internal
 
-remove_email_dupes <- function(dat, existing_pids = c(temp_out[, COL_PID], module_out[, COL_PID])) {
-  these_pids = unique(dat[, COL_PID])
-  dat = dplyr::filter(dat, !(pid %in% existing_pids))
+remove_email_dupes <- function(dat, existing_bids = c(temp_out[, COL_BID], module_out[, COL_BID])) {
+  these_bids = unique(dat[, COL_BID])
+  dat = dplyr::filter(dat, !(bid %in% existing_bids))
   return (dat)
 }
