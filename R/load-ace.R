@@ -97,7 +97,7 @@ attempt_transform <- function(file, raw_dat) {
     transformed = transform_raw(file, raw_dat)
     # test if data is usable
     st = paste(transformed, collapse = "")
-    if (grepl("}", st)) {
+    if (grepl("}", st) & !grepl(SPATIAL_SPAN, file, ignore.case = TRUE)) { # hacky workaround: newest edition of spatial span data DOES contain braces in "okay" datasets
       warning(file, " contains invalid data ")
       return (data.frame())
     }
