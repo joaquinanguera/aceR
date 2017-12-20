@@ -30,7 +30,7 @@ NULL
 #'  data as a list. Throws warnings for modules with undefined methods. 
 #'  See \code{\link{ace_procs}} for a list of supported modules.
 
-proc_by_module <- function(df, conditions = NULL, verbose = FALSE) {
+proc_by_module <- function(df, scrub_short = TRUE, conditions = NULL, verbose = FALSE) {
   all_mods = subset_by_col(df, "module")
   all_names = names(all_mods)
   out = list()
@@ -43,7 +43,8 @@ proc_by_module <- function(df, conditions = NULL, verbose = FALSE) {
       proc = eval(call(fun, mod))
       names(proc) = standardized_proc_column_names(proc)
       # scrubbing instances of data with too few trials (likely false starts)
-      if (!(name %in% c(SPATIAL_SPAN, BACK_SPATIAL_SPAN, FILTER, ISHIHARA))) {
+      # scrub_short controls whether this occurs
+      if (scrub_short & !(name %in% c(SPATIAL_SPAN, BACK_SPATIAL_SPAN, FILTER, ISHIHARA))) {
         proc = proc[proc$rt_length.overall > .5 * median(proc$rt_length.overall), ]
       } else if (name == FILTER) {
         proc = proc[proc$rt_length.overall.2 > .5 * median(proc$rt_length.overall.2), ]

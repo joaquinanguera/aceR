@@ -15,7 +15,8 @@ ace_descriptive_statistics_dplyr <- function(x, col) {
     mean = ace_mean,
     median = ace_median,
     count = ace_count,
-    length = ace_length))
+    length = ace_length,
+    sd = ace_sd))
   return (out)
 }
 
