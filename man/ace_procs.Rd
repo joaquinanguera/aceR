@@ -2,11 +2,15 @@
 % Please edit documentation in R/module-modules.R, R/module-proc.R
 \name{ace_procs}
 \alias{ace_procs}
+\alias{module_backwardsspatialspan}
 \alias{module_boxed}
 \alias{module_brt}
 \alias{module_discrimination}
+\alias{module_filter}
 \alias{module_flanker}
+\alias{module_ishihara}
 \alias{module_saat}
+\alias{module_spatialcueing}
 \alias{module_spatialspan}
 \alias{module_stroop}
 \alias{module_taskswitch}
@@ -30,6 +34,14 @@ module_spatialspan(df)
 module_taskswitch(df)
 
 module_tnt(df)
+
+module_backwardsspatialspan(df)
+
+module_filter(df)
+
+module_ishihara(df)
+
+module_spatialcueing(df)
 }
 \description{
 Methods for processing user data by \emph{group}.

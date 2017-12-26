@@ -5,7 +5,9 @@
 \title{Read & Load all ACE csv & xls files in a directory}
 \usage{
 load_ace_bulk(path = ".", verbose = TRUE, recursive = TRUE,
-  exclude = c(), pattern = NULL)
+  exclude = c(), pattern = NULL, which_modules = NULL,
+  pid_stem = "ADMIN-UCSF-", force_pid_name_match = FALSE,
+  pulvinar = FALSE)
 }
 \arguments{
 \item{path}{a character vector of full path names; the default
@@ -15,12 +17,20 @@ load_ace_bulk(path = ".", verbose = TRUE, recursive = TRUE,
 
 \item{verbose}{logical. Print details? Defaults to \code{TRUE}}
 
-\item{recursive}{logical.  Should the listing recurse into directories?}
+\item{recursive}{logical. Load files in subfolders also? Defaults to \code{TRUE}}
 
 \item{exclude}{a list of patterns to exclude}
 
 \item{pattern}{an optional \link{regular expression}.  Only file names
     which match the regular expression will be returned.}
+
+\item{which_modules}{Specify modules to process. Defaults to all modules.}
+
+\item{pid_stem}{Specify the string stem of the ID in the "PID" field. Defaults to "ADMIN-UCSF-".}
+
+\item{force_pid_name_match}{logical. Replace ALL PIDs with IDs in "name" field? Defaults to \code{FALSE}}
+
+\item{pulvinar}{logical. Expect raw data in Pulvinar format? Defaults to \code{TRUE}}
 }
 \value{
 Returns a data.frame containing the content of every file in the

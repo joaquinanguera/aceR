@@ -2,11 +2,15 @@
 % Please edit documentation in R/load-constants-modules.R
 \docType{data}
 \name{ace_module}
+\alias{BACK_SPATIAL_SPAN}
 \alias{BOXED}
 \alias{BRT}
 \alias{DISCRIMINATION}
+\alias{FILTER}
 \alias{FLANKER}
+\alias{ISHIHARA}
 \alias{SAAT}
+\alias{SPATIAL_CUE}
 \alias{SPATIAL_SPAN}
 \alias{STROOP}
 \alias{TASK_SWITCH}
@@ -32,6 +36,14 @@ STROOP
 TASK_SWITCH
 
 TNT
+
+FILTER
+
+BACK_SPATIAL_SPAN
+
+ISHIHARA
+
+SPATIAL_CUE
 }
 \description{
 ACE module constants

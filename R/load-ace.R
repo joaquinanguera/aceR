@@ -5,6 +5,8 @@
 #'
 #' @export
 #' @param file The name of the file which the data is to be read from.
+#' @param pid_stem The string stem of the ID in the "PID" field. Defaults to "ADMIN-UCSF-".
+#' @param pulvinar logical. Expect raw data in Pulvinar format? Defaults to \code{NULL}
 #' @return Returns the file's content as an R \code{\link{data.frame}}.
 
 load_ace_file <- function(file, pid_stem = "ADMIN-UCSF-", pulvinar = NULL) {

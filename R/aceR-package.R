@@ -25,7 +25,7 @@ aceR_sample_data_path <- function() {
 #' @return Returns the contents of the aceR DESCRIPTION file
 
 aceR_description <- function () {
-  return (packageDescription("aceR"))
+  return (utils::packageDescription("aceR"))
 }
 
 #' aceR version
@@ -34,7 +34,7 @@ aceR_description <- function () {
 #' @return Returns the version of aceR installed on the user's machine
 
 aceR_version <- function() {
-  version = packageVersion("aceR")
+  version = utils::packageVersion("aceR")
   return (as.character(version))
 }
 
@@ -44,5 +44,5 @@ aceR_version <- function() {
 #' @return Returns a list of available aceR methods
 
 aceR_methods <- function () {
-  return (lsf.str("package:aceR"))
+  return (utils::lsf.str("package:aceR"))
 }

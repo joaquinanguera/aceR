@@ -4,7 +4,7 @@
 \alias{proc_by_module}
 \title{Process ACE data by module}
 \usage{
-proc_by_module(df, verbose = FALSE)
+proc_by_module(df, scrub_short = TRUE, conditions = NULL, verbose = FALSE)
 }
 \arguments{
 \item{df}{a \code{\link{data.frame}} containing formatted ACE data. 
@@ -15,7 +15,14 @@ This includes data loaded with the following methods:
   \item \code{\link{load_ace_bulk}}
 }}
 
+\item{scrub_short}{logical. Remove subjects with <1/2 of trials? Defaults to \code{TRUE}}
+
+\item{conditions}{vector of strings. If data contains multiple study conditions
+(e.g. pre & post), specify their labels here. Case insensitive.}
+
 \item{verbose}{logical. Print details? Defaults to \code{FALSE}.}
+
+\item{conditions}{Specify repeated measures condition names, if applicable.}
 }
 \value{
 Returns summary statistics for every unique module included in the 

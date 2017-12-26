@@ -10,10 +10,13 @@ Depends:
 Suggests:
     testthat
 Imports:
+    utils,
+    stats,
     zoo,
     data.table,
     tidyr,
     plyr,
+    dplyr,
     reshape,
     stringr,
     XLConnect,

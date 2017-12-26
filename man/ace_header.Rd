@@ -2,15 +2,21 @@
 % Please edit documentation in R/load-constant-columns.R
 \docType{data}
 \name{ace_header}
+\alias{COL_AGE}
 \alias{COL_BID}
 \alias{COL_BLOCK_HALF}
 \alias{COL_CONDITION}
 \alias{COL_CORRECT_BUTTON}
 \alias{COL_CORRECT_RESPONSE}
 \alias{COL_FILE}
+\alias{COL_GENDER}
+\alias{COL_GRADE}
+\alias{COL_LATE_RESPONSE}
+\alias{COL_NAME}
 \alias{COL_PID}
 \alias{COL_RT}
 \alias{COL_RW}
+\alias{COL_STUDY_COND}
 \alias{COL_SUB_ID}
 \alias{COL_TIME}
 \alias{COL_TRIAL_TYPE}
@@ -32,11 +38,23 @@ COL_CORRECT_RESPONSE
 
 COL_RW
 
+COL_LATE_RESPONSE
+
 COL_CONDITION
+
+COL_STUDY_COND
 
 COL_PID
 
 COL_BID
+
+COL_NAME
+
+COL_AGE
+
+COL_GRADE
+
+COL_GENDER
 
 COL_SUB_ID
 

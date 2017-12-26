@@ -7,10 +7,15 @@
 #' @export
 #' @inheritParams base::list.files
 #' @param verbose logical. Print details? Defaults to \code{TRUE}
+#' @param recursive logical. Load files in subfolders also? Defaults to \code{TRUE}
 #' @param exclude a list of patterns to exclude
+#' @param which_modules Specify modules to process. Defaults to all modules.
+#' @param pid_stem Specify the string stem of the ID in the "PID" field. Defaults to "ADMIN-UCSF-".
+#' @param force_pid_name_match logical. Replace ALL PIDs with IDs in "name" field? Defaults to \code{FALSE}
+#' @param pulvinar logical. Expect raw data in Pulvinar format? Defaults to \code{TRUE}
 #' @return Returns a data.frame containing the content of every file in the
 #'  specified \code{path}.
-#' @param which_modules Specify modules to process. Defaults to all modules.
+
 
 load_ace_bulk <- function(path = ".",
                           verbose = TRUE,
@@ -19,8 +24,8 @@ load_ace_bulk <- function(path = ".",
                           pattern = NULL,
                           which_modules = NULL,
                           pid_stem = "ADMIN-UCSF-",
-                          force_pid_name_match = F,
-                          pulvinar = F) {
+                          force_pid_name_match = FALSE,
+                          pulvinar = FALSE) {
   csv = list.files(path = path, pattern = ".csv", recursive = recursive)
   xls = list.files(path = path, pattern = ".xls", recursive = recursive)
   files = sort(c(csv, xls))

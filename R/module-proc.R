@@ -24,8 +24,9 @@ NULL
 #' }
 #' @param conditions vector of strings. If data contains multiple study conditions
 #' (e.g. pre & post), specify their labels here. Case insensitive.
+#' @param scrub_short logical. Remove subjects with <1/2 of trials? Defaults to \code{TRUE}
+#' @param conditions Specify repeated measures condition names, if applicable.
 #' @param verbose logical. Print details? Defaults to \code{FALSE}.
-#'
 #' @return Returns summary statistics for every unique module included in the 
 #'  data as a list. Throws warnings for modules with undefined methods. 
 #'  See \code{\link{ace_procs}} for a list of supported modules.
