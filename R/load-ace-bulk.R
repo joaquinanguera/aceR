@@ -61,7 +61,7 @@ load_ace_bulk <- function(path = ".",
           file = paste(path, file, sep = "/")
         }
         dat = load_ace_file(file, pulvinar = pulvinar)
-        if (force_pid_name_match) {
+        if (force_pid_name_match | all(unique(dat[, COL_PID]) == pid_stem)) { # run if instructed, or if all PIDs are stem only
           # for Ss where PID was incorrectly duplicated from another S but the name is DIFFERENT, repair the PID
           this_pid = unique(dat[, COL_PID])
           this_name = unique(dat[, COL_NAME])

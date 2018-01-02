@@ -4,6 +4,7 @@
 #' Reads, parses, and converts an ACE csv or xls into an R \code{\link{data.frame}}.
 #'
 #' @export
+#' @importFrom utils read.table read.csv write.csv head tail count.fields
 #' @param file The name of the file which the data is to be read from.
 #' @param pid_stem The string stem of the ID in the "PID" field. Defaults to "ADMIN-UCSF-".
 #' @param pulvinar logical. Expect raw data in Pulvinar format? Defaults to \code{FALSE}

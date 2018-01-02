@@ -15,6 +15,7 @@ NULL
 #' Assumes the column \emph{module} exists in the \code{\link{data.frame}}.
 #'
 #' @export
+#' @importFrom stats aggregate median na.omit qnorm sd time var
 #' @param df a \code{\link{data.frame}} containing formatted ACE data. 
 #'
 #' This includes data loaded with the following methods: 
