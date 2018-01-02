@@ -4,14 +4,14 @@
 \alias{load_ace_file}
 \title{Reads raw ace data from a file.}
 \usage{
-load_ace_file(file, pid_stem = "ADMIN-UCSF-", pulvinar = NULL)
+load_ace_file(file, pid_stem = "ADMIN-UCSF-", pulvinar = FALSE)
 }
 \arguments{
 \item{file}{The name of the file which the data is to be read from.}
 
 \item{pid_stem}{The string stem of the ID in the "PID" field. Defaults to "ADMIN-UCSF-".}
 
-\item{pulvinar}{logical. Expect raw data in Pulvinar format? Defaults to \code{NULL}}
+\item{pulvinar}{logical. Expect raw data in Pulvinar format? Defaults to \code{FALSE}}
 }
 \value{
 Returns the file's content as an R \code{\link{data.frame}}.
@@ -19,4 +19,3 @@ Returns the file's content as an R \code{\link{data.frame}}.
 \description{
 Reads, parses, and converts an ACE csv or xls into an R \code{\link{data.frame}}.
 }
-

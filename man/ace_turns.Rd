@@ -10,4 +10,3 @@ ace_turns(x, y, n = 3)
 Average of the last n "turn around trials" - a correct trial that was preceded by an incorrect trial
 }
 \keyword{internal}
-

@@ -12,4 +12,3 @@ Returns the contents of the aceR DESCRIPTION file
 \description{
 aceR description
 }
-

@@ -16,4 +16,3 @@ Returns a data frame where the empty rows have been removed
 Remove empty rows from a data frame.
 }
 \keyword{internal}
-

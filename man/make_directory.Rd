@@ -15,4 +15,3 @@ make_directory(path, showWarnings = FALSE)
 \description{
 Create a directory if it doesn't exist
 }
-

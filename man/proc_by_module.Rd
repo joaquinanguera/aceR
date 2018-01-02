@@ -17,12 +17,10 @@ This includes data loaded with the following methods:
 
 \item{scrub_short}{logical. Remove subjects with <1/2 of trials? Defaults to \code{TRUE}}
 
-\item{conditions}{vector of strings. If data contains multiple study conditions
+\item{conditions}{character vector. If data contains multiple study conditions
 (e.g. pre & post), specify their labels here. Case insensitive.}
 
 \item{verbose}{logical. Print details? Defaults to \code{FALSE}.}
-
-\item{conditions}{Specify repeated measures condition names, if applicable.}
 }
 \value{
 Returns summary statistics for every unique module included in the 

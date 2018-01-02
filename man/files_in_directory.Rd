@@ -24,4 +24,3 @@ Returns a character vector containing the names of the files
 \description{
 Wrapper around \code{\link{list.files}()}
 }
-

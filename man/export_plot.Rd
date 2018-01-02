@@ -14,4 +14,3 @@ export_plot(plot, file)
 \description{
 Write plot to file
 }
-

@@ -16,4 +16,3 @@ export_csv(dat, path = ".", showWarnings = FALSE)
 \description{
 Exports a list of data frames as csv into named directory
 }
-

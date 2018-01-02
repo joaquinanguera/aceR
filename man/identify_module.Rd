@@ -16,4 +16,3 @@ Returns the name of the ACE module if found.
 Identifies ACE module from the filename
 }
 \keyword{internal}
-

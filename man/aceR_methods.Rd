@@ -12,4 +12,3 @@ Returns a list of available aceR methods
 \description{
 aceR methods
 }
-

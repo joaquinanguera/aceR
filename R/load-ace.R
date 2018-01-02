@@ -6,10 +6,10 @@
 #' @export
 #' @param file The name of the file which the data is to be read from.
 #' @param pid_stem The string stem of the ID in the "PID" field. Defaults to "ADMIN-UCSF-".
-#' @param pulvinar logical. Expect raw data in Pulvinar format? Defaults to \code{NULL}
+#' @param pulvinar logical. Expect raw data in Pulvinar format? Defaults to \code{FALSE}
 #' @return Returns the file's content as an R \code{\link{data.frame}}.
 
-load_ace_file <- function(file, pid_stem = "ADMIN-UCSF-", pulvinar = NULL) {
+load_ace_file <- function(file, pid_stem = "ADMIN-UCSF-", pulvinar = FALSE) {
   # read raw csv file
   if (is_filtered(file)) {
     return (load_ace_filtered_file(file))
@@ -20,7 +20,7 @@ load_ace_file <- function(file, pid_stem = "ADMIN-UCSF-", pulvinar = NULL) {
   if (is_pulvinar(file) | pulvinar) { # TODO: can we get a common phrase in all pulvinar export filenames? 
     raw_dat = load_csv(file, pulvinar = T)
     return (transform_pulvinar(file, raw_dat))
-  } else {
+  } else if (!is_excel(file)) { # only if it hasn't already been loaded
     raw_dat = load_csv(file)
     raw_dat = breakup_by_user(raw_dat)
   }

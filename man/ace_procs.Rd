@@ -2,19 +2,32 @@
 % Please edit documentation in R/module-modules.R, R/module-proc.R
 \name{ace_procs}
 \alias{ace_procs}
-\alias{module_backwardsspatialspan}
 \alias{module_boxed}
+\alias{ace_procs}
 \alias{module_brt}
+\alias{ace_procs}
 \alias{module_discrimination}
-\alias{module_filter}
+\alias{ace_procs}
 \alias{module_flanker}
-\alias{module_ishihara}
+\alias{ace_procs}
 \alias{module_saat}
-\alias{module_spatialcueing}
-\alias{module_spatialspan}
+\alias{ace_procs}
 \alias{module_stroop}
+\alias{ace_procs}
+\alias{module_spatialspan}
+\alias{ace_procs}
 \alias{module_taskswitch}
+\alias{ace_procs}
 \alias{module_tnt}
+\alias{ace_procs}
+\alias{module_backwardsspatialspan}
+\alias{ace_procs}
+\alias{module_filter}
+\alias{ace_procs}
+\alias{module_ishihara}
+\alias{ace_procs}
+\alias{module_spatialcueing}
+\alias{ace_procs}
 \title{ACE module procs}
 \usage{
 module_boxed(df)
@@ -47,4 +60,3 @@ module_spatialcueing(df)
 Methods for processing user data by \emph{group}.
 }
 \keyword{internal}
-

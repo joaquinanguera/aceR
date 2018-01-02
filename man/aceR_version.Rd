@@ -12,4 +12,3 @@ Returns the version of aceR installed on the user's machine
 \description{
 aceR version
 }
-

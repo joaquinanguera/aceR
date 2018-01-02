@@ -16,4 +16,3 @@ Returns a data frame where the empty columns have been removed
 Remove empty columns from a data frame.
 }
 \keyword{internal}
-

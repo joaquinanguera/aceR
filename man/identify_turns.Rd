@@ -16,4 +16,3 @@ Returns the indices of all turn trials.
 Given an list of "1" & "0"'s', identify indices where a "1" is preceded by a "0".
 }
 \keyword{internal}
-

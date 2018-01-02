@@ -12,4 +12,3 @@ Returns the path containing sample aceR data
 \description{
 aceR sample data path
 }
-

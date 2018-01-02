@@ -16,4 +16,3 @@ Returns numeric row names
 Numeric row names
 }
 \keyword{internal}
-
