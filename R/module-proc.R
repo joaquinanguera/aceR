@@ -23,6 +23,9 @@ NULL
 #'   \item \code{\link{load_ace_file}}
 #'   \item \code{\link{load_ace_bulk}}
 #' }
+#' @param output a string indicating preferred output format. Can be \code{"wide"} (default),
+#' where one dataframe is output containing cols with data from all modules, or \code{"list"},
+#' where a list is output, with each element containing a dataframe with one module's data.
 #' @param scrub_short logical. Remove subjects with <1/2 of trials? Defaults to \code{TRUE}
 #' @param conditions character vector. If data contains multiple study conditions
 #' (e.g. pre & post), specify their labels here. Case insensitive.
@@ -31,10 +34,15 @@ NULL
 #'  data as a list. Throws warnings for modules with undefined methods. 
 #'  See \code{\link{ace_procs}} for a list of supported modules.
 
-proc_by_module <- function(df, scrub_short = TRUE, conditions = NULL, verbose = FALSE) {
+proc_by_module <- function(df, output = "wide", scrub_short = TRUE, conditions = NULL, verbose = FALSE) {
+  # TODO: Create param to allow user to specify which modules they want output
+  # TODO: Create param to allow user to specify threshold for within-subject weird RT trial scrubbing
+  # TODO: Output as one wide df, not as list of dfs
+  # TODO: Add module_SEA for all SEA modules. Should be able to call proc_generic_module for these
   all_mods = subset_by_col(df, "module")
   all_names = names(all_mods)
   out = list()
+  wide = data.frame()
   for (i in 1:length(all_mods)) {
     name = all_names[i]
     mod = all_mods[i][[1]]
@@ -50,13 +58,16 @@ proc_by_module <- function(df, scrub_short = TRUE, conditions = NULL, verbose = 
       } else if (name == FILTER) {
         proc = proc[proc$rt_length.overall.2 > .5 * median(proc$rt_length.overall.2), ]
       }
+      
       # TODO: clean up implementation of this... should do this in a tryCatch
-      if(!is.null(conditions)) {
+      if (!is.null(conditions)) {
         all = get_proc_info(mod, proc, conditions)
       } else {
         all = get_proc_info(mod, proc)
       }
+      
       all$module = name
+      
       # UGLY MONKEY PATCH: get rid of invalid columns
       # One example where this happens is when we apply stats to a variable by a grouping column 
       # but the grouping variable is blank for a given row. We end up with columns that end in "."
@@ -67,68 +78,61 @@ proc_by_module <- function(df, scrub_short = TRUE, conditions = NULL, verbose = 
     }, error = function(e) {
       warning(e)
     })
+
+    # Coerce from list of dataframes into one wide dataframe
+    # Get at me, but recursive full_join() calls seem like the way to go here
+    # Need this so we can pad out Ss that are missing data for various tasks    
+    
+    # REMOVE BID, file, time from valid demo cols because they're different between modules for the same subject (tasks are administered sequentially)
+    valid = select_(valid, paste0("-", COL_BID), paste0("-", COL_FILE), paste0("-", COL_TIME))
+    valid_demos = get_valid_demos(valid)
+    
+    # For all cols that AREN'T demographics, prepend the module name to the colname
+    names(valid)[!(names(valid) %in% c(valid_demos, COL_STUDY_COND))] = paste(name, names(valid)[!(names(valid) %in% c(valid_demos, COL_STUDY_COND))], sep = ".")
+    
+    if (i == 1) {
+      wide = valid
+    } else if (!is.null(conditions)) {
+      wide = full_join(wide, valid, by = c(valid_demos, COL_STUDY_COND))
+    } else {
+      wide = full_join(wide, valid, by = valid_demos)
+    }
+      
   }
-  return (out)
+    if (output == "wide") {
+      return (wide)
+    } else if (output == "list") {
+      return (out)
+    }
 }
 
 #' @keywords internal
 
 get_proc_info <- function(mod, proc, conditions) {
-  if (COL_GRADE %in% names(mod)) {
-    info = plyr::ddply(mod, c(COL_BID),
-                       function(x) {
-                         return (c(
-                           x[, COL_PID][[1]],
-                           x[, COL_AGE][[1]],
-                           x[, COL_GRADE][[1]],
-                           x[, COL_GENDER][[1]],
-                           x[, COL_TIME][[1]], 
-                           x[, COL_FILE][[1]]))
-                       })
-    names(info)[2:length(info)] = c(COL_PID, COL_AGE, COL_GRADE, COL_GENDER, COL_TIME, COL_FILE)
-  } else if (COL_AGE %in% names(mod)){
-    info = plyr::ddply(mod, c(COL_BID),
-                       function(x) {
-                         return (c(
-                           x[, COL_PID][[1]],
-                           x[, COL_AGE][[1]],
-                           x[, COL_GENDER][[1]],
-                           x[, COL_TIME][[1]], 
-                           x[, COL_FILE][[1]]))
-                       })
-    names(info)[2:length(info)] = c(COL_PID, COL_AGE, COL_GENDER, COL_TIME, COL_FILE)
-  } else if (COL_GENDER %in% names(mod)){
-    info = plyr::ddply(mod, c(COL_BID),
-                       function(x) {
-                         return (c(
-                           x[, COL_PID][[1]],
-                           x[, COL_GENDER][[1]],
-                           x[, COL_TIME][[1]], 
-                           x[, COL_FILE][[1]]))
-                       })
-    names(info)[2:length(info)] = c(COL_PID, COL_GENDER, COL_TIME, COL_FILE)
-  } else { # if NO demos included
-    info = plyr::ddply(mod, c(COL_BID),
-                       function(x) {
-                         return (c(
-                           x[, COL_PID][[1]],
-                           x[, COL_TIME][[1]], 
-                           x[, COL_FILE][[1]]))
-                       })
-    names(info)[2:length(info)] = c(COL_PID, COL_TIME, COL_FILE)
-  }
+  
+  valid_demos = get_valid_demos(mod)
+  info = mod[, valid_demos]
+  info = distinct(info)
+  
   if (!missing(conditions)) {info = label_study_conditions(info, conditions)}
   return (merge(info, proc, by = COL_BID))
 }
 
 #' @keywords internal
 
+get_valid_demos = function(df) {
+  all_possible_demos = c(COL_BID, COL_PID, COL_AGE, COL_GRADE, COL_GENDER, COL_TIME, COL_FILE)
+  return (names(df)[names(df) %in% all_possible_demos])
+}
+
+#' @keywords internal
+
 label_study_conditions = function(info, conditions) {
-    info$study_condition = NA
-    for (cond in 1:length(conditions)) {
-      info[grepl(conditions[cond], info[, COL_FILE], ignore.case = T), COL_STUDY_COND] = tolower(conditions[cond])
-    }
-    return (info)
+  info$study_condition = NA
+  for (cond in 1:length(conditions)) {
+    info[grepl(conditions[cond], info[, COL_FILE], ignore.case = T), COL_STUDY_COND] = tolower(conditions[cond])
+  }
+  return (info)
 }
 
 #' @keywords internal
