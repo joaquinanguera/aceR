@@ -23,7 +23,9 @@ NULL
 #'   \item \code{\link{load_ace_file}}
 #'   \item \code{\link{load_ace_bulk}}
 #' }
-#' @param output a string indicating preferred output format. Can be \code{"wide"} (default),
+#' @param modules character vector. Specify the names of modules (proper naming convention!)
+#' to output data for. Defaults to all modules detected in data.
+#' @param output string indicating preferred output format. Can be \code{"wide"} (default),
 #' where one dataframe is output containing cols with data from all modules, or \code{"list"},
 #' where a list is output, with each element containing a dataframe with one module's data.
 #' @param scrub_short logical. Remove subjects with <1/2 of trials? Defaults to \code{TRUE}
@@ -34,15 +36,22 @@ NULL
 #'  data as a list. Throws warnings for modules with undefined methods. 
 #'  See \code{\link{ace_procs}} for a list of supported modules.
 
-proc_by_module <- function(df, output = "wide", scrub_short = TRUE, conditions = NULL, verbose = FALSE) {
-  # TODO: Create param to allow user to specify which modules they want output
+proc_by_module <- function(df, modules = "all", output = "wide", scrub_short = TRUE, conditions = NULL, verbose = FALSE) {
   # TODO: Create param to allow user to specify threshold for within-subject weird RT trial scrubbing
-  # TODO: Output as one wide df, not as list of dfs
   # TODO: Add module_SEA for all SEA modules. Should be able to call proc_generic_module for these
   all_mods = subset_by_col(df, "module")
+  if (any(modules != "all")) {
+    modules = toupper(modules)
+    if (any(!(modules %in% c(BOXED, BRT, FLANKER, SAAT, SPATIAL_SPAN, STROOP, TASK_SWITCH, TNT, FILTER, BACK_SPATIAL_SPAN, ISHIHARA, SPATIAL_CUE)))) {
+      warning("Modules improperly specified! Check spelling?")
+      return (data.frame())
+    }
+    all_mods = all_mods[modules]
+  }
   all_names = names(all_mods)
   out = list()
   wide = data.frame()
+
   for (i in 1:length(all_mods)) {
     name = all_names[i]
     mod = all_mods[i][[1]]
@@ -79,12 +88,12 @@ proc_by_module <- function(df, output = "wide", scrub_short = TRUE, conditions =
       warning(e)
     })
 
-    # Coerce from list of dataframes into one wide dataframe
+    # Prepare wide dataframe for output
     # Get at me, but recursive full_join() calls seem like the way to go here
-    # Need this so we can pad out Ss that are missing data for various tasks    
+    # Need full_join() so we can pad out Ss that are missing data for various tasks    
     
     # REMOVE BID, file, time from valid demo cols because they're different between modules for the same subject (tasks are administered sequentially)
-    valid = select_(valid, paste0("-", COL_BID), paste0("-", COL_FILE), paste0("-", COL_TIME))
+    valid = select_(valid, paste0("-", COL_BID), paste0("-", COL_FILE), paste0("-", COL_TIME), "-module")
     valid_demos = get_valid_demos(valid)
     
     # For all cols that AREN'T demographics, prepend the module name to the colname
