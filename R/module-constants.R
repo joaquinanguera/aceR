@@ -103,7 +103,7 @@ proc_by_condition <- function(df, variable, factors, include_overall = TRUE, FUN
     transform_dir = transform_dir)
   
   if (include_overall & exists("by_condition")) {
-    proc = dplyr::left_join(overall, by_condition, by = c("bid" = "bid"))
+    proc = left_join(overall, by_condition, by = c("bid" = "bid"))
   } else if (include_overall) {
     proc = overall
   } else {

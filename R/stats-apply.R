@@ -25,7 +25,9 @@ apply_stats <- function(x, y, col, FUN, factor = NULL, suffix = "", ...){
   return(z)
 }
 #' @keywords internal
-#' 
+#' @import dplyr
+#' @import tidyr
+
 apply_stats_dplyr <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transform_dir = "wide", ...) {
   # id_var: name of column containing subject ID
   # col: name of column containing outcome var of interest to be summarized
@@ -36,53 +38,53 @@ apply_stats_dplyr <- function(x, id_var, col, FUN, factors = NULL, suffix = "", 
   }
   by_factor = !missing(factors)
   if (!by_factor) {
-    z = FUN(dplyr::group_by_(x, id_var), col)
+    z = FUN(group_by_(x, id_var), col)
     names(z)[2:length(z)] = paste0(col, "_", names(z)[2:length(z)])
-    z = dplyr::ungroup(z)
+    z = ungroup(z)
   } else {
     if (length(factors) == 2) {
       if (transform_dir == "wide") {
         z = vector("list", 3)
         # if there are two factors, put out THREE: one just by factor 1, one just by factor 2, and one crossed
-        z[[1]] = FUN(dplyr::group_by_(x, id_var, factors[1]), col)
+        z[[1]] = FUN(group_by_(x, id_var, factors[1]), col)
         # need to add the name prefix here so gather can call the columns easily
         names(z[[1]])[3:length(z[[1]])] = paste0(col, "_", names(z[[1]])[3:length(z[[1]])])
-        z[[1]] = tidyr::gather(z[[1]], "metric", "value", dplyr::starts_with(col))
-        z[[1]] = tidyr::unite_(z[[1]], "key", c("metric", factors[1]), sep = ".")
-        z[[1]] = tidyr::spread_(z[[1]], key_col = "key", value_col = "value")
-        z[[1]] = dplyr::ungroup(z[[1]])
+        z[[1]] = gather(z[[1]], "metric", "value", starts_with(col))
+        z[[1]] = unite_(z[[1]], "key", c("metric", factors[1]), sep = ".")
+        z[[1]] = spread_(z[[1]], key_col = "key", value_col = "value")
+        z[[1]] = ungroup(z[[1]])
         
-        z[[2]] = FUN(dplyr::group_by_(x, id_var, factors[2]), col)
+        z[[2]] = FUN(group_by_(x, id_var, factors[2]), col)
         names(z[[2]])[3:length(z[[2]])] = paste0(col, "_", names(z[[2]])[3:length(z[[2]])])
-        z[[2]] = tidyr::gather(z[[2]], "metric", "value", dplyr::starts_with(col))
-        z[[2]] = tidyr::unite_(z[[2]], "key", c("metric", factors[2]), sep = ".")
-        z[[2]] = tidyr::spread_(z[[2]], key_col = "key", value_col = "value")
-        z[[2]] = dplyr::ungroup(z[[2]])
+        z[[2]] = gather(z[[2]], "metric", "value", starts_with(col))
+        z[[2]] = unite_(z[[2]], "key", c("metric", factors[2]), sep = ".")
+        z[[2]] = spread_(z[[2]], key_col = "key", value_col = "value")
+        z[[2]] = ungroup(z[[2]])
         
-        z[[3]] = FUN(dplyr::group_by_(x, id_var, factors[1], factors[2]), col)
+        z[[3]] = FUN(group_by_(x, id_var, factors[1], factors[2]), col)
         names(z[[3]])[4:length(z[[3]])] = paste0(col, "_", names(z[[3]])[4:length(z[[3]])])
-        z[[3]] = tidyr::unite_(z[[3]], "cond", c(factors[2], factors[1]), sep = ".")
-        z[[3]] = tidyr::gather(z[[3]], "metric", "value", dplyr::starts_with(col))
-        z[[3]] = tidyr::unite_(z[[3]], "key", c("metric", "cond"), sep = ".")
-        z[[3]] = tidyr::spread_(z[[3]], key_col = "key", value_col = "value")
-        z[[3]] = dplyr::ungroup(z[[3]])
+        z[[3]] = unite_(z[[3]], "cond", c(factors[2], factors[1]), sep = ".")
+        z[[3]] = gather(z[[3]], "metric", "value", starts_with(col))
+        z[[3]] = unite_(z[[3]], "key", c("metric", "cond"), sep = ".")
+        z[[3]] = spread_(z[[3]], key_col = "key", value_col = "value")
+        z[[3]] = ungroup(z[[3]])
         
         z = multi_merge(z, by = id_var)
       } else if (transform_dir == "long") {
         # if long, ONLY long by condition/trial type, NOT by the other subsetting factor
         z = vector("list", 2)
         # if there are two factors, put out THREE: one just by factor 1, one just by factor 2, and one crossed
-        z[[1]] = FUN(dplyr::group_by_(x, id_var, factors[1]), col)
+        z[[1]] = FUN(group_by_(x, id_var, factors[1]), col)
         # need to add the name prefix here so gather can call the columns easily
         names(z[[1]])[3:length(z[[1]])] = paste0(col, "_", names(z[[1]])[3:length(z[[1]])])
-        z[[1]] = dplyr::ungroup(z[[1]])
+        z[[1]] = ungroup(z[[1]])
         
-        z[[2]] = FUN(dplyr::group_by_(x, id_var, factors[1], factors[2]), col)
+        z[[2]] = FUN(group_by_(x, id_var, factors[1], factors[2]), col)
         names(z[[2]])[4:length(z[[2]])] = paste0(col, "_", names(z[[2]])[4:length(z[[2]])])
-        z[[2]] = tidyr::gather(z[[2]], "metric", "value", dplyr::starts_with(col))
-        z[[2]] = tidyr::unite_(z[[2]], "key", c("metric", factors[2]), sep = ".")
-        z[[2]] = tidyr::spread_(z[[2]], key_col = "key", value_col = "value")
-        z[[2]] = dplyr::ungroup(z[[2]])
+        z[[2]] = gather(z[[2]], "metric", "value", starts_with(col))
+        z[[2]] = unite_(z[[2]], "key", c("metric", factors[2]), sep = ".")
+        z[[2]] = spread_(z[[2]], key_col = "key", value_col = "value")
+        z[[2]] = ungroup(z[[2]])
         
         # using join_all here instead of multi_merge bc easily accepts multiple joining vars
         # join across all common vars, we are assuming common named vars are in fact the same measurement
@@ -90,12 +92,12 @@ apply_stats_dplyr <- function(x, id_var, col, FUN, factors = NULL, suffix = "", 
       }
     } else {
       # if only one factor, only put out 1
-      z = FUN(dplyr::group_by_(x, id_var, factors), col)
+      z = FUN(group_by_(x, id_var, factors), col)
       names(z)[3:length(z)] = paste0(col, "_", names(z)[3:length(z)])
-      z = tidyr::gather(z, "metric", "value", dplyr::starts_with(col))
-      z = tidyr::unite_(z, "key", c("metric", factors), sep = ".")
-      z = tidyr::spread_(z, key_col = "key", value_col = "value")
-      z = dplyr::ungroup(z)
+      z = gather(z, "metric", "value", starts_with(col))
+      z = unite_(z, "key", c("metric", factors), sep = ".")
+      z = spread_(z, key_col = "key", value_col = "value")
+      z = ungroup(z)
     }
   }
   

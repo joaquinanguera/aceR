@@ -11,7 +11,7 @@ ace_descriptive_statistics <- function(x) {
 #' @keywords internal
 
 ace_descriptive_statistics_dplyr <- function(x, col) {
-  out = dplyr::summarize_at(x, dplyr::vars(dplyr::one_of(col)), dplyr::funs(
+  out = summarize_at(x, vars(one_of(col)), funs(
     mean = ace_mean,
     median = ace_median,
     count = ace_count,
@@ -40,7 +40,7 @@ ace_average_turns <- function (x, y) {
 #' @keywords internal 
 
 ace_spatial_span <- function(x, col) {
-  sustained_span = dplyr::summarize_at(x, dplyr::vars(dplyr::one_of(col)), dplyr::funs(
+  sustained_span = summarize_at(x, vars(one_of(col)), funs(
     span = ace_span))
   return (sustained_span)
 }
@@ -55,7 +55,7 @@ ace_detection_rate <- function(x, y) {
 #' @keywords internal 
 
 ace_ishihara_dplyr <- function(x, col) {
-  out = dplyr::summarize_at(x, dplyr::vars(dplyr::one_of(col)), dplyr::funs(
+  out = summarize_at(x, vars(one_of(col)), funs(
     colorblind = ace_ishihara))
   return (out)
 }
