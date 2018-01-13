@@ -16,7 +16,9 @@ load_ace_file <- function(file, pid_stem = "ADMIN-UCSF-", pulvinar = FALSE) {
     return (load_ace_filtered_file(file))
   }
   if (is_excel(file)) {
-    raw_dat = load_excel(file)
+    warning (file, " is Excel format, currently not supported ")
+    return (data.frame())
+    # raw_dat = load_excel(file)
   } 
   if (is_pulvinar(file) | pulvinar) { # TODO: can we get a common phrase in all pulvinar export filenames? 
     raw_dat = load_csv(file, pulvinar = T)
