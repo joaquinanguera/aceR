@@ -16,7 +16,7 @@ NULL
 #'
 #' @export
 #' @importFrom stats aggregate median na.omit qnorm sd time var
-#' @param df a \code{\link{data.frame}} containing formatted ACE data. 
+#' @param df a \code{\link{data.frame}} containing formatted trialwise ACE data. 
 #'
 #' This includes data loaded with the following methods: 
 #' \enumerate{
@@ -42,7 +42,7 @@ proc_by_module <- function(df, modules = "all", output = "wide", scrub_short = T
   all_mods = subset_by_col(df, "module")
   if (any(modules != "all")) {
     modules = toupper(modules)
-    if (any(!(modules %in% c(BOXED, BRT, FLANKER, SAAT, SPATIAL_SPAN, STROOP, TASK_SWITCH, TNT, FILTER, BACK_SPATIAL_SPAN, ISHIHARA, SPATIAL_CUE)))) {
+    if (any(!(modules %in% ALL_MODULES))) {
       warning("Modules improperly specified! Check spelling?")
       return (data.frame())
     }
@@ -51,7 +51,7 @@ proc_by_module <- function(df, modules = "all", output = "wide", scrub_short = T
   all_names = names(all_mods)
   out = list()
   wide = data.frame()
-
+  
   for (i in 1:length(all_mods)) {
     name = all_names[i]
     mod = all_mods[i][[1]]
@@ -87,7 +87,7 @@ proc_by_module <- function(df, modules = "all", output = "wide", scrub_short = T
     }, error = function(e) {
       warning(e)
     })
-
+    
     # Prepare wide dataframe for output
     # Get at me, but recursive full_join() calls seem like the way to go here
     # Need full_join() so we can pad out Ss that are missing data for various tasks    
@@ -97,22 +97,26 @@ proc_by_module <- function(df, modules = "all", output = "wide", scrub_short = T
     valid_demos = get_valid_demos(valid)
     
     # For all cols that AREN'T demographics, prepend the module name to the colname
-    names(valid)[!(names(valid) %in% c(valid_demos, COL_STUDY_COND))] = paste(name, names(valid)[!(names(valid) %in% c(valid_demos, COL_STUDY_COND))], sep = ".")
+    names(valid)[!(names(valid) %in% valid_demos)] = paste(name, names(valid)[!(names(valid) %in% valid_demos)], sep = ".")
     
     if (i == 1) {
       wide = valid
-    } else if (!is.null(conditions)) {
-      wide = full_join(wide, valid, by = c(valid_demos, COL_STUDY_COND))
+    } else if (name == FILTER) {
+      held_out_filter = valid
     } else {
       wide = full_join(wide, valid, by = valid_demos)
     }
-      
+    
   }
-    if (output == "wide") {
-      return (wide)
-    } else if (output == "list") {
-      return (out)
-    }
+  if (output == "wide" & FILTER %in% all_names) {
+    held_out_filter = full_join(held_out_filter, wide[, valid_demos], by = valid_demos)
+    return (list("ALL_OTHER_DATA" = wide,
+                 "FILTER" = held_out_filter))
+  } else if (output == "wide") {
+    return (wide)
+  } else if (output == "list") {
+    return (out)
+  }
 }
 
 #' @keywords internal
@@ -130,7 +134,7 @@ get_proc_info <- function(mod, proc, conditions) {
 #' @keywords internal
 
 get_valid_demos = function(df) {
-  all_possible_demos = c(COL_BID, COL_PID, COL_AGE, COL_GRADE, COL_GENDER, COL_TIME, COL_FILE)
+  all_possible_demos = c(COL_BID, COL_PID, COL_AGE, COL_GRADE, COL_GENDER, COL_TIME, COL_FILE, COL_STUDY_COND)
   return (names(df)[names(df) %in% all_possible_demos])
 }
 
