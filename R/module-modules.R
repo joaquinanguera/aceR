@@ -17,7 +17,10 @@ module_boxed <- function(df) {
 #' @name ace_procs
 
 module_brt <- function(df) {
-  return (proc_generic_module(df, COL_CORRECT_BUTTON, COL_CONDITION))
+  # TODO: Duplicate the .right and .left RT cols as .dominant and .nondominant
+  gen = proc_generic_module(df, COL_CORRECT_BUTTON, COL_CONDITION)
+  gen = select(gen, -starts_with(PROC_COL_OLD[1]), -starts_with(PROC_COL_OLD[2]))
+  return (gen)
 }
 
 #' @keywords internal
@@ -68,10 +71,9 @@ module_stroop <- function(df) {
 
 module_spatialspan <- function(df) {
   rt = proc_by_condition(df, COL_RT, COL_CORRECT_BUTTON)
-  acc = proc_by_condition(df, COL_CORRECT_BUTTON)
   span = proc_by_condition(df, "object_count", FUN = ace_spatial_span)
   rt_block_half = proc_by_condition(df, COL_RT, factors = COL_BLOCK_HALF, include_overall = F)
-  analy = list(rt, acc, span, rt_block_half)
+  analy = list(rt, span, rt_block_half)
   merged = multi_merge(analy, by = COL_BID)
   return (merged)
 }
@@ -101,10 +103,9 @@ module_tnt <- function(df) {
 
 module_backwardsspatialspan <- function(df) {
   rt = proc_by_condition(df, COL_RT, COL_CORRECT_BUTTON)
-  acc = proc_by_condition(df, COL_CORRECT_BUTTON)
   span = proc_by_condition(df, "object_count", FUN = ace_spatial_span)
   rt_block_half = proc_by_condition(df, COL_RT, factors = COL_BLOCK_HALF, include_overall = F)
-  analy = list(rt, acc, span, rt_block_half)
+  analy = list(rt, span, rt_block_half)
   merged = multi_merge(analy, by = COL_BID)
   return (merged)
 }
@@ -125,7 +126,7 @@ module_filter <- function(df) {
   # TODO: implement k w/ proc_standard (if possible)
   merged$k = ace_wm_k(merged$correct_button_mean.change, 1 - merged$correct_button_mean.no_change, merged$targets)
   out = stats::reshape(as.data.frame(merged), timevar = "targets", idvar = c(COL_BID, "distractors"), direction = "wide")
-  return (select(out, -contains("..")))
+  return (select(out, -contains(".."), -starts_with(PROC_COL_OLD[1]), -starts_with(PROC_COL_OLD[2])))
 }
 
 #' @keywords internal
