@@ -44,6 +44,21 @@ ISHIHARA <- "ISHIHARA"
 #' @name ace_module
 SPATIAL_CUE <- "SPATIALCUEING"
 
+#' @name ace_module
+ALL_MODULES = c(BOXED,
+                BRT,
+                DISCRIMINATION,
+                FLANKER,
+                SAAT,
+                SPATIAL_SPAN,
+                STROOP,
+                TASK_SWITCH,
+                TNT,
+                FILTER,
+                BACK_SPATIAL_SPAN,
+                ISHIHARA,
+                SPATIAL_CUE)
+
 #' Identify ACE module from filename
 #'
 #' Identifies ACE module from the filename
