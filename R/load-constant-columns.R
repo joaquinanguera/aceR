@@ -51,6 +51,9 @@ COL_GRADE = "grade"
 COL_GENDER = "gender"
 
 #' @name ace_header
+COL_HANDEDNESS = "handedness"
+
+#' @name ace_header
 COL_SUB_ID = "subid"
 
 #' @name ace_header
@@ -73,6 +76,7 @@ standardize_ace_column_names <- function(df) {
   new[new == "user_gender"] = COL_GENDER
   new[new == "age1"] = COL_GENDER
   new[new == "user_age1"] = COL_GENDER
+  new[new == "user_handedness"] = COL_HANDEDNESS
   new[new == "time_gameplayed_utc"] = COL_TIME
   new[new == "time_sent_utc"] = "timesent_utc"
   new[new == "id"] = COL_SUB_ID
