@@ -90,6 +90,13 @@ is_filtered <- function (filename) {
 
 #' @keywords internal
 
+is_excel <- function (filename) {
+  # Remove this if you ever get Excel functionality back!
+  return (grepl("xls", filename))
+}
+
+#' @keywords internal
+
 is_pulvinar <- function (filename) {
   return (grepl("pulvinar", filename, ignore.case = T))
 }
