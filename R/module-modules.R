@@ -4,6 +4,7 @@
 
 module_boxed <- function(df) {
   gen = proc_generic_module(df, COL_CORRECT_BUTTON, COL_CONDITION)
+  gen$score = (((gen$rt_mean.conjunction_12 - gen$rt_mean.conjunction_4) / gen$rt_mean.conjunction_4) * 100) + 100
   proc_cost_median = multi_fun(gen, "\\.conjunction_4", "\\.conjunction_12", "\\.proc_cost_median", ace_median) - multi_fun(gen, "\\.feature_4", "\\.feature_12", "\\.proc_cost_median", ace_median)
   proc_cost_mean = multi_fun(gen, "\\.conjunction_4", "\\.conjunction_12", "\\.proc_cost_mean", ace_mean) - multi_fun(gen, "\\.feature_4", "\\.feature_12", "\\.proc_cost_mean", ace_mean)
   dist_cost_median = multi_fun(gen, "\\.conjunction_4", "\\.feature_4", "\\.dist_cost_median", ace_median) - multi_fun(gen, "\\.conjunction_12", "\\.feature_12", "\\.dist_cost_median", ace_median)
@@ -19,6 +20,16 @@ module_boxed <- function(df) {
 module_brt <- function(df) {
   # TODO: Duplicate the .right and .left RT cols as .dominant and .nondominant
   gen = proc_generic_module(df, COL_CORRECT_BUTTON, COL_CONDITION)
+  
+#  if (COL_HANDEDNESS %in% names(gen)) {
+  #  df$condition_hand = ifelse(df[, COL_HANDEDNESS] == "Right",
+    #                           recode(df[, COL_HANDEDNESS], "Right" = "dominant", "Left" = "nondominant"),
+     #                          recode(df[, COL_HANDEDNESS], "Left" = "dominant", "Right" = "nondominant"))
+   # gen = proc_generic_module(df, COL_CORRECT_BUTTON, "condition_hand")
+#  } else {
+ #   warning("No handedness data found. Unable to label BRT data by dominant hand")
+  #  gen = proc_generic_module(df, COL_CORRECT_BUTTON, COL_CONDITION)
+#  }
   gen = select(gen, -starts_with(PROC_COL_OLD[1]), -starts_with(PROC_COL_OLD[2]))
   return (gen)
 }
