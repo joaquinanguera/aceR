@@ -18,18 +18,16 @@ module_boxed <- function(df) {
 #' @name ace_procs
 
 module_brt <- function(df) {
-  # TODO: Duplicate the .right and .left RT cols as .dominant and .nondominant
-  gen = proc_generic_module(df, COL_CORRECT_BUTTON, COL_CONDITION)
-  
-#  if (COL_HANDEDNESS %in% names(gen)) {
-  #  df$condition_hand = ifelse(df[, COL_HANDEDNESS] == "Right",
-    #                           recode(df[, COL_HANDEDNESS], "Right" = "dominant", "Left" = "nondominant"),
-     #                          recode(df[, COL_HANDEDNESS], "Left" = "dominant", "Right" = "nondominant"))
-   # gen = proc_generic_module(df, COL_CORRECT_BUTTON, "condition_hand")
-#  } else {
- #   warning("No handedness data found. Unable to label BRT data by dominant hand")
-  #  gen = proc_generic_module(df, COL_CORRECT_BUTTON, COL_CONDITION)
-#  }
+  if (COL_HANDEDNESS %in% names(df)) {
+    df[, COL_HANDEDNESS] = tolower(df[, COL_HANDEDNESS])
+    df$condition_hand = ifelse(grepl("right", df[, COL_HANDEDNESS]),
+                               recode(df[, COL_HANDEDNESS], "right" = "dominant", "left" = "nondominant"),
+                               recode(df[, COL_HANDEDNESS], "left" = "dominant", "right" = "nondominant"))
+    gen = proc_generic_module(df, COL_CORRECT_BUTTON, "condition_hand")
+  } else {
+    warning("No handedness data found. Unable to label BRT data by dominant hand")
+    gen = proc_generic_module(df, COL_CORRECT_BUTTON, COL_CONDITION)
+  }
   gen = select(gen, -starts_with(PROC_COL_OLD[1]), -starts_with(PROC_COL_OLD[2]))
   return (gen)
 }
