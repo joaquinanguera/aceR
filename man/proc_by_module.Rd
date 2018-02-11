@@ -4,10 +4,12 @@
 \alias{proc_by_module}
 \title{Process ACE data by module}
 \usage{
-proc_by_module(df, scrub_short = TRUE, conditions = NULL, verbose = FALSE)
+proc_by_module(df, modules = "all", output = "wide",
+  rm_outlier_rts = FALSE, rm_short_subs = TRUE, conditions = NULL,
+  verbose = FALSE)
 }
 \arguments{
-\item{df}{a \code{\link{data.frame}} containing formatted ACE data. 
+\item{df}{a \code{\link{data.frame}} containing formatted trialwise ACE data. 
 
 This includes data loaded with the following methods: 
 \enumerate{
@@ -15,7 +17,14 @@ This includes data loaded with the following methods:
   \item \code{\link{load_ace_bulk}}
 }}
 
-\item{scrub_short}{logical. Remove subjects with <1/2 of trials? Defaults to \code{TRUE}}
+\item{modules}{character vector. Specify the names of modules (proper naming convention!)
+to output data for. Defaults to all modules detected in data.}
+
+\item{output}{string indicating preferred output format. Can be \code{"wide"} (default),
+where one dataframe is output containing cols with data from all modules, or \code{"list"},
+where a list is output, with each element containing a dataframe with one module's data.}
+
+\item{rm_short_subs}{logical. Remove subjects with <1/2 of trials? Defaults to \code{TRUE}}
 
 \item{conditions}{character vector. If data contains multiple study conditions
 (e.g. pre & post), specify their labels here. Case insensitive.}

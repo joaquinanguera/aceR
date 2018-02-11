@@ -34,6 +34,8 @@
 \alias{ace_header}
 \alias{COL_GENDER}
 \alias{ace_header}
+\alias{COL_HANDEDNESS}
+\alias{ace_header}
 \alias{COL_SUB_ID}
 \alias{ace_header}
 \alias{COL_TRIAL_TYPE}
@@ -75,6 +77,8 @@ COL_AGE
 COL_GRADE
 
 COL_GENDER
+
+COL_HANDEDNESS
 
 COL_SUB_ID
 

@@ -29,6 +29,8 @@
 \alias{ISHIHARA}
 \alias{ace_module}
 \alias{SPATIAL_CUE}
+\alias{ace_module}
+\alias{ALL_MODULES}
 \title{ACE module constants}
 \format{An object of class \code{character} of length 1.}
 \usage{
@@ -57,6 +59,8 @@ BACK_SPATIAL_SPAN
 ISHIHARA
 
 SPATIAL_CUE
+
+ALL_MODULES
 }
 \description{
 ACE module constants
