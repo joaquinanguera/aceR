@@ -64,9 +64,13 @@ get_all_percentiles <- function(data, norm_dist = "self", norm_dist_grade = NULL
   # TODO: Throw warning if some tasks are not there for any Ss
   
   # get into one df form
+  if (!is.data.frame(data) & FILTER %in% names(data)) {
   df = full_join(data$ALL_OTHER_DATA,
                  filter(data$FILTER, FILTER.distractors == 0)) %>%
     distinct()
+  } else if (is.data.frame(data)) {
+    df = data
+  }
   
   valid_modules = ALL_MODULES[sapply(ALL_MODULES, FUN = function(pattern, x) any(grepl(pattern, x)), x = names(df))]
   valid_modules = valid_modules[!(valid_modules %in% c("BRT", "ISHIHARA"))]
