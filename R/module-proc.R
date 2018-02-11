@@ -28,7 +28,7 @@ NULL
 #' @param output string indicating preferred output format. Can be \code{"wide"} (default),
 #' where one dataframe is output containing cols with data from all modules, or \code{"list"},
 #' where a list is output, with each element containing a dataframe with one module's data.
-#' @param scrub_short logical. Remove subjects with <1/2 of trials? Defaults to \code{TRUE}
+#' @param rm_short_subs logical. Remove subjects with <1/2 of trials? Defaults to \code{TRUE}
 #' @param conditions character vector. If data contains multiple study conditions
 #' (e.g. pre & post), specify their labels here. Case insensitive.
 #' @param verbose logical. Print details? Defaults to \code{FALSE}.
@@ -36,7 +36,8 @@ NULL
 #'  data as a list. Throws warnings for modules with undefined methods. 
 #'  See \code{\link{ace_procs}} for a list of supported modules.
 
-proc_by_module <- function(df, modules = "all", output = "wide", scrub_short = TRUE, conditions = NULL, verbose = FALSE) {
+proc_by_module <- function(df, modules = "all", output = "wide",
+                           rm_outlier_rts = FALSE, rm_short_subs = TRUE, conditions = NULL, verbose = FALSE) {
   # TODO: Create param to allow user to specify threshold for within-subject weird RT trial scrubbing
   # TODO: Add module_SEA for all SEA modules. Should be able to call proc_generic_module for these
   all_mods = subset_by_col(df, "module")
@@ -56,13 +57,20 @@ proc_by_module <- function(df, modules = "all", output = "wide", scrub_short = T
     name = all_names[i]
     mod = all_mods[i][[1]]
     fun = paste("module", tolower(name), sep = "_")
+    # optionally scrubbing trials with "outlier" RTs
+    if (rm_outlier_rts != FALSE & !(name %in% c(SPATIAL_SPAN, BACK_SPATIAL_SPAN, ISHIHARA))) {
+      df = df %>%
+        group_by_(COL_BID) %>%
+        mutate(rt = remove_rts(rt)) %>%
+        ungroup()
+    }
     tryCatch({
       if (verbose) print(paste("processing", name, sep = " "))
       proc = eval(call(fun, mod))
       names(proc) = standardized_proc_column_names(proc)
       # scrubbing instances of data with too few trials (likely false starts)
-      # scrub_short controls whether this occurs
-      if (scrub_short & !(name %in% c(SPATIAL_SPAN, BACK_SPATIAL_SPAN, FILTER, ISHIHARA))) {
+      # rm_short_subs controls whether this occurs
+      if (rm_short_subs & !(name %in% c(SPATIAL_SPAN, BACK_SPATIAL_SPAN, FILTER, ISHIHARA))) {
         proc = proc[proc$rt_length.overall > .5 * median(proc$rt_length.overall), ]
       } else if (name == FILTER) {
         proc = proc[proc$rt_length.overall.2 > .5 * median(proc$rt_length.overall.2), ]
@@ -117,6 +125,15 @@ proc_by_module <- function(df, modules = "all", output = "wide", scrub_short = T
   } else if (output == "list") {
     return (out)
   }
+}
+
+#' @keywords internal
+#' Expects a vector (of RTs)
+
+remove_rts <- function(vec, threshold = "2sd") {
+  if (is.character(vec)) vec = as.numeric(vec)
+  if (threshold == "2sd") vec[abs(vec - mean(vec, na.rm = T)) > 2*sd(vec, na.rm = T)] = NA
+  return(vec)
 }
 
 #' @keywords internal
