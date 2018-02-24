@@ -29,11 +29,12 @@ load_sea_file <- function (file, verbose = FALSE) {
   return (dat)
 }
 
-#' @keywords internal
-#' @importFrom stringr str_trim
 #' Because the "Reading Fluency" module has some cells with unquoted commas,
 #' They are causing the usual read.csv delimiter guessing to split
 #' one cell into two, creating too many columns for just a few rows
+#' 
+#' @importFrom stringr str_trim
+#' @keywords internal
 
 read_sea_csv <- function(file) {
   dat <- read.table(file, sep = ",", header = F, stringsAsFactors = F,
