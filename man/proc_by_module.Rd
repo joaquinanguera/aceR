@@ -24,6 +24,10 @@ to output data for. Defaults to all modules detected in data.}
 where one dataframe is output containing cols with data from all modules, or \code{"list"},
 where a list is output, with each element containing a dataframe with one module's data.}
 
+\item{rm_outlier_rts}{Remove within-subject RTs outside of some specified range?
+Currently accepts "2sd", which scrubs RTs further than 2 SD from within-subject mean RT.
+Defaults to \code{FALSE}.}
+
 \item{rm_short_subs}{logical. Remove subjects with <1/2 of trials? Defaults to \code{TRUE}}
 
 \item{conditions}{character vector. If data contains multiple study conditions

@@ -2,7 +2,7 @@
 % Please edit documentation in R/load-ace.R
 \name{load_ace_file}
 \alias{load_ace_file}
-\title{Reads raw ace data from a file.}
+\title{Reads raw ACE data from a file.}
 \usage{
 load_ace_file(file, pid_stem = "ADMIN-UCSF-", pulvinar = FALSE)
 }

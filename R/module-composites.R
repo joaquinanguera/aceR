@@ -139,6 +139,9 @@ get_all_percentiles <- function(data, norm_dist = "self", norm_dist_grade = NULL
 #' Function to calculate percentile ranks for summarized data from ONE ACE metric.
 #' 
 #' @keywords internal
+#' @importFrom dplyr arrange filter mutate
+#' @importFrom rlang !! sym 
+#' 
 #' @param module user-specified string to be appended in the output colname
 #' @param id_var name of subject identifier col in df
 #' Note that this function does NOT allow a grouping variable; please only feed
@@ -165,13 +168,13 @@ get_percentile <- function(df, module, id_var = "pid", var, reverse = FALSE, nor
   if (norm_dist == "self") {
     
     if (!reverse) { # flipping the logical here bc arrange() defaults to ascending order
-      df = arrange_(df, paste0("desc(", var, ")"))
+      df = arrange(df, desc(!! rlang::sym(var)))
     } else {
-      df = arrange_(df, var)
+      df = arrange(df, !! rlang::sym(var))
     }
     
     df = df %>%
-      filter_(paste0("!is.na(", var, ")")) %>% # need to rank without NAs
+      filter(!is.na(!! rlang::sym(var))) %>% # need to rank without NAs
       mutate(inv_rank = c(1:n()) - 1, # so that the worst one gets a rank of 0
              percentile = (inv_rank / n()) * 100) %>%
       select(-inv_rank)

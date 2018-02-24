@@ -7,7 +7,16 @@
 get_all_percentiles(data, norm_dist = "self", norm_dist_grade = NULL)
 }
 \arguments{
-\item{df}{Processed ACE data. Expects "wide" output ACE data from proc_by_module()}
+\item{data}{Processed ACE data. Expects "wide" output ACE data from proc_by_module()}
+
+\item{norm_dist}{which data should the percentiles be normed to? one of the following
+\code{"self"}: no norming distribution, percentiles based on data being fed in
+\code{"ace_t1"}: based on results from ACE Fall 2016 data
+\code{"ace_t3"}: based on results from ACE Fall 2017 data}
+
+\item{norm_dist_grade}{if specifying an ACE norming distribution, which grade's norms?
+Grades in T1: "third", "fifth", "seventh".
+Grades in T3: "fourth", "sixth", "eighth". Specify as ONE OF THESE STRINGS!}
 }
 \value{
 a df with PID, valid demographics, and percentile rank for the specified norming distribution
