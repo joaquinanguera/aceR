@@ -1,5 +1,5 @@
 
-#' Reads raw ace data from a file.
+#' Reads raw ACE data from a file.
 #'
 #' Reads, parses, and converts an ACE csv or xls into an R \code{\link{data.frame}}.
 #'
