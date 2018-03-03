@@ -28,9 +28,13 @@ NULL
 #' @param output string indicating preferred output format. Can be \code{"wide"} (default),
 #' where one dataframe is output containing cols with data from all modules, or \code{"list"},
 #' where a list is output, with each element containing a dataframe with one module's data.
-#' @param rm_outlier_rts Remove within-subject RTs outside of some specified range?
-#' Currently accepts "2sd", which scrubs RTs further than 2 SD from within-subject mean RT.
-#' Defaults to \code{FALSE}.
+#' @param rm_outlier_rts_sd numeric. Remove within-subject RTs further than this many SD from
+#' within-subject mean RT? Enter as one number. Specify either this or \code{rm_outlier_rts_range},
+#' but not both. If both specified, will use SD cutoff. Defaults to \code{FALSE}.
+#' @param rm_outlier_rts_range numeric vector, length 2. Remove within-subject RTs outside of
+#' this specified range? Enter min and max accepted RTs as a vector length 2. If min or max
+#' not specified, enter that value as NA in the vector. Specify either this or \code{rm_outlier_rts_range},
+#' but not both. If both specified, will use SD cutoff. Defaults to \code{FALSE}.
 #' @param rm_short_subs logical. Remove subjects with <1/2 of trials? Defaults to \code{TRUE}
 #' @param conditions character vector. If data contains multiple study conditions
 #' (e.g. pre & post), specify their labels here. Case insensitive.
@@ -40,7 +44,9 @@ NULL
 #'  See \code{\link{ace_procs}} for a list of supported modules.
 
 proc_by_module <- function(df, modules = "all", output = "wide",
-                           rm_outlier_rts = FALSE, rm_short_subs = TRUE, conditions = NULL, verbose = FALSE) {
+                           rm_outlier_rts_sd = FALSE,
+                           rm_outlier_rts_range = FALSE,
+                           rm_short_subs = TRUE, conditions = NULL, verbose = FALSE) {
   # TODO: Create param to allow user to specify threshold for within-subject weird RT trial scrubbing
   # TODO: Add module_SEA for all SEA modules. Should be able to call proc_generic_module for these
   all_mods = subset_by_col(df, "module")
@@ -61,10 +67,10 @@ proc_by_module <- function(df, modules = "all", output = "wide",
     mod = all_mods[i][[1]]
     fun = paste("module", tolower(name), sep = "_")
     # optionally scrubbing trials with "outlier" RTs
-    if (rm_outlier_rts != FALSE & !(name %in% c(SPATIAL_SPAN, BACK_SPATIAL_SPAN, ISHIHARA))) {
+    if ((rm_outlier_rts_sd != FALSE | rm_outlier_rts_range != FALSE) & !(name %in% c(SPATIAL_SPAN, BACK_SPATIAL_SPAN, ISHIHARA))) {
       df = df %>%
         group_by_(COL_BID) %>%
-        mutate(rt = remove_rts(rt)) %>%
+        mutate(rt = remove_rts(rt, sd.cutoff = rm_outlier_rts_sd, range.cutoff = rm_outlier_rts_range)) %>%
         ungroup()
     }
     tryCatch({
@@ -133,9 +139,17 @@ proc_by_module <- function(df, modules = "all", output = "wide",
 #' @keywords internal
 #' Expects a vector (of RTs)
 
-remove_rts <- function(vec, threshold = "2sd") {
+remove_rts <- function(vec, sd.cutoff, range.cutoff) {
+  if (sd.cutoff != FALSE & range.cutoff != FALSE) {
+    warning("Both SD and range specified for within-subj outlier RT scrubbing, using SD cutoff.")
+    range = FALSE
+  }
   if (is.character(vec)) vec = as.numeric(vec)
-  if (threshold == "2sd") vec[abs(vec - mean(vec, na.rm = T)) > 2*sd(vec, na.rm = T)] = NA
+  if (sd.cutoff != FALSE) vec[abs(scale(vec)) > sd.cutoff] = NA
+  else if (range.cutoff != FALSE) {
+    if (!is.na(range.cutoff[1])) vec[vec < range.cutoff[1]] = NA
+    if (!is.na(range.cutoff[2])) vec[vec > range.cutoff[2]] = NA
+  }
   return(vec)
 }
 

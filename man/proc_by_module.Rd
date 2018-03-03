@@ -5,8 +5,8 @@
 \title{Process ACE data by module}
 \usage{
 proc_by_module(df, modules = "all", output = "wide",
-  rm_outlier_rts = FALSE, rm_short_subs = TRUE, conditions = NULL,
-  verbose = FALSE)
+  rm_outlier_rts_sd = FALSE, rm_outlier_rts_range = FALSE,
+  rm_short_subs = TRUE, conditions = NULL, verbose = FALSE)
 }
 \arguments{
 \item{df}{a \code{\link{data.frame}} containing formatted trialwise ACE data. 
@@ -24,9 +24,14 @@ to output data for. Defaults to all modules detected in data.}
 where one dataframe is output containing cols with data from all modules, or \code{"list"},
 where a list is output, with each element containing a dataframe with one module's data.}
 
-\item{rm_outlier_rts}{Remove within-subject RTs outside of some specified range?
-Currently accepts "2sd", which scrubs RTs further than 2 SD from within-subject mean RT.
-Defaults to \code{FALSE}.}
+\item{rm_outlier_rts_sd}{numeric. Remove within-subject RTs further than this many SD from
+within-subject mean RT? Enter as one number. Specify either this or \code{rm_outlier_rts_range},
+but not both. If both specified, will use SD cutoff. Defaults to \code{FALSE}.}
+
+\item{rm_outlier_rts_range}{numeric vector, length 2. Remove within-subject RTs outside of
+this specified range? Enter min and max accepted RTs as a vector length 2. If min or max
+not specified, enter that value as NA in the vector. Specify either this or \code{rm_outlier_rts_range},
+but not both. If both specified, will use SD cutoff. Defaults to \code{FALSE}.}
 
 \item{rm_short_subs}{logical. Remove subjects with <1/2 of trials? Defaults to \code{TRUE}}
 
