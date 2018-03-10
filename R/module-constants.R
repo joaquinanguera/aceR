@@ -32,7 +32,7 @@ proc_generic_module_old <- function(df, col_acc, col_condition, by_factor = TRUE
 
 #' @keywords internal
 
-proc_generic_module <- function(df, col_acc, col_condition) {
+proc_generic_module <- function(df, col_acc, col_condition, FUN = ace_descriptive_statistics_dplyr) {
   # df: the data
   # col_acc: name of col containing accuracy
   # col_condition: name of col containing condition/trial type
@@ -40,6 +40,9 @@ proc_generic_module <- function(df, col_acc, col_condition) {
   # overall & broken-down by condition
   # RT broken-down by condition & accuracy  
   rt_acc = proc_by_condition(df, COL_RT, factors = c(col_condition, col_acc), FUN = ace_descriptive_statistics_dplyr)
+  # RT by block half
+  rt_block_half = proc_by_condition(df, COL_RT, factors = COL_BLOCK_HALF, include_overall = F, FUN = ace_descriptive_statistics_dplyr)
+  
   # accuracy broken down by condition and response window (early or late?)
   # if late response is not available for the task, don't factor by it
   if (COL_LATE_RESPONSE %in% names(df)) {
@@ -48,12 +51,18 @@ proc_generic_module <- function(df, col_acc, col_condition) {
     acc = proc_by_condition(df, col_acc, factors = c(col_condition), FUN = ace_descriptive_statistics_dplyr)
   }
   # RW just broken down by condition
-  rw = proc_by_condition(df, COL_RW, factors = col_condition, FUN = ace_descriptive_statistics_dplyr)
-  # RW & RT by block half
-  rt_block_half = proc_by_condition(df, COL_RT, factors = COL_BLOCK_HALF, include_overall = F, FUN = ace_descriptive_statistics_dplyr)
-  rw_block_half = proc_by_condition(df, COL_RW, factors = COL_BLOCK_HALF, include_overall = F, FUN = ace_descriptive_statistics_dplyr)
-  # merge
-  analy = list(rt_acc, acc, rw, rt_block_half, rw_block_half)
+  # and by block half
+  # if RW not available (e.g. SEA data), don't use it
+  if (COL_RW %in% names(df)) {
+    rw = proc_by_condition(df, COL_RW, factors = col_condition, FUN = ace_descriptive_statistics_dplyr)
+    rw_block_half = proc_by_condition(df, COL_RW, factors = COL_BLOCK_HALF, include_overall = F, FUN = ace_descriptive_statistics_dplyr)
+    # merge
+    analy = list(rt_acc, acc, rw, rt_block_half, rw_block_half)
+  } else {
+    # merge
+    analy = list(rt_acc, acc, rt_block_half)
+  }
+  
   merged = multi_merge(analy, by = COL_BID)
   return (merged)
 }
