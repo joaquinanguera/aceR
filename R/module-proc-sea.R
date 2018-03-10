@@ -1,27 +1,27 @@
 
-#' ACE module procs
+#' SEA module procs
 #'
 #' Methods for processing user data by \emph{group}.
 #'
 #' @keywords internal
-#' @name ace_procs
+#' @name sea_procs
 NULL
 
-#' Process ACE data by module
+#' Process SEA data by module
 #'
-#' Applies corresponding \code{\link{ace_procs}} to every unique module.
+#' Applies corresponding \code{\link{sea_procs}} to every unique module.
 #'
 #' @section Assumptions:
 #' Assumes the column \emph{module} exists in the \code{\link{data.frame}}.
 #'
 #' @export
 #' @importFrom stats aggregate median na.omit qnorm sd time var
-#' @param df a \code{\link{data.frame}} containing formatted trialwise ACE data. 
+#' @param df a \code{\link{data.frame}} containing formatted trialwise SEA data. 
 #'
 #' This includes data loaded with the following methods: 
 #' \enumerate{
-#'   \item \code{\link{load_ace_file}}
-#'   \item \code{\link{load_ace_bulk}}
+#'   \item \code{\link{load_sea_file}}
+#'   \item \code{\link{load_sea_bulk}}
 #' }
 #' @param modules character vector. Specify the names of modules (proper naming convention!)
 #' to output data for. Defaults to all modules detected in data.
@@ -43,16 +43,14 @@ NULL
 #'  data as a list. Throws warnings for modules with undefined methods. 
 #'  See \code{\link{ace_procs}} for a list of supported modules.
 
-proc_by_module <- function(df, modules = "all", output = "wide",
+proc_sea_by_module <- function(df, modules = "all", output = "wide",
                            rm_outlier_rts_sd = FALSE,
                            rm_outlier_rts_range = FALSE,
                            rm_short_subs = TRUE, conditions = NULL, verbose = FALSE) {
-  # TODO: Create param to allow user to specify threshold for within-subject weird RT trial scrubbing
   # TODO: Add module_SEA for all SEA modules. Should be able to call proc_generic_module for these
   all_mods = subset_by_col(df, "module")
   if (any(modules != "all")) {
-    modules = toupper(modules)
-    if (any(!(modules %in% ALL_MODULES))) {
+    if (any(!(modules %in% ALL_SEA_MODULES))) {
       warning("Modules improperly specified! Check spelling?")
       return (data.frame())
     }
@@ -65,12 +63,12 @@ proc_by_module <- function(df, modules = "all", output = "wide",
   for (i in 1:length(all_mods)) {
     name = all_names[i]
     mod = all_mods[i][[1]]
-    fun = paste("module", tolower(name), sep = "_")
+    fun = paste("module", tolower(replace_spaces(name, replacement = "_")), sep = "_")
     # optionally scrubbing trials with "outlier" RTs
-    if ((rm_outlier_rts_sd != FALSE | rm_outlier_rts_range != FALSE) & !(name %in% c(SPATIAL_SPAN, BACK_SPATIAL_SPAN, ISHIHARA))) {
+    if ((rm_outlier_rts_sd != FALSE | rm_outlier_rts_range != FALSE)) {
       df = df %>%
-        group_by_(COL_BID) %>%
-        mutate(rt = remove_rts(rt, sd.cutoff = rm_outlier_rts_sd, range.cutoff = rm_outlier_rts_range)) %>%
+        group_by(!! rlang::sym(UQ(COL_BID))) %>%
+        mutate(rt = remove_rts(.data$rt, sd.cutoff = rm_outlier_rts_sd, range.cutoff = rm_outlier_rts_range)) %>%
         ungroup()
     }
     tryCatch({
@@ -79,12 +77,9 @@ proc_by_module <- function(df, modules = "all", output = "wide",
       names(proc) = standardized_proc_column_names(proc)
       # scrubbing instances of data with too few trials (likely false starts)
       # rm_short_subs controls whether this occurs
-      if (rm_short_subs & !(name %in% c(SPATIAL_SPAN, BACK_SPATIAL_SPAN, FILTER, ISHIHARA))) {
+      if (rm_short_subs) {
         proc = proc[proc$rt_length.overall > .5 * median(proc$rt_length.overall), ]
-      } else if (name == FILTER) {
-        proc = proc[proc$rt_length.overall.2 > .5 * median(proc$rt_length.overall.2), ]
       }
-      
       # TODO: clean up implementation of this... should do this in a tryCatch
       if (!is.null(conditions)) {
         all = get_proc_info(mod, proc, conditions)
@@ -118,80 +113,15 @@ proc_by_module <- function(df, modules = "all", output = "wide",
     
     if (i == 1) {
       wide = valid
-    } else if (name == FILTER) {
-      held_out_filter = valid
     } else {
       wide = full_join(wide, valid, by = valid_demos)
     }
     
   }
-  if (output == "wide" & FILTER %in% all_names) {
-    held_out_filter = full_join(held_out_filter, wide[, valid_demos], by = valid_demos)
-    return (list("ALL_OTHER_DATA" = wide,
-                 "FILTER" = held_out_filter))
-  } else if (output == "wide") {
+  
+  if (output == "wide") {
     return (wide)
   } else if (output == "list") {
     return (out)
   }
-}
-
-#' @keywords internal
-#' Expects a vector (of RTs)
-
-remove_rts <- function(vec, sd.cutoff, range.cutoff) {
-  if (sd.cutoff != FALSE & range.cutoff != FALSE) {
-    warning("Both SD and range specified for within-subj outlier RT scrubbing, using SD cutoff.")
-    range = FALSE
-  }
-  if (is.character(vec)) vec = as.numeric(vec)
-  if (sd.cutoff != FALSE) vec[abs(scale(vec)) > sd.cutoff] = NA
-  else if (range.cutoff != FALSE) {
-    if (!is.na(range.cutoff[1])) vec[vec < range.cutoff[1]] = NA
-    if (!is.na(range.cutoff[2])) vec[vec > range.cutoff[2]] = NA
-  }
-  return(vec)
-}
-
-#' @keywords internal
-
-get_proc_info <- function(mod, proc, conditions) {
-  
-  valid_demos = get_valid_demos(mod)
-  info = mod[, valid_demos]
-  info = distinct(info)
-  
-  if (!missing(conditions)) {info = label_study_conditions(info, conditions)}
-  return (merge(info, proc, by = COL_BID))
-}
-
-#' @keywords internal
-
-get_valid_demos = function(df) {
-  all_possible_demos = c(COL_BID, COL_PID, COL_AGE, COL_GRADE, COL_GENDER, COL_TIME, COL_FILE, COL_STUDY_COND)
-  return (names(df)[names(df) %in% all_possible_demos])
-}
-
-#' @keywords internal
-
-label_study_conditions = function(info, conditions) {
-  info$study_condition = NA
-  for (cond in 1:length(conditions)) {
-    info[grepl(conditions[cond], info[, COL_FILE], ignore.case = T), COL_STUDY_COND] = tolower(conditions[cond])
-  }
-  return (info)
-}
-
-#' @keywords internal
-
-PROC_COL_OLD = c(COL_CORRECT_BUTTON, COL_CORRECT_RESPONSE)
-
-#' @keywords internal
-
-PROC_COL_NEW = c("acc", "acc")
-
-#' @keywords internal
-
-standardized_proc_column_names <- function(df) {
-  return (multi_gsub(PROC_COL_OLD, PROC_COL_NEW, names(df)))
 }
