@@ -26,6 +26,14 @@ load_sea_file <- function (file, verbose = FALSE) {
   dat <- dplyr::mutate_if(dat, is.character, stringr::str_trim)
   dat <- standardize_sea_column_names(dat)
   dat <- label_sea_module_conditions(dat)
+  dat <- standardize_sea_module_names(dat)
+  dat <- dat %>%
+    dplyr::group_by(!! sym(UQ(COL_PID))) %>%
+    dplyr::mutate(bid = paste(.data[[COL_PID]], .data[[COL_TIME]][1]),
+                  correct_button = ifelse(tolower(.data[[COL_RESPONSE]]) == tolower(.data[[COL_CORRECT_RESPONSE]]),
+                                          "correct", "incorrect"),
+                  half = dplyr::recode(make_half_seq(n()), `1` = "first_half", `2` = "second_half")) %>%
+    dplyr::ungroup()
   return (dat)
 }
 
