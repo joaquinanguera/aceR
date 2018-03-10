@@ -39,8 +39,8 @@ load_sea_bulk <- function(path = ".",
   out = dplyr::bind_rows(dat)
   
   # coarse duplicate rejection
-  # assumes duplicate rows will be the same in every way
-  out = dplyr::distinct(out)
+  # assumes duplicate rows will be the same in every way, EXCEPT logfile of origin
+  out = dplyr::distinct(out, !!! rlang::syms(names(out)[names(out) != COL_FILE]), .keep_all = TRUE)
   
   out = replace_nas(out, "")
   return(out)
