@@ -103,13 +103,15 @@ proc_by_condition <- function(df, variable, factors, include_overall = TRUE, FUN
     suffix = "overall",
     transform_dir = transform_dir)
   # needs to be flexible to handle 0-n number of subsetting conditions, and also NOT to cross them all with each other necessarily
-  by_condition = apply_stats_dplyr(
-    x = df, 
-    id_var = COL_BID,
-    col = variable,
-    factors = factors,
-    FUN = FUN,
-    transform_dir = transform_dir)
+  try({
+    by_condition = apply_stats_dplyr(
+      x = df, 
+      id_var = COL_BID,
+      col = variable,
+      factors = factors,
+      FUN = FUN,
+      transform_dir = transform_dir)
+  }, silent = TRUE)
   
   if (include_overall & exists("by_condition")) {
     proc = left_join(overall, by_condition, by = c("bid" = "bid"))
