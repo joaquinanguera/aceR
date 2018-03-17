@@ -66,3 +66,14 @@ ace_ishihara <- function(x) { # uses y/n readings from "rg_color_deficiency" col
   if ("YES" %in% x) {return ("YES")
   } else {return ("NO")}
 }
+
+sea_descriptive_statistics <- function(x, col) {
+  out = summarize_at(x, vars(one_of(col)), funs(
+    mean = ace_mean,
+    median = ace_median,
+    sum = ace_sum,
+    count = ace_count,
+    length = ace_length,
+    sd = ace_sd))
+  return (out)
+}
