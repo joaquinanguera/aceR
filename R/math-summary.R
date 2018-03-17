@@ -23,3 +23,15 @@ ace_count_by_group <- function(x, y) {
 ace_length_by_group <- function(x, y) {
   return (ace_apply_by_group(x, y, ace_length))
 }
+
+#' @keywords internal
+
+ace_max <- function(x) {
+  return (max(to_numeric(x), na.rm = T))
+}
+
+#' @keywords internal
+
+ace_min <- function(x) {
+  return (min(to_numeric(x), na.rm = T))
+}

@@ -22,10 +22,3 @@ ace_mean_by_group <- function(x, y) {
 ace_median_by_group <- function(x, y) {
   return (ace_apply_by_group(x, y, ace_median))
 }
-
-
-#' @keywords internal
-
-ace_sum <- function(x) {
-  return (sum(to_numeric(x), na.rm = TRUE))
-}

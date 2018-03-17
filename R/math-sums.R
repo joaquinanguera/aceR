@@ -8,3 +8,9 @@ consecutive_sums <- function(vec) {
   })
   return (sums)
 }
+
+#' @keywords internal
+
+ace_sum <- function(x) {
+  return (sum(to_numeric(x), na.rm = TRUE))
+}
