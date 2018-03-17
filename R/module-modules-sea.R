@@ -30,9 +30,14 @@ module_math_fluency <- function(df) {
                  TRUE ~ NA_character_),
                condition = dplyr::if_else(
                  condition == dplyr::lag(condition),
-                 "stay", "switch", missing = "stay")
+                 "stay", "switch", missing = "stay"),
+               digit_load = dplyr::case_when(
+                 nchar(.data[[COL_QUESTION_TEXT]]) == 5 ~ "low",
+                 nchar(.data[[COL_QUESTION_TEXT]]) == 6 ~ "med",
+                 nchar(.data[[COL_QUESTION_TEXT]]) == 7 ~ "high",
+                 TRUE ~ NA_character_)
   )
-  gen = proc_generic_module(df, COL_CORRECT_BUTTON, COL_CONDITION)
+  gen = proc_generic_module(df, COL_CORRECT_BUTTON, COL_CONDITION, FUN = sea_descriptive_statistics)
   cost = multi_subtract(gen, "\\.stay", "\\.switch", "\\.cost")
   return (data.frame(gen, cost))
 }
@@ -41,14 +46,20 @@ module_math_fluency <- function(df) {
 #' @name sea_procs
 
 module_reading_fluency <- function(df) {
-  return (proc_by_condition(df, COL_RT, COL_CORRECT_BUTTON))
+  gen = proc_generic_module(df, COL_CORRECT_BUTTON, FUN = sea_descriptive_statistics)
+  gen = dplyr::select(gen, -dplyr::contains("correct_button_mean"), -dplyr::contains("correct_button_median"))
+  time = proc_by_condition(df, "trial_onset", include_overall = F, FUN = sea_task_duration)
+  return (left_join(gen, time, by = COL_BID))
 }
 
 #' @keywords internal
 #' @name sea_procs
 
 module_reading_comprehension <- function(df) {
-  return (proc_by_condition(df, COL_RT, COL_CORRECT_BUTTON))
+  gen = proc_generic_module(df, COL_CORRECT_BUTTON, FUN = sea_descriptive_statistics)
+  gen = dplyr::select(gen, -dplyr::contains("correct_button_mean"), -dplyr::contains("correct_button_median"))
+  time = proc_by_condition(df, "trial_onset", include_overall = F, FUN = sea_task_duration)
+  return (left_join(gen, time, by = COL_BID))
 }
 
 #' @keywords internal
