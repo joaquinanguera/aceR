@@ -8,6 +8,7 @@
 #' @importFrom utils read.csv
 #' @importFrom stringr str_trim
 #' @importFrom tidyr unite
+#' @importFrom rlang !! sym UQ
 #' @param file The name of the file which the data is to be read from.
 #' @param verbose Print file name (as progress checker)? Defaults to \code{FALSE}.
 #' @return Returns the file's content as an R \code{\link{data.frame}}.

@@ -8,10 +8,10 @@ get_composites(x)
 }
 \arguments{
 \item{x}{a \code{\link{data.frame}} containing ACE summary statistics, created
-using \code{\link{proc_by_module}} with \code{output = "wide"}. NOTE: If processing
+using \code{\link{proc_ace_by_module}} with \code{output = "wide"}. NOTE: If processing
 data containing the Filter module, this IS compatible with the \code{\link{list}}
 of length 2, where the Filter data is separate, that is output by
-\code{proc_by_module(output = "wide")}. NOT compatible with data from \code{output = "list"}.}
+\code{proc_ace_by_module(output = "wide")}. NOT compatible with data from \code{output = "list"}.}
 }
 \value{
 Returns composite percentile scores for all modules present in data

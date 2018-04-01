@@ -65,6 +65,18 @@ module_reading_comprehension <- function(df) {
 #' @keywords internal
 #' @name sea_procs
 
+module_fractions_lvl_1 <- function(df) {
+  df <- mutate(df,
+               num_left = as.numeric(str_sub(.data$question_text, start = 1L, end = 1L)),
+               num_right = as.numeric(str_sub(.data$question_text, start = -1L, end = -1L)),
+               condition = dplyr::recode(correct_response, `Right side` = "right", `Left side` = "left"))
+  gen = proc_generic_module(df, COL_CORRECT_BUTTON, "matched_value")
+  return ()
+}
+
+#' @keywords internal
+#' @name sea_procs
+
 module_fractions_lvl_2 <- function(df) {
   df <- mutate(df,
            num_left = as.numeric(str_sub(.data$question_text, start = 9L, end = 9L)),
@@ -76,6 +88,26 @@ module_fractions_lvl_2 <- function(df) {
              denom_left == denom_right ~ "denom_matched",
              TRUE ~ NA_character_)
     )
+  gen = proc_generic_module(df, COL_CORRECT_BUTTON, "matched_value")
+  return ()
+}
+
+#' @keywords internal
+#' @name sea_procs
+
+module_fractions_lvl_3 <- function(df) {
+  df <- mutate(df,
+               num_left = as.numeric(str_sub(.data$question_text, start = 9L, end = 9L)),
+               denom_left = as.numeric(str_sub(.data$question_text, start = 11L, end = 11L)),
+               frac_left = num_left / denom_left,
+               num_right = as.numeric(str_sub(.data$question_text, start = 14L, end = 14L)),
+               denom_right = as.numeric(str_sub(.data$question_text, start = 16L, end = 16L)),
+               frac_right = num_right / denom_right,
+               num_larger = dplyr::case_when(
+                 correct_response == "Right side" & num_right > num_left ~ 1,
+                 correct_response == "Left side" & num_left > num_right ~ 1,
+                 TRUE ~ 0
+               ))
   gen = proc_generic_module(df, COL_CORRECT_BUTTON, "matched_value")
   return ()
 }
