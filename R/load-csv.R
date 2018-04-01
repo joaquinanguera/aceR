@@ -141,7 +141,9 @@ transform_grouping_rows <- function(dat) {
     dat[row + 2, new_col] = as.character(group)
   }
   dat = remove_rows(dat, rows)
-  dat = replace_nas(dat, "")
+  # Removing this to avoid accidentally triggering a new "header" section
+  # when the first column of real data has NAs (aka some spatial span cases)
+  # dat = replace_nas(dat, "")
   return (dat)
 }
 
