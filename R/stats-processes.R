@@ -45,6 +45,14 @@ ace_spatial_span <- function(x, col) {
   return (sustained_span)
 }
 
+#' @keywords internal 
+
+ace_dprime_dplyr <- function(x, col) {
+  dprime_out = summarize_at(x, vars(one_of(col)), funs(
+    dprime = ace_dprime))
+  return (dprime_out)
+}
+
 #' @keywords internal
 
 ace_detection_rate <- function(x, y) {

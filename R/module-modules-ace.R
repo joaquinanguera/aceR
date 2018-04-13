@@ -61,7 +61,8 @@ module_saat <- function(df) {
   gen = proc_generic_module(df, COL_CORRECT_BUTTON, COL_CONDITION)
   # doing this will output true hit and FA rates (accuracy by target/non-target condition) for calculating SDT metrics in later code
   # TODO: fix functions in math-detection.R to calculate SDT metrics inline. this is a bandaid
-  sdt = proc_by_condition(df, COL_CORRECT_BUTTON, factors = c(COL_CONDITION, "position_is_top"))
+  sdt = proc_by_condition(df, "trial_accuracy", COL_CONDITION, FUN = ace_dprime_dplyr)
+  names(sdt) = stringr::str_replace(names(sdt), "trial_accuracy_", "")
   return (left_join(gen, sdt))
 }
 
@@ -104,7 +105,9 @@ module_tnt <- function(df) {
   df$condition = plyr::mapvalues(df$condition, from = c("Tap & Trace", "Tap Only"), to = c("tap_trace", "tap_only"), warn_missing = FALSE)
   gen = proc_generic_module(df, COL_CORRECT_BUTTON, COL_CONDITION)
   cost = multi_subtract(gen, "\\.tap_trace", "\\.tap_only", "\\.cost")
-  return (data.frame(gen, cost))
+  sdt = proc_by_condition(df, "trial_accuracy", COL_CONDITION, FUN = ace_dprime_dplyr)
+  names(sdt) = stringr::str_replace(names(sdt), "trial_accuracy_", "")
+  return (data.frame(gen, cost, sdt))
 }
 
 #' @keywords internal
