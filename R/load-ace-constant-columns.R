@@ -100,5 +100,9 @@ standardize_ace_values <- function(df) {
   if (COL_LATE_RESPONSE %in% cols) {
     df[, COL_LATE_RESPONSE] = dplyr::recode(df[, COL_LATE_RESPONSE], `0` = "early", `1` = "late")
   }
+  if ("SAAT" %in% df$module) {
+    # This fixes a condition naming error in the raw log files. Please remove this functionality if this ever gets fixed in the ACE program.
+    df[, COL_CONDITION] = plyr::mapvalues(df[, COL_CONDITION], from = c("impulsive", "sustained"), to = c("sustained", "impulsive"), warn_missing = FALSE)
+  }
   return (df)  
 }

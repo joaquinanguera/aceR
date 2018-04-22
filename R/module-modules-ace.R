@@ -56,8 +56,6 @@ module_saat <- function(df) {
   df[, COL_CONDITION] = tolower(df[, COL_CONDITION])
   # non-response trials should have NA rt, not 0 rt, so it will be excluded from mean calculations
   df[, COL_RT] = na_if(df[, COL_RT], 0)
-  # This fixes a condition naming error in the raw log files. Please remove this functionality if this ever gets fixed in the ACE program.
-  df[, COL_CONDITION] = plyr::mapvalues(df[, COL_CONDITION], from = c("impulsive", "sustained"), to = c("sustained", "impulsive"), warn_missing = FALSE)
   gen = proc_generic_module(df, COL_CORRECT_BUTTON, COL_CONDITION)
   # doing this will output true hit and FA rates (accuracy by target/non-target condition) for calculating SDT metrics in later code
   # TODO: fix functions in math-detection.R to calculate SDT metrics inline. this is a bandaid
