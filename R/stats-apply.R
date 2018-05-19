@@ -26,6 +26,8 @@ apply_stats <- function(x, y, col, FUN, factor = NULL, suffix = "", ...){
 }
 #' @keywords internal
 #' @import dplyr
+#' @importFrom magrittr %>%
+#' @importFrom rlang sym, syms, UQ, UQS
 #' @import tidyr
 
 apply_stats_dplyr <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transform_dir = "wide", ...) {
@@ -46,40 +48,38 @@ apply_stats_dplyr <- function(x, id_var, col, FUN, factors = NULL, suffix = "", 
       if (transform_dir == "wide") {
         z = vector("list", 3)
         # if there are two factors, put out THREE: one just by factor 1, one just by factor 2, and one crossed
-        z[[1]] = FUN(group_by_(x, id_var, factors[1]), col)
+        z[[1]] = FUN(group_by(x, UQS(syms(c(id_var, factors[1])))), col)
         # need to add the name prefix here so gather can call the columns easily
         names(z[[1]])[3:length(z[[1]])] = paste0(col, "_", names(z[[1]])[3:length(z[[1]])])
-        z[[1]] = gather(z[[1]], "metric", "value", starts_with(col))
-        z[[1]] = unite_(z[[1]], "key", c("metric", factors[1]), sep = ".")
-        z[[1]] = spread_(z[[1]], key_col = "key", value_col = "value")
-        z[[1]] = ungroup(z[[1]])
+        z[[1]] = z[[1]] %>%
+          ungroup() %>%
+          super_spread(UQ(sym(factors[1])), starts_with(UQ(col)), name_order = "value_first", sep = ".")
         
-        z[[2]] = FUN(group_by_(x, id_var, factors[2]), col)
+        z[[2]] = FUN(group_by(x, UQS(syms(c(id_var, factors[2])))), col)
         names(z[[2]])[3:length(z[[2]])] = paste0(col, "_", names(z[[2]])[3:length(z[[2]])])
-        z[[2]] = gather(z[[2]], "metric", "value", starts_with(col))
-        z[[2]] = unite_(z[[2]], "key", c("metric", factors[2]), sep = ".")
-        z[[2]] = spread_(z[[2]], key_col = "key", value_col = "value")
-        z[[2]] = ungroup(z[[2]])
+        z[[2]] = z[[2]] %>%
+          ungroup() %>%
+          super_spread(UQ(sym(factors[2])), starts_with(UQ(col)), name_order = "value_first", sep = ".")
         
-        z[[3]] = FUN(group_by_(x, id_var, factors[1], factors[2]), col)
+        z[[3]] = FUN(group_by(x, UQS(syms(c(id_var, factors)))), col)
         names(z[[3]])[4:length(z[[3]])] = paste0(col, "_", names(z[[3]])[4:length(z[[3]])])
-        z[[3]] = unite_(z[[3]], "cond", c(factors[2], factors[1]), sep = ".")
-        z[[3]] = gather(z[[3]], "metric", "value", starts_with(col))
-        z[[3]] = unite_(z[[3]], "key", c("metric", "cond"), sep = ".")
-        z[[3]] = spread_(z[[3]], key_col = "key", value_col = "value")
-        z[[3]] = ungroup(z[[3]])
+        z[[3]] = z[[3]] %>%
+          ungroup() %>%
+          complete(!!! syms(c(id_var, factors))) %>%
+          unite(cond, UQS(syms(factors[2:1])), sep = ".") %>%
+          super_spread(cond, starts_with(UQ(col)), name_order = "value_first", sep = ".")
         
         z = multi_merge(z, by = id_var)
       } else if (transform_dir == "long") {
         # if long, ONLY long by condition/trial type, NOT by the other subsetting factor
         z = vector("list", 2)
         # if there are two factors, put out THREE: one just by factor 1, one just by factor 2, and one crossed
-        z[[1]] = FUN(group_by_(x, id_var, factors[1]), col)
+        z[[1]] = FUN(group_by(x, UQS(syms(c(id_var, factors[1])))), col)
         # need to add the name prefix here so gather can call the columns easily
         names(z[[1]])[3:length(z[[1]])] = paste0(col, "_", names(z[[1]])[3:length(z[[1]])])
         z[[1]] = ungroup(z[[1]])
         
-        z[[2]] = FUN(group_by_(x, id_var, factors[1], factors[2]), col)
+        z[[2]] = FUN(group_by(x, UQS(syms(c(id_var, factors)))), col)
         names(z[[2]])[4:length(z[[2]])] = paste0(col, "_", names(z[[2]])[4:length(z[[2]])])
         z[[2]] = gather(z[[2]], "metric", "value", starts_with(col))
         z[[2]] = unite_(z[[2]], "key", c("metric", factors[2]), sep = ".")
@@ -92,12 +92,11 @@ apply_stats_dplyr <- function(x, id_var, col, FUN, factors = NULL, suffix = "", 
       }
     } else {
       # if only one factor, only put out 1
-      z = FUN(group_by_(x, id_var, factors), col)
+      z = FUN(group_by(x, UQS(syms(c(id_var, factors)))), col)
       names(z)[3:length(z)] = paste0(col, "_", names(z)[3:length(z)])
-      z = gather(z, "metric", "value", starts_with(col))
-      z = unite_(z, "key", c("metric", factors), sep = ".")
-      z = spread_(z, key_col = "key", value_col = "value")
-      z = ungroup(z)
+      z = z %>%
+        ungroup() %>%
+        super_spread(UQ(sym(factors)), starts_with(UQ(col)), name_order = "value_first", sep = ".")
     }
   }
   
@@ -125,3 +124,4 @@ ace_apply_by_group <- function(x, y, FUN) {
   row.names(out) <- NULL
   return (out)
 }
+
