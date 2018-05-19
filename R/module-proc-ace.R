@@ -44,9 +44,9 @@ NULL
 #'  See \code{\link{ace_procs}} for a list of supported modules.
 
 proc_ace_by_module <- function(df, modules = "all", output = "wide",
-                           rm_outlier_rts_sd = FALSE,
-                           rm_outlier_rts_range = FALSE,
-                           rm_short_subs = TRUE, conditions = NULL, verbose = FALSE) {
+                               rm_outlier_rts_sd = FALSE,
+                               rm_outlier_rts_range = FALSE,
+                               rm_short_subs = TRUE, conditions = NULL, verbose = FALSE) {
   all_mods = subset_by_col(df, "module")
   if (any(modules != "all")) {
     modules = toupper(modules)
@@ -119,7 +119,10 @@ proc_ace_by_module <- function(df, modules = "all", output = "wide",
     } else if (name == FILTER) {
       held_out_filter = valid
     } else {
-      wide = full_join(wide, valid, by = valid_demos)
+      tryCatch({wide = full_join(wide, valid, by = valid_demos)},
+      error = function(e) {
+        warning(paste(name, "failed to process!"))
+      })
     }
     
   }
