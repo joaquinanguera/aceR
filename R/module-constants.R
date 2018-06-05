@@ -32,6 +32,8 @@ proc_generic_module <- function(df, col_acc, col_condition, FUN = ace_descriptiv
     analy = list(rt_acc, acc, rt_block_half)
   }
   
+  # TODO: Add version of proc_by_condition using a relabeled acc column where all lates are wrong
+  
   merged = multi_merge(analy, by = COL_BID)
   return (merged)
 }

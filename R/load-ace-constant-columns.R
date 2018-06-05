@@ -92,7 +92,10 @@ standardize_ace_column_names <- function(df) {
 standardize_ace_values <- function(df) {
   cols = names(df)
   if (COL_CORRECT_BUTTON %in% cols) {
+    # TODO: Forcibly recode correct button using trial accuracy (hit/CR to "correct", miss/FA to "incorrect"?)
     df[, COL_CORRECT_BUTTON] = dplyr::recode(df[, COL_CORRECT_BUTTON], `0` = "incorrect", `1` = "correct")
+    # automatically render all RTs < 150 ms to be incorrect responses
+    df[, COL_CORRECT_BUTTON][as.numeric(df[, COL_RT]) < 150] <- "incorrect"
   }
   if (COL_CORRECT_RESPONSE %in% cols) {
     df[, COL_CORRECT_RESPONSE] = dplyr::recode(df[, COL_CORRECT_RESPONSE], `0` = "incorrect", `1` = "correct")
@@ -102,7 +105,7 @@ standardize_ace_values <- function(df) {
   }
   if ("SAAT" %in% df$module) {
     # This fixes a condition naming error in the raw log files. Please remove this functionality if this ever gets fixed in the ACE program.
-    df[, COL_CONDITION] = plyr::mapvalues(df[, COL_CONDITION], from = c("impulsive", "sustained"), to = c("sustained", "impulsive"), warn_missing = FALSE)
+    df[, COL_CONDITION] = plyr::mapvalues(df[, COL_CONDITION], from = c("Impulsive", "Sustained"), to = c("sustained", "impulsive"), warn_missing = FALSE)
   }
   return (df)  
 }
