@@ -27,7 +27,7 @@ apply_stats <- function(x, y, col, FUN, factor = NULL, suffix = "", ...){
 #' @keywords internal
 #' @import dplyr
 #' @importFrom magrittr %>%
-#' @importFrom rlang sym, syms, UQ, UQS
+#' @importFrom rlang sym syms UQ UQS
 #' @import tidyr
 
 apply_stats_dplyr <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transform_dir = "wide", ...) {

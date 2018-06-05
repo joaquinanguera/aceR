@@ -1,10 +1,6 @@
 
 #' @keywords internal
 #' 
-#' @importFrom magrittr %>%
-#' @importFrom rlang exprs, enquo, UQ, UQS
-#' @importFrom tidyr gather, unite, spread
-#' 
 #' Spread key-values pairs across multiple columns.
 #' 
 #' Spread key-values pairs, where one key maps analogously onto multiple values,
@@ -20,7 +16,7 @@
 #' Choose \code{"key_first"} or \code{"value_first"}. Defaults to \code{"key_first"}.
 #' @param sep Separator to use between values, ultimately ending up in colnames.
 #' Passed to \code{\link[tidyr]{unite}}.
-#' @inheritParams spread `fill, convert, drop` all pass into \code{\link[tidyr]{spread}}.
+#' @inheritParams tidyr::spread
 #' @return A data frame, "fully" spread by all indicated columns.
 #' 
 #' @examples
@@ -31,6 +27,11 @@
 #' value_2 = rnorm(n()))
 #' 
 #' data %>% super_spread(condition, value1:value2)
+#' 
+#' @importFrom magrittr %>%
+#' @importFrom rlang exprs enquo UQ UQS
+#' @importFrom tidyr gather unite spread
+#' 
 super_spread <- function (data, key, ..., name_order = "key_first", sep = "_", fill = NA, convert = FALSE, drop = TRUE) {
   dots <- exprs(...)
   key <- enquo(key)
