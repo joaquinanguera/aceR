@@ -38,7 +38,7 @@ load_ace_bulk <- function(path = ".",
   if (length(files) == 0) {
     stop("no matching files", call. = TRUE)
   }
-  if (!is.null(which_modules)) { }
+  if (!is.null(which_modules)) { } # TODO: add functionality here lol
   if (length(files) > 50) {
     out = list()
     module_out = data.frame()
