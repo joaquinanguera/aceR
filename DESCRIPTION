@@ -1,7 +1,7 @@
 Package: aceR
 Title: Tools for processing ACE data
 Description: An R package for processing ACE data.
-Version: 2.0.1
+Version: 3.0.0
 Authors@R: as.person(c('Jose Gallegos <josegallegos07@gmail.com> [aut,cre]', 'Monica Thieu <mthieu13@gmail.com> [ctb]'))
 URL: https://github.com/josegallegos07/aceR
 BugReports: https://github.com/josegallegos07/aceR/issues
@@ -10,17 +10,19 @@ Depends:
 Suggests:
     testthat
 Imports:
-    utils,
-    stats,
-    zoo,
     data.table,
-    tidyr,
-    plyr,
     dplyr,
-    rlang,
-    reshape,
-    stringr,
+    ggplot2,
+    magrittr,
     openxlsx,
-    ggplot2
+    plyr,
+    purrr,
+    reshape,
+    rlang,
+    stats,
+    stringr,
+    tidyr,
+    utils,
+    zoo
 License: file LICENSE
 RoxygenNote: 6.0.1
