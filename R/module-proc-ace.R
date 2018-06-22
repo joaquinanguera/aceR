@@ -74,7 +74,7 @@ proc_ace_by_module <- function(df, modules = "all", output = "wide",
     tryCatch({
       if (verbose) print(paste("processing", name, sep = " "))
       proc = eval(call(fun, mod))
-      names(proc) = standardized_proc_column_names(proc)
+      names(proc) = standardized_proc_column_names(names(proc))
       # scrubbing instances of data with too few trials (likely false starts)
       # rm_short_subs controls whether this occurs
       if (rm_short_subs & !(name %in% c(SPATIAL_SPAN, BACK_SPATIAL_SPAN, FILTER, ISHIHARA))) {
@@ -193,6 +193,6 @@ PROC_COL_NEW = c("acc", "acc")
 
 #' @keywords internal
 
-standardized_proc_column_names <- function(df) {
-  return (multi_gsub(PROC_COL_OLD, PROC_COL_NEW, names(df)))
+standardized_proc_column_names <- function(x) {
+  return (multi_gsub(PROC_COL_OLD, PROC_COL_NEW, x))
 }
