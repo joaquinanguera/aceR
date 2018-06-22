@@ -4,9 +4,9 @@
 \alias{proc_sea_by_module}
 \title{Process SEA data by module}
 \usage{
-proc_sea_by_module(df, modules = "all", output = "wide",
+proc_sea_by_module(df, modules = "all", output = "long",
   rm_outlier_rts_sd = FALSE, rm_outlier_rts_range = FALSE,
-  rm_short_subs = TRUE, conditions = NULL, verbose = FALSE)
+  rm_short_subs = FALSE, conditions = NULL, verbose = FALSE)
 }
 \arguments{
 \item{df}{a \code{\link{data.frame}} containing formatted trialwise SEA data. 
@@ -21,8 +21,8 @@ This includes data loaded with the following methods:
 to output data for. Defaults to all modules detected in data.}
 
 \item{output}{string indicating preferred output format. Can be \code{"wide"} (default),
-where one dataframe is output containing cols with data from all modules, or \code{"list"},
-where a list is output, with each element containing a dataframe with one module's data.}
+where one dataframe is output containing cols with data from all modules, or \code{"long"},
+where a dataframe is output, with a list-column containing a dataframe with each module's data.}
 
 \item{rm_outlier_rts_sd}{numeric. Remove within-subject RTs further than this many SD from
 within-subject mean RT? Enter as one number. Specify either this or \code{rm_outlier_rts_range},
@@ -43,7 +43,7 @@ but not both. If both specified, will use SD cutoff. Defaults to \code{FALSE}.}
 \value{
 Returns summary statistics for every unique module included in the 
  data as a list. Throws warnings for modules with undefined methods. 
- See \code{\link{ace_procs}} for a list of supported modules.
+ See \code{\link{sea_procs}} for a list of supported modules.
 }
 \description{
 Applies corresponding \code{\link{sea_procs}} to every unique module.

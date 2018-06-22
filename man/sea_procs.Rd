@@ -2,9 +2,11 @@
 % Please edit documentation in R/module-modules-sea.R, R/module-proc-sea.R
 \name{sea_procs}
 \alias{sea_procs}
-\alias{module_math_fluency}
+\alias{attempt_module}
 \alias{sea_procs}
 \alias{module_math_fluency}
+\alias{sea_procs}
+\alias{module_math_recall}
 \alias{sea_procs}
 \alias{module_reading_fluency}
 \alias{sea_procs}
@@ -16,11 +18,21 @@
 \alias{sea_procs}
 \alias{module_fractions_lvl_3}
 \alias{sea_procs}
+\alias{module_arithmetic_verification}
+\alias{sea_procs}
+\alias{module_groupitizing}
+\alias{sea_procs}
+\alias{module_running_memory_span}
+\alias{sea_procs}
+\alias{module_relational_matching}
+\alias{sea_procs}
 \title{SEA module procs}
 \usage{
-module_math_fluency(df)
+attempt_module(df, module, verbose)
 
 module_math_fluency(df)
+
+module_math_recall(df)
 
 module_reading_fluency(df)
 
@@ -31,6 +43,14 @@ module_fractions_lvl_1(df)
 module_fractions_lvl_2(df)
 
 module_fractions_lvl_3(df)
+
+module_arithmetic_verification(df)
+
+module_groupitizing(df)
+
+module_running_memory_span(df)
+
+module_relational_matching(df)
 }
 \description{
 Methods for processing user data by \emph{group}.

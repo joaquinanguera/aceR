@@ -20,9 +20,7 @@
 \alias{sea_module}
 \alias{GROUPITIZE}
 \alias{sea_module}
-\alias{REL_MATCH_1}
-\alias{sea_module}
-\alias{REL_MATCH_2}
+\alias{REL_MATCH}
 \alias{sea_module}
 \alias{ARITHM_VER}
 \alias{sea_module}
@@ -48,9 +46,7 @@ RUN_MEM_SPAN
 
 GROUPITIZE
 
-REL_MATCH_1
-
-REL_MATCH_2
+REL_MATCH
 
 ARITHM_VER
 

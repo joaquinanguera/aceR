@@ -42,6 +42,8 @@
 \alias{ace_header}
 \alias{COL_BLOCK_HALF}
 \alias{ace_header}
+\alias{ALL_POSSIBLE_DEMOS}
+\alias{ace_header}
 \alias{standardize_ace_column_names}
 \alias{ace_header}
 \alias{standardize_ace_values}
@@ -85,6 +87,8 @@ COL_SUB_ID
 COL_TRIAL_TYPE
 
 COL_BLOCK_HALF
+
+ALL_POSSIBLE_DEMOS
 
 standardize_ace_column_names(df)
 

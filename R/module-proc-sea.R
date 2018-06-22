@@ -29,7 +29,7 @@ NULL
 #' to output data for. Defaults to all modules detected in data.
 #' @param output string indicating preferred output format. Can be \code{"wide"} (default),
 #' where one dataframe is output containing cols with data from all modules, or \code{"long"},
-#' where a dataframe is output, with a list-columne containing a dataframe with each module's data.
+#' where a dataframe is output, with a list-column containing a dataframe with each module's data.
 #' @param rm_outlier_rts_sd numeric. Remove within-subject RTs further than this many SD from
 #' within-subject mean RT? Enter as one number. Specify either this or \code{rm_outlier_rts_range},
 #' but not both. If both specified, will use SD cutoff. Defaults to \code{FALSE}.
