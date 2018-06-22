@@ -17,7 +17,8 @@ NULL
 #' @export
 #' @import dplyr
 #' @importFrom stats aggregate median na.omit qnorm sd time var
-#' @importFrom purrr map map2 nest reduce
+#' @importFrom purrr map map2 reduce
+#' @importFrom tidyr nest
 #' @param df a \code{\link{data.frame}} containing formatted trialwise SEA data. 
 #'
 #' This includes data loaded with the following methods: 

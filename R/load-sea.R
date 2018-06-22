@@ -5,9 +5,9 @@
 #'
 #' @export
 #' @importFrom dplyr case_when group_by if_else lag mutate mutate_if ungroup %>%
-#' @importFrom purrr nest unnest map2
+#' @importFrom purrr map2
 #' @importFrom stringr str_trim
-#' @importFrom tidyr unite
+#' @importFrom tidyr nest unite unnest
 #' @importFrom rlang !! parse_expr sym
 #' @param file The name of the file which the data is to be read from.
 #' @param verbose Print file name (as progress checker)? Defaults to \code{FALSE}.
