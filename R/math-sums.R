@@ -14,3 +14,9 @@ consecutive_sums <- function(vec) {
 ace_sum <- function(x) {
   return (sum(to_numeric(x), na.rm = TRUE))
 }
+
+#' @keywords internal
+
+sea_sum_adj <- function(x) {
+  return (sum(to_numeric(x), na.rm = TRUE) - (sum(!is.na(x)) - sum(to_numeric(x), na.rm = TRUE)))
+}
