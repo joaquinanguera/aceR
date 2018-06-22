@@ -5,7 +5,7 @@
 #'
 #' @export
 #' @importFrom dplyr case_when group_by if_else lag mutate mutate_if ungroup %>%
-#' @importFrom purrrr nest unnest map2
+#' @importFrom purrr nest unnest map2
 #' @importFrom stringr str_trim
 #' @importFrom tidyr unite
 #' @importFrom rlang !! parse_expr sym
