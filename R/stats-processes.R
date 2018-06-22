@@ -86,6 +86,17 @@ sea_descriptive_statistics <- function(x, col) {
   return (out)
 }
 
+sea_reading_descriptive_statistics <- function(x, col) {
+  out = summarize_at(x, vars(one_of(col)), funs(
+    mean = ace_mean,
+    sum = ace_sum,
+    score = sea_sum_adj,
+    count = ace_count,
+    length = ace_length,
+    sd = ace_sd))
+  return (out)
+}
+
 sea_task_duration <- function(x, col) {
   out = summarize_at(x, vars(one_of(col)), funs(
     duration = ace_max))
