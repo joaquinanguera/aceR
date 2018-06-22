@@ -63,6 +63,9 @@ COL_TRIAL_TYPE = "trial_type"
 COL_BLOCK_HALF = "half"
 
 #' @name ace_header
+ALL_POSSIBLE_DEMOS <- c(COL_BID, COL_PID, COL_AGE, COL_GRADE, COL_GENDER, COL_TIME, COL_FILE)
+
+#' @name ace_header
 
 standardize_ace_column_names <- function(df) {
   new = names(df)
@@ -95,7 +98,9 @@ standardize_ace_values <- function(df) {
     # TODO: Forcibly recode correct button using trial accuracy (hit/CR to "correct", miss/FA to "incorrect"?)
     df[, COL_CORRECT_BUTTON] = dplyr::recode(df[, COL_CORRECT_BUTTON], `0` = "incorrect", `1` = "correct")
     # automatically render all RTs < 150 ms to be incorrect responses
-    df[, COL_CORRECT_BUTTON][as.numeric(df[, COL_RT]) < 150] <- "incorrect"
+    suppressWarnings({
+      df[, COL_CORRECT_BUTTON][as.numeric(df[, COL_RT]) < 150] <- "incorrect"
+    })
   }
   if (COL_CORRECT_RESPONSE %in% cols) {
     df[, COL_CORRECT_RESPONSE] = dplyr::recode(df[, COL_CORRECT_RESPONSE], `0` = "incorrect", `1` = "correct")
