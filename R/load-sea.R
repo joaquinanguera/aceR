@@ -54,7 +54,11 @@ read_sea_csv <- function(file) {
   dat <- read.table(file, sep = ",", header = F, stringsAsFactors = F,
                     col.names = paste0("V", 1:32), fill = T)
   
-  if (all(unique(dat[, 31]) == "") | all(is.na(dat[, 31]))) return (dat)
+  if (all(unique(dat[, 31]) == "") | all(is.na(dat[, 31]))) {
+    names(dat) <- c(str_trim(dat[1, 1:30]), "junk", "junk2")
+    dat <- dat[2:nrow(dat), 1:30]
+    return (dat)
+    }
   
   names(dat) <- c(str_trim(dat[1, 1:30]), "junk", "junk2")
   dat <- dat[2:nrow(dat), ]
