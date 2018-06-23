@@ -35,13 +35,18 @@ load_sea_bulk <- function(path = ".",
   }
   
   # If this can be vectorized, why not? I live for speed
-  dat = lapply(files, load_sea_file, verbose = verbose)
-  out = dplyr::bind_rows(dat)
+  dat <- lapply(files, load_sea_file, verbose = verbose)
+  out <- tryCatch({
+    return (dplyr::bind_rows(dat))
+  }, error = function (e) {
+    warning("Data types/columns not consistent between files! Using rbind.fill, some cols may be converted to character.")
+    return (plyr::rbind.fill(dat))
+  })
   
   # coarse duplicate rejection
   # assumes duplicate rows will be the same in every way, EXCEPT logfile of origin
-  out = dplyr::distinct(out, !!! rlang::syms(names(out)[names(out) != COL_FILE]), .keep_all = TRUE)
+  out <- dplyr::distinct(out, !!! rlang::syms(names(out)[names(out) != COL_FILE]), .keep_all = TRUE)
   
-  out = replace_nas(out, "")
+  out <- replace_nas(out, "")
   return(out)
 }
