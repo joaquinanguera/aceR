@@ -29,8 +29,8 @@ NULL
 #' }
 #' @param modules character vector. Specify the names of modules (proper naming convention!)
 #' to output data for. Defaults to all modules detected in data.
-#' @param output string indicating preferred output format. Can be \code{"wide"} (default),
-#' where one dataframe is output containing cols with data from all modules, or \code{"long"},
+#' @param output string indicating preferred output format. Can be \code{"wide"},
+#' where one dataframe is output containing cols with data from all modules, or \code{"long"} (default),
 #' where a dataframe is output, with a list-column containing a dataframe with each module's data.
 #' @param rm_outlier_rts_sd numeric. Remove within-subject RTs further than this many SD from
 #' within-subject mean RT? Enter as one number. Specify either this or \code{rm_outlier_rts_range},
@@ -113,12 +113,15 @@ proc_sea_by_module <- function(df, modules = "all", output = "long",
   if (output == "wide") {
     out <- all_procs %>%
       select(module, demos, proc) %>%
-      mutate(proc = map2(proc, module, ~.x %>%
+      mutate(demos = map(demos, ~.x %>%
+                           select(-file) %>%
+                           distinct()),
+             proc = map2(proc, module, ~.x %>%
                            select(bid, everything()) %>%
-                           rename_at(-1, funs(paste0(tolower(.y), ".", .)))),
+                           rename_at(-1, funs(paste0(toupper(.y), ".", .)))),
              proc = map2(proc, demos, ~full_join(.y, .x, by = "bid")))
     valid_demos = get_valid_demos(out$proc[[1]])
-    return (reduce(out$proc, full_join, by = valid_demos))
+    return (reduce(out$proc, dplyr::full_join, by = valid_demos))
   } else if (output == "long") {
     out <- all_procs %>%
       select(module, demos, proc) %>%
