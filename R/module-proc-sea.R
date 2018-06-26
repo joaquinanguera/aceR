@@ -18,7 +18,7 @@ NULL
 #' @import dplyr
 #' @importFrom stats aggregate median na.omit qnorm sd time var
 #' @importFrom stringr str_replace
-#' @importFrom purrr map map2 reduce
+#' @importFrom purrr map map2 pmap reduce
 #' @importFrom tidyr nest
 #' @param df a \code{\link{data.frame}} containing formatted trialwise SEA data. 
 #'
