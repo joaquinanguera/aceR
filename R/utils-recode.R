@@ -18,3 +18,11 @@ detect_stay_switch <- function(x) {
                   "switch",
                   missing = "stay"))
 }
+
+#' @keywords internal
+
+set_names <- function (x, these_names) {
+  stopifnot(length(x) == length(these_names))
+  names(x) <- these_names
+  return (x)
+}

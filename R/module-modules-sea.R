@@ -42,7 +42,7 @@ module_math_recall <- function(df) {
   gen_operation_type = proc_generic_module(df, COL_CORRECT_BUTTON, "operation_type", FUN = sea_descriptive_statistics)
   gen_answer_size = proc_generic_module(df, COL_CORRECT_BUTTON, "answer_size", FUN = sea_descriptive_statistics)
   
-  cost_carry = multi_subtract(gen_stay_switch, "\\.no_carry", "\\.carry", "\\.carry_cost")
+  cost_carry = multi_subtract(gen_carry, "\\.no_carry", "\\.carry", "\\.carry_cost")
   cost_orientation = multi_subtract(gen_orientation, "\\.horizontal", "\\.vertical", "\\.orientation_cost")
   cost_operation_type = multi_subtract(gen_operation_type, "\\.addition", "\\.subtraction", "\\.operation_cost")
   cost_answer_size = multi_subtract(gen_answer_size, "\\.1", "\\.2", "\\.answer_size_cost")

@@ -89,9 +89,12 @@ proc_sea_by_module <- function(df, modules = "all", output = "long",
            }
            }),
            # rename "correct_button" etc to "acc"
-           proc = map2(data, module, ~attempt_module(.x, .y, verbose = verbose) %>%
-                         rename_all(funs(str_replace(., COL_CORRECT_BUTTON, "acc"))) %>%
-                         rename_all(funs(str_replace(., COL_CORRECT_RESPONSE, "acc")))),
+           proc = pmap(list(data, module, verbose), function(a, b, c) {
+             attempt_module(a, b, verbose = c) %>%
+               as_tibble() %>%
+               rename_all(funs(str_replace(., COL_CORRECT_BUTTON, "acc"))) %>%
+               rename_all(funs(str_replace(., COL_CORRECT_RESPONSE, "acc")))
+             }),
            # scrubbing instances of data with too few trials (likely false starts)
            # rm_short_subs controls whether this occurs
            proc = map(proc, function(x) {
@@ -102,7 +105,9 @@ proc_sea_by_module <- function(df, modules = "all", output = "long",
              }
            }),
            # grandfathering Jose's patch for invalid cols produced from empty conditions
-           proc = map(proc, ~select(.x, -dplyr::ends_with("."))))
+           proc = map(proc, ~select(.x, -dplyr::ends_with(".")))) %>%
+    # removing any modules that failed to process to allow the remaining ones to bind properly
+    filter(map(proc, ~nrow(.)) > 0)
     
   
   if (output == "wide") {
@@ -117,7 +122,8 @@ proc_sea_by_module <- function(df, modules = "all", output = "long",
   } else if (output == "long") {
     out <- all_procs %>%
       select(module, demos, proc) %>%
-      mutate(proc = map2(proc, demos, ~full_join(.y, .x, by = "bid"))) %>%
+      mutate(proc = map2(proc, demos, ~full_join(.y, .x, by = "bid")),
+             proc = set_names(proc, module)) %>%
       select(-demos)
     return (out)
   }
