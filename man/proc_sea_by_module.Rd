@@ -20,8 +20,8 @@ This includes data loaded with the following methods:
 \item{modules}{character vector. Specify the names of modules (proper naming convention!)
 to output data for. Defaults to all modules detected in data.}
 
-\item{output}{string indicating preferred output format. Can be \code{"wide"} (default),
-where one dataframe is output containing cols with data from all modules, or \code{"long"},
+\item{output}{string indicating preferred output format. Can be \code{"wide"},
+where one dataframe is output containing cols with data from all modules, or \code{"long"} (default),
 where a dataframe is output, with a list-column containing a dataframe with each module's data.}
 
 \item{rm_outlier_rts_sd}{numeric. Remove within-subject RTs further than this many SD from
