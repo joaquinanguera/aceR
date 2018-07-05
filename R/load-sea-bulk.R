@@ -5,11 +5,15 @@
 #'  all SEA csv files in a directory.
 #'
 #' @export
-#' @importFrom dplyr bind_rows
+#' @importFrom dplyr bind_rows distinct mutate tibble
+#' @importFrom purrr map
+#' @importFrom tidyr nest unnest
+#' 
 #' @inheritParams base::list.files
 #' @param verbose logical. Print details? Defaults to \code{TRUE}
 #' @param recursive logical. Load files in subfolders also? Defaults to \code{TRUE}
 #' @param exclude a list of patterns to exclude
+#' @param which_modules Specify modules to process. Defaults to all modules.
 #' @return Returns a data.frame containing the content of every file in the
 #'  specified \code{path}.
 
@@ -17,36 +21,40 @@ load_sea_bulk <- function(path = ".",
                           verbose = TRUE,
                           recursive = TRUE,
                           exclude = c(),
-                          pattern = NULL) {
+                          pattern = "",
+                          which_modules = "") {
   csv = list.files(path = path, pattern = ".csv", recursive = recursive)
   files = sort(csv)
-  for (ex in exclude) {
-    files = filter_out_vec(files, ex)
-  }
-  if (!is.null(pattern)) {
-    files = filter_vec(files, pattern)
-  }
-  if (length(files) == 0) {
-    stop("no matching files", call. = TRUE)
-  }
   
-  if (path != ".") {
-    files = paste(path, files, sep = "/")
-  }
+  if (length(exclude) > 0) files = filter_out_vec(files, exclude)
+  
+  files = filter_vec(files, pattern)
+  
+  if (length(files) == 0) stop("no matching files", call. = TRUE)
+  
+  if (path != ".") files = paste(path, files, sep = "/")
+  
+  files = filter_vec(files, which_modules)
   
   # If this can be vectorized, why not? I live for speed
-  dat <- lapply(files, load_sea_file, verbose = verbose)
-  out <- tryCatch({
-    return (dplyr::bind_rows(dat))
-  }, error = function (e) {
-    warning("Data types/columns not consistent between files! Using rbind.fill, some cols may be converted to character.")
-    return (plyr::rbind.fill(dat))
-  })
+  out <- tibble(file = files) %>%
+    mutate(data = map(files, ~load_sea_file(., verbose = verbose)),
+           data = map(data, ~nest(., -module))) %>%
+    select(-file) %>% # because it's already pasted inside load_ace_file
+    unnest(data) %>%
+    nest(-module) %>%
+    mutate(data = map(data, ~unnest(., data) %>%
+                        remove_empty_cols() %>%
+                        # coarse duplicate rejection
+                        # assumes duplicate rows will be the same along at least these few columns
+                        # RT should definitely be the same in duplicate rows but not otherwise
+                        distinct(pid, question_id, rt, .keep_all = TRUE) %>%
+                        # remove this once re-typing functionality has been added. only need while all cols are char
+                        replace_nas("")
+                      # TODO: write re-typing master function
+                      # re-typing columns must occur here, AFTER data has been separated by module
+                      # because individual data files contain data from multiple modules
+    ))
   
-  # coarse duplicate rejection
-  # assumes duplicate rows will be the same in every way, EXCEPT logfile of origin
-  out <- dplyr::distinct(out, !!! rlang::syms(names(out)[names(out) != COL_FILE]), .keep_all = TRUE)
-  
-  out <- replace_nas(out, "")
   return(out)
 }
