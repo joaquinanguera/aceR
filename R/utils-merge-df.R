@@ -5,19 +5,13 @@ multi_merge <- function(df_list = list(), ...) {
   return (Reduce(function(x, y) merge(x, y, all = TRUE, ...), df_list))
 }
 
+#' @importFrom dplyr funs rename_all
+#' @importFrom purrr map2
 #' @keywords internal
 
 flatten_df_list <- function (df_list = list(), keep_prefix = FALSE) {
-  out = data.frame()
-  df_names = names(df_list)
-  for (i in 1:length(df_list)) {
-    df = df_list[[i]]
-    if (keep_prefix) {
-      names(df) = sapply(names(df), function(x) {
-        paste(df_names[i], x, sep = ".")
-      })
-    }
-    out = plyr::rbind.fill(out, df)
+  if (keep_prefix) {
+    df_list = map2(df_list, names(df_list), ~rename_all(.x, funs(paste(.y, ., sep = "."))))
   }
-  return (out)
+  return (plyr::rbind.fill(df_list))
 }
