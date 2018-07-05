@@ -65,26 +65,25 @@ COL_BLOCK_HALF = "half"
 #' @name ace_header
 ALL_POSSIBLE_DEMOS <- c(COL_BID, COL_PID, COL_AGE, COL_GRADE, COL_GENDER, COL_TIME, COL_FILE)
 
+#' @importFrom dplyr case_when
 #' @name ace_header
 
 standardize_ace_column_names <- function(df) {
   new = names(df)
-  new[new == "response_time"] = COL_RT
-  new[new == "response_window"] = COL_RW
-  new[new == "participant_id"] = COL_PID
-  new[new == "user_id"] = COL_PID
-  new[new == "user_name"] = COL_NAME
-  new[new == "user_age"] = COL_AGE
-  new[new == "user_grade"] = COL_GRADE
-  new[new == "user_gender"] = COL_GENDER
-  new[new == "age1"] = COL_GENDER
-  new[new == "user_age1"] = COL_GENDER
-  new[new == "user_handedness"] = COL_HANDEDNESS
-  new[new == "time_gameplayed_utc"] = COL_TIME
-  new[new == "time_sent_utc"] = "timesent_utc"
-  new[new == "id"] = COL_SUB_ID
-  new[new == "details"] = COL_CONDITION
-  new[new == "task_switch_state"] = "taskswitch_state" # for cross compatibility b/w emailed and pulvinar
+  new = case_when(new == "response_time" ~ COL_RT,
+                  new == "response_window" ~ COL_RW,
+                  new %in% c("participant_id", "user_id") ~ COL_PID,
+                  new == "user_name" ~ COL_NAME,
+                  new == "user_age" ~ COL_AGE,
+                  new == "user_grade" ~ COL_GRADE,
+                  new %in% c("user_gender", "age1", "user_age1") ~ COL_GENDER,
+                  new == "user_handedness" ~ COL_HANDEDNESS,
+                  new == "time_gameplayed_utc" ~ COL_TIME,
+                  new == "time_sent_utc" ~ "timesent_utc",
+                  new == "id" ~ COL_SUB_ID,
+                  new == "details" ~ COL_CONDITION,
+                  new == "task_switch_state" ~ "taskswitch_state",
+                  TRUE ~ new) # for cross compatibility b/w emailed and pulvinar)
   names(df) = new
   return (df)
 }
@@ -93,6 +92,7 @@ standardize_ace_column_names <- function(df) {
 #' @importFrom dplyr funs if_else mutate mutate_at recode
 #' @importFrom lubridate parse_date_time
 #' @importFrom magrittr %>%
+#' @importFrom stringr str_remove
 
 standardize_ace_values <- function(df) {
   # TODO: this function should handle re-typing of columns
@@ -102,8 +102,13 @@ standardize_ace_values <- function(df) {
   # FIRST: re-type non-character columns to their intended types
   # ACROSS TASK I think:
   df <- df %>%
-    mutate_at(COL_RT, as.numeric) %>%
-    mutate_at(COL_TIME, funs(parse_date_time(., "Y-m-dHMSz")))
+    mutate(time = str_remove(time, "T"), # the T causes parse_date_time to flip out
+           time = parse_date_time(time, "Y-m-dHMSz"))
+  
+  try({
+    df <- df %>%
+      mutate_at(COL_RT, as.numeric)
+  }, silent = TRUE)
   
   try({df <- df %>%
     mutate_at(COL_RW, as.numeric)
@@ -117,11 +122,11 @@ standardize_ace_values <- function(df) {
   cols = names(df)
   
   if (COL_CORRECT_BUTTON %in% cols) {
-    # TODO: Forcibly recode correct button using trial accuracy (hit/CR to "correct", miss/FA to "incorrect"?)
+    if (!(SPATIAL_SPAN %in% df$module) & !(BACK_SPATIAL_SPAN %in% df$module)) {
     df <- df %>%
       mutate(correct_button = dplyr::recode(correct_button, `0` = "incorrect", `1` = "correct"),
              correct_button = case_when(rt < 200 & rt > 0 ~ "incorrect",
-                                        rt == rt ~ "no_response",
+                                        rt == rw ~ "no_response",
                                         #In older version, 'no response' trial RTs were replaced with Max Intertrial Interval. 
                                         #However, the value for Max Intertrial Interval is not always recorded in the data output
                                         #This line marks trials with an RT that is evenly divisible by 10
@@ -129,8 +134,11 @@ standardize_ace_values <- function(df) {
                                         rt %% 10 == 0 & rt != 0 ~ "no_response",
                                         is.na(rt) ~ "no_response",
                                         TRUE ~ correct_button))
-    
-    df$correct_button[sapply(df$rt, function(i) i %% 10 == 0)==TRUE & !df$rt==0]="no_response"
+    } else { # RT for the span tasks is handled differently and is left uninterpreted really
+      # so don't do all of this recoding of correctness by RT
+      df <- df %>%
+        mutate(correct_button = dplyr::recode(correct_button, `0` = "incorrect", `1` = "correct"))
+    }
   }
   if (COL_CORRECT_RESPONSE %in% cols) {
     df[, COL_CORRECT_RESPONSE] = dplyr::recode(df[, COL_CORRECT_RESPONSE], `0` = "incorrect", `1` = "correct")
@@ -145,8 +153,6 @@ standardize_ace_values <- function(df) {
                                         is.na(df[, COL_RT]) ~ "no_response",
                                         TRUE ~ "late")
   }
-  
-  
   
   # Forcible recoding of accuracy and other things for various modules below
   # Most of this is an attempt to reconstruct accuracy as orthogonal to response lateness
@@ -167,7 +173,7 @@ standardize_ace_values <- function(df) {
                                          df$trial_accuracy %in% c("Miss", "False Alarm") ~ "incorrect",
                                          TRUE ~ "")
   } else if (STROOP %in% df$module) {
-    df[df$color_pressed == df$color_shown, COL_CORRECT_BUTTON] = "correct"
+    df[, COL_CORRECT_BUTTON] = if_else(df$color_pressed == df$color_shown, "correct", "incorrect", missing = "incorrect") # missing implies no response
   } else if (FLANKER %in% df$module) {
     df[(df$displayed_cue %in% c("A", "B") & df$first_button=="YES") | (df$displayed_cue %in% c("C", "D") & df$second_button=="YES"), COL_CORRECT_BUTTON] = "correct"
   } else if (BRT %in% df$module) {
