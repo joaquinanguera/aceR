@@ -63,38 +63,27 @@ ALL_MODULES = c(BOXED,
 #'
 #' Identifies ACE module from the filename
 #'
+#' @importFrom dplyr as_tibble funs if_else mutate mutate_if select summarize_all
+#' @importFrom magrittr %>%
+#' @importFrom purrr map
+#' 
 #' @keywords internal
 #' @param file a character string containing the module name.
 #' @return Returns the name of the ACE module if found.
 
 identify_module <- function(file) {
   file = gsub(" ", "", toupper(file), fixed = TRUE) # must be matched with NO spaces in the module name
-  if (grepl(BOXED, file)) {
-    return (BOXED)
-  } else if (grepl(BRT, file)) {
-    return (BRT)
-  } else if (grepl(DISCRIMINATION, file)) {
-    return (DISCRIMINATION)
-  } else if (grepl(FLANKER, file)) {
-    return (FLANKER)
-  } else if (grepl(SAAT, file)) {
-    return (SAAT)
-  } else if (grepl(BACK_SPATIAL_SPAN, file)) {
-    return (BACK_SPATIAL_SPAN) # More specific module name must be listed first if using this if else chain
-  } else if (grepl(SPATIAL_SPAN, file)) {
-    return (SPATIAL_SPAN)
-  } else if (grepl(STROOP, file)) {
-    return (STROOP)
-  } else if (grepl(TASK_SWITCH, file)) {
-    return (TASK_SWITCH)
-  } else if (grepl(TNT, file)) {
-    return (TNT)
-  } else if (grepl(FILTER, file)) {
-    return (FILTER)
-  }  else if (grepl(ISHIHARA, file)) {
-    return (ISHIHARA)
-  }  else if (grepl(SPATIAL_CUE, file)) {
-    return (SPATIAL_CUE)
-  }
-  return ("unknown")
+  match = map(ALL_MODULES, ~grepl(., file)) %>%
+    set_names(ALL_MODULES) %>%
+    as_tibble() %>%
+    # separates backwards spatial span bc spatial span also grepl = TRUE
+    mutate(SPATIALSPAN = if_else(BACKWARDSSPATIALSPAN, FALSE, SPATIALSPAN),
+           unknown = if_else(rowSums(.) == 0, TRUE, FALSE)) %>%
+    # each COLUMN now one file, allows easier computation
+    t() %>%
+    as_tibble() %>%
+    summarize_all(funs(which(.))) %>%
+    as.vector(mode = "integer")
+  
+  return (c(ALL_MODULES, "unknown")[match])
 }
