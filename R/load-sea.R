@@ -20,10 +20,10 @@ load_sea_file <- function (file, verbose = FALSE) {
     warning(paste0(file, " contains no data!"))
     return (data.frame())
   }
-  # standardize case convention in colnames
-  names(dat) <- standardize_names(dat)
   
   dat <- dat %>%
+    # standardize case convention in colnames
+    standardize_names() %>%
     mutate(file = file) %>%
     unite(time, current_date, current_year, current_time, sep = " ") %>%
     mutate_if(is.character, stringr::str_trim) %>%
@@ -32,7 +32,7 @@ load_sea_file <- function (file, verbose = FALSE) {
     standardize_sea_module_names() %>%
     group_by(!! sym(COL_PID)) %>%
     mutate(bid = paste(.data[[COL_PID]], .data[[COL_TIME]][1]),
-           correct_button = ifelse(tolower(.data[[COL_RESPONSE]]) == tolower(.data[[COL_CORRECT_RESPONSE]]),
+           correct_button = if_else(tolower(.data[[COL_RESPONSE]]) == tolower(.data[[COL_CORRECT_RESPONSE]]),
                                    "correct", "incorrect"),
            half = dplyr::recode(make_half_seq(n()), `1` = "first_half", `2` = "second_half")) %>%
     group_by(!! sym(COL_MODULE)) %>%
