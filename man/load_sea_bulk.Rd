@@ -5,7 +5,7 @@
 \title{Read & Load all SEA csv files in a directory}
 \usage{
 load_sea_bulk(path = ".", verbose = TRUE, recursive = TRUE,
-  exclude = c(), pattern = NULL)
+  exclude = c(), pattern = "", which_modules = "")
 }
 \arguments{
 \item{path}{a character vector of full path names; the default
@@ -21,6 +21,8 @@ load_sea_bulk(path = ".", verbose = TRUE, recursive = TRUE,
 
 \item{pattern}{an optional \link{regular expression}.  Only file names
     which match the regular expression will be returned.}
+
+\item{which_modules}{Specify modules to process. Defaults to all modules.}
 }
 \value{
 Returns a data.frame containing the content of every file in the
