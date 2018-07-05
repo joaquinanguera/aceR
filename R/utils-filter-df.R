@@ -1,12 +1,18 @@
 
 #' Remove empty columns from a data frame.
 #'
+#' @importFrom dplyr select_if funs
+#' @importFrom magrittr %>%
 #' @keywords internal
 #' @param df a data frame
 #' @return Returns a data frame where the empty columns have been removed
 
 remove_empty_cols <- function(df) {
-  return(df[!sapply(df, function(x) all(x == ""))])
+  out <- df %>%
+    select_if(funs(!all(is.na(.)))) %>%
+    select_if(funs(!all(. == "")))
+  # now removes all columns of blanks AND all columns of true NA
+  return(out)
 }
 
 #' Remove empty rows from a data frame.
