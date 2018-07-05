@@ -4,7 +4,9 @@
 #' Reads, parses, and converts an ACE csv or xls into an R \code{\link{data.frame}}.
 #'
 #' @export
+#' @importFrom purrr map2
 #' @importFrom utils read.table read.csv write.csv head tail count.fields
+#' 
 #' @param file The name of the file which the data is to be read from.
 #' @param pid_stem The string stem of the ID in the "PID" field. Defaults to "ADMIN-UCSF-".
 #' @param pulvinar logical. Expect raw data in Pulvinar format? Defaults to \code{FALSE}
@@ -28,13 +30,9 @@ load_ace_file <- function(file, pid_stem = "ADMIN-UCSF-", pulvinar = FALSE) {
     raw_dat = breakup_by_user(raw_dat)
   }
   if (is.vector(raw_dat)) {
-    out = data.frame()
-    dfs = names(raw_dat)
-    for (i in 1:length(dfs)) {
-      name = paste(file, dfs[i], sep = "-")
-      df = attempt_transform(name, raw_dat[[i]])
-      out = plyr::rbind.fill(out, df)
-    }
+    ortho_names = paste(file, names(raw_dat), sep = "-")
+    dfs = map2(ortho_names, raw_dat, ~attempt_transform(.x, .y))
+    out = plyr::rbind.fill(dfs)
     return (out)
   } else {
     return (attempt_transform(file, raw_dat))
@@ -143,21 +141,25 @@ transform_raw <- function (file, raw_dat) {
   # parse subsections
   dat = parse_subsections(dat)
   # standardize output
-  names(dat) = standardize_names(dat)
+  # TODO: fix this so it has consistent input-output objects
+  dat = standardize_names(dat)
   dat$file = file
   dat$module = identify_module(file)
   dat = standardize_ace_column_names(dat)
   cols = names(dat)
-  if (!(COL_TIME) %in% cols) {
+  
+  if (!(COL_TIME %in% cols)) {
     # make "time" column from subid & filename if file doesn't contain time
+    # DANGEROUS: if constructing time from filename, this will cause de-duplication to fail silently
+    # because duplicated records have different filenames
     dat[, COL_TIME] = paste(dat$file, dat[, COL_SUB_ID], sep = ".")
-  } else {
-    dat[, COL_TIME] = as.vector(dat[, COL_TIME])
   }
+  
   if (COL_PID %in% cols) {
     # very band-aid: attempt to repair PID using name field if PID is empty stem or otherwise filler
-    if (unique(dat[, COL_PID]) %in% c("ADMIN-UCSF-", "ADMIN-UCSF-0", "ADMIN-UCSF-0000")) dat[, COL_PID] = paste0("ADMIN-UCSF-", dat[, COL_NAME])
-    
+    if (unique(dat[, COL_PID]) %in% c("ADMIN-UCSF-", "ADMIN-UCSF-0", "ADMIN-UCSF-0000")) {
+      dat[, COL_PID] = paste0("ADMIN-UCSF-", dat[, COL_NAME])
+    }
     # make block id from pid & time
     dat[, COL_BID] = paste(dat[, COL_PID], dat[, COL_TIME], sep = ".")
   } else {
@@ -165,7 +167,8 @@ transform_raw <- function (file, raw_dat) {
     dat[, COL_BID] = paste(dat$file, dat[, COL_TIME], sep = ".")
     dat[, COL_PID] = guess_pid(dat$file)
   }
-  if (COL_GENDER %in% cols) {
+  
+  try({ # so will fail silently if gender isn't in data
     # this patch to propagate gender down has to be done for OLD files where gender was called "age1"
     if (length(unique(dat[, COL_GENDER])) > 1) {
       if ("FEMALE" %in% unique(dat[, COL_GENDER])) { 
@@ -175,7 +178,9 @@ transform_raw <- function (file, raw_dat) {
       } else {this_gender = "OTHER"}
       dat[, COL_GENDER] = this_gender
     }
-}
+  }, silent = TRUE)
+  # replace all text "NA"s with real NA
+  dat = replace_nas(dat, NA)
   dat = standardize_ace_values(dat)
   return (dat)
 }
@@ -185,7 +190,7 @@ transform_raw <- function (file, raw_dat) {
 transform_pulvinar <- function (file, dat) {
   if (nrow(dat) == 0) return (data.frame())
   # standardize output
-  names(dat) = standardize_names(dat, pulvinar = T)
+  dat = standardize_names(dat, pulvinar = T)
   dat$file = file
   dat$module = identify_module(file)
   dat = standardize_ace_column_names(dat)
