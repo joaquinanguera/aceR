@@ -121,7 +121,6 @@ module_backwardsspatialspan <- function(df) {
   return (merged)
 }
 
-#' @importFrom base as.factor
 #' @import dplyr
 #' @importFrom rlang sym !!
 #' @importFrom stats reshape
