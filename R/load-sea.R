@@ -35,6 +35,8 @@ load_sea_file <- function (file, verbose = FALSE) {
            correct_button = if_else(tolower(.data[[COL_RESPONSE]]) == tolower(.data[[COL_CORRECT_RESPONSE]]),
                                    "correct", "incorrect"),
            half = dplyr::recode(make_half_seq(n()), `1` = "first_half", `2` = "second_half")) %>%
+    group_by(!! sym(COL_MODULE), !! sym(COL_BID)) %>%
+    mutate(previous_correct_button = lag(correct_button)) %>%
     group_by(!! sym(COL_MODULE)) %>%
     nest() %>%
     mutate(data = map2(data, module, ~append_info(.x, module = .y))) %>%
