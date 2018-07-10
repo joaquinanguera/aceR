@@ -53,16 +53,17 @@ load_ace_bulk <- function(path = ".",
       if (verbose) print(x)
       return (load_ace_file(x, pulvinar = pulvinar))
     })) %>%
-    filter(map_int(data, nrow(.)) > 0) %>% # if extraction failed, data will have 0 rows and other commands on data will fail
+    filter(map(data, ~nrow(.)) > 0) %>% # if extraction failed, data will have 0 rows and other commands on data will fail
     mutate(data = map(data, ~nest(as_tibble(.x), -bid, -module, -file))) %>%
-    select(-file, -nrow_data) %>%
+    select(-file) %>%
     unnest(data) %>%
     # new de-duplication strategy: dplyr::distinct() files by bid & module should work (NOT by file)
     # NOTE: old de-duplication was done only on emailed data,
     # but this should behave properly for both emailed and database data
     distinct(bid, module, .keep_all = TRUE) %>%
     nest(-module) %>%
-    mutate(data = map(data, ~unnest(.x, data)))
+    mutate(data = map(data, ~unnest(.x, data)),
+           data = set_names(data, module))
   
   
   if (FALSE) { # keeping this code in here for now, need to talk to Jeci about how to deal with this legacy functionality
