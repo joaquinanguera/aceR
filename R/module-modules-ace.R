@@ -48,12 +48,13 @@ module_flanker <- function(df) {
   return (data.frame(gen, cost))
 }
 
+#' @importFrom dplyr mutate na_if
 #' @keywords internal
 #' @name ace_procs
 
 module_saat <- function(df) {
   df = replace_empty_values(df, COL_CONDITION, "saattype")
-  df[, COL_CONDITION] = tolower(df[, COL_CONDITION])
+  df = mutate_at(df, COL_CONDITION, tolower)
   # non-response trials should have NA rt, not 0 rt, so it will be excluded from mean calculations
   df[, COL_RT] = na_if(df[, COL_RT], 0)
   gen = proc_generic_module(df, COL_CORRECT_BUTTON, COL_CONDITION)
@@ -120,23 +121,33 @@ module_backwardsspatialspan <- function(df) {
   return (merged)
 }
 
+#' @importFrom base as.factor
+#' @import dplyr
+#' @importFrom rlang sym !!
+#' @importFrom stats reshape
+#' @importFrom stringr str_sub
+#' @importFrom tidyr separate
 #' @keywords internal
 #' @name ace_procs
 
 module_filter <- function(df) {
   # MT: implementing long format for filter only because it appears only appropriate for this module. open to changing if later modules benefit from this
-  df$cue_rotated = base::as.factor(df$cue_rotated)
-  df$cue_rotated = plyr::mapvalues(df$cue_rotated, from = c("0", "1"), to = c("no_change", "change"), warn_missing = FALSE)
+  df <- df %>%
+    mutate(cue_rotated = dplyr::recode(cue_rotated,
+                                       `0` = "no_change",
+                                       `1` = "change"))
+
   acc = proc_by_condition(df, COL_CORRECT_BUTTON, factors = c(COL_CONDITION, "cue_rotated"), transform_dir = "long")
   rt = proc_by_condition(df, COL_RT, factors = c(COL_CONDITION, COL_CORRECT_BUTTON), transform_dir = "long")
-  merged = left_join(acc, rt, by = c("bid" = "bid", "condition" = "condition"))
-  merged = tidyr::separate_(merged, COL_CONDITION, c("targets", "distractors"), sep = 2, remove = TRUE)
-  merged$targets = as.numeric(plyr::mapvalues(merged$targets, from = c("R2", "R4"), to = c(2, 4)))
-  merged$distractors = as.numeric(plyr::mapvalues(merged$distractors, from = c("B0", "B2", "B4"), to = c(0, 2, 4)))
-  # TODO: implement k w/ proc_standard (if possible)
-  merged$k = ace_wm_k(merged$correct_button_mean.change, 1 - merged$correct_button_mean.no_change, merged$targets)
-  out = stats::reshape(as.data.frame(merged), timevar = "targets", idvar = c(COL_BID, "distractors"), direction = "wide")
-  return (select(out, -contains(".."), -starts_with(PROC_COL_OLD[1]), -starts_with(PROC_COL_OLD[2])))
+  merged = left_join(acc, rt, by = c("bid", "condition")) %>%
+    separate(!!sym(COL_CONDITION), c("targets", "distractors"), sep = 2, remove = FALSE) %>%
+    mutate_at(c("targets", "distractors"), funs(as.integer(str_sub(., start = -1L)))) %>%
+    # TODO: implement k w/ proc_standard (if possible)
+    mutate(k = ace_wm_k(correct_button_mean.change, 1 - correct_button_mean.no_change, targets)) %>%
+    select(-targets, -distractors) %>%
+    super_spread(condition, -bid, -condition, name_order = "value_first", sep = ".")
+
+  return (select(merged, -contains(".."), -starts_with(PROC_COL_OLD[1]), -starts_with(PROC_COL_OLD[2])))
 }
 
 #' @keywords internal
