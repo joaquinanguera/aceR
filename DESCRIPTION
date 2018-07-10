@@ -2,9 +2,10 @@ Package: aceR
 Title: Tools for processing ACE data
 Description: An R package for processing ACE data.
 Version: 3.1.0
-Authors@R: as.person(c('Jose Gallegos <josegallegos07@gmail.com> [aut,cre]', 'Monica Thieu <mthieu13@gmail.com> [ctb]'))
-URL: https://github.com/josegallegos07/aceR
-BugReports: https://github.com/josegallegos07/aceR/issues
+Authors@R: as.person(c('Jose Gallegos <josegallegos07@gmail.com> [aut]',
+    'Monica Thieu <mthieu@alumni.stanford.edu> [aut, cre]'))
+URL: https://github.com/joaquinanguera/aceR
+BugReports: https://github.com/joaquinanguera/aceR/issues
 Depends:
     R (>= 3.0.0)
 Suggests:
