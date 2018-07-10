@@ -50,7 +50,7 @@ NULL
 proc_by_module <- function(df, modules = "all", output = "wide",
                                rm_outlier_rts_sd = FALSE,
                                rm_outlier_rts_range = FALSE,
-                               rm_short_subs = TRUE, conditions = NULL, verbose = FALSE) {
+                               rm_short_subs = FALSE, conditions = NULL, verbose = FALSE) {
   # if data now comes in as list-columns of separate dfs per module, subset_by_col is deprecated
   all_mods = df
   

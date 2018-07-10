@@ -6,7 +6,7 @@
 \usage{
 proc_by_module(df, modules = "all", output = "wide",
   rm_outlier_rts_sd = FALSE, rm_outlier_rts_range = FALSE,
-  rm_short_subs = TRUE, conditions = NULL, verbose = FALSE)
+  rm_short_subs = FALSE, conditions = NULL, verbose = FALSE)
 }
 \arguments{
 \item{df}{a \code{\link{data.frame}} containing formatted trialwise ACE data. 
