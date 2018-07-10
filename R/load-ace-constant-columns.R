@@ -89,7 +89,7 @@ standardize_ace_column_names <- function(df) {
 }
 
 #' @name ace_header
-#' @importFrom dplyr funs if_else mutate mutate_at recode
+#' @importFrom dplyr funs group_by if_else lag mutate mutate_at recode ungroup
 #' @importFrom lubridate parse_date_time
 #' @importFrom magrittr %>%
 #' @importFrom stringr str_remove
@@ -134,6 +134,7 @@ standardize_ace_values <- function(df) {
                                         rt %% 10 == 0 & rt != 0 ~ "no_response",
                                         is.na(rt) ~ "no_response",
                                         TRUE ~ correct_button))
+    
     } else { # RT for the span tasks is handled differently and is left uninterpreted really
       # so don't do all of this recoding of correctness by RT
       df <- df %>%
@@ -216,5 +217,15 @@ standardize_ace_values <- function(df) {
   } else if (SPATIAL_SPAN %in% df$module | BACK_SPATIAL_SPAN %in% df$module) {
     df$object_count = as.numeric(df$object_count)
   }
+  
+  # needs to be called LAST, after all the other boutique accuracy corrections are complete
+  if (COL_CORRECT_BUTTON %in% cols) {
+    df <- df %>%
+      # needs to be grouped to prevent previous_correct_button from bleeding over between records
+      group_by(bid) %>%
+      mutate(previous_correct_button = lag(correct_button)) %>%
+      ungroup()
+  }
+  
   return (df)
 }
