@@ -92,7 +92,7 @@ standardize_ace_column_names <- function(df) {
 #' @importFrom dplyr funs group_by if_else lag mutate mutate_at recode ungroup
 #' @importFrom lubridate parse_date_time
 #' @importFrom magrittr %>%
-#' @importFrom stringr str_remove
+#' @importFrom stringr str_replace
 
 standardize_ace_values <- function(df) {
   # TODO: this function should handle re-typing of columns
@@ -102,7 +102,7 @@ standardize_ace_values <- function(df) {
   # FIRST: re-type non-character columns to their intended types
   # ACROSS TASK I think:
   df <- df %>%
-    mutate(time = str_remove(time, "T"), # the T causes parse_date_time to flip out
+    mutate(time = str_replace(time, "T", ""), # the T causes parse_date_time to flip out
            time = parse_date_time(time, "Y-m-dHMSz"))
   
   try({
