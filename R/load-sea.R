@@ -53,7 +53,7 @@ load_sea_file <- function (file, verbose = FALSE) {
 #' @keywords internal
 
 read_sea_csv <- function(file) {
-  dat <- read.table(file, sep = ",", header = F, stringsAsFactors = F,
+  dat <- read.table(file, sep = ",", quote = "", header = F, stringsAsFactors = F,
                     col.names = paste0("V", 1:32), fill = T)
   
   if (all(unique(dat[, 31]) == "") | all(is.na(dat[, 31]))) {
