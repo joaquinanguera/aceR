@@ -84,6 +84,8 @@ module_spatialspan <- function(df) {
   rt_block_half = proc_by_condition(df, COL_RT, factors = COL_BLOCK_HALF, include_overall = F)
   analy = list(rt, span, rt_block_half)
   merged = multi_merge(analy, by = COL_BID)
+  # Assume that all subjects who return a span less than 3 are technical failures and scrub
+  merged = dplyr::filter(merged, object_count_span.overall >= 3)
   return (merged)
 }
 
@@ -118,6 +120,7 @@ module_backwardsspatialspan <- function(df) {
   rt_block_half = proc_by_condition(df, COL_RT, factors = COL_BLOCK_HALF, include_overall = F)
   analy = list(rt, span, rt_block_half)
   merged = multi_merge(analy, by = COL_BID)
+  merged = dplyr::filter(merged, object_count_span.overall >= 3)
   return (merged)
 }
 
