@@ -86,9 +86,13 @@ proc_by_module <- function(df, modules = "all", output = "wide",
            }),
            # scrubbing instances of data with too few trials (likely false starts)
            # rm_short_subs controls whether this occurs
-           proc = map(proc, function(x) {
+           proc = map2(proc, module, function(x, y) {
              if (rm_short_subs) {
-               return (filter(x, rt_length.overall > .5 * median(rt_length.overall)))
+               if (y == RUN_MEM_SPAN) {
+                 return (filter(x, acc_strict_length.letter > .5 * median(acc_strict_length.letter)))
+               } else {
+                 return (filter(x, rt_length.overall > .5 * median(rt_length.overall)))
+               }
              } else {
                return (x)
              }
