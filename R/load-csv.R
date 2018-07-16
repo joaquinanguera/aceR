@@ -39,12 +39,10 @@ standardize_raw_csv_data <- function(dat) {
 standardize_session_info <- function(dat) {
   incomplete_rows = identify_incomplete_session_info(dat)
   null_trial_rows = identify_null_trials(dat)
-  for (row in incomplete_rows) {
-    dat[row, 2] = "TIME:"
-  }
-  for (row in null_trial_rows) {
-    dat[row, 1] = "0" # need this to avoid having null trials accidentally detected as new data subsets
-  }
+  
+  dat[incomplete_rows, 2] = "TIME:"
+  dat[null_trial_rows, 1] = "0" # need this to avoid having null trials accidentally detected as new data subsets
+  
   return(dat)
 }
 
