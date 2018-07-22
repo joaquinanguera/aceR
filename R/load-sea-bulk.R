@@ -6,7 +6,7 @@
 #'
 #' @export
 #' @importFrom dplyr bind_rows distinct mutate tibble
-#' @importFrom purrr map
+#' @importFrom purrr map possibly
 #' @importFrom tidyr nest unnest
 #' 
 #' @inheritParams base::list.files
@@ -36,9 +36,13 @@ load_sea_bulk <- function(path = ".",
   
   files = filter_vec(files, which_modules)
   
+  
   # If this can be vectorized, why not? I live for speed
   out <- tibble(file = files) %>%
-    mutate(data = map(files, ~load_sea_file(., verbose = verbose)),
+    mutate(data = map(file, possibly(load_sea_file, tibble()), verbose = verbose),
+           file = walk2(file, data, function(x, y) {
+             if (nrow(y) == 0) warning(paste(x, "failed to load!"))
+           }),
            data = map(data, ~nest(., -module))) %>%
     select(-file) %>% # because it's already pasted inside load_ace_file
     unnest(data) %>%
