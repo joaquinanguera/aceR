@@ -6,7 +6,7 @@
 #'
 #' @export
 #' @importFrom dplyr bind_rows distinct mutate tibble
-#' @importFrom purrr map possibly
+#' @importFrom purrr map possibly walk2
 #' @importFrom tidyr nest unnest
 #' 
 #' @inheritParams base::list.files
