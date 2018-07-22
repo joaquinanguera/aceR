@@ -30,14 +30,14 @@ load_sea_file <- function (file, verbose = FALSE) {
     standardize_sea_column_names() %>%
     label_sea_module_conditions() %>%
     standardize_sea_module_names() %>%
-    group_by(!! sym(COL_PID)) %>%
+    group_by(!!sym(COL_PID)) %>%
     mutate(bid = paste(.data[[COL_PID]], .data[[COL_TIME]][1]),
            correct_button = if_else(tolower(.data[[COL_RESPONSE]]) == tolower(.data[[COL_CORRECT_RESPONSE]]),
                                    "correct", "incorrect"),
            half = dplyr::recode(make_half_seq(n()), `1` = "first_half", `2` = "second_half")) %>%
-    group_by(!! sym(COL_MODULE), !! sym(COL_BID)) %>%
+    group_by(!!sym(COL_MODULE), !!sym(COL_BID)) %>%
     mutate(previous_correct_button = lag(correct_button)) %>%
-    group_by(!! sym(COL_MODULE)) %>%
+    group_by(!!sym(COL_MODULE)) %>%
     nest() %>%
     mutate(data = map2(data, module, ~append_info(.x, module = .y))) %>%
     unnest()
@@ -48,41 +48,56 @@ load_sea_file <- function (file, verbose = FALSE) {
 #' They are causing the usual read.csv delimiter guessing to split
 #' one cell into two, creating too many columns for just a few rows
 #' 
+#' @importFrom magrittr %>%
 #' @importFrom stringr str_trim
 #' @importFrom utils read.table
 #' @keywords internal
 
 read_sea_csv <- function(file) {
   dat <- read.table(file, sep = ",", quote = "", header = F, stringsAsFactors = F,
-                    col.names = paste0("V", 1:32), fill = T)
+                    col.names = paste0("V", 1:32), fill = T) %>%
+    # first, remove any "extra" cols (dat is loaded in with padding cols if necessary)
+    remove_empty_cols()
   
-  if (all(unique(dat[, 31]) == "") | all(is.na(dat[, 31]))) {
-    names(dat) <- c(str_trim(dat[1, 1:30]), "junk", "junk2")
-    dat <- dat[2:nrow(dat), 1:30]
+  # this returns true for cols which do NOT have a header, but DO have data in some rows
+  # if ANY of these are true, these are the cols which need to get pushed back into place
+  bad_cols <- map_lgl(dat, ~(is.na(.[1]) | .[1] == "") & !(all(unique(.) == "") | all(is.na(.))))
+  
+  # if none of bad_cols are true, no preprocessing necessary
+  if (all(!bad_cols)) {
+    names(dat) <- str_trim(dat[1, ])
+    dat <- dat[2:nrow(dat), ]
     return (dat)
     }
   
-  names(dat) <- c(str_trim(dat[1, 1:30]), "junk", "junk2")
+  names(dat) <- c(str_trim(dat[1, !bad_cols]), paste0("junk", 1:sum(bad_cols)))
   dat <- dat[2:nrow(dat), ]
-  if (all(is.na(dat$junk2))) {
-    bad_rows <- which(dat$junk != "")
+  
+  if (!("junk2" %in% names(dat))) {
+    # if only one extra col of bad data
+    bad_rows <- which(dat$junk1 != "")
     dat[bad_rows, "Question Text"] <- paste(dat[bad_rows, "Question Text"],
                                             dat[bad_rows, "Question Type"], sep = ",")
     # Moving these bad rows' data after the bad delimiter one column to the left
-    dat[bad_rows, 6:30] <- dat[bad_rows, 7:31]
+    dat[bad_rows, 6:(length(dat) - 1)] <- dat[bad_rows, 7:length(dat)]
+    # removing bad cols
+    dat <- dat[, 1:(length(dat) - 1)]
   } else {
-    bad_rows1 <- which(dat$junk != "" & dat$junk2 == "")
+    # if two extra cols of bad data
+    bad_rows1 <- which(dat$junk1 != "" & dat$junk2 == "")
     dat[bad_rows1, "Question Text"] <- paste(dat[bad_rows1, "Question Text"],
                                              dat[bad_rows1, "Question Type"], sep = ",")
     # Moving these bad rows' data after the bad delimiter one column to the left
-    dat[bad_rows1, 6:30] <- dat[bad_rows1, 7:31]
+    dat[bad_rows1, 6:(length(dat) - 2)] <- dat[bad_rows1, 7:(length(dat) - 1)]
     
     bad_rows2 <- which(dat$junk2 != "")
     dat[bad_rows2, "Question Text"] <- paste(dat[bad_rows2, "Question Text"],
                                              dat[bad_rows2, "Question Type"],
                                              dat[bad_rows2, "User Answer"], sep = ",")
     # Moving these bad rows' data after the bad delimiters two columns to the left
-    dat[bad_rows2, 6:30] <- dat[bad_rows2, 8:32]
+    dat[bad_rows2, 6:(length(dat) - 2)] <- dat[bad_rows2, 8:length(dat)]
+    # removing bad cols
+    dat <- dat[, 1:(length(dat) - 2)]
   }
-  return (dat[, 1:30])
+  return (dat)
 }
