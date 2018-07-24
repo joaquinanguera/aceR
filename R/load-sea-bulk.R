@@ -5,8 +5,8 @@
 #'  all SEA csv files in a directory.
 #'
 #' @export
-#' @importFrom dplyr bind_rows distinct mutate tibble
-#' @importFrom purrr map possibly walk2
+#' @importFrom dplyr bind_rows distinct filter mutate tibble
+#' @importFrom purrr map map2 possibly walk2
 #' @importFrom tidyr nest unnest
 #' 
 #' @inheritParams base::list.files
@@ -39,7 +39,7 @@ load_sea_bulk <- function(path = ".",
   
   # If this can be vectorized, why not? I live for speed
   out <- tibble(file = files) %>%
-    mutate(data = map(file, possibly(~load_sea_file(., verbose = verbose), tibble::tibble())),
+    mutate(data = map(file, possibly(~load_sea_file(.x, verbose = verbose), dplyr::tibble())),
            file = walk2(file, data, function(x, y) {
              if (nrow(y) == 0) warning(paste(x, "failed to load!"))
            })) %>%
