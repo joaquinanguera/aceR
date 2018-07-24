@@ -49,6 +49,7 @@ load_sea_file <- function (file, verbose = FALSE) {
 #' one cell into two, creating too many columns for just a few rows
 #' 
 #' @importFrom magrittr %>%
+#' @importFrom purrr map_lgl
 #' @importFrom stringr str_trim
 #' @importFrom utils read.table
 #' @keywords internal
