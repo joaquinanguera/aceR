@@ -14,15 +14,20 @@ module_boxed <- function(df) {
   return (data.frame(gen, proc_cost_median, proc_cost_mean, dist_cost_median, dist_cost_mean, conj_cost, feat_cost))
 }
 
+#' @importFrom magrittr %>%
+#' @importFrom rlang sym !!
+#' @importFrom dplyr mutate mutate_at recode select starts_with
 #' @keywords internal
 #' @name ace_procs
 
 module_brt <- function(df) {
   if (COL_HANDEDNESS %in% names(df)) {
-    df[, COL_HANDEDNESS] = tolower(df[, COL_HANDEDNESS])
-    df$condition_hand = ifelse(grepl("right", df[, COL_HANDEDNESS]),
-                               recode(df[, COL_HANDEDNESS], "right" = "dominant", "left" = "nondominant"),
-                               recode(df[, COL_HANDEDNESS], "left" = "dominant", "right" = "nondominant"))
+   # df[, COL_HANDEDNESS] = tolower(df[, COL_HANDEDNESS])
+    df <- df %>%
+      mutate_at(COL_HANDEDNESS, tolower) %>%
+      mutate(condition_hand = ifelse(grepl("right", !!sym(COL_HANDEDNESS)),
+                               recode(!!sym(COL_HANDEDNESS), right = "dominant", left = "nondominant"),
+                               recode(!!sym(COL_HANDEDNESS), left = "dominant", right = "nondominant")))
     gen = proc_generic_module(df, COL_CORRECT_BUTTON, "condition_hand")
   } else {
     warning("No handedness data found. Unable to label BRT data by dominant hand")
@@ -69,7 +74,6 @@ module_saat <- function(df) {
 #' @name ace_procs
 
 module_stroop <- function(df) {
-  df[df$color_pressed == df$color_shown, COL_CORRECT_BUTTON] = "correct" # repairing error where all late responses are marked "incorrect"
   gen = proc_generic_module(df, COL_CORRECT_BUTTON, COL_TRIAL_TYPE)
   cost = multi_subtract(gen, "\\.incongruent", "\\.congruent", "\\.cost")
   return (data.frame(gen, cost))
