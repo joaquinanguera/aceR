@@ -9,61 +9,121 @@ NULL
 COL_FILE = "file"
 
 #' @name ace_header
+Q_COL_FILE = rlang::sym(COL_FILE)
+
+#' @name ace_header
 COL_TIME = "time"
+
+#' @name ace_header
+Q_COL_TIME = rlang::sym(COL_TIME)
 
 #' @name ace_header
 COL_RT = "rt"
 
 #' @name ace_header
+Q_COL_RT = rlang::sym(COL_RT)
+
+#' @name ace_header
 COL_CORRECT_BUTTON = "correct_button"
+
+#' @name ace_header
+Q_COL_CORRECT_BUTTON = rlang::sym(COL_CORRECT_BUTTON)
 
 #' @name ace_header
 COL_CORRECT_RESPONSE = "correct_response"
 
 #' @name ace_header
+Q_COL_CORRECT_RESPONSE = rlang::sym(COL_CORRECT_RESPONSE)
+
+#' @name ace_header
 COL_RW = "rw"
+
+#' @name ace_header
+Q_COL_RW = rlang::sym(COL_RW)
 
 #' @name ace_header
 COL_LATE_RESPONSE = "late_response"
 
 #' @name ace_header
+Q_COL_LATE_RESPONSE = rlang::sym(COL_LATE_RESPONSE)
+
+#' @name ace_header
 COL_CONDITION = "condition"
+
+#' @name ace_header
+Q_COL_CONDITION = rlang::sym(COL_CONDITION)
 
 #' @name ace_header
 COL_STUDY_COND = "study_condition"
 
 #' @name ace_header
+Q_COL_STUDY_COND = rlang::sym(COL_STUDY_COND)
+
+#' @name ace_header
 COL_PID = "pid"
+
+#' @name ace_header
+Q_COL_PID = rlang::sym(COL_PID)
 
 #' @name ace_header
 COL_BID = "bid"
 
 #' @name ace_header
+Q_COL_BID = rlang::sym(COL_BID)
+
+#' @name ace_header
 COL_NAME = "name"
+
+#' @name ace_header
+Q_COL_NAME = rlang::sym(COL_NAME)
 
 #' @name ace_header
 COL_AGE = "age"
 
 #' @name ace_header
+Q_COL_AGE = rlang::sym(COL_AGE)
+
+#' @name ace_header
 COL_GRADE = "grade"
+
+#' @name ace_header
+Q_COL_GRADE = rlang::sym(COL_GRADE)
 
 #' @name ace_header
 COL_GENDER = "gender"
 
 #' @name ace_header
+Q_COL_GENDER = rlang::sym(COL_GENDER)
+
+#' @name ace_header
 COL_HANDEDNESS = "handedness"
+
+#' @name ace_header
+Q_COL_HANDEDNESS = rlang::sym(COL_HANDEDNESS)
 
 #' @name ace_header
 COL_SUB_ID = "subid"
 
 #' @name ace_header
+Q_COL_SUB_ID = rlang::sym(COL_SUB_ID)
+
+#' @name ace_header
 COL_TRIAL_TYPE = "trial_type"
+
+#' @name ace_header
+Q_COL_TRIAL_TYPE = rlang::sym(COL_TRIAL_TYPE)
 
 #' @name ace_header
 COL_BLOCK_HALF = "half"
 
 #' @name ace_header
+Q_COL_BLOCK_HALF = rlang::sym(COL_BLOCK_HALF)
+
+#' @name ace_header
 ALL_POSSIBLE_DEMOS <- c(COL_BID, COL_PID, COL_AGE, COL_GRADE, COL_GENDER, COL_TIME, COL_FILE)
+
+#' @name ace_header
+Q_ALL_POSSIBLE_DEMOS <- c(Q_COL_BID, Q_COL_PID, Q_COL_AGE, Q_COL_GRADE, Q_COL_GENDER, Q_COL_TIME, Q_COL_FILE)
 
 #' @importFrom dplyr case_when
 #' @name ace_header
