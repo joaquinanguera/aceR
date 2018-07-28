@@ -98,33 +98,45 @@ remove_nondata_rows <- function(raw_dat) {
   return (remove_rows(raw_dat, rows))
 }
 
+#' @importFrom magrittr %>%
+#' @importFrom dplyr filter mutate
 #' @keywords internal
 
 remove_nondata_rows_pulvinar <- function(dat) {
   # using data.table internally for speed, generally
   # using bare colnames here because we can assume these cols will exist under this name and data.table doesn't like quoted varnames
   # split pid col for comparing short identifier in pid column with identifier in name column
-  dat = tidyr::separate_(dat, COL_PID, into = c("pid_stem", "pid_num"), sep = 11, remove = F)
-  dat[, name := tolower(name)]
-  # keep only those whose PID/name isn't just a 4 digit number (testers)
-  suppressWarnings({dat = dat[is.na(as.numeric(pid_num))]})
-  suppressWarnings({dat = dat[is.na(as.numeric(name))]})
-  # keep only those that have a 5 character PID where the last 3 chars are numbers
-  # also passes through stem-only PIDs (these cannot be fixed here, must be patched later)
-  suppressWarnings({dat = dat[pid_num == "" | (nchar(pid_num) == 5 & !is.na(as.numeric(substr(pid_num, 3, 5))))]})
+  dat <- dat %>%
+    tidyr::separate_(COL_PID, into = c("pid_stem", "pid_num"), sep = 11, remove = F) %>%
+    mutate(name = tolower(name)) %>%
+    # keep only those whose PID/name isn't just a 4 digit number (testers)
+    # TODO: add back a way to silence warnings?
+    filter(is.na(as.numeric(pid_num)),
+           is.na(as.numeric(name)),
+           # keep only those that have a 5 character PID where the last 3 chars are numbers
+           # also passes through stem-only PIDs (these cannot be fixed here, must be patched later)
+           pid_num == "" | (nchar(pid_num) == 5 & !is.na(as.numeric(substr(pid_num, 3, 5)))),
+           # scrubbing truly empty datasets (no PID no name)
+           !(name == "" & pid_num == ""))
+  
+  # this probably currently returns a data.table object but eventually want to remove data.table outside of fread
   # return data.table object (since will only be used internally to another data.table using function)
-  dat = dat[!(name == "" & pid_num == "")] # scrubbing truly empty datasets (no PID no name)
   return (dplyr::select_(dat, "-pid_stem", "-pid_num"))
 }
 
+#' @importFrom dplyr mutate select
+#' @importFrom magrittr %>%
 #' @keywords internal
-#' 
+
 fix_blank_pids <- function(dat) {
-  dat = as.data.table(tidyr::separate_(dat, COL_PID, into = c("pid_stem", "pid_num"), sep = 11, remove = F))
+  dat = dat %>%
+    tidyr::separate_(COL_PID, into = c("pid_stem", "pid_num"), sep = 11, remove = F) %>%
   # repair PIDs for those where PID was left blank but there is something in the name field
-  dat[, pid_num := ifelse(pid == pid_stem, name, pid_num)]
-  dat[, pid := ifelse(pid == pid_stem, paste0(pid_stem, name), pid)]
-  return (dat[, c("pid_stem", "pid_num") := NULL])
+    mutate(pid_num = ifelse(pid == pid_stem, name, pid_num),
+           pid = ifelse(pid == pid_stem, paste0(pid_stem, name), pid)) %>%
+    select(-c(pid_stem, pid_num))
+
+  return (dat)
 }
 
 #' @keywords internal
@@ -204,6 +216,7 @@ parse_subsections <- function(dat) {
 #' @importFrom utils txtProgressBar setTxtProgressBar
 
 parse_subsections_pulvinar <- function(dat) {
+  # TODO: remove data.table implementation completely!!
   subs = unique(dat[, COL_PID]) # use "subid" bc is unique for each data submission (2 submissions by same PID will have diff subids)
   dat = data.table::as.data.table(dat)
   len = length(subs)
@@ -264,7 +277,7 @@ parse_subsections_pulvinar <- function(dat) {
     cat("Stage 3 PID search: orphaned mis-named PID datasets level 1\n")
     clean_subnames = unique(out[, COL_NAME]) # recording subs who survived at stage 1 & 2 for comparison in stage 3
     dat_mismatched_pid = tidyr::separate_(dat, COL_PID, into = c("pid_stem", "pid_num"), sep = 11, remove = F)
-    dat_mismatched_pid[, name := tolower(name)]
+    dat_mismatched_pid$name = tolower(dat_mismatched_pid$name)
     dat_mismatched_pid = dat_mismatched_pid[pid_num != name]
     subs = unique(dat_mismatched_pid[, pid])
     len = length(subs)
@@ -292,7 +305,7 @@ parse_subsections_pulvinar <- function(dat) {
     cat("Stage 4 PID search: orphaned mis-named PID datasets level 2\n")
     clean_subnames = unique(out[, COL_NAME]) # recording subs who survived at stage 1-3 for comparison in stage 3
     dat_mismatched_pid = tidyr::separate_(dat, COL_PID, into = c("pid_stem", "pid_num"), sep = 11, remove = F)
-    dat_mismatched_pid[, name := tolower(name)]
+    dat_mismatched_pid$name = tolower(dat_mismatched_pid$name)
     dat_mismatched_pid = dat_mismatched_pid[pid_num != name]
     subs = unique(dat_mismatched_pid[, pid])
     len = length(subs)
@@ -314,7 +327,8 @@ parse_subsections_pulvinar <- function(dat) {
       }
       close(pb)
     }
-    dat[, c("pid_stem", "pid_num") := NULL]
+    dat$pid_stem = NULL
+    dat$pid_num = NULL
   }
   return (as.data.frame(out))
 }
