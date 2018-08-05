@@ -72,6 +72,12 @@ COL_BID = "bid"
 Q_COL_BID = rlang::sym(COL_BID)
 
 #' @name ace_header
+COL_BID_SHORT = "bid_short"
+
+#' @name ace_header
+Q_COL_BID_SHORT = rlang::sym(COL_BID_SHORT)
+
+#' @name ace_header
 COL_NAME = "name"
 
 #' @name ace_header
@@ -120,10 +126,10 @@ COL_BLOCK_HALF = "half"
 Q_COL_BLOCK_HALF = rlang::sym(COL_BLOCK_HALF)
 
 #' @name ace_header
-ALL_POSSIBLE_DEMOS <- c(COL_BID, COL_PID, COL_AGE, COL_GRADE, COL_GENDER, COL_TIME, COL_FILE)
+ALL_POSSIBLE_DEMOS <- c(COL_BID, COL_BID_SHORT, COL_PID, COL_AGE, COL_GRADE, COL_GENDER, COL_TIME, COL_FILE)
 
 #' @name ace_header
-Q_ALL_POSSIBLE_DEMOS <- c(Q_COL_BID, Q_COL_PID, Q_COL_AGE, Q_COL_GRADE, Q_COL_GENDER, Q_COL_TIME, Q_COL_FILE)
+Q_ALL_POSSIBLE_DEMOS <- c(Q_COL_BID, Q_COL_BID_SHORT, Q_COL_PID, Q_COL_AGE, Q_COL_GRADE, Q_COL_GENDER, Q_COL_TIME, Q_COL_FILE)
 
 #' @importFrom dplyr case_when
 #' @name ace_header
