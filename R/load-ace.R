@@ -162,9 +162,17 @@ transform_raw <- function (file, raw_dat) {
     }
     # make block id from pid & time
     dat[, COL_BID] = paste(dat[, COL_PID], dat[, COL_TIME], sep = ".")
+    # make short block id using only pid and date (to allow for less granular matching of records between diff modules)
+    dat[, COL_BID_SHORT] = paste(dat[, COL_PID],
+                                 lubridate::floor_date(lubridate::parse_date_time(dat[, COL_TIME], "ymdHMSz"), unit = "days"),
+                                 sep = ".")
   } else {
     # make block id from file name & time if file doesn't contain PID
     dat[, COL_BID] = paste(dat$file, dat[, COL_TIME], sep = ".")
+    # make short block id using only pid and date (to allow for less granular matching of records between diff modules)
+    dat[, COL_BID_SHORT] = paste(dat$file,
+                                 lubridate::floor_date(lubridate::parse_date_time(dat[, COL_TIME], "ymdHMSz"), unit = "days"),
+                                 sep = ".")
     dat[, COL_PID] = guess_pid(dat$file)
   }
   

@@ -25,19 +25,23 @@ load_sea_file <- function (file, verbose = FALSE) {
     # standardize case convention in colnames
     standardize_names() %>%
     mutate(file = file) %>%
-    unite(time, current_date, current_year, current_time, sep = " ") %>%
+    unite(time, current_date, current_year, current_time, sep = "") %>%
     mutate_if(is.character, stringr::str_trim) %>%
     standardize_sea_column_names() %>%
     label_sea_module_conditions() %>%
     standardize_sea_module_names() %>%
-    group_by(!!sym(COL_PID)) %>%
+    group_by(!!Q_COL_PID) %>%
+    # todo: when retyping is complete (and all imported cols aren't char)
+    # re-implement coercing of time col to datetime format
+    # until then, it's causing string parsing warnings all over the place so not doing it
     mutate(bid = paste(.data[[COL_PID]], .data[[COL_TIME]][1]),
+           bid_short = paste(.data[[COL_PID]], lubridate::floor_date(lubridate::parse_date_time(.data[[COL_TIME]][1], "mdyHMS"), unit = "days")),
            correct_button = if_else(tolower(.data[[COL_RESPONSE]]) == tolower(.data[[COL_CORRECT_RESPONSE]]),
                                    "correct", "incorrect"),
            half = dplyr::recode(make_half_seq(n()), `1` = "first_half", `2` = "second_half")) %>%
-    group_by(!!sym(COL_MODULE), !!sym(COL_BID)) %>%
+    group_by(!!Q_COL_MODULE, !!Q_COL_BID_SHORT) %>%
     mutate(previous_correct_button = lag(correct_button)) %>%
-    group_by(!!sym(COL_MODULE)) %>%
+    group_by(!!Q_COL_MODULE) %>%
     nest() %>%
     mutate(data = map2(data, module, ~append_info(.x, module = .y))) %>%
     unnest()
@@ -49,7 +53,6 @@ load_sea_file <- function (file, verbose = FALSE) {
 #' one cell into two, creating too many columns for just a few rows
 #' 
 #' @importFrom magrittr %>%
-#' @importFrom purrr map_lgl
 #' @importFrom stringr str_trim
 #' @importFrom utils read.table
 #' @keywords internal
@@ -62,7 +65,7 @@ read_sea_csv <- function(file) {
   
   # this returns true for cols which do NOT have a header, but DO have data in some rows
   # if ANY of these are true, these are the cols which need to get pushed back into place
-  bad_cols <- map_lgl(dat, ~(is.na(.[1]) | .[1] == "") & !(all(unique(.) == "") | all(is.na(.))))
+  bad_cols <- purrr::map_lgl(dat, ~(is.na(.[1]) | .[1] == "") & !(all(unique(.) == "") | all(is.na(.))))
   
   # if none of bad_cols are true, no preprocessing necessary
   if (all(!bad_cols)) {
@@ -85,6 +88,8 @@ read_sea_csv <- function(file) {
     dat <- dat[, 1:(length(dat) - 1)]
   } else {
     # if two extra cols of bad data
+    # need this because future stuff expects the empty cols to be empty strings, not NAs
+    dat$junk2 <- dplyr::coalesce(as.character(dat$junk2), "")
     bad_rows1 <- which(dat$junk1 != "" & dat$junk2 == "")
     dat[bad_rows1, "Question Text"] <- paste(dat[bad_rows1, "Question Text"],
                                              dat[bad_rows1, "Question Type"], sep = ",")
