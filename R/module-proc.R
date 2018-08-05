@@ -159,8 +159,7 @@ get_proc_info <- function(mod, proc, conditions) {
 #' @keywords internal
 
 get_valid_demos = function(df) {
-  all_possible_demos = c(COL_BID, COL_PID, COL_AGE, COL_GRADE, COL_GENDER, COL_TIME, COL_FILE, COL_STUDY_COND)
-  return (names(df)[names(df) %in% all_possible_demos])
+  return (names(df)[names(df) %in% c(ALL_POSSIBLE_DEMOS, COL_STUDY_COND)])
 }
 
 #' @keywords internal
