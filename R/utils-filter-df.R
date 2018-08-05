@@ -10,7 +10,7 @@
 remove_empty_cols <- function(df) {
   out <- df %>%
     select_if(funs(!all(is.na(.)))) %>%
-    select_if(funs(!all(. == "")))
+    select_if(funs(!all(as.character(.) == "")))
   # now removes all columns of blanks AND all columns of true NA
   return(out)
 }
