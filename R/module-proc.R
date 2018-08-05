@@ -18,6 +18,7 @@ NULL
 #' @import dplyr
 #' @importFrom stringr str_replace
 #' @importFrom purrr map map2 map_int pmap reduce
+#' @importFrom rlang !!
 #' @importFrom stats aggregate median na.omit qnorm sd time var
 #' @importFrom tidyr nest
 #' @param df a \code{\link{data.frame}} containing formatted trialwise ACE data. 
@@ -67,7 +68,7 @@ proc_by_module <- function(df, modules = "all", output = "wide",
   all_procs <- all_mods %>%
     mutate(demos = map(data, ~.x %>%
                          select(one_of(ALL_POSSIBLE_DEMOS)) %>%
-                         select(-time) %>%
+                         select(-!!Q_COL_TIME) %>%
                          distinct()),
            # this should extract between-subject study conditions from file names
            demos = map(demos, function(x) {
@@ -108,15 +109,32 @@ proc_by_module <- function(df, modules = "all", output = "wide",
       select(module, demos, proc) %>%
       mutate(demos = map(demos, ~.x %>%
                            select(-file) %>%
-                           distinct()),
-             proc = map2(proc, module, ~.x %>%
+                           distinct())) %>%
+      mutate(proc = map2(proc, module, ~.x %>%
                            select(bid, everything()) %>%
-                           rename_at(-1, funs(paste0(toupper(.y), ".", .)))),
-             proc = map2(proc, demos, ~full_join(.y, .x, by = "bid")))
+                           rename_at(-1L, funs(paste(toupper(.y), ., sep = ".")))))
+    
+    # do not join by bid_full if ACE data, because diff modules from same subj's session have diff timestamps
+    # disambiguate full bids from diff modules by prepending module name
+    if (any(out$module %in% ALL_MODULES)) {
+      out <- out %>%
+        mutate(proc = pmap(list(proc, demos, module), function (a, b, c) {
+          full_join(b, a, by = COL_BID) %>%
+            rename_at(COL_BID, funs(paste(toupper(c), ., sep = "."))) %>%
+            return()
+        }))
+    } else {
+      out <- out %>%
+        mutate(proc = map2(proc, demos, ~full_join(.y, .x, by = "bid")))
+    }
+    
     valid_demos = get_valid_demos(out$proc[[1]])
     
-    # TODO: add functionality to widen filter so everything can go in one wide boy
-    return (reduce(out$proc, dplyr::full_join, by = valid_demos))
+    out$proc %>%
+      reduce(dplyr::full_join, by = valid_demos) %>%
+      select(valid_demos, everything()) %>%
+      return()
+    
   } else if (output == "long") {
     out <- all_procs %>%
       select(module, demos, proc) %>%
