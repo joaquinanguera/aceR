@@ -11,7 +11,7 @@ module_boxed <- function(df) {
   dist_cost_mean = multi_fun(gen, "\\.conjunction_4", "\\.feature_4", "\\.dist_cost_mean", ace_mean) - multi_fun(gen, "\\.conjunction_12", "\\.feature_12", "\\.dist_cost_mean", ace_mean)
   conj_cost = multi_subtract(gen, "\\.conjunction_12", "\\.conjunction_4", "\\.conj_cost")
   feat_cost = multi_subtract(gen, "\\.feature_12", "\\.feature_4", "\\.feat_cost")
-  return (data.frame(gen, proc_cost_median, proc_cost_mean, dist_cost_median, dist_cost_mean, conj_cost, feat_cost))
+  return (dplyr::bind_cols(gen, proc_cost_median, proc_cost_mean, dist_cost_median, dist_cost_mean, conj_cost, feat_cost))
 }
 
 #' @importFrom magrittr %>%
@@ -50,7 +50,7 @@ module_discrimination <- function(df) {
 module_flanker <- function(df) {
   gen = proc_generic_module(df, COL_CORRECT_BUTTON, COL_TRIAL_TYPE)
   cost = multi_subtract(gen, "\\.incongruent", "\\.congruent", "\\.cost")
-  return (data.frame(gen, cost))
+  return (dplyr::bind_cols(gen, cost))
 }
 
 #' @importFrom dplyr mutate na_if
@@ -76,7 +76,7 @@ module_saat <- function(df) {
 module_stroop <- function(df) {
   gen = proc_generic_module(df, COL_CORRECT_BUTTON, COL_TRIAL_TYPE)
   cost = multi_subtract(gen, "\\.incongruent", "\\.congruent", "\\.cost")
-  return (data.frame(gen, cost))
+  return (dplyr::bind_cols(gen, cost))
 }
 
 #' @keywords internal
@@ -100,7 +100,7 @@ module_taskswitch <- function(df) {
   df$taskswitch_state = plyr::mapvalues(df$taskswitch_state, from = c(0, 1 , 2), to = c("start", "switch", "stay"), warn_missing = FALSE)
   gen = proc_generic_module(df, COL_CORRECT_BUTTON, "taskswitch_state")
   cost = multi_subtract(gen, "\\.switch", "\\.stay", "\\.cost")
-  return (data.frame(gen, cost))
+  return (dplyr::bind_cols(gen, cost))
 }
 
 #' @keywords internal
@@ -112,7 +112,8 @@ module_tnt <- function(df) {
   cost = multi_subtract(gen, "\\.tap_trace", "\\.tap_only", "\\.cost")
   sdt = proc_by_condition(df, "trial_accuracy", COL_CONDITION, FUN = ace_dprime_dplyr)
   names(sdt) = stringr::str_replace(names(sdt), "trial_accuracy_", "")
-  return (data.frame(gen, cost, sdt))
+  out <- left_join(dplyr::bind_cols(gen, cost), sdt, by = COL_BID)
+  return (out)
 }
 
 #' @keywords internal
@@ -170,5 +171,5 @@ module_ishihara <- function(df) {
 module_spatialcueing <- function(df) {
   gen = proc_generic_module(df, COL_CORRECT_BUTTON, COL_TRIAL_TYPE)
   cost = multi_subtract(gen, "\\.incongruent", "\\.congruent", "\\.cost")
-  return (data.frame(gen, cost))
+  return (dplyr::bind_cols(gen, cost))
 }
