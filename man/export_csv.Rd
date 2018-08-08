@@ -4,12 +4,15 @@
 \alias{export_csv}
 \title{Export CSV}
 \usage{
-export_csv(dat, path = ".", showWarnings = FALSE)
+export_csv(dat, path = ".", na = "", showWarnings = FALSE)
 }
 \arguments{
-\item{dat}{a list of data frames to save}
+\item{dat}{a list of data frames to save. If saving out data from a long-form tibble, input
+the column containing the data to be written, in the format \code{my_output$data}.}
 
-\item{path}{the named release directory}
+\item{path}{the named release directory. If directory doesn't exist, attempts to create.}
+
+\item{na}{What should NAs be written as? Defaults to "". Passed onto \code{\link{readr}[write_csv]}.}
 
 \item{showWarnings}{logical; should the warnings on failure be shown?}
 }
