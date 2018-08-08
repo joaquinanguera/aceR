@@ -59,7 +59,8 @@ load_sea_bulk <- function(path = ".",
                       # TODO: write re-typing master function
                       # re-typing columns must occur here, AFTER data has been separated by module
                       # because individual data files contain data from multiple modules
-    ))
+                      ),
+    data = rlang::set_names(data, module))
   
   return(out)
 }

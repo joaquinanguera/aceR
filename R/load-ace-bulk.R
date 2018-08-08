@@ -63,7 +63,7 @@ load_ace_bulk <- function(path = ".",
     distinct(bid, module, .keep_all = TRUE) %>%
     nest(-module) %>%
     mutate(data = map(data, ~unnest(.x, data)),
-           data = set_names(data, module))
+           data = rlang::set_names(data, module))
   
   
   if (FALSE) { # keeping this code in here for now, need to talk to Jeci about how to deal with this legacy functionality

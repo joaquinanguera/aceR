@@ -139,7 +139,7 @@ proc_by_module <- function(df, modules = "all", output = "wide",
     out <- all_procs %>%
       select(module, demos, proc) %>%
       mutate(proc = map2(proc, demos, ~full_join(.y, .x, by = "bid")),
-             proc = set_names(proc, module)) %>%
+             proc = rlang::set_names(proc, module)) %>%
       select(-demos)
     return (out)
   }
