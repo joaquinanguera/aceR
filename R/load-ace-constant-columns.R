@@ -208,16 +208,16 @@ standardize_ace_values <- function(df) {
     }
   }
   if (COL_CORRECT_RESPONSE %in% cols) {
-    df[, COL_CORRECT_RESPONSE] = dplyr::recode(df[, COL_CORRECT_RESPONSE], `0` = "incorrect", `1` = "correct")
+    df[[COL_CORRECT_RESPONSE]] = dplyr::recode(df[[COL_CORRECT_RESPONSE]], `0` = "incorrect", `1` = "correct")
   }
   if (COL_LATE_RESPONSE %in% cols) {
     # original form of this column is 0/1
-    df[, COL_LATE_RESPONSE] = case_when(df[, COL_RT] < 200 & df[, COL_RT] > 0 ~ "short",
-                                        df[, COL_RT] > df[, COL_RW] ~ "late",
-                                        df[, COL_RT] < df[, COL_RW] ~ "early",
-                                        df[, COL_RT] > 0 & df[, COL_RT] == df[, COL_RW] ~ "no_response",
-                                        df[, COL_RT] %% 10 == 0 & df[, COL_RT] != 0 ~ "no_response",
-                                        is.na(df[, COL_RT]) ~ "no_response",
+    df[[COL_LATE_RESPONSE]] = case_when(df[[COL_RT]] < 200 & df[[COL_RT]] > 0 ~ "short",
+                                        df[[COL_RT]] > df[[COL_RW]] ~ "late",
+                                        df[[COL_RT]] < df[[COL_RW]] ~ "early",
+                                        df[[COL_RT]] > 0 & df[[COL_RT]] == df[[COL_RW]] ~ "no_response",
+                                        df[[COL_RT]] %% 10 == 0 & df[[COL_RT]] != 0 ~ "no_response",
+                                        is.na(df[[COL_RT]]) ~ "no_response",
                                         TRUE ~ "late")
   }
   
@@ -225,7 +225,7 @@ standardize_ace_values <- function(df) {
   # Most of this is an attempt to reconstruct accuracy as orthogonal to response lateness
   if (SAAT %in% df$module) {
     # This fixes a condition naming error in the raw log files. Please remove this functionality if this ever gets fixed in the ACE program.
-    df[, COL_CONDITION] = plyr::mapvalues(df[, COL_CONDITION], from = c("Impulsive", "Sustained"), to = c("sustained", "impulsive"), warn_missing = FALSE)
+    df[[COL_CONDITION]] = plyr::mapvalues(df[[COL_CONDITION]], from = c("Impulsive", "Sustained"), to = c("sustained", "impulsive"), warn_missing = FALSE)
     
     #Correct hits and misses. For position is on top, if RT >200ms and not equal to response window, hit, else miss
     #For position in not on top, if RT == 0, then correct rejection, else false alarm
@@ -236,7 +236,7 @@ standardize_ace_values <- function(df) {
                                            position_is_top == 0 & rt == 0 ~ "Correct Rejection",
                                            position_is_top == 0 & rt != 0 ~ "False Alarm",
                                            TRUE ~ ""))
-    df[, COL_CORRECT_BUTTON] = case_when(df$trial_accuracy %in% c("Hit", "Correct Rejection") ~ "correct",
+    df[[COL_CORRECT_BUTTON]] = case_when(df$trial_accuracy %in% c("Hit", "Correct Rejection") ~ "correct",
                                          df$trial_accuracy %in% c("Miss", "False Alarm") ~ "incorrect",
                                          TRUE ~ "")
   } else if (STROOP %in% df$module) {
