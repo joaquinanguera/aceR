@@ -10,6 +10,12 @@
 \alias{sea_header}
 \alias{COL_MODULE}
 \alias{sea_header}
+\alias{COL_SEA_GROUP}
+\alias{sea_header}
+\alias{ALL_POSSIBLE_SEA_DEMOS}
+\alias{sea_header}
+\alias{Q_ALL_POSSIBLE_SEA_DEMOS}
+\alias{sea_header}
 \alias{standardize_sea_column_names}
 \title{SEA column name constants}
 \format{An object of class \code{character} of length 1.}
@@ -19,6 +25,12 @@ COL_RESPONSE
 COL_QUESTION_TEXT
 
 COL_MODULE
+
+COL_SEA_GROUP
+
+ALL_POSSIBLE_SEA_DEMOS
+
+Q_ALL_POSSIBLE_SEA_DEMOS
 
 standardize_sea_column_names(df)
 }
