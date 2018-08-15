@@ -52,6 +52,7 @@ proc_by_module <- function(df, modules = "all", output = "wide",
                                rm_outlier_rts_sd = FALSE,
                                rm_outlier_rts_range = FALSE,
                                rm_short_subs = FALSE, conditions = NULL, verbose = FALSE) {
+  
   # if data now comes in as list-columns of separate dfs per module, subset_by_col is deprecated
   all_mods = df
   
@@ -65,9 +66,18 @@ proc_by_module <- function(df, modules = "all", output = "wide",
       filter(module %in% modules)
   }
   
+  # need this for proper specification of which demos and such to pull
+  is_ace = if_else(all(all_mods$module %in% ALL_MODULES), TRUE, FALSE)
+  
+  if (is_ace) {
+    all_these_demos = ALL_POSSIBLE_DEMOS
+  } else {
+    all_these_demos = ALL_POSSIBLE_SEA_DEMOS
+  }
+  
   all_procs <- all_mods %>%
     mutate(demos = map(data, ~.x %>%
-                         select(one_of(ALL_POSSIBLE_DEMOS)) %>%
+                         select(one_of(all_these_demos)) %>%
                          select(-!!Q_COL_TIME) %>%
                          distinct()),
            # this should extract between-subject study conditions from file names
@@ -116,7 +126,7 @@ proc_by_module <- function(df, modules = "all", output = "wide",
     
     # do not join by bid_full if ACE data, because diff modules from same subj's session have diff timestamps
     # disambiguate full bids from diff modules by prepending module name
-    if (any(out$module %in% ALL_MODULES)) {
+    if (is_ace) {
       out <- out %>%
         mutate(proc = pmap(list(proc, demos, module), function (a, b, c) {
           full_join(b, a, by = COL_BID) %>%
@@ -128,7 +138,7 @@ proc_by_module <- function(df, modules = "all", output = "wide",
         mutate(proc = map2(proc, demos, ~full_join(.y, .x, by = "bid")))
     }
     
-    valid_demos = get_valid_demos(out$proc[[1]])
+    valid_demos = get_valid_demos(out$proc[[1]], is_ace)
     
     out$proc %>%
       reduce(dplyr::full_join, by = valid_demos) %>%
@@ -176,8 +186,12 @@ get_proc_info <- function(mod, proc, conditions) {
 
 #' @keywords internal
 
-get_valid_demos = function(df) {
-  return (names(df)[names(df) %in% c(ALL_POSSIBLE_DEMOS, COL_STUDY_COND)])
+get_valid_demos = function(df, is_ace) {
+  if (is_ace) {
+    return (names(df)[names(df) %in% c(ALL_POSSIBLE_DEMOS, COL_STUDY_COND)])
+  } else {
+    return (names(df)[names(df) %in% c(ALL_POSSIBLE_SEA_DEMOS, COL_STUDY_COND)])
+  }
 }
 
 #' @keywords internal
