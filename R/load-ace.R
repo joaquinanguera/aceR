@@ -193,26 +193,32 @@ transform_raw <- function (file, raw_dat) {
   return (dat)
 }
 
+#' @import dplyr
+#' @importFrom magrittr %>%
+#' @importFrom rlang !! :=
 #' @keywords internal
 
 transform_pulvinar <- function (file, dat) {
   if (nrow(dat) == 0) return (data.frame())
   # standardize output
-  dat = standardize_names(dat, pulvinar = T)
-  dat$file = file
-  dat$module = identify_module(file)
-  dat = standardize_ace_column_names(dat)
-  # parse subsections, currently SLOW version
-  dat = parse_subsections_pulvinar(dat)
-  # make block id from pid & time
-  dat[, COL_BID] = paste(dat[, COL_PID], dat[, COL_TIME], sep = ".")
-  dat = standardize_ace_values(dat)
-  # was flagging sets where pid and name don't match--this is being somewhat handled in parse_subsections_pulvinar
-  # dat = clean_invalid_subs(dat)
+  dat = dat %>%
+    standardize_names(pulvinar = T) %>%
+    mutate(file = file,
+           # for faster performance bc each pulvinar file should only contain one module
+           module = identify_module(file[1])) %>%
+    standardize_ace_column_names() %>%
+    # make block id from pid & time
+    # TODO: reimplement with rlang :=
+    mutate(!!Q_COL_BID := paste(!!Q_COL_PID, !!Q_COL_TIME, sep = ".")) %>%
+    standardize_ace_values()
+
+  if (COL_NAME %in% names(dat) & grepl("ADMIN-UCSF", dat[1, COL_PID])) { # this function expects a "name" column by which to do the matching
+    dat = remove_nondata_rows_pulvinar(dat)
+  }
   return (dat)
 }
 
-#' @keywords internal
+#' @keywords internal deprecated
 
 clean_invalid_subs <- function(dat) {
   # leaving this function here for now in case it becomes necessary later.

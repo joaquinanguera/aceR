@@ -3,7 +3,7 @@
 
 load_csv <- function(file, pulvinar = FALSE) {
   if (pulvinar) {
-    df = as.data.frame(data.table::fread(file, header = T))
+    df = dplyr::as_tibble(data.table::fread(file, header = T, na.strings = c("NA", "N/A", "")))
   } else {
     num_cols = max(count.fields(file, sep = ','), na.rm = TRUE)
     df = read.csv(file, header = FALSE, row.names = NULL, col.names = seq_len(num_cols), fill = TRUE, stringsAsFactors = FALSE) 
@@ -99,7 +99,9 @@ remove_nondata_rows <- function(raw_dat) {
 }
 
 #' @importFrom magrittr %>%
-#' @importFrom dplyr filter mutate
+#' @importFrom dplyr filter mutate select
+#' @importFrom rlang !!
+#' @importFrom tidyr separate
 #' @keywords internal
 
 remove_nondata_rows_pulvinar <- function(dat) {
@@ -107,7 +109,7 @@ remove_nondata_rows_pulvinar <- function(dat) {
   # using bare colnames here because we can assume these cols will exist under this name and data.table doesn't like quoted varnames
   # split pid col for comparing short identifier in pid column with identifier in name column
   dat <- dat %>%
-    tidyr::separate_(COL_PID, into = c("pid_stem", "pid_num"), sep = 11, remove = F) %>%
+    separate(!!Q_COL_PID, into = c("pid_stem", "pid_num"), sep = 11, remove = F) %>%
     mutate(name = tolower(name)) %>%
     # keep only those whose PID/name isn't just a 4 digit number (testers)
     # TODO: add back a way to silence warnings?
@@ -119,9 +121,7 @@ remove_nondata_rows_pulvinar <- function(dat) {
            # scrubbing truly empty datasets (no PID no name)
            !(name == "" & pid_num == ""))
   
-  # this probably currently returns a data.table object but eventually want to remove data.table outside of fread
-  # return data.table object (since will only be used internally to another data.table using function)
-  return (dplyr::select_(dat, "-pid_stem", "-pid_num"))
+  return (select(dat, -pid_stem, -pid_num))
 }
 
 #' @importFrom dplyr mutate select
@@ -211,17 +211,16 @@ parse_subsections <- function(dat) {
   return (out)
 }
 
-#' @keywords internal
-#' @import data.table
+#' @keywords internal deprecated
+#' @import dplyr
 #' @importFrom utils txtProgressBar setTxtProgressBar
 
 parse_subsections_pulvinar <- function(dat) {
   # TODO: remove data.table implementation completely!!
-  subs = unique(dat[, COL_PID]) # use "subid" bc is unique for each data submission (2 submissions by same PID will have diff subids)
-  dat = data.table::as.data.table(dat)
+  subs = unique(dat[[COL_PID]]) # use "subid" bc is unique for each data submission (2 submissions by same PID will have diff subids)
   len = length(subs)
-  out = data.frame()
-  if ("name" %in% names(dat) & grepl("ADMIN-UCSF", dat[1, pid])) { # this function expects a "name" column by which to do the matching
+  out = tibble()
+  if (COL_NAME %in% names(dat) & grepl("ADMIN-UCSF", dat[1, COL_PID])) { # this function expects a "name" column by which to do the matching
     dat = remove_nondata_rows_pulvinar(dat)
   }
   # STRICT DATASET REJECTION HERE, too many submitted datasets where pid and name don't match, so ONLY including ones where they do bc can't be confident about demographic data otherwise
