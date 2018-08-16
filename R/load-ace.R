@@ -124,67 +124,70 @@ attempt_transform <- function(file, raw_dat) {
   return (df)
 }
 
+#' @importFrom magrittr %>%
 #' @keywords internal
 
 transform_raw <- function (file, raw_dat) {
   if (nrow(raw_dat) == 0) return (data.frame())
-  # standardize raw data
-  raw_dat = standardize_raw_csv_data(raw_dat)
-  # remove nondata rows
-  dat = remove_nondata_rows(raw_dat)
-  # move grouping rows into column
-  dat = transform_grouping_rows(dat)
-  # standardize session info
-  dat = standardize_session_info(dat)
-  # transform session info into columns
-  dat = transform_session_info(dat)
-  # parse subsections
-  dat = parse_subsections(dat)
-  # standardize output
-  # TODO: fix this so it has consistent input-output objects
-  dat = standardize_names(dat)
-  dat$file = file
-  dat$module = identify_module(file)
-  dat = standardize_ace_column_names(dat)
+  
+  dat <- raw_dat %>%
+    # standardize raw data
+    standardize_raw_csv_data() %>%
+    # remove nondata rows
+    remove_nondata_rows() %>%
+    # move grouping rows into column
+    transform_grouping_rows() %>%
+    # standardize session info
+    standardize_session_info() %>%
+    # transform session info into columns
+    transform_session_info() %>%
+    # parse subsections
+    parse_subsections() %>%
+    # standardize output
+    standardize_names() %>%
+    dplyr::mutate(file = file,
+                  module = identify_module(file[1])) %>%
+    standardize_ace_column_names()
+  
   cols = names(dat)
   
   if (!(COL_TIME %in% cols)) {
     # make "time" column from subid & filename if file doesn't contain time
     # DANGEROUS: if constructing time from filename, this will cause de-duplication to fail silently
     # because duplicated records have different filenames
-    dat[, COL_TIME] = paste(dat$file, dat[, COL_SUB_ID], sep = ".")
+    dat[[COL_TIME]] = paste(dat[[COL_FILE]], dat[[COL_SUB_ID]], sep = ".")
   }
   
   if (COL_PID %in% cols) {
     # very band-aid: attempt to repair PID using name field if PID is empty stem or otherwise filler
-    if (unique(dat[, COL_PID]) %in% c("ADMIN-UCSF-", "ADMIN-UCSF-0", "ADMIN-UCSF-0000")) {
-      dat[, COL_PID] = paste0("ADMIN-UCSF-", dat[, COL_NAME])
+    if (unique(dat[[COL_PID]]) %in% c("ADMIN-UCSF-", "ADMIN-UCSF-0", "ADMIN-UCSF-0000")) {
+      dat[[COL_PID]] = paste0("ADMIN-UCSF-", dat[[COL_NAME]])
     }
     # make block id from pid & time
-    dat[, COL_BID] = paste(dat[, COL_PID], dat[, COL_TIME], sep = ".")
+    dat[[COL_BID]] = paste(dat[[COL_PID]], dat[[COL_TIME]], sep = ".")
     # make short block id using only pid and date (to allow for less granular matching of records between diff modules)
-    dat[, COL_BID_SHORT] = paste(dat[, COL_PID],
-                                 lubridate::floor_date(lubridate::parse_date_time(dat[, COL_TIME], "ymdHMSz"), unit = "days"),
+    dat[[COL_BID_SHORT]] = paste(dat[[COL_PID]],
+                                 lubridate::floor_date(lubridate::parse_date_time(dat[[COL_TIME]], "ymdHMSz"), unit = "days"),
                                  sep = ".")
   } else {
     # make block id from file name & time if file doesn't contain PID
-    dat[, COL_BID] = paste(dat$file, dat[, COL_TIME], sep = ".")
+    dat[[COL_BID]] = paste(dat[[COL_FILE]], dat[[COL_TIME]], sep = ".")
     # make short block id using only pid and date (to allow for less granular matching of records between diff modules)
-    dat[, COL_BID_SHORT] = paste(dat$file,
-                                 lubridate::floor_date(lubridate::parse_date_time(dat[, COL_TIME], "ymdHMSz"), unit = "days"),
+    dat[[COL_BID_SHORT]] = paste(dat[[COL_FILE]],
+                                 lubridate::floor_date(lubridate::parse_date_time(dat[[COL_TIME]], "ymdHMSz"), unit = "days"),
                                  sep = ".")
-    dat[, COL_PID] = guess_pid(dat$file)
+    dat[[COL_PID]] = guess_pid(dat[[COL_FILE]])
   }
   
   try({ # so will fail silently if gender isn't in data
     # this patch to propagate gender down has to be done for OLD files where gender was called "age1"
-    if (length(unique(dat[, COL_GENDER])) > 1) {
-      if ("FEMALE" %in% unique(dat[, COL_GENDER])) { 
+    if (length(unique(dat[[COL_GENDER]])) > 1) {
+      if ("FEMALE" %in% unique(dat[[COL_GENDER]])) { 
         this_gender = "FEMALE"
-      } else if ("MALE" %in% unique(dat[, COL_GENDER])) {
+      } else if ("MALE" %in% unique(dat[[COL_GENDER]])) {
         this_gender = "MALE"
       } else {this_gender = "OTHER"}
-      dat[, COL_GENDER] = this_gender
+      dat[[COL_GENDER]] = this_gender
     }
   }, silent = TRUE)
   # replace all text "NA"s with real NA
