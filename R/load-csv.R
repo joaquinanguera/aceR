@@ -80,14 +80,14 @@ identify_nondata_rows <- function(dat) {
 
 identify_incomplete_session_info <- function(dat) {
   # for some reason this doesn't return a logical vector if using %in%
-  incomplete_info_rows = dat[dat[1] == "" & dat[2] == "" & dat[3] != "" & dat[3] != "0" , ] # if 0 is in the 3rd col then it is probably REAL DATA where S failed to respond
+  incomplete_info_rows = dat[dat[[1]] == "" & dat[[2]] == "" & dat[[3]] != "" & dat[[3]] != "0" , ] # if 0 is in the 3rd col then it is probably REAL DATA where S failed to respond
   return (numeric_row_names(incomplete_info_rows))
 }
 
 #' @keywords internal
 
 identify_null_trials <- function(dat) {
-  null_trials = dat[dat[1] == "" & dat[2] == "" & dat[3] == "0" , ] # if 0 is in the 3rd col then it is probably REAL DATA where S failed to respond
+  null_trials = dat[dat[[1]] == "" & dat[[2]] == "" & dat[[3]] == "0" , ] # if 0 is in the 3rd col then it is probably REAL DATA where S failed to respond
   return (numeric_row_names(null_trials))
 }
 
@@ -144,13 +144,18 @@ fix_blank_pids <- function(dat) {
 transform_grouping_rows <- function(dat) {
   rows = identify_grouping_rows(dat)
   new_col = length(dat) + 1
-  dat[new_col] = NA
+  dat[[new_col]] = NA
   for (row in rows) {
     group = dat[row, 1]
     dat[row + 1, new_col] = "CONDITION:" # so we can identify "new" columns
     dat[row + 2, new_col] = as.character(group)
   }
   dat = remove_rows(dat, rows)
+  # In cases where an improper header section is triggered,
+  # e.g. task was only run for one of 2 blocked conditions,
+  # scrub rows of only NA that are introduced bc of bad grouping column appending
+  dat = remove_rows(dat, which(is.na(dat[[1]]) & is.na(dat[[length(dat) - 1]])))
+  
   # Removing this to avoid accidentally triggering a new "header" section
   # when the first column of real data has NAs (aka some spatial span cases)
   # dat = replace_nas(dat, "")
