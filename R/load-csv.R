@@ -207,8 +207,8 @@ parse_subsections <- function(dat) {
     is_new_col = sapply(names(valid), function(x) return(grepl(":", x)))
     new_cols = c(new_cols, names(valid)[is_new_col])
     clean = remove_empty_rows(replace_blanks(valid, NA))
-    clean[, COL_SUB_ID] = i
-    clean[, COL_BLOCK_HALF] = plyr::mapvalues(make_half_seq(nrow(clean)), from = c(1, 2), to = c("first_half", "second_half"))
+    clean[[COL_SUB_ID]] = i
+    clean[[COL_BLOCK_HALF]] = plyr::mapvalues(make_half_seq(nrow(clean)), from = c(1, 2), to = c("first_half", "second_half"))
     out = plyr::rbind.fill(out, clean)
   }
   new_cols = unique(new_cols)
