@@ -52,3 +52,14 @@ standardize_sea_column_names <- function(df) {
   names(df) = new
   return (df)
 }
+
+#' @name sea_header
+
+standardize_sea_values <- function(df) {
+  # all columns are necessarily read in as character bc multiple modules appear in one raw file
+  # but that means that re-typing can't occur until the modules are broken up. hmm.
+  df[[COL_RESPONSE]] <- dplyr::if_else(tolower(df[[COL_RESPONSE]]) == "no answer",
+                                        "no_response",
+                                        df[[COL_RESPONSE]])
+  return (df)
+}

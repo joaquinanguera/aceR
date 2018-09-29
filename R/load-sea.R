@@ -30,6 +30,7 @@ load_sea_file <- function (file, verbose = FALSE) {
     standardize_sea_column_names() %>%
     label_sea_module_conditions() %>%
     standardize_sea_module_names() %>%
+    standardize_sea_values() %>%
     group_by(!!Q_COL_PID) %>%
     # todo: when retyping is complete (and all imported cols aren't char)
     # re-implement coercing of time col to datetime format

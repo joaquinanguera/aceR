@@ -10,6 +10,7 @@
 \alias{ALL_POSSIBLE_SEA_DEMOS}
 \alias{Q_ALL_POSSIBLE_SEA_DEMOS}
 \alias{standardize_sea_column_names}
+\alias{standardize_sea_values}
 \title{SEA column name constants}
 \format{An object of class \code{character} of length 1.}
 \usage{
@@ -26,6 +27,8 @@ ALL_POSSIBLE_SEA_DEMOS
 Q_ALL_POSSIBLE_SEA_DEMOS
 
 standardize_sea_column_names(df)
+
+standardize_sea_values(df)
 }
 \description{
 SEA also uses some ACE column name constants.
