@@ -3,33 +3,19 @@
 \docType{data}
 \name{ace_module}
 \alias{ace_module}
-\alias{ace_module}
 \alias{BOXED}
-\alias{ace_module}
 \alias{BRT}
-\alias{ace_module}
 \alias{DISCRIMINATION}
-\alias{ace_module}
 \alias{FLANKER}
-\alias{ace_module}
 \alias{SAAT}
-\alias{ace_module}
 \alias{SPATIAL_SPAN}
-\alias{ace_module}
 \alias{STROOP}
-\alias{ace_module}
 \alias{TASK_SWITCH}
-\alias{ace_module}
 \alias{TNT}
-\alias{ace_module}
 \alias{FILTER}
-\alias{ace_module}
 \alias{BACK_SPATIAL_SPAN}
-\alias{ace_module}
 \alias{ISHIHARA}
-\alias{ace_module}
 \alias{SPATIAL_CUE}
-\alias{ace_module}
 \alias{ALL_MODULES}
 \title{ACE module constants}
 \format{An object of class \code{character} of length 1.}

@@ -3,19 +3,12 @@
 \docType{data}
 \name{sea_header}
 \alias{sea_header}
-\alias{sea_header}
 \alias{COL_RESPONSE}
-\alias{sea_header}
 \alias{COL_QUESTION_TEXT}
-\alias{sea_header}
 \alias{COL_MODULE}
-\alias{sea_header}
 \alias{COL_SEA_GROUP}
-\alias{sea_header}
 \alias{ALL_POSSIBLE_SEA_DEMOS}
-\alias{sea_header}
 \alias{Q_ALL_POSSIBLE_SEA_DEMOS}
-\alias{sea_header}
 \alias{standardize_sea_column_names}
 \title{SEA column name constants}
 \format{An object of class \code{character} of length 1.}
