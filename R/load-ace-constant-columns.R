@@ -161,7 +161,7 @@ standardize_ace_column_names <- function(df) {
 #' @importFrom stringr str_replace
 
 standardize_ace_values <- function(df) {
-  # TODO: this function should handle re-typing of columns
+  # this function handles re-typing of columns
   # especially in emailed data, all columns are necessarily read in as character
   # we SHOULD hard-code expected type of columns by module
   
