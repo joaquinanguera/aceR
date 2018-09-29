@@ -35,10 +35,13 @@ load_sea_file <- function (file, verbose = FALSE) {
     # todo: when retyping is complete (and all imported cols aren't char)
     # re-implement coercing of time col to datetime format
     # until then, it's causing string parsing warnings all over the place so not doing it
-    mutate(bid = paste(.data[[COL_PID]], .data[[COL_TIME]][1]),
-           bid_short = paste(.data[[COL_PID]], lubridate::floor_date(lubridate::parse_date_time(.data[[COL_TIME]][1], "mdyHMS"), unit = "days")),
-           correct_button = if_else(tolower(.data[[COL_RESPONSE]]) == tolower(.data[[COL_CORRECT_RESPONSE]]),
-                                   "correct", "incorrect")) %>%
+    mutate(bid = paste(!!Q_COL_PID, .data[[COL_TIME]][1]),
+           bid_short = paste(!!Q_COL_PID, lubridate::floor_date(lubridate::parse_date_time(.data[[COL_TIME]][1], "mdyHMS"), unit = "days")),
+           correct_button = if_else(tolower(!!Q_COL_RESPONSE) == tolower(!!Q_COL_CORRECT_RESPONSE),
+                                   "correct", "incorrect"),
+           correct_button = if_else(tolower(!!Q_COL_RESPONSE) == "no_response",
+                                            "no_response",
+                                            correct_button)) %>%
     group_by(!!Q_COL_MODULE, !!Q_COL_BID_SHORT) %>%
     mutate(previous_correct_button = lag(correct_button),
            half = dplyr::recode(make_half_seq(n()), `1` = "first_half", `2` = "second_half")) %>%
