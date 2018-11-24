@@ -2,7 +2,7 @@
 % Please edit documentation in R/module-proc.R
 \name{proc_by_module}
 \alias{proc_by_module}
-\title{Process ACE data by module}
+\title{Process ACE/SEA data by module}
 \usage{
 proc_by_module(df, modules = "all", output = "wide",
   rm_outlier_rts_sd = FALSE, rm_outlier_rts_range = FALSE,

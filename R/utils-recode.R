@@ -26,3 +26,10 @@ set_names <- function (x, these_names) {
   names(x) <- these_names
   return (x)
 }
+
+#' @keywords internal
+
+na_if_true <- function (x, condition) {
+  x[condition] <- NA
+  return (x)
+}

@@ -19,6 +19,7 @@ Imports:
     openxlsx,
     plyr,
     purrr,
+    readr,
     reshape,
     rlang,
     stats,

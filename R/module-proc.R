@@ -1,5 +1,5 @@
 
-#' ACE module procs
+#' ACE/SEA module procs
 #'
 #' Methods for processing user data by \emph{group}.
 #'
@@ -7,7 +7,7 @@
 #' @name ace_procs
 NULL
 
-#' Process ACE data by module
+#' Process ACE/SEA data by module
 #'
 #' Applies corresponding \code{\link{ace_procs}} to every unique module.
 #'

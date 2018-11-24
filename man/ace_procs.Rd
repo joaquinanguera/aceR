@@ -15,7 +15,7 @@
 \alias{module_filter}
 \alias{module_ishihara}
 \alias{module_spatialcueing}
-\title{ACE module procs}
+\title{ACE/SEA module procs}
 \usage{
 module_boxed(df)
 
