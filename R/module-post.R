@@ -98,7 +98,8 @@ post_clean_chance <- function (df, overall = TRUE, cutoff_dprime = 0, cutoff_2ch
            cutoff = case_when(module %in% c(TNT, SAAT, FILTER) ~ cutoff_dprime,
                               module %in% c(STROOP, TASK_SWITCH) ~ cutoff_4choice,
                               module %in% c(FLANKER, BOXED) ~ cutoff_2choice,
-                              TRUE ~ NA_real_))
+                              TRUE ~ NA_real_)) %>%
+    filter(module %in% get_valid_modules(df))
   
   if (all(c("module", "proc") %in% names(df))) {
     # if was processed with output = "long"
@@ -133,4 +134,128 @@ post_clean_chance <- function (df, overall = TRUE, cutoff_dprime = 0, cutoff_2ch
     }
   }
 return (df_scrubbed)
+}
+
+#' Scrub processed data with too few trials
+#' 
+#' User-friendly wrapper to replace below-chance records with \code{NA}
+#' in ACE/SEA data processed with \code{\link{proc_by_module}}.
+#' 
+#' @export
+#' @importFrom dplyr case_when filter mutate select tibble
+#' @importFrom magrittr %>%
+#' @importFrom purrr map map2 pmap
+#' @importFrom rlang sym !! :=
+#' @importFrom tidyr unnest
+#' 
+#' @param df a df, output by \code{\link{proc_by_module}}, containing processed
+#' ACE or SEA data.
+#' @param min_trials Minimum number of trials to require.
+#' (Tap and Trace, SAAT, Filter). Defaults to 0.
+#' @return a df, similar in structure to \code{proc}, but with records with too few trials
+#' converted to \code{NA}.
+
+post_clean_low_trials <- function (df, min_trials = 5) {
+  
+  length_cols <- names(df)[grepl("length", names(df)) & !grepl("half", names(df)) & !grepl("correct", names(df))]
+  
+  valid_modules <- get_valid_modules(df)
+  
+  for (module in valid_modules) {
+      these_length_cols <- length_cols[grepl(module, length_cols)]
+      bad_subs = df[[COL_PID]][]
+      df %>%
+        mutate_at()
+  }
+  
+  if (rm_short_subs) {
+    if (y == RUN_MEM_SPAN) {
+      return (filter(x, acc_strict_length.letter > .5 * median(acc_strict_length.letter)))
+    } else {
+      return (filter(x, rt_length.overall > .5 * median(rt_length.overall)))
+    }
+  } else {
+    return (x)
+  }
+  
+  metric_cols <- tibble(module = c(TNT,
+                                   STROOP,
+                                   FLANKER,
+                                   TASK_SWITCH,
+                                   BOXED,
+                                   SAAT,
+                                   FILTER))
+  if (overall) {
+    metric_cols <- metric_cols %>%
+      mutate(metric = list(c("dprime.overall", "dprime.tap_only"),
+                           c("acc_mean.overall", "acc_mean.congruent"),
+                           c("acc_mean.overall", "acc_mean.congruent"),
+                           c("acc_mean.overall", "acc_mean.stay"),
+                           c("acc_mean.overall", "acc_mean.feature_4"),
+                           c("dprime.overall", "dprime.sustained", "dprime.impulsive"),
+                           c("k.R2B0", "k.R4B0")))
+  } else {
+    metric_cols <- metric_cols %>%
+      mutate(metric = list(c("dprime.tap_only"),
+                           c("acc_mean.congruent"),
+                           c("acc_mean.congruent"),
+                           c("acc_mean.stay"),
+                           c("acc_mean.feature_4"),
+                           c("dprime.sustained", "dprime.impulsive"),
+                           c("k.R2B0", "k.R4B0")))
+  }
+  
+  metric_cols <- metric_cols %>%
+    mutate(full = map2(module, metric, ~paste(.x, .y, sep = ".")),
+           cutoff = case_when(module %in% c(TNT, SAAT, FILTER) ~ cutoff_dprime,
+                              module %in% c(STROOP, TASK_SWITCH) ~ cutoff_4choice,
+                              module %in% c(FLANKER, BOXED) ~ cutoff_2choice,
+                              TRUE ~ NA_real_))
+  
+  if (all(c("module", "proc") %in% names(df))) {
+    # if was processed with output = "long"
+    df_scrubbed <- df %>%
+      left_join(metric_cols, by = "module")
+    
+    df_nonscrubbed <- df_scrubbed %>%
+      filter(is.na(cutoff))
+    
+    df_scrubbed <- df_scrubbed %>%
+      filter(!is.na(cutoff)) %>%
+      mutate(proc = pmap(list(proc, metric, cutoff), function (a, b, c) {
+        # note: quosures don't seem to work inside pmap()
+        for (this_b in b) {
+          a[[this_b]] <- na_if_true(a[[this_b]], a[[this_b]] <= c)
+        }
+        return (a)
+      }
+      )) %>%
+      bind_rows(df_nonscrubbed) %>%
+      select(-metric, -full, -cutoff)
+    
+  } else {
+    metric_cols <- metric_cols %>%
+      select(full, cutoff) %>%
+      unnest()
+    # if was processed with output = "wide"
+    df_scrubbed <- df
+    for (metric_col in 1:nrow(metric_cols)) {
+      df_scrubbed[[metric_cols$full[metric_col]]] <- na_if_true(df_scrubbed[[metric_cols$full[metric_col]]],
+                                                                df_scrubbed[[metric_cols$full[metric_col]]] <= metric_cols$cutoff[metric_col])
+    }
+  }
+  return (df_scrubbed)
+}
+
+#' @importFrom purrr map_lgl
+#' @keywords internal
+
+get_valid_modules <- function (df) {
+  if (all(c("module", "proc") %in% names(df))) {
+    # if was processed with output = "long"
+    return (ALL_MODULES[map_lgl(ALL_MODULES, ~.x %in% df[[COL_MODULE]])])
+  } else {
+    # else if was processed with output = "wide"
+    return (ALL_MODULES[map_lgl(ALL_MODULES, ~any(grepl(.x, names(df))))])
+  }
 }
