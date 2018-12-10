@@ -40,7 +40,6 @@ NULL
 #' this specified range? Enter min and max accepted RTs as a vector length 2. If min or max
 #' not specified, enter that value as NA in the vector. Specify either this or \code{rm_outlier_rts_range},
 #' but not both. If both specified, will use SD cutoff. Defaults to \code{FALSE}.
-#' @param rm_short_subs logical. Remove subjects with <1/2 of trials? Defaults to \code{TRUE}
 #' @param conditions character vector. If data contains multiple study conditions
 #' (e.g. pre & post), specify their labels here. Case insensitive.
 #' @param verbose logical. Print details? Defaults to \code{FALSE}.
@@ -51,7 +50,7 @@ NULL
 proc_by_module <- function(df, modules = "all", output = "wide",
                                rm_outlier_rts_sd = FALSE,
                                rm_outlier_rts_range = FALSE,
-                               rm_short_subs = FALSE, conditions = NULL, verbose = FALSE) {
+                               conditions = NULL, verbose = FALSE) {
   
   # if data now comes in as list-columns of separate dfs per module, subset_by_col is deprecated
   all_mods = df
@@ -94,19 +93,6 @@ proc_by_module <- function(df, modules = "all", output = "wide",
                as_tibble() %>%
                rename_all(funs(str_replace(., COL_CORRECT_BUTTON, "acc"))) %>%
                rename_all(funs(str_replace(., COL_CORRECT_RESPONSE, "acc")))
-           }),
-           # scrubbing instances of data with too few trials (likely false starts)
-           # rm_short_subs controls whether this occurs
-           proc = map2(proc, module, function(x, y) {
-             if (rm_short_subs) {
-               if (y == RUN_MEM_SPAN) {
-                 return (filter(x, acc_strict_length.letter > .5 * median(acc_strict_length.letter)))
-               } else {
-                 return (filter(x, rt_length.overall > .5 * median(rt_length.overall)))
-               }
-             } else {
-               return (x)
-             }
            }),
            # grandfathering Jose's patch for invalid cols produced from empty conditions
            proc = map(proc, ~select(.x, -dplyr::ends_with(".")))) %>%
