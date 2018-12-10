@@ -45,6 +45,9 @@ ISHIHARA <- "ISHIHARA"
 SPATIAL_CUE <- "SPATIALCUEING"
 
 #' @name ace_module
+DEMOS <- "DEMOGRAPHICS"
+
+#' @name ace_module
 ALL_MODULES = c(BOXED,
                 BRT,
                 DISCRIMINATION,
@@ -57,7 +60,8 @@ ALL_MODULES = c(BOXED,
                 FILTER,
                 BACK_SPATIAL_SPAN,
                 ISHIHARA,
-                SPATIAL_CUE)
+                SPATIAL_CUE,
+                DEMOS)
 
 #' Identify ACE module from filename
 #'
