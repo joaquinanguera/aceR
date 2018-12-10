@@ -16,6 +16,7 @@
 \alias{BACK_SPATIAL_SPAN}
 \alias{ISHIHARA}
 \alias{SPATIAL_CUE}
+\alias{DEMOS}
 \alias{ALL_MODULES}
 \title{ACE module constants}
 \format{An object of class \code{character} of length 1.}
@@ -45,6 +46,8 @@ BACK_SPATIAL_SPAN
 ISHIHARA
 
 SPATIAL_CUE
+
+DEMOS
 
 ALL_MODULES
 }

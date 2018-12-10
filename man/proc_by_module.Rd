@@ -6,7 +6,7 @@
 \usage{
 proc_by_module(df, modules = "all", output = "wide",
   rm_outlier_rts_sd = FALSE, rm_outlier_rts_range = FALSE,
-  rm_short_subs = FALSE, conditions = NULL, verbose = FALSE)
+  conditions = NULL, verbose = FALSE)
 }
 \arguments{
 \item{df}{a \code{\link{data.frame}} containing formatted trialwise ACE data. 
@@ -32,8 +32,6 @@ but not both. If both specified, will use SD cutoff. Defaults to \code{FALSE}.}
 this specified range? Enter min and max accepted RTs as a vector length 2. If min or max
 not specified, enter that value as NA in the vector. Specify either this or \code{rm_outlier_rts_range},
 but not both. If both specified, will use SD cutoff. Defaults to \code{FALSE}.}
-
-\item{rm_short_subs}{logical. Remove subjects with <1/2 of trials? Defaults to \code{TRUE}}
 
 \item{conditions}{character vector. If data contains multiple study conditions
 (e.g. pre & post), specify their labels here. Case insensitive.}
