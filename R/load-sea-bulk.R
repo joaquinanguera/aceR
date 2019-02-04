@@ -47,7 +47,7 @@ load_sea_bulk <- function(path = ".",
     mutate(data = map(data, ~nest(., -module))) %>%
     select(-file) %>% # because it's already pasted inside load_ace_file
     unnest(data) %>%
-    mutate(data = map(data, ~unnest(., data) %>%
+    mutate(data = map(data, ~. %>%
                         remove_empty_cols() %>%
                         # coarse duplicate rejection
                         # assumes duplicate rows will be the same along at least these few columns
