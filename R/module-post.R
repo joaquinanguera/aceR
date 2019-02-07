@@ -46,11 +46,10 @@ post_reduce_cols <- function (df,
 #' in ACE/SEA data processed with \code{\link{proc_by_module}}.
 #' 
 #' @export
-#' @importFrom dplyr case_when filter mutate select tibble
-#' @importFrom magrittr %>%
-#' @importFrom purrr map map2 pmap
-#' @importFrom rlang sym !! :=
-#' @importFrom tidyr unnest
+#' @importFrom dplyr case_when everything filter left_join mutate select tibble
+#' @importFrom magrittr %>% %<>%
+#' @importFrom purrr map map2 reduce
+#' @importFrom rlang sym !!
 #' 
 #' @param df a df, output by \code{\link{proc_by_module}}, containing processed
 #' ACE or SEA data.
@@ -74,7 +73,7 @@ post_clean_chance <- function (df, overall = TRUE, cutoff_dprime = 0, cutoff_2ch
                                    SAAT,
                                    FILTER))
   if (overall) {
-    metric_cols <- metric_cols %>%
+    metric_cols %<>%
       mutate(metric = list(c("dprime.overall", "dprime.tap_only"),
                            c("acc_mean.overall", "acc_mean.congruent"),
                            c("acc_mean.overall", "acc_mean.congruent"),
@@ -83,7 +82,7 @@ post_clean_chance <- function (df, overall = TRUE, cutoff_dprime = 0, cutoff_2ch
                            c("dprime.overall", "dprime.sustained", "dprime.impulsive"),
                            c("k.R2B0", "k.R4B0")))
   } else {
-    metric_cols <- metric_cols %>%
+    metric_cols %<>%
       mutate(metric = list(c("dprime.tap_only"),
                            c("acc_mean.congruent"),
                            c("acc_mean.congruent"),
@@ -93,7 +92,7 @@ post_clean_chance <- function (df, overall = TRUE, cutoff_dprime = 0, cutoff_2ch
                            c("k.R2B0", "k.R4B0")))
   }
   
-  metric_cols <- metric_cols %>%
+  metric_cols %<>%
     mutate(full = map2(module, metric, ~paste(.x, .y, sep = ".")),
            cutoff = case_when(module %in% c(TNT, SAAT, FILTER) ~ cutoff_dprime,
                               module %in% c(STROOP, TASK_SWITCH) ~ cutoff_4choice,
@@ -101,39 +100,38 @@ post_clean_chance <- function (df, overall = TRUE, cutoff_dprime = 0, cutoff_2ch
                               TRUE ~ NA_real_)) %>%
     filter(module %in% get_valid_modules(df))
   
-  if (all(c("module", "proc") %in% names(df))) {
-    # if was processed with output = "long"
-    df_scrubbed <- df %>%
-      left_join(metric_cols, by = "module")
-    
-    df_nonscrubbed <- df_scrubbed %>%
-      filter(is.na(cutoff))
-    
-    df_scrubbed <- df_scrubbed %>%
-      filter(!is.na(cutoff)) %>%
-      mutate(proc = pmap(list(proc, metric, cutoff), function (a, b, c) {
-        # note: quosures don't seem to work inside pmap()
-        for (this_b in b) {
-          a[[this_b]] <- na_if_true(a[[this_b]], a[[this_b]] <= c)
-        }
-        return (a)
-      }
-      )) %>%
-      bind_rows(df_nonscrubbed) %>%
-      select(-metric, -full, -cutoff)
-
+  if (!(all(c("module", "proc") %in% names(df)))) {
+    # if "wide" form, coerce to "long-ish" first
+    wide <- TRUE
+    valid_demos <- get_valid_demos(df, is_ace = TRUE)
+    filter_col <- sym("full")
+    df <- proc_wide_to_long(df)
   } else {
-    metric_cols <- metric_cols %>%
-      select(full, cutoff) %>%
-      unnest()
-    # if was processed with output = "wide"
-    df_scrubbed <- df
-    for (metric_col in 1:nrow(metric_cols)) {
-      df_scrubbed[[metric_cols$full[metric_col]]] <- na_if_true(df_scrubbed[[metric_cols$full[metric_col]]],
-                                                                df_scrubbed[[metric_cols$full[metric_col]]] <= metric_cols$cutoff[metric_col])
-    }
+    wide <- FALSE
+    filter_col <- sym("metric")
   }
-return (df_scrubbed)
+  
+  df %<>%
+    left_join(metric_cols %>%
+                select(module,
+                       filter_cols = !!filter_col,
+                       cutoff),
+              by = "module") %>%
+    mutate(non_demo_cols = map(proc, ~names(.x)[!(names(.x) %in% get_valid_demos(.x, is_ace = T))]),
+           call_filter_cols_bad = map2(filter_cols, cutoff,  ~map_call2_rel("<=", .x, .y)),
+           call_filter_cols_good = map2(filter_cols, cutoff,  ~map_call2_rel(">", .x, .y)))
+  
+  df_scrubbed <- proc_na_all_by_some_cols(df)
+  
+  # If "wide" form:
+  if (wide) {
+    df_scrubbed$proc %>%
+      reduce(dplyr::full_join, by = valid_demos) %>%
+      select(valid_demos, everything()) %>%
+      return()
+  } else {
+    return (df_scrubbed)
+  }
 }
 
 #' Scrub processed data with too few trials
@@ -142,109 +140,104 @@ return (df_scrubbed)
 #' in ACE/SEA data processed with \code{\link{proc_by_module}}.
 #' 
 #' @export
-#' @importFrom dplyr case_when filter mutate select tibble
-#' @importFrom magrittr %>%
-#' @importFrom purrr map map2 pmap
-#' @importFrom rlang sym !! :=
-#' @importFrom tidyr unnest
+#' @importFrom dplyr bind_rows everything filter mutate mutate_at select
+#' @importFrom magrittr %>% %<>%
+#' @importFrom purrr map map2 reduce
 #' 
 #' @param df a df, output by \code{\link{proc_by_module}}, containing processed
 #' ACE or SEA data.
-#' @param min_trials Minimum number of trials to require.
-#' (Tap and Trace, SAAT, Filter). Defaults to 0.
+#' @param min_trials Minimum number of trials to require in most restrictive condition.
+#' Defaults to 5.
 #' @return a df, similar in structure to \code{proc}, but with records with too few trials
 #' converted to \code{NA}.
 
 post_clean_low_trials <- function (df, min_trials = 5) {
   
-  length_cols <- names(df)[grepl("length", names(df)) & !grepl("half", names(df)) & !grepl("correct", names(df))]
-  
-  valid_modules <- get_valid_modules(df)
-  
-  for (module in valid_modules) {
-      these_length_cols <- length_cols[grepl(module, length_cols)]
-      bad_subs = df[[COL_PID]][]
-      df %>%
-        mutate_at()
-  }
-  
-  if (rm_short_subs) {
-    if (y == RUN_MEM_SPAN) {
-      return (filter(x, acc_strict_length.letter > .5 * median(acc_strict_length.letter)))
-    } else {
-      return (filter(x, rt_length.overall > .5 * median(rt_length.overall)))
-    }
+  if (!(all(c("module", "proc") %in% names(df)))) {
+    # if "wide" form, coerce to "long-ish" first
+    wide <- TRUE
+    valid_demos <- get_valid_demos(df, is_ace = TRUE)
+    df <- proc_wide_to_long(df)
   } else {
-    return (x)
+    wide <- FALSE
   }
   
-  metric_cols <- tibble(module = c(TNT,
-                                   STROOP,
-                                   FLANKER,
-                                   TASK_SWITCH,
-                                   BOXED,
-                                   SAAT,
-                                   FILTER))
-  if (overall) {
-    metric_cols <- metric_cols %>%
-      mutate(metric = list(c("dprime.overall", "dprime.tap_only"),
-                           c("acc_mean.overall", "acc_mean.congruent"),
-                           c("acc_mean.overall", "acc_mean.congruent"),
-                           c("acc_mean.overall", "acc_mean.stay"),
-                           c("acc_mean.overall", "acc_mean.feature_4"),
-                           c("dprime.overall", "dprime.sustained", "dprime.impulsive"),
-                           c("k.R2B0", "k.R4B0")))
+  # The easiest way to do it will be to work inside a df that only contains one module's data
+  # aka "long" form
+  
+  # If "long" form:
+  # filter just the bad ones, select only their demo cols, bind_rows back on to the good ones
+  # will then populate all the non-demo cols with NA
+  
+  df %<>%
+    mutate(filter_cols = map(proc, ~names(.x)[grepl("length", names(.x)) & !grepl("half", names(.x)) & !grepl("correct", names(.x)) & !grepl("cost", names(.x)) & !grepl("start", names(.x))]),
+           non_demo_cols = map(proc, ~names(.x)[!(names(.x) %in% get_valid_demos(.x, is_ace = T))]),
+           call_filter_cols_bad = map(filter_cols,  ~map_call2_rel("<", .x, min_trials)),
+           call_filter_cols_good = map(filter_cols,  ~map_call2_rel(">=", .x, min_trials)))
+  
+  df_scrubbed <- proc_na_all_by_some_cols(df)
+  
+  # If "wide" form:
+  if (wide) {
+    df_scrubbed$proc %>%
+      reduce(dplyr::full_join, by = valid_demos) %>%
+      select(valid_demos, everything()) %>%
+      return()
   } else {
-    metric_cols <- metric_cols %>%
-      mutate(metric = list(c("dprime.tap_only"),
-                           c("acc_mean.congruent"),
-                           c("acc_mean.congruent"),
-                           c("acc_mean.stay"),
-                           c("acc_mean.feature_4"),
-                           c("dprime.sustained", "dprime.impulsive"),
-                           c("k.R2B0", "k.R4B0")))
+    return (df_scrubbed)
   }
+}
+
+#' Helper function that takes long or long-ish ACE proc data
+#' and renders all non-demographic columns as NA for those rows
+#' that satisfy a condition
+#' expects filter_cols, call_filter_cols_bad, call_filter_cols_good, non_demo_cols
+#' @importFrom dplyr bind_rows filter mutate mutate_at select
+#' @importFrom magrittr %>% %<>%
+#' @importFrom purrr map map2
+#' @importFrom rlang !!!
+#' @keywords internal
+
+proc_na_all_by_some_cols <- function (df) {
   
-  metric_cols <- metric_cols %>%
-    mutate(full = map2(module, metric, ~paste(.x, .y, sep = ".")),
-           cutoff = case_when(module %in% c(TNT, SAAT, FILTER) ~ cutoff_dprime,
-                              module %in% c(STROOP, TASK_SWITCH) ~ cutoff_4choice,
-                              module %in% c(FLANKER, BOXED) ~ cutoff_2choice,
-                              TRUE ~ NA_real_))
+  df_no_scrub <- df %>%
+    filter(lengths(filter_cols) == 0) %>%
+    select(module, proc)
   
-  if (all(c("module", "proc") %in% names(df))) {
-    # if was processed with output = "long"
-    df_scrubbed <- df %>%
-      left_join(metric_cols, by = "module")
-    
-    df_nonscrubbed <- df_scrubbed %>%
-      filter(is.na(cutoff))
-    
-    df_scrubbed <- df_scrubbed %>%
-      filter(!is.na(cutoff)) %>%
-      mutate(proc = pmap(list(proc, metric, cutoff), function (a, b, c) {
-        # note: quosures don't seem to work inside pmap()
-        for (this_b in b) {
-          a[[this_b]] <- na_if_true(a[[this_b]], a[[this_b]] <= c)
-        }
-        return (a)
-      }
-      )) %>%
-      bind_rows(df_nonscrubbed) %>%
-      select(-metric, -full, -cutoff)
-    
-  } else {
-    metric_cols <- metric_cols %>%
-      select(full, cutoff) %>%
-      unnest()
-    # if was processed with output = "wide"
-    df_scrubbed <- df
-    for (metric_col in 1:nrow(metric_cols)) {
-      df_scrubbed[[metric_cols$full[metric_col]]] <- na_if_true(df_scrubbed[[metric_cols$full[metric_col]]],
-                                                                df_scrubbed[[metric_cols$full[metric_col]]] <= metric_cols$cutoff[metric_col])
-    }
-  }
+  df_scrubbed <- df %>%
+    filter(lengths(filter_cols) > 0)
+  
+  df_scrubbed$proc_bad <- map2(df_scrubbed$proc, df_scrubbed$call_filter_cols_bad, ~filter(.x, !!!.y))
+  df_scrubbed$proc_good <- map2(df_scrubbed$proc, df_scrubbed$call_filter_cols_good, ~filter(.x, !!!.y))
+  
+  df_scrubbed %<>%
+    mutate(proc_bad = map2(proc_bad, non_demo_cols, ~mutate_at(.x, .y, to_na)),
+           proc_scrubbed = map2(proc_bad, proc_good, ~bind_rows(.y, .x))) %>%
+    select(module, proc = proc_scrubbed) %>%
+    bind_rows(df_no_scrub)
+  
   return (df_scrubbed)
+}
+
+#' Most module-post functions work much better with long proc data.
+#' This will be called under the hood to coerce wide data to long-ish
+#' Because it seems that users prefer the wide data
+#' @importFrom dplyr distinct mutate select
+#' @importFrom magrittr %>%
+#' @importFrom purrr map
+#' @importFrom tibble tibble
+#' @keywords internal
+
+proc_wide_to_long <- function (df) {
+  valid_modules <- get_valid_modules(df)
+  valid_demos <- get_valid_demos(df, is_ace = TRUE)
+  out <- tibble(module = valid_modules,
+                proc = vector("list", length(valid_modules))) %>%
+    mutate(proc = map(module, ~ df %>%
+                        select(valid_demos, tidyselect::starts_with(.x)) %>%
+                        distinct()))
+  # Note that the "long-ish" output will still have module names preprended to colnames (for now)
+  return (out)
 }
 
 #' @importFrom purrr map_lgl

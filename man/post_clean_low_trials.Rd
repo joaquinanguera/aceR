@@ -10,8 +10,8 @@ post_clean_low_trials(df, min_trials = 5)
 \item{df}{a df, output by \code{\link{proc_by_module}}, containing processed
 ACE or SEA data.}
 
-\item{min_trials}{Minimum number of trials to require.
-(Tap and Trace, SAAT, Filter). Defaults to 0.}
+\item{min_trials}{Minimum number of trials to require in most restrictive condition.
+Defaults to 5.}
 }
 \value{
 a df, similar in structure to \code{proc}, but with records with too few trials
