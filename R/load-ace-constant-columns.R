@@ -144,7 +144,8 @@ standardize_ace_column_names <- function(df) {
                   new == "user_grade" ~ COL_GRADE,
                   new %in% c("user_gender", "age1", "user_age1") ~ COL_GENDER,
                   new == "user_handedness" ~ COL_HANDEDNESS,
-                  new == "time_gameplayed_utc" ~ COL_TIME,
+                  # created_at seems to be ACE Explore specific. beware versioning issues
+                  new %in% c("time_gameplayed_utc", "created_at") ~ COL_TIME,
                   new == "time_sent_utc" ~ "timesent_utc",
                   new == "id" ~ COL_SUB_ID,
                   new == "details" ~ COL_CONDITION,
