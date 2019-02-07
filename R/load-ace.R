@@ -220,6 +220,12 @@ transform_pulvinar <- function (file, dat) {
     group_by(!!Q_COL_BID) %>%
     mutate(!!COL_BLOCK_HALF := plyr::mapvalues(make_half_seq(n()), from = c(1, 2), to = c("first_half", "second_half"))) %>%
     ungroup()
+  
+  # Don't do "half" labeling for demos, which should only have one row per subject
+  if (dat$module[1] == DEMOS) {
+    dat = dat %>%
+      select(-!!COL_BLOCK_HALF)
+  }
 
   if (COL_NAME %in% names(dat) & grepl("ADMIN-UCSF", dat[1, COL_PID])) { # this function expects a "name" column by which to do the matching
     dat = remove_nondata_rows_pulvinar(dat)
