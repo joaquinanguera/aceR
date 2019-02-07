@@ -17,7 +17,7 @@ NULL
 #' @export
 #' @import dplyr
 #' @importFrom stringr str_replace
-#' @importFrom purrr map map2 map_int pmap reduce
+#' @importFrom purrr map map2 map_int pmap reduce rerun
 #' @importFrom rlang !!
 #' @importFrom stats aggregate median na.omit qnorm sd time var
 #' @importFrom tidyr nest
@@ -74,12 +74,23 @@ proc_by_module <- function(df, modules = "all", output = "wide",
     all_these_demos = ALL_POSSIBLE_SEA_DEMOS
   }
   
-  all_procs <- all_mods %>%
-    mutate(demos = map(data, ~.x %>%
-                         select(one_of(all_these_demos)) %>%
-                         select(-!!Q_COL_TIME) %>%
-                         distinct()),
-           # this should extract between-subject study conditions from file names
+  if (DEMOS %in% all_mods$module) {
+    # If ACE Explore, basically
+    all_procs <- all_mods %>%
+      # Put demos in another column, wide-ish, so it's next to every other module
+      mutate(demos = rerun(n(), .$data[.$module == DEMOS][[1]])) %>%
+      filter(module != DEMOS)
+  } else {
+    # This is now here for BACKWARDS compatibility
+    all_procs <- all_mods %>%
+      mutate(demos = map(data, ~.x %>%
+                           select(one_of(all_these_demos)) %>%
+                           select(-!!Q_COL_TIME) %>%
+                           distinct()))
+  }
+  
+  all_procs <- all_procs %>%
+    mutate(# this should extract between-subject study conditions from file names
            demos = map(demos, function(x) {
              if (!is.null(conditions)) {
                return (label_study_conditions(x, conditions))
