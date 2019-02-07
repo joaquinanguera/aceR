@@ -18,3 +18,9 @@ to_numeric <- function(x) {
     return(as.numeric(x))
   }
 }
+
+#' @keywords internal
+
+to_na <- function (x) {
+  return (NA)
+}
