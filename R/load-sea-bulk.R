@@ -44,9 +44,9 @@ load_sea_bulk <- function(path = ".",
              if (nrow(y) == 0) warning(paste(x, "failed to load!"))
            })) %>%
     filter(map(data, ~nrow(.)) > 0) %>%
-    mutate(data = map(data, ~nest(., -module))) %>%
     select(-file) %>% # because it's already pasted inside load_ace_file
     unnest(data) %>%
+    nest(-module) %>%
     mutate(data = map(data, ~.x %>%
                         remove_empty_cols() %>%
                         # coarse duplicate rejection
