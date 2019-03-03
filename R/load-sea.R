@@ -5,8 +5,8 @@
 #'
 #' @export
 #' @importFrom dplyr case_when group_by if_else lag mutate mutate_if ungroup %>%
-#' @importFrom purrr map2
-#' @importFrom stringr str_trim
+#' @importFrom purrr map2 possibly
+#' @importFrom stringr str_replace_all str_trim
 #' @importFrom tidyr nest unite unnest
 #' @importFrom rlang !! parse_expr sym
 #' @param file The name of the file which the data is to be read from.
@@ -24,8 +24,17 @@ load_sea_file <- function (file, verbose = FALSE) {
   dat <- dat %>%
     # standardize case convention in colnames
     standardize_names() %>%
-    mutate(file = file) %>%
-    unite(time, current_date, current_year, current_time, sep = "") %>%
+    mutate(file = file)
+  
+  if ("current_year" %in% names(dat)) {
+    dat <- dat %>%
+      unite(time, current_date, current_year, current_time, sep = "")
+  } else {
+    dat <- dat %>%
+      mutate(time = str_replace_all(current_date, ",", ""))
+  }
+  
+  dat <- dat %>%
     mutate_if(is.character, stringr::str_trim) %>%
     standardize_sea_column_names() %>%
     label_sea_module_conditions() %>%
@@ -62,7 +71,8 @@ load_sea_file <- function (file, verbose = FALSE) {
 #' @keywords internal
 
 read_sea_csv <- function(file) {
-  dat <- read.table(file, sep = ",", quote = "", header = F, stringsAsFactors = F,
+  # this quote arg SHOULD work to exclude apostrophes but allow double quotes
+  dat <- read.table(file, sep = ",", quote = "\"", header = F, stringsAsFactors = F,
                     col.names = paste0("V", 1:32), fill = T) %>%
     # first, remove any "extra" cols (dat is loaded in with padding cols if necessary)
     remove_empty_cols()
@@ -74,12 +84,13 @@ read_sea_csv <- function(file) {
   # if none of bad_cols are true, no preprocessing necessary
   if (all(!bad_cols)) {
     names(dat) <- str_trim(dat[1, ])
-    dat <- dat[2:nrow(dat), ]
+    # need second JUST IN CASE some of them have duplicated cols (e.g. "Semester")
+    dat <- dat[2:nrow(dat), !duplicated(colnames(dat))]
     return (dat)
     }
   
   names(dat) <- c(str_trim(dat[1, !bad_cols]), paste0("junk", 1:sum(bad_cols)))
-  dat <- dat[2:nrow(dat), ]
+  dat <- dat[2:nrow(dat), !duplicated(colnames(dat))]
   
   if (!("junk2" %in% names(dat))) {
     # if only one extra col of bad data
