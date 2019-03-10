@@ -251,20 +251,28 @@ standardize_ace_values <- function(df) {
     df <- df %>%
       mutate(original_orientation = as.numeric(original_orientation),
              degree_of_change = as.numeric(degree_of_change),
-             cue_rotated = as.integer(cue_rotated),
-             # 180 degree rotation was incorrectly marked as "change" when there's no visual change
-             cue_rotated = if_else(abs(round(degree_of_change, 2)) == 3.14,
-                                   0L,
-                                   cue_rotated),
-             !!COL_CORRECT_BUTTON := case_when(abs(round(degree_of_change, 2)) == 3.14 & correct_button == "correct" ~ "incorrect",
-                                               abs(round(degree_of_change, 2)) == 3.14 & correct_button == "incorrect" ~ "correct",
-                                               TRUE ~ correct_button),
-             
-             #Add in trial_accuracy labels for Filter. For cue is rotated, if RT >cutoff and not equal to response window, and correct_button is correct, hit, else miss
-             #For cue is not rotated, if RT >cutoff and not equal to response window, and correct_button is correct, then correct rejection, else false alarm
-             #This will also ensure RTs < cutoff are incorrect regardless of condition/button press
-             
-             trial_accuracy = case_when(cue_rotated == 1 & rt >= short_rt_cutoff & correct_button == "correct" ~ "Hit",
+             cue_rotated = as.integer(cue_rotated))
+    
+    # NOW HERE FOR BACKWARDS COMPATIBILITY:
+    # in the past (before 2019?), degree_of_change was the meaningful variable of adaptation
+    # hence this re-patching is sometimes necessary
+    
+    if (any(!is.na(df$degree_of_change))) {
+      df <- df %>%
+        mutate(# 180 degree rotation was incorrectly marked as "change" when there's no visual change
+               cue_rotated = if_else(abs(round(degree_of_change, 2)) == 3.14,
+                                     0L,
+                                     cue_rotated),
+               !!COL_CORRECT_BUTTON := case_when(abs(round(degree_of_change, 2)) == 3.14 & correct_button == "correct" ~ "incorrect",
+                                                 abs(round(degree_of_change, 2)) == 3.14 & correct_button == "incorrect" ~ "correct",
+                                                 TRUE ~ correct_button))
+    }
+    
+    #Add in trial_accuracy labels for Filter. For cue is rotated, if RT >cutoff and not equal to response window, and correct_button is correct, hit, else miss
+    #For cue is not rotated, if RT >cutoff and not equal to response window, and correct_button is correct, then correct rejection, else false alarm
+    #This will also ensure RTs < cutoff are incorrect regardless of condition/button press
+    df <- df %>%
+      mutate(trial_accuracy = case_when(cue_rotated == 1 & rt >= short_rt_cutoff & correct_button == "correct" ~ "Hit",
                                         cue_rotated == 1 & rt >= short_rt_cutoff & correct_button == "incorrect" ~ "Miss",
                                         cue_rotated == 0 & rt >= short_rt_cutoff & correct_button == "correct" ~ "Correct Rejection",
                                         cue_rotated == 0 & rt >- short_rt_cutoff & correct_button == "incorrect" ~ "False Alarm",
