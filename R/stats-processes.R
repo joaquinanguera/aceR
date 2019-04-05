@@ -8,6 +8,7 @@ ace_descriptive_statistics <- function(x) {
   return (c(variance, summary, averages))
 }
 
+#' @importFrom dplyr funs one_of summarize_at vars
 #' @keywords internal
 
 ace_descriptive_statistics_dplyr <- function(x, col) {
@@ -75,6 +76,9 @@ ace_ishihara <- function(x) { # uses y/n readings from "rg_color_deficiency" col
   } else {return ("NO")}
 }
 
+#' @importFrom dplyr funs one_of summarize_at vars
+#' @keywords internal 
+
 sea_descriptive_statistics <- function(x, col) {
   out = summarize_at(x, vars(one_of(col)), funs(
     mean = ace_mean,
@@ -85,6 +89,22 @@ sea_descriptive_statistics <- function(x, col) {
     sd = ace_sd))
   return (out)
 }
+
+#' @importFrom dplyr funs one_of summarize_at vars
+#' @keywords internal 
+
+sea_reading_descriptive_statistics <- function(x, col) {
+  out = summarize_at(x, vars(one_of(col)), funs(
+    mean = ace_mean,
+    sum = ace_sum,
+    score = sea_sum_adj,
+    count = ace_count,
+    length = ace_length,
+    sd = ace_sd))
+  return (out)
+}
+
+#' @keywords internal 
 
 sea_task_duration <- function(x, col) {
   out = summarize_at(x, vars(one_of(col)), funs(

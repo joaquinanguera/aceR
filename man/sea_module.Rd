@@ -3,31 +3,17 @@
 \docType{data}
 \name{sea_module}
 \alias{sea_module}
-\alias{sea_module}
 \alias{MATH_FLU}
-\alias{sea_module}
 \alias{READ_FLU}
-\alias{sea_module}
 \alias{FRAC_1}
-\alias{sea_module}
 \alias{FRAC_2}
-\alias{sea_module}
 \alias{FRAC_3}
-\alias{sea_module}
 \alias{MATH_REC}
-\alias{sea_module}
 \alias{RUN_MEM_SPAN}
-\alias{sea_module}
 \alias{GROUPITIZE}
-\alias{sea_module}
-\alias{REL_MATCH_1}
-\alias{sea_module}
-\alias{REL_MATCH_2}
-\alias{sea_module}
+\alias{REL_MATCH}
 \alias{ARITHM_VER}
-\alias{sea_module}
 \alias{READ_COMP}
-\alias{sea_module}
 \alias{ALL_SEA_MODULES}
 \title{SEA module constants}
 \format{An object of class \code{character} of length 1.}
@@ -48,9 +34,7 @@ RUN_MEM_SPAN
 
 GROUPITIZE
 
-REL_MATCH_1
-
-REL_MATCH_2
+REL_MATCH
 
 ARITHM_VER
 

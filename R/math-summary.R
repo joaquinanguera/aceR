@@ -8,7 +8,7 @@ ace_length <- function(x) {
 #' @keywords internal
 
 ace_count <- function(x) {
-  y = x[x != ""] 
+  y = x[!(x %in% c("", "no_response"))]
   return (na.omit(length(y)))
 }
 

@@ -3,14 +3,14 @@
 \docType{data}
 \name{sea_header}
 \alias{sea_header}
-\alias{sea_header}
 \alias{COL_RESPONSE}
-\alias{sea_header}
 \alias{COL_QUESTION_TEXT}
-\alias{sea_header}
 \alias{COL_MODULE}
-\alias{sea_header}
+\alias{COL_SEA_GROUP}
+\alias{ALL_POSSIBLE_SEA_DEMOS}
+\alias{Q_ALL_POSSIBLE_SEA_DEMOS}
 \alias{standardize_sea_column_names}
+\alias{standardize_sea_values}
 \title{SEA column name constants}
 \format{An object of class \code{character} of length 1.}
 \usage{
@@ -20,7 +20,15 @@ COL_QUESTION_TEXT
 
 COL_MODULE
 
+COL_SEA_GROUP
+
+ALL_POSSIBLE_SEA_DEMOS
+
+Q_ALL_POSSIBLE_SEA_DEMOS
+
 standardize_sea_column_names(df)
+
+standardize_sea_values(df)
 }
 \description{
 SEA also uses some ACE column name constants.

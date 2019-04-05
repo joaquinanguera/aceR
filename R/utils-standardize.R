@@ -10,7 +10,8 @@ standardize_names <- function (df, pulvinar = FALSE) {
     new_names = remove_special_characters(new_names)
   }
   new_names = replace_spaces(new_names, "_")
-  return (new_names)
+  names(df) = new_names
+  return (df)
 }
 
 #'  Replaces empty values in one column with the values of another column

@@ -18,25 +18,24 @@ make_directory <- function(path, showWarnings = FALSE) {
 #' Exports a list of data frames as csv into named directory
 #'
 #' @export
-#' @param dat a list of data frames to save
-#' @param path the named release directory
+#' @importFrom purrr walk2
+#' @importFrom readr write_csv
+#'
+#' @param dat a list of data frames to save. If saving out data from a long-form tibble, input
+#' the column containing the data to be written, in the format \code{my_output$data}.
+#' @param path the named release directory. If directory doesn't exist, attempts to create.
+#' @param na What should NAs be written as? Defaults to "". Passed onto \code{\link{readr}[write_csv]}.
 #' @inheritParams base::dir.create
 
-export_csv <- function (dat, path = ".", showWarnings = FALSE) {
-  names = names(dat)
-  for (i in names) {
-    sub = as.data.frame(dat[i])
-    strip = paste(i, ".", sep = "")
-    names(sub) = sapply(names(sub), function (x) gsub(strip, "", x))
-    file = paste(i, ".csv", sep = "")
-    if (path != ".") {
-      file = paste(path, file, sep = "/")
-      if (!dir.exists(path)) {
-        dir.create(file.path(path), showWarnings = showWarnings)
-      }
+export_csv <- function (dat, path = ".", na = "", showWarnings = FALSE) {
+  
+  if (!dir.exists(path)) dir.create(file.path(path), showWarnings = showWarnings)
+  
+  walk2(dat, names(dat), function (x, y) {
+    write_csv(x, path = paste0(path, "/", y, ".csv"), na = na)
+    cat("saving... ", y, "\n")
     }
-    print(paste("saving...", file))
-    write.csv(sub, file, na = "")
-  }
+  )
+
 }
 

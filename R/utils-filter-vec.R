@@ -1,10 +1,15 @@
 
-
+#' @importFrom magrittr %>%
+#' @importFrom purrr map
 #' @keywords internal
 
 filter_vec <- function(vec = c(), pattern = NULL) {
-  match = sapply(vec, function(x) return (grepl(pattern, x)))
-  return (vec[which(match)])
+  # keeps those that contain ANY OF pattern(s); allows pattern to be a character vector
+  match <- map(pattern, ~grepl(., vec)) %>%
+    as.data.frame() %>%
+    rowSums() %>%
+    as.logical() # appears to coerce any numeric not equal to 0 to TRUE, which is desired, so okay?
+  return (vec[match])
 }
 
 #' @keywords internal
@@ -18,11 +23,17 @@ multi_filter_vec <- function(vec = c(), patterns = c()) {
   return (out)
 }
 
+#' @importFrom magrittr %>%
+#' @importFrom purrr map
 #' @keywords internal
 
 filter_out_vec <- function(vec = c(), pattern = NULL) {
-  match = sapply(vec, function(x) return (!grepl(pattern, x)))
-  return (vec[which(match)])
+  # keeps those that don't contain ANY OF pattern(s)
+  match <- map(pattern, ~grepl(., vec)) %>%
+    as.data.frame() %>%
+    rowSums() %>%
+    as.logical()
+  return (vec[!match])
 }
 
 #' @keywords internal

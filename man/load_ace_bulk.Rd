@@ -5,7 +5,7 @@
 \title{Read & Load all ACE csv & xls files in a directory}
 \usage{
 load_ace_bulk(path = ".", verbose = TRUE, recursive = TRUE,
-  exclude = c(), pattern = NULL, which_modules = NULL,
+  exclude = c(), pattern = "", which_modules = "",
   pid_stem = "ADMIN-UCSF-", force_pid_name_match = FALSE,
   pulvinar = FALSE)
 }

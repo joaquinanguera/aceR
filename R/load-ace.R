@@ -4,7 +4,9 @@
 #' Reads, parses, and converts an ACE csv or xls into an R \code{\link{data.frame}}.
 #'
 #' @export
+#' @importFrom purrr map2
 #' @importFrom utils read.table read.csv write.csv head tail count.fields
+#' 
 #' @param file The name of the file which the data is to be read from.
 #' @param pid_stem The string stem of the ID in the "PID" field. Defaults to "ADMIN-UCSF-".
 #' @param pulvinar logical. Expect raw data in Pulvinar format? Defaults to \code{FALSE}
@@ -28,13 +30,9 @@ load_ace_file <- function(file, pid_stem = "ADMIN-UCSF-", pulvinar = FALSE) {
     raw_dat = breakup_by_user(raw_dat)
   }
   if (is.vector(raw_dat)) {
-    out = data.frame()
-    dfs = names(raw_dat)
-    for (i in 1:length(dfs)) {
-      name = paste(file, dfs[i], sep = "-")
-      df = attempt_transform(name, raw_dat[[i]])
-      out = plyr::rbind.fill(out, df)
-    }
+    ortho_names = paste(file, names(raw_dat), sep = "-")
+    dfs = map2(ortho_names, raw_dat, ~attempt_transform(.x, .y))
+    out = plyr::rbind.fill(dfs)
     return (out)
   } else {
     return (attempt_transform(file, raw_dat))
@@ -126,80 +124,116 @@ attempt_transform <- function(file, raw_dat) {
   return (df)
 }
 
+#' @importFrom magrittr %>%
 #' @keywords internal
 
 transform_raw <- function (file, raw_dat) {
   if (nrow(raw_dat) == 0) return (data.frame())
-  # standardize raw data
-  raw_dat = standardize_raw_csv_data(raw_dat)
-  # remove nondata rows
-  dat = remove_nondata_rows(raw_dat)
-  # move grouping rows into column
-  dat = transform_grouping_rows(dat)
-  # standardize session info
-  dat = standardize_session_info(dat)
-  # transform session info into columns
-  dat = transform_session_info(dat)
-  # parse subsections
-  dat = parse_subsections(dat)
-  # standardize output
-  names(dat) = standardize_names(dat)
-  dat$file = file
-  dat$module = identify_module(file)
-  dat = standardize_ace_column_names(dat)
+  
+  dat <- raw_dat %>%
+    # standardize raw data
+    standardize_raw_csv_data() %>%
+    # remove nondata rows
+    remove_nondata_rows() %>%
+    # move grouping rows into column
+    transform_grouping_rows() %>%
+    # standardize session info
+    standardize_session_info() %>%
+    # transform session info into columns
+    transform_session_info() %>%
+    # parse subsections
+    parse_subsections() %>%
+    # standardize output
+    standardize_names() %>%
+    dplyr::mutate(file = file,
+                  module = identify_module(file[1])) %>%
+    standardize_ace_column_names()
+  
   cols = names(dat)
-  if (!(COL_TIME) %in% cols) {
+  
+  if (!(COL_TIME %in% cols)) {
     # make "time" column from subid & filename if file doesn't contain time
-    dat[, COL_TIME] = paste(dat$file, dat[, COL_SUB_ID], sep = ".")
-  } else {
-    dat[, COL_TIME] = as.vector(dat[, COL_TIME])
+    # DANGEROUS: if constructing time from filename, this will cause de-duplication to fail silently
+    # because duplicated records have different filenames
+    dat[[COL_TIME]] = paste(dat[[COL_FILE]], dat[[COL_SUB_ID]], sep = ".")
   }
+  
   if (COL_PID %in% cols) {
     # very band-aid: attempt to repair PID using name field if PID is empty stem or otherwise filler
-    if (unique(dat[, COL_PID]) %in% c("ADMIN-UCSF-", "ADMIN-UCSF-0", "ADMIN-UCSF-0000")) dat[, COL_PID] = paste0("ADMIN-UCSF-", dat[, COL_NAME])
-    
+    if (unique(dat[[COL_PID]]) %in% c("ADMIN-UCSF-", "ADMIN-UCSF-0", "ADMIN-UCSF-0000")) {
+      dat[[COL_PID]] = paste0("ADMIN-UCSF-", dat[[COL_NAME]])
+    }
     # make block id from pid & time
-    dat[, COL_BID] = paste(dat[, COL_PID], dat[, COL_TIME], sep = ".")
+    dat[[COL_BID]] = paste(dat[[COL_PID]], dat[[COL_TIME]], sep = ".")
+    # make short block id using only pid and date (to allow for less granular matching of records between diff modules)
+    dat[[COL_BID_SHORT]] = paste(dat[[COL_PID]],
+                                 lubridate::floor_date(lubridate::parse_date_time(dat[[COL_TIME]], "ymdHMSz"), unit = "days"),
+                                 sep = ".")
   } else {
     # make block id from file name & time if file doesn't contain PID
-    dat[, COL_BID] = paste(dat$file, dat[, COL_TIME], sep = ".")
-    dat[, COL_PID] = guess_pid(dat$file)
+    dat[[COL_BID]] = paste(dat[[COL_FILE]], dat[[COL_TIME]], sep = ".")
+    # make short block id using only pid and date (to allow for less granular matching of records between diff modules)
+    dat[[COL_BID_SHORT]] = paste(dat[[COL_FILE]],
+                                 lubridate::floor_date(lubridate::parse_date_time(dat[[COL_TIME]], "ymdHMSz"), unit = "days"),
+                                 sep = ".")
+    dat[[COL_PID]] = guess_pid(dat[[COL_FILE]])
   }
-  if (COL_GENDER %in% cols) {
+  
+  try({ # so will fail silently if gender isn't in data
     # this patch to propagate gender down has to be done for OLD files where gender was called "age1"
-    if (length(unique(dat[, COL_GENDER])) > 1) {
-      if ("FEMALE" %in% unique(dat[, COL_GENDER])) { 
+    if (length(unique(dat[[COL_GENDER]])) > 1) {
+      if ("FEMALE" %in% unique(dat[[COL_GENDER]])) { 
         this_gender = "FEMALE"
-      } else if ("MALE" %in% unique(dat[, COL_GENDER])) {
+      } else if ("MALE" %in% unique(dat[[COL_GENDER]])) {
         this_gender = "MALE"
       } else {this_gender = "OTHER"}
-      dat[, COL_GENDER] = this_gender
+      dat[[COL_GENDER]] = this_gender
     }
-}
+  }, silent = TRUE)
+  # replace all text "NA"s with real NA
+  dat = replace_nas(dat, NA)
   dat = standardize_ace_values(dat)
   return (dat)
 }
 
+#' @import dplyr
+#' @importFrom magrittr %>%
+#' @importFrom rlang !! :=
 #' @keywords internal
 
 transform_pulvinar <- function (file, dat) {
   if (nrow(dat) == 0) return (data.frame())
   # standardize output
-  names(dat) = standardize_names(dat, pulvinar = T)
-  dat$file = file
-  dat$module = identify_module(file)
-  dat = standardize_ace_column_names(dat)
-  # parse subsections, currently SLOW version
-  dat = parse_subsections_pulvinar(dat)
-  # make block id from pid & time
-  dat[, COL_BID] = paste(dat[, COL_PID], dat[, COL_TIME], sep = ".")
-  dat = standardize_ace_values(dat)
-  # was flagging sets where pid and name don't match--this is being somewhat handled in parse_subsections_pulvinar
-  # dat = clean_invalid_subs(dat)
+  dat = dat %>%
+    standardize_names(pulvinar = T) %>%
+    mutate(file = file,
+           # for faster performance bc each pulvinar file should only contain one module
+           module = identify_module(file[1])) %>%
+    standardize_ace_column_names() %>%
+    # make block id from pid & time
+    mutate(!!Q_COL_BID := paste(!!Q_COL_PID, !!Q_COL_TIME, sep = "."),
+           # make short block id from pid and date only
+           !!Q_COL_BID_SHORT := paste(!!Q_COL_PID,
+                                      lubridate::floor_date(lubridate::parse_date_time(!!Q_COL_TIME, "ymdHMSz"), unit = "days"),
+                                      sep = ".")) %>%
+    standardize_ace_values() %>%
+    group_by(!!Q_COL_BID) %>%
+    mutate(!!COL_BLOCK_HALF := plyr::mapvalues(make_half_seq(n()), from = c(1, 2), to = c("first_half", "second_half"))) %>%
+    ungroup()
+  
+  # Don't do "half" labeling for demos, which should only have one row per subject
+  if (dat$module[1] == DEMOS) {
+    dat = dat %>%
+      select(-!!COL_BLOCK_HALF)
+  }
+
+  if (COL_NAME %in% names(dat) & grepl("ADMIN-UCSF", dat[1, COL_PID])) { # this function expects a "name" column by which to do the matching
+    dat = remove_nondata_rows_pulvinar(dat)
+  }
   return (dat)
 }
 
-#' @keywords internal
+#' @keywords internal deprecated
 
 clean_invalid_subs <- function(dat) {
   # leaving this function here for now in case it becomes necessary later.

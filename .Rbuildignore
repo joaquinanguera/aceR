@@ -4,3 +4,4 @@ datamart-master/
 scripts/
 ^\.travis\.yml$
 CONTRIBUTING.md
+^~/\.boxr-oauth$

@@ -3,88 +3,136 @@
 \docType{data}
 \name{ace_header}
 \alias{ace_header}
-\alias{ace_header}
 \alias{COL_FILE}
-\alias{ace_header}
+\alias{Q_COL_FILE}
 \alias{COL_TIME}
-\alias{ace_header}
+\alias{Q_COL_TIME}
 \alias{COL_RT}
-\alias{ace_header}
+\alias{Q_COL_RT}
 \alias{COL_CORRECT_BUTTON}
-\alias{ace_header}
+\alias{Q_COL_CORRECT_BUTTON}
 \alias{COL_CORRECT_RESPONSE}
-\alias{ace_header}
+\alias{Q_COL_CORRECT_RESPONSE}
 \alias{COL_RW}
-\alias{ace_header}
+\alias{Q_COL_RW}
 \alias{COL_LATE_RESPONSE}
-\alias{ace_header}
+\alias{Q_COL_LATE_RESPONSE}
 \alias{COL_CONDITION}
-\alias{ace_header}
+\alias{Q_COL_CONDITION}
 \alias{COL_STUDY_COND}
-\alias{ace_header}
+\alias{Q_COL_STUDY_COND}
 \alias{COL_PID}
-\alias{ace_header}
+\alias{Q_COL_PID}
 \alias{COL_BID}
-\alias{ace_header}
+\alias{Q_COL_BID}
+\alias{COL_BID_SHORT}
+\alias{Q_COL_BID_SHORT}
 \alias{COL_NAME}
-\alias{ace_header}
+\alias{Q_COL_NAME}
 \alias{COL_AGE}
-\alias{ace_header}
+\alias{Q_COL_AGE}
 \alias{COL_GRADE}
-\alias{ace_header}
+\alias{Q_COL_GRADE}
 \alias{COL_GENDER}
-\alias{ace_header}
+\alias{Q_COL_GENDER}
 \alias{COL_HANDEDNESS}
-\alias{ace_header}
+\alias{Q_COL_HANDEDNESS}
 \alias{COL_SUB_ID}
-\alias{ace_header}
+\alias{Q_COL_SUB_ID}
 \alias{COL_TRIAL_TYPE}
-\alias{ace_header}
+\alias{Q_COL_TRIAL_TYPE}
 \alias{COL_BLOCK_HALF}
-\alias{ace_header}
+\alias{Q_COL_BLOCK_HALF}
+\alias{ALL_POSSIBLE_DEMOS}
+\alias{Q_ALL_POSSIBLE_DEMOS}
 \alias{standardize_ace_column_names}
-\alias{ace_header}
 \alias{standardize_ace_values}
 \title{ACE column name constants}
 \format{An object of class \code{character} of length 1.}
 \usage{
 COL_FILE
 
+Q_COL_FILE
+
 COL_TIME
+
+Q_COL_TIME
 
 COL_RT
 
+Q_COL_RT
+
 COL_CORRECT_BUTTON
+
+Q_COL_CORRECT_BUTTON
 
 COL_CORRECT_RESPONSE
 
+Q_COL_CORRECT_RESPONSE
+
 COL_RW
+
+Q_COL_RW
 
 COL_LATE_RESPONSE
 
+Q_COL_LATE_RESPONSE
+
 COL_CONDITION
+
+Q_COL_CONDITION
 
 COL_STUDY_COND
 
+Q_COL_STUDY_COND
+
 COL_PID
+
+Q_COL_PID
 
 COL_BID
 
+Q_COL_BID
+
+COL_BID_SHORT
+
+Q_COL_BID_SHORT
+
 COL_NAME
+
+Q_COL_NAME
 
 COL_AGE
 
+Q_COL_AGE
+
 COL_GRADE
+
+Q_COL_GRADE
 
 COL_GENDER
 
+Q_COL_GENDER
+
 COL_HANDEDNESS
+
+Q_COL_HANDEDNESS
 
 COL_SUB_ID
 
+Q_COL_SUB_ID
+
 COL_TRIAL_TYPE
 
+Q_COL_TRIAL_TYPE
+
 COL_BLOCK_HALF
+
+Q_COL_BLOCK_HALF
+
+ALL_POSSIBLE_DEMOS
+
+Q_ALL_POSSIBLE_DEMOS
 
 standardize_ace_column_names(df)
 
