@@ -33,10 +33,10 @@ NULL
 #' @param output string indicating preferred output format. Can be \code{"wide"} (default),
 #' where one dataframe is output containing cols with data from all modules, or \code{"long"},
 #'  where a dataframe is output, with a list-column containing dataframes with each module's data.
-#' @param rm_outlier_rts_sd numeric. Remove within-subject RTs further than this many SD from
+#' @param rm_outlier_rts_sd DEPRECATED numeric. Remove within-subject RTs further than this many SD from
 #' within-subject mean RT? Enter as one number. Specify either this or \code{rm_outlier_rts_range},
 #' but not both. If both specified, will use SD cutoff. Defaults to \code{FALSE}.
-#' @param rm_outlier_rts_range numeric vector, length 2. Remove within-subject RTs outside of
+#' @param rm_outlier_rts_range DEPRECATED numeric vector, length 2. Remove within-subject RTs outside of
 #' this specified range? Enter min and max accepted RTs as a vector length 2. If min or max
 #' not specified, enter that value as NA in the vector. Specify either this or \code{rm_outlier_rts_range},
 #' but not both. If both specified, will use SD cutoff. Defaults to \code{FALSE}.
@@ -76,11 +76,13 @@ proc_by_module <- function(df, modules = "all", output = "wide",
   
   if (DEMOS %in% all_mods$module) {
     # If ACE Explore, basically
+    is_explore = TRUE
     all_procs <- all_mods %>%
       # Put demos in another column, wide-ish, so it's next to every other module
       mutate(demos = rerun(n(), .$data[.$module == DEMOS][[1]])) %>%
       filter(module != DEMOS)
   } else {
+    is_explore = FALSE
     # This is now here for BACKWARDS compatibility
     all_procs <- all_mods %>%
       mutate(demos = map(data, ~.x %>%
@@ -111,6 +113,19 @@ proc_by_module <- function(df, modules = "all", output = "wide",
     filter(map_int(proc, ~nrow(.)) > 0)
   
   # prepare for output
+  
+  
+  if (is_ace & is_explore) {
+    # Try this: Ace Explore has demos collected at a separate date/time,
+    # so BID will _basically never_ match up. Use PID to bind
+    demo_merge_col = COL_PID
+    all_procs <- all_procs %>%
+      mutate(proc = map2(proc, demos, ~reconstruct_pid(.x, .y)),
+             demos = map(demos, ~select(.x, -!!Q_COL_BID)))
+  } else {
+    demo_merge_col = COL_BID
+  }
+  
   if (output == "wide") {
     out <- all_procs %>%
       select(module, demos, proc) %>%
@@ -126,13 +141,13 @@ proc_by_module <- function(df, modules = "all", output = "wide",
     if (is_ace) {
       out <- out %>%
         mutate(proc = pmap(list(proc, demos, module), function (a, b, c) {
-          full_join(b, a, by = COL_BID) %>%
-            rename_at(COL_BID, funs(paste(toupper(c), ., sep = "."))) %>%
+          full_join(b, a, by = demo_merge_col) %>%
+            rename_at(demo_merge_col, funs(paste(toupper(c), ., sep = "."))) %>%
             return()
         }))
     } else {
       out <- out %>%
-        mutate(proc = map2(proc, demos, ~full_join(.y, .x, by = "bid")))
+        mutate(proc = map2(proc, demos, ~full_join(.y, .x, by = demo_merge_col)))
     }
     
     valid_demos = get_valid_demos(out$proc[[1]], is_ace)
@@ -145,15 +160,46 @@ proc_by_module <- function(df, modules = "all", output = "wide",
   } else if (output == "long") {
     out <- all_procs %>%
       select(module, demos, proc) %>%
-      mutate(proc = map2(proc, demos, ~full_join(.y, .x, by = "bid")),
+      mutate(proc = map2(proc, demos, ~full_join(.y, .x, by = demo_merge_col)),
              proc = rlang::set_names(proc, module)) %>%
       select(-demos)
     return (out)
   }
 }
 
-#' @details Expects a vector of RTs
 #' @keywords internal
+
+get_valid_demos = function(df, is_ace) {
+  if (is_ace) {
+    return (names(df)[names(df) %in% c(ALL_POSSIBLE_DEMOS, COL_STUDY_COND)])
+  } else {
+    return (names(df)[names(df) %in% c(ALL_POSSIBLE_SEA_DEMOS, COL_STUDY_COND)])
+  }
+}
+
+#' @keywords internal
+
+label_study_conditions = function(info, conditions) {
+  info$study_condition = NA
+  for (cond in 1:length(conditions)) {
+    info[grepl(conditions[cond], info[, COL_FILE], ignore.case = T), COL_STUDY_COND] = tolower(conditions[cond])
+  }
+  return (info)
+}
+
+#' @keywords internal
+#' @importFrom dplyr mutate select everything
+#' @importFrom magrittr %>%
+#' @importFrom rlang !! :=
+
+reconstruct_pid <- function (proc, demo) {
+  proc %>% mutate(!!COL_PID := str_sub(!!Q_COL_BID, end = nchar(demo[[COL_PID]][1]))) %>%
+    select(COL_BID, COL_PID, everything()) %>%
+    return()
+}
+
+#' @details Expects a vector of RTs
+#' @keywords internal deprecated
 
 remove_rts <- function(vec, sd.cutoff, range.cutoff) {
   if (sd.cutoff != FALSE & range.cutoff != FALSE) {
@@ -179,26 +225,6 @@ get_proc_info <- function(mod, proc, conditions) {
   
   if (!missing(conditions)) {info = label_study_conditions(info, conditions)}
   return (merge(info, proc, by = COL_BID))
-}
-
-#' @keywords internal
-
-get_valid_demos = function(df, is_ace) {
-  if (is_ace) {
-    return (names(df)[names(df) %in% c(ALL_POSSIBLE_DEMOS, COL_STUDY_COND)])
-  } else {
-    return (names(df)[names(df) %in% c(ALL_POSSIBLE_SEA_DEMOS, COL_STUDY_COND)])
-  }
-}
-
-#' @keywords internal
-
-label_study_conditions = function(info, conditions) {
-  info$study_condition = NA
-  for (cond in 1:length(conditions)) {
-    info[grepl(conditions[cond], info[, COL_FILE], ignore.case = T), COL_STUDY_COND] = tolower(conditions[cond])
-  }
-  return (info)
 }
 
 #' @keywords internal deprecated
