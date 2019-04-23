@@ -190,7 +190,8 @@ standardize_ace_values <- function(df) {
   cols = names(df)
   
   short_rt_cutoff <- 150
-  
+   
+  # (mostly) module-general recoding of short RT trials etc
    #In older version, 'no response' trial RTs were replaced with Max Intertrial Interval. 
                                         #However, the value for Max Intertrial Interval is not always recorded in the data output
                                         #This line marks trials with an RT that is evenly divisible by 10
@@ -205,6 +206,17 @@ standardize_ace_values <- function(df) {
                                         is.na(rt) ~ "no_response",
                                         TRUE ~ correct_button))
     
+  }
+  
+  if (COL_LATE_RESPONSE %in% cols) {
+    # original form of this column is 0/1
+    df[[COL_LATE_RESPONSE]] = case_when(df[[COL_RT]] < short_rt_cutoff & df[[COL_RT]] > 0 ~ "short",
+                                        df[[COL_RT]] > df[[COL_RW]] ~ "late",
+                                        df[[COL_RT]] < df[[COL_RW]] ~ "early",
+                                        df[[COL_RT]] > 0 & df[[COL_RT]] == df[[COL_RW]] ~ "no_response",
+                                        df[[COL_RT]] %% 10 == 0 & df[[COL_RT]] != 0 ~ "no_response",
+                                        is.na(df[[COL_RT]]) ~ "no_response",
+                                        TRUE ~ "late")
   }
   
   # Forcible recoding of accuracy and other things for various modules below
@@ -226,7 +238,7 @@ standardize_ace_values <- function(df) {
     #This will also ensure RTs < cutoff are incorrect regardless of condition/button press
     df$trial_accuracy = with(df, case_when(position_is_top == 1 & rt >= short_rt_cutoff & rt != rw ~ "Hit",
                                            position_is_top == 1 & (rt < short_rt_cutoff | rt == rw) ~ "Miss",
-                                           late_response == "no_response" ~ "Miss", # ??? really?
+                                           position_is_top == 1 & late_response == "no_response" ~ "Miss", # ??? really?
                                            position_is_top == 0 & rt == 0 ~ "Correct Rejection",
                                            position_is_top == 0 & rt != 0 ~ "False Alarm",
                                            TRUE ~ ""))
@@ -253,7 +265,7 @@ standardize_ace_values <- function(df) {
     #This will also ensure RTs < cutoff are incorrect regardless of condition/button press
     df$trial_accuracy = with(df, case_when(is_valid_cue == 1 & rt >= short_rt_cutoff & rt != rw ~ "Hit",
                                            is_valid_cue == 1 & (rt < short_rt_cutoff | rt == rw) ~ "Miss",
-                                           late_response == "no_response" ~ "Miss", # ??? really?
+                                           is_valid_cue == 1 & late_response == "no_response" ~ "Miss", # ??? really?
                                            is_valid_cue == 0 & rt == 0 ~ "Correct Rejection",
                                            is_valid_cue == 0 & rt != 0 ~ "False Alarm",
                                            TRUE ~ ""))
@@ -301,39 +313,6 @@ standardize_ace_values <- function(df) {
     
   } else if (SPATIAL_SPAN %in% df$module | BACK_SPATIAL_SPAN %in% df$module) {
     df$object_count = as.numeric(df$object_count)
-  }
-  
-  # (mostly) module-general recoding of short RT trials etc, done after boutique recoding by module
-  
-  # RT for the span tasks is handled differently and is left uninterpreted really
-  # so don't do all of this recoding of correctness by RT
-  if (COL_CORRECT_BUTTON %in% cols & !(SPATIAL_SPAN %in% df$module) & !(BACK_SPATIAL_SPAN %in% df$module)) {
-    df <- df %>%
-      mutate(correct_button = case_when(rt < short_rt_cutoff & rt > 0 ~ "incorrect",
-                                        rt == rw ~ "no_response",
-                                        #In older version, 'no response' trial RTs were replaced with Max Intertrial Interval. 
-                                        #However, the value for Max Intertrial Interval is not always recorded in the data output
-                                        #This line marks trials with an RT that is evenly divisible by 10
-                                        # (i.e. is an integer and divisible by 10) as a 'no response' trial. 
-                                        rt %% 10 == 0 & rt != 0 ~ "no_response",
-                                        is.na(rt) ~ "no_response",
-                                        TRUE ~ correct_button))
-    
-  }
-  
-  if (COL_CORRECT_RESPONSE %in% cols) {
-    df[[COL_CORRECT_RESPONSE]] = dplyr::recode(df[[COL_CORRECT_RESPONSE]], `0` = "incorrect", `1` = "correct")
-  }
-  
-  if (COL_LATE_RESPONSE %in% cols) {
-    # original form of this column is 0/1
-    df[[COL_LATE_RESPONSE]] = case_when(df[[COL_RT]] < short_rt_cutoff & df[[COL_RT]] > 0 ~ "short",
-                                        df[[COL_RT]] > df[[COL_RW]] ~ "late",
-                                        df[[COL_RT]] < df[[COL_RW]] ~ "early",
-                                        df[[COL_RT]] > 0 & df[[COL_RT]] == df[[COL_RW]] ~ "no_response",
-                                        df[[COL_RT]] %% 10 == 0 & df[[COL_RT]] != 0 ~ "no_response",
-                                        is.na(df[[COL_RT]]) ~ "no_response",
-                                        TRUE ~ "late")
   }
   
   # needs to be called LAST, after all the other boutique accuracy corrections are complete
