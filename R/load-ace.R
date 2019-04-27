@@ -210,13 +210,15 @@ transform_pulvinar <- function (file, dat) {
            # for faster performance bc each pulvinar file should only contain one module
            module = identify_module(file[1])) %>%
     standardize_ace_column_names() %>%
-    # make block id from pid & time
-    mutate(!!Q_COL_BID := paste(!!Q_COL_PID, !!Q_COL_TIME, sep = "."),
-           # make short block id from pid and date only
-           !!Q_COL_BID_SHORT := paste(!!Q_COL_PID,
-                                      lubridate::floor_date(lubridate::parse_date_time(!!Q_COL_TIME, "ymdHMSz"), unit = "days"),
-                                      sep = ".")) %>%
+    # force lowercase everything to cover for weird capitalization diffs bw files
+    mutate(!!Q_COL_PID := tolower(!!Q_COL_PID),
+           # make block id from pid & time
+           !!Q_COL_BID := paste(!!Q_COL_PID, !!Q_COL_TIME, sep = ".")) %>%
     standardize_ace_values() %>%
+    # make short block id from pid and date only
+    mutate(!!Q_COL_BID_SHORT := paste(!!Q_COL_PID,
+                                      lubridate::floor_date(!!Q_COL_TIME, unit = "days"),
+                                      sep = ".")) %>%
     group_by(!!Q_COL_BID) %>%
     mutate(!!COL_BLOCK_HALF := plyr::mapvalues(make_half_seq(n()), from = c(1, 2), to = c("first_half", "second_half"))) %>%
     ungroup()
