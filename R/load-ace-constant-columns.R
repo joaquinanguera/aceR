@@ -156,7 +156,7 @@ standardize_ace_column_names <- function(df) {
 }
 
 #' @name ace_header
-#' @importFrom dplyr funs group_by if_else lag mutate mutate_at recode ungroup
+#' @importFrom dplyr coalesce funs group_by if_else lag mutate mutate_at recode ungroup
 #' @importFrom lubridate parse_date_time
 #' @importFrom magrittr %>%
 #' @importFrom rlang !! :=
@@ -169,9 +169,15 @@ standardize_ace_values <- function(df) {
   
   # FIRST: re-type non-character columns to their intended types
   # ACROSS TASK I think:
-  df <- df %>%
-    mutate(time = str_replace(time, "T", ""), # the T causes parse_date_time to flip out
-           time = parse_date_time(time, "Y-m-dHMSz"))
+  try({
+    df <- df %>%
+      mutate(# !!COL_TIME := str_replace(!!Q_COL_TIME, "T", ""), # the T causes parse_date_time to flip out
+        # parse_date_time appears to be behaving okay with the T in between the date and time... as of apr 27 2019
+             time1 = suppressWarnings(parse_date_time(!!Q_COL_TIME, "ymdHMSz")),
+             time2 = suppressWarnings(parse_date_time(!!Q_COL_TIME, "abdyHMSz")),
+             !!COL_TIME := coalesce(time1, time2)) %>%
+      select(-time1, -time2)
+  }, silent = TRUE)
   
   try({
     df <- df %>%
@@ -191,25 +197,26 @@ standardize_ace_values <- function(df) {
   
   short_rt_cutoff <- 150
    
+  
+  # First, for ALL tasks, code correct_button with words, not 0 and 1
+  
+  try({
+    df <- df %>%
+      mutate(!!COL_CORRECT_BUTTON := dplyr::recode(!!Q_COL_CORRECT_BUTTON, `0` = "incorrect", `1` = "correct"))
+  }, silent = TRUE)
+  
+  
   # (mostly) module-general recoding of short RT trials etc
-   #In older version, 'no response' trial RTs were replaced with Max Intertrial Interval. 
-                                        #However, the value for Max Intertrial Interval is not always recorded in the data output
-                                        #This line marks trials with an RT that is evenly divisible by 10
-                                        # (i.e. is an integer and divisible by 10) as a 'no response' trial. 
+  #In older version, 'no response' trial RTs were replaced with Max Intertrial Interval. 
+  #However, the value for Max Intertrial Interval is not always recorded in the data output
+  #This line marks trials with an RT that is evenly divisible by 10
+  # (i.e. is an integer and divisible by 10) as a 'no response' trial. 
   # RT for the span tasks is handled differently and is left uninterpreted really
   # so don't do all of this recoding of correctness by RT
   if (COL_CORRECT_BUTTON %in% cols & !(SPATIAL_SPAN %in% df$module) & !(BACK_SPATIAL_SPAN %in% df$module)) {
     
-    # Sometimes (in newer Ace Explorer data?) the correct_button column is already numeric
-    if (is.numeric(df[[COL_CORRECT_BUTTON]])) {
-      df <- df %>%
-        mutate(COL_CORRECT_BUTTON := recode(!!Q_COL_CORRECT_BUTTON,
-                                            `0` = "incorrect",
-                                            `1` = "correct"))
-    }
-    
     df <- df %>%
-      mutate(COL_CORRECT_BUTTON := case_when(!!Q_COL_RT < short_rt_cutoff & !!Q_COL_RT > 0 ~ "incorrect",
+      mutate(!!COL_CORRECT_BUTTON := case_when(!!Q_COL_RT < short_rt_cutoff & !!Q_COL_RT > 0 ~ "incorrect",
                                         !!Q_COL_RT == !!Q_COL_RW ~ "no_response",
                                         !!Q_COL_RT %% 10 == 0 & !!Q_COL_RT != 0 ~ "no_response",
                                         is.na(!!Q_COL_RT) ~ "no_response",
@@ -230,13 +237,6 @@ standardize_ace_values <- function(df) {
   
   # Forcible recoding of accuracy and other things for various modules below
   # Most of this is an attempt to reconstruct accuracy as orthogonal to response lateness
-  
-  # First, for ALL tasks, code correct_button with words, not 0 and 1
-  
-  try({
-    df <- df %>%
-      mutate(correct_button = dplyr::recode(correct_button, `0` = "incorrect", `1` = "correct"))
-  }, silent = TRUE)
   
   if (SAAT %in% df$module) {
     # This fixes a condition naming error in the raw log files. Please remove this functionality if this ever gets fixed in the ACE program.
