@@ -198,12 +198,21 @@ standardize_ace_values <- function(df) {
   # RT for the span tasks is handled differently and is left uninterpreted really
   # so don't do all of this recoding of correctness by RT
   if (COL_CORRECT_BUTTON %in% cols & !(SPATIAL_SPAN %in% df$module) & !(BACK_SPATIAL_SPAN %in% df$module)) {
+    
+    # Sometimes (in newer Ace Explorer data?) the correct_button column is already numeric
+    if (is.numeric(df[[COL_CORRECT_BUTTON]])) {
+      df <- df %>%
+        mutate(COL_CORRECT_BUTTON := recode(!!Q_COL_CORRECT_BUTTON,
+                                            `0` = "incorrect",
+                                            `1` = "correct"))
+    }
+    
     df <- df %>%
-      mutate(correct_button = case_when(rt < short_rt_cutoff & rt > 0 ~ "incorrect",
-                                        rt == rw ~ "no_response",
-                                        rt %% 10 == 0 & rt != 0 ~ "no_response",
-                                        is.na(rt) ~ "no_response",
-                                        TRUE ~ correct_button))
+      mutate(COL_CORRECT_BUTTON := case_when(!!Q_COL_RT < short_rt_cutoff & !!Q_COL_RT > 0 ~ "incorrect",
+                                        !!Q_COL_RT == !!Q_COL_RW ~ "no_response",
+                                        !!Q_COL_RT %% 10 == 0 & !!Q_COL_RT != 0 ~ "no_response",
+                                        is.na(!!Q_COL_RT) ~ "no_response",
+                                        TRUE ~ !!Q_COL_CORRECT_BUTTON))
     
   }
   
