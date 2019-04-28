@@ -123,9 +123,9 @@ append_info <- function (dat, module) {
              denom_right = as.numeric(str_sub(.data[[COL_QUESTION_TEXT]], start = 16L, end = 16L)),
              frac_right = num_right / denom_right,
              condition = recode(correct_response, `Right side` = "right", `Left side` = "left"),
-             num_larger = case_when(condition == "right" & num_right > num_left ~ "num_larger",
-                                    condition == "left" & num_left > num_right ~ "num_larger",
-                                    TRUE ~ "denom_larger"),
+             congruency = case_when(condition == "right" & num_right > num_left ~ "congruent",
+                                    condition == "left" & num_left > num_right ~ "congruent",
+                                    TRUE ~ "incongruent"),
              num_distance = abs(frac_left - frac_right))
   } else if (module == MATH_REC) {
     out <- dat %>%
