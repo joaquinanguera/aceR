@@ -101,9 +101,9 @@ module_fractions_lvl_2 <- function(df) {
 
 module_fractions_lvl_3 <- function(df) {
   # by left vs right and by numerator larger but not crossed
-  out <- tibble(condition = c(COL_CONDITION, "num_larger"),
+  out <- tibble(condition = c(COL_CONDITION, "congruency"),
                 cost_args = list(c("\\.left", "\\.right", "\\.cost"),
-                                 c("\\.num_larger", "\\.denom_larger", "\\.num_larger_cost"))) %>%
+                                 c("\\.congruent", "\\.incongruent", "\\.congruency_cost"))) %>%
     mutate(gen = map(condition, function(x) proc_generic_module(df, Q_COL_CORRECT_BUTTON, rlang::sym(x), FUN = sea_descriptive_statistics)),
            cost = map2(gen, cost_args, ~multi_subtract(.x, .y[1], .y[2], .y[3])),
            both = map2(gen, cost, ~dplyr::bind_cols(.x, .y)),
