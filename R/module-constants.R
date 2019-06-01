@@ -76,7 +76,8 @@ proc_by_condition <- function(df, variable, factors, include_overall = TRUE, FUN
   }
   proc <- proc %>%
     rename_all(funs(tolower(.))) %>%
-    select(-contains(".short"), -contains(".no_response"), -contains(".late"))
+    select(-contains(".short"), -contains(".no_response"), -contains(".late"),
+           -contains("correct_button_median"), -contains("correct_button_sd"))
   
   return(proc)
 }
