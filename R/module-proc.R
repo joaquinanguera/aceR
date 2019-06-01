@@ -127,24 +127,43 @@ proc_by_module <- function(df, modules = "all", output = "wide",
   }
   
   if (output == "wide") {
+    
     out <- all_procs %>%
       select(module, demos, proc) %>%
       mutate(demos = map(demos, ~.x %>%
                            select(-file) %>%
-                           distinct())) %>%
-      mutate(proc = map2(proc, module, ~.x %>%
-                           select(bid, everything()) %>%
-                           rename_at(-1L, funs(paste(toupper(.y), ., sep = ".")))))
+                           distinct()))
+    
+    if (is_ace & is_explore) {
+      out <- out %>%
+        mutate(proc = map2(proc, module, ~.x %>%
+                             select(bid, pid, everything()) %>%
+                             rename_at(-(1L:2L), funs(paste(toupper(.y), ., sep = ".")))))
+    } else {
+      out <- out %>%
+        mutate(proc = map2(proc, module, ~.x %>%
+                             select(bid, everything()) %>%
+                             rename_at(-1L, funs(paste(toupper(.y), ., sep = ".")))))
+    }
     
     # do not join by bid_full if ACE data, because diff modules from same subj's session have diff timestamps
     # disambiguate full bids from diff modules by prepending module name
     if (is_ace) {
-      out <- out %>%
-        mutate(proc = pmap(list(proc, demos, module), function (a, b, c) {
-          full_join(b, a, by = demo_merge_col) %>%
-            rename_at(demo_merge_col, funs(paste(toupper(c), ., sep = "."))) %>%
-            return()
-        }))
+      if (is_explore) {
+        out <- out %>%
+          mutate(proc = pmap(list(proc, demos, module), function (a, b, c) {
+            full_join(b, a, by = demo_merge_col) %>%
+              rename_at(COL_BID, funs(paste(toupper(c), ., sep = "."))) %>%
+              return()
+          }))
+      } else {
+        out <- out %>%
+          mutate(proc = pmap(list(proc, demos, module), function (a, b, c) {
+            full_join(b, a, by = demo_merge_col) %>%
+              rename_at(demo_merge_col, funs(paste(toupper(c), ., sep = "."))) %>%
+              return()
+          }))
+      }
     } else {
       out <- out %>%
         mutate(proc = map2(proc, demos, ~full_join(.y, .x, by = demo_merge_col)))
@@ -193,7 +212,8 @@ label_study_conditions = function(info, conditions) {
 #' @importFrom rlang !! :=
 
 reconstruct_pid <- function (proc, demo) {
-  proc %>% mutate(!!COL_PID := str_sub(!!Q_COL_BID, end = nchar(demo[[COL_PID]][1]))) %>%
+  # This SHOULD truncate at the last character before the date portion of the bid
+  proc %>% mutate(!!COL_PID := str_sub(!!Q_COL_BID, end = -26L)) %>%
     select(COL_BID, COL_PID, everything()) %>%
     return()
 }
