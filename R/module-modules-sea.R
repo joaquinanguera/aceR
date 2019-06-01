@@ -146,11 +146,16 @@ module_arithmetic_verification <- function(df) {
 
 module_groupitizing <- function(df) {
   # calculate cost PAIRWISE (3 group number conditions)
-  gen = proc_generic_module(df, Q_COL_CORRECT_BUTTON, rlang::sym("number_groups"), FUN = sea_descriptive_statistics)
+  gen_num = proc_generic_module(df, Q_COL_CORRECT_BUTTON, rlang::sym("number_groups"), FUN = sea_descriptive_statistics)
   cost_2_1 = multi_subtract(gen, "\\.1", "\\.2", "\\.2_1_cost")
   cost_3_1 = multi_subtract(gen, "\\.1", "\\.3", "\\.3_1_cost")
   cost_3_2 = multi_subtract(gen, "\\.2", "\\.3", "\\.3_2_cost")
-  return (dplyr::bind_cols(gen, cost_2_1, cost_3_1, cost_3_2))
+  # IN PROGRESS BELOW. need to modify apply_stats_dplyr to actually handle >2 grouping cols
+ # gen_arr = proc_generic_module(df, Q_COL_CORRECT_BUTTON, rlang::syms(c("number_groups", "arrangement")), FUN = sea_descriptive_statistics)
+#  cost_g_r = multi_subtract(gen, "\\.random", "\\.group", "\\.group_random_cost")
+ # cost_s_r = multi_subtract(gen, "\\.random", "\\.subitizing", "\\.subitizing_random_cost")
+#  cost_s_g = multi_subtract(gen, "\\.group", "\\.subitizing", "\\.subitizing_group_cost")
+  return (dplyr::bind_cols(gen_num, cost_2_1, cost_3_1, cost_3_2))
 }
 
 #' @importFrom rlang sym
