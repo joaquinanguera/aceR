@@ -126,10 +126,22 @@ COL_BLOCK_HALF = "half"
 Q_COL_BLOCK_HALF = rlang::sym(COL_BLOCK_HALF)
 
 #' @name ace_header
-ALL_POSSIBLE_DEMOS <- c(COL_BID, COL_BID_SHORT, COL_PID, COL_AGE, COL_GRADE, COL_GENDER, COL_TIME, COL_FILE)
+ALL_POSSIBLE_DEMOS <- c(COL_BID, COL_BID_SHORT, COL_PID, COL_AGE, COL_GRADE, COL_GENDER, COL_HANDEDNESS, COL_TIME, COL_FILE)
 
 #' @name ace_header
-Q_ALL_POSSIBLE_DEMOS <- c(Q_COL_BID, Q_COL_BID_SHORT, Q_COL_PID, Q_COL_AGE, Q_COL_GRADE, Q_COL_GENDER, Q_COL_TIME, Q_COL_FILE)
+Q_ALL_POSSIBLE_DEMOS <- c(Q_COL_BID, Q_COL_BID_SHORT, Q_COL_PID, Q_COL_AGE, Q_COL_GRADE, Q_COL_GENDER, Q_COL_HANDEDNESS, Q_COL_TIME, Q_COL_FILE)
+
+#' @name ace_header
+ALL_POSSIBLE_EXPLORE_DEMOS = c("updated_at", "o_s_version", "app_id", "build", "client_time_zone",
+                               "client_time_zone_offset", "device_model", "device_name",
+                               "device_type", "games_map_dialog_stage", "games_play_count",
+                               "games_scores", "graphics_device_name", "handedness",
+                               "i18n", "install_mode", "processor_count",
+                               "processor_frequency", "runtime_platform", "section",
+                               "system_memory_size", "times_finished_game", "games_played")
+
+#' @name ace_header
+Q_ALL_POSSIBLE_EXPLORE_DEMOS = rlang::syms(ALL_POSSIBLE_EXPLORE_DEMOS)
 
 #' @importFrom dplyr case_when
 #' @name ace_header

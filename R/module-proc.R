@@ -80,7 +80,16 @@ proc_by_module <- function(df, modules = "all", output = "wide",
     all_procs <- all_mods %>%
       # Put demos in another column, wide-ish, so it's next to every other module
       mutate(demos = rerun(n(), .$data[.$module == DEMOS][[1]])) %>%
-      filter(module != DEMOS)
+      filter(module != DEMOS) %>%
+      # patch handedness from demos directly into brt data
+      mutate(data = pmap(list(data, module, demos), function(a, b, c) {
+        if (b == BRT) {
+          reconstruct_pid(a, c) %>%
+            left_join(c %>%
+                        select(COL_PID, COL_HANDEDNESS),
+                      by = COL_PID)
+        } else {a}
+      }))
   } else {
     is_explore = FALSE
     # This is now here for BACKWARDS compatibility
@@ -100,6 +109,8 @@ proc_by_module <- function(df, modules = "all", output = "wide",
                return (x)
              }
            }),
+           # remove any demo cols that appear to contain no info
+           demos = map(demos, ~remove_empty_cols(.x)),
            # rename "correct_button" etc to "acc"
            proc = pmap(list(data, module, verbose), function(a, b, c) {
              attempt_module(a, b, verbose = c) %>%
@@ -190,7 +201,7 @@ proc_by_module <- function(df, modules = "all", output = "wide",
 
 get_valid_demos = function(df, is_ace) {
   if (is_ace) {
-    return (names(df)[names(df) %in% c(ALL_POSSIBLE_DEMOS, COL_STUDY_COND)])
+    return (names(df)[names(df) %in% c(ALL_POSSIBLE_DEMOS, ALL_POSSIBLE_EXPLORE_DEMOS, COL_STUDY_COND)])
   } else {
     return (names(df)[names(df) %in% c(ALL_POSSIBLE_SEA_DEMOS, COL_STUDY_COND)])
   }
