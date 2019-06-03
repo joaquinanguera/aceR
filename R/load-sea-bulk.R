@@ -52,7 +52,7 @@ load_sea_bulk <- function(path = ".",
                         # coarse duplicate rejection
                         # assumes duplicate rows will be the same along at least these few columns
                         # RT should definitely be the same in duplicate rows but not otherwise
-                        distinct(pid, question_id, rt, .keep_all = TRUE) %>%
+                        distinct(pid, question_id, rt, trial_onset, .keep_all = TRUE) %>%
                         # remove this once re-typing functionality has been added. only need while all cols are char
                         replace_nas("")
                       # TODO: write re-typing master function
