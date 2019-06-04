@@ -115,7 +115,7 @@ module_fractions_lvl_3 <- function(df) {
 
 #' @keywords internal
 #' @name sea_procs
-#' @importFrom dplyr ends_with filter select
+#' @importFrom dplyr ends_with filter full_join select
 #' @importFrom purrr map map2 reduce
 #' @importFrom rlang sym
 
@@ -127,18 +127,19 @@ module_arithmetic_verification <- function(df) {
   gen_mixed_full = proc_generic_module(filter(df, block_type == "Mixed"), Q_COL_CORRECT_BUTTON, sym("switch_by_operation_type"), FUN = sea_descriptive_statistics) %>%
     select(-ends_with(".overall"), -ends_with("_half"), -ends_with("correct"))
   
-  gens = purrr::reduce(list(gen, gen_mixed, gen_mixed_full), full_join, by = "bid")
+  gens_mixed = full_join(gen_mixed, gen_mixed_full, by = "bid")
   
   cost = multi_subtract(gen, "\\.fixed", "\\.mixed", "\\.cost")
   cost_mixed = multi_subtract(gen_mixed, "\\.stay", "\\.switch", "\\.cost")
   cost_mixed_multiplication = multi_subtract(gen_mixed_full, "\\.stay_multiplication", "\\.switch_multiplication", "\\.cost_multiplication")
   cost_mixed_addition = multi_subtract(gen_mixed_full, "\\.stay_addition", "\\.switch_addition", "\\.cost_addition")
   
-  return (dplyr::bind_cols(list(gens,
-                                cost,
-                                cost_mixed,
-                                cost_mixed_multiplication,
-                                cost_mixed_addition)))
+  out = bind_cols(gen, cost)
+  out_mixed = bind_cols(list(gens_mixed,
+                             cost_mixed,
+                             cost_mixed_multiplication,
+                             cost_mixed_addition))
+  return (full_join(out, out_mixed, by = "bid"))
 }
 
 #' @keywords internal
@@ -147,9 +148,9 @@ module_arithmetic_verification <- function(df) {
 module_groupitizing <- function(df) {
   # calculate cost PAIRWISE (3 group number conditions)
   gen_num = proc_generic_module(df, Q_COL_CORRECT_BUTTON, rlang::sym("number_groups"), FUN = sea_descriptive_statistics)
-  cost_2_1 = multi_subtract(gen, "\\.1", "\\.2", "\\.2_1_cost")
-  cost_3_1 = multi_subtract(gen, "\\.1", "\\.3", "\\.3_1_cost")
-  cost_3_2 = multi_subtract(gen, "\\.2", "\\.3", "\\.3_2_cost")
+  cost_2_1 = multi_subtract(gen_num, "\\.1", "\\.2", "\\.2_1_cost")
+  cost_3_1 = multi_subtract(gen_num, "\\.1", "\\.3", "\\.3_1_cost")
+  cost_3_2 = multi_subtract(gen_num, "\\.2", "\\.3", "\\.3_2_cost")
   # IN PROGRESS BELOW. need to modify apply_stats_dplyr to actually handle >2 grouping cols
  # gen_arr = proc_generic_module(df, Q_COL_CORRECT_BUTTON, rlang::syms(c("number_groups", "arrangement")), FUN = sea_descriptive_statistics)
 #  cost_g_r = multi_subtract(gen, "\\.random", "\\.group", "\\.group_random_cost")
