@@ -20,9 +20,9 @@ attempt_module <- function(df, module, verbose) {
 
 module_math_fluency <- function(df) {
   out <- tibble(condition = c(COL_CONDITION, "operation_type", "answer_size"),
-                cost_args = list(c("\\.stay", "\\.switch", "\\.switch_cost"),
-                                 c("\\.addition", "\\.subtraction", "\\.operation_cost"),
-                                 c("\\.1", "\\.2", "\\.answer_size_cost"))) %>%
+                cost_args = list(c("\\.switch", "\\.stay", "\\.switch_cost"),
+                                 c("\\.subtraction", "\\.addition", "\\.operation_cost"),
+                                 c("\\.2", "\\.1", "\\.answer_size_cost"))) %>%
     mutate(gen = map(condition, function(x) proc_generic_module(df, Q_COL_CORRECT_BUTTON, rlang::sym(x), FUN = sea_descriptive_statistics)),
            cost = map2(gen, cost_args, ~multi_subtract(.x, .y[1], .y[2], .y[3])),
            both = map2(gen, cost, ~dplyr::bind_cols(.x, .y)),
