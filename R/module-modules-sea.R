@@ -20,9 +20,9 @@ attempt_module <- function(df, module, verbose) {
 
 module_math_fluency <- function(df) {
   out <- tibble(condition = c(COL_CONDITION, "operation_type", "answer_size"),
-                cost_args = list(c("\\.stay", "\\.switch", "\\.switch_cost"),
-                                 c("\\.addition", "\\.subtraction", "\\.operation_cost"),
-                                 c("\\.1", "\\.2", "\\.answer_size_cost"))) %>%
+                cost_args = list(c("\\.switch", "\\.stay", "\\.switch_cost"),
+                                 c("\\.subtraction", "\\.addition", "\\.operation_cost"),
+                                 c("\\.2", "\\.1", "\\.answer_size_cost"))) %>%
     mutate(gen = map(condition, function(x) proc_generic_module(df, Q_COL_CORRECT_BUTTON, rlang::sym(x), FUN = sea_descriptive_statistics)),
            cost = map2(gen, cost_args, ~multi_subtract(.x, .y[1], .y[2], .y[3])),
            both = map2(gen, cost, ~dplyr::bind_cols(.x, .y)),
@@ -39,10 +39,10 @@ module_math_fluency <- function(df) {
 
 module_math_recall <- function(df) {
   out <- tibble(condition = c("carrying", "math_recall_orientation", "operation_type", "answer_size"),
-                cost_args = list(c("\\.no_carry", "\\.carry", "\\.carry_cost"),
-                                 c("\\.horizontal", "\\.vertical", "\\.orientation_cost"),
-                                 c("\\.addition", "\\.subtraction", "\\.operation_cost"),
-                                 c("\\.1", "\\.2", "\\.answer_size_cost"))) %>%
+                cost_args = list(c("\\.carry", "\\.no_carry",  "\\.carry_cost"),
+                                 c("\\.vertical", "\\.horizontal",  "\\.orientation_cost"),
+                                 c("\\.subtraction", "\\.addition", "\\.operation_cost"),
+                                 c("\\.2", "\\.1", "\\.answer_size_cost"))) %>%
     mutate(gen = map(condition, function(x) proc_generic_module(df, Q_COL_CORRECT_BUTTON, rlang::sym(x), FUN = sea_descriptive_statistics)),
            cost = map2(gen, cost_args, ~multi_subtract(.x, .y[1], .y[2], .y[3])),
            both = map2(gen, cost, ~dplyr::bind_cols(.x, .y)),
@@ -81,7 +81,7 @@ module_reading_comprehension <- function(df) {
 module_fractions_lvl_1 <- function(df) {
   # just % accuracy and RT like normal
   gen = proc_generic_module(df, Q_COL_CORRECT_BUTTON, rlang::sym("num_size"), FUN = sea_descriptive_statistics)
-  cost = multi_subtract(gen, "\\.small", "\\.large", "\\.cost")
+  cost = multi_subtract(gen, "\\.large", "\\.small", "\\.cost")
   return (dplyr::bind_cols(gen, cost))
 }
 
@@ -90,7 +90,7 @@ module_fractions_lvl_1 <- function(df) {
 
 module_fractions_lvl_2 <- function(df) {
   gen = proc_generic_module(df, Q_COL_CORRECT_BUTTON, rlang::sym("matched_value"), FUN = sea_descriptive_statistics)
-  cost = multi_subtract(gen, "\\.denom_matched", "\\.num_matched", "\\.cost")
+  cost = multi_subtract(gen, "\\.num_matched", "\\.denom_matched", "\\.cost")
   return (dplyr::bind_cols(gen, cost))
 }
 
@@ -103,7 +103,7 @@ module_fractions_lvl_3 <- function(df) {
   # by left vs right and by numerator larger but not crossed
   out <- tibble(condition = c(COL_CONDITION, "congruency"),
                 cost_args = list(c("\\.left", "\\.right", "\\.cost"),
-                                 c("\\.congruent", "\\.incongruent", "\\.congruency_cost"))) %>%
+                                 c("\\.incongruent", "\\.congruent", "\\.congruency_cost"))) %>%
     mutate(gen = map(condition, function(x) proc_generic_module(df, Q_COL_CORRECT_BUTTON, rlang::sym(x), FUN = sea_descriptive_statistics)),
            cost = map2(gen, cost_args, ~multi_subtract(.x, .y[1], .y[2], .y[3])),
            both = map2(gen, cost, ~dplyr::bind_cols(.x, .y)),
@@ -129,10 +129,10 @@ module_arithmetic_verification <- function(df) {
   
   gens_mixed = full_join(gen_mixed, gen_mixed_full, by = "bid")
   
-  cost = multi_subtract(gen, "\\.fixed", "\\.mixed", "\\.cost")
-  cost_mixed = multi_subtract(gen_mixed, "\\.stay", "\\.switch", "\\.cost")
-  cost_mixed_multiplication = multi_subtract(gen_mixed_full, "\\.stay_multiplication", "\\.switch_multiplication", "\\.cost_multiplication")
-  cost_mixed_addition = multi_subtract(gen_mixed_full, "\\.stay_addition", "\\.switch_addition", "\\.cost_addition")
+  cost = multi_subtract(gen, "\\.mixed", "\\.fixed", "\\.cost")
+  cost_mixed = multi_subtract(gen_mixed,"\\.switch", "\\.stay", "\\.cost")
+  cost_mixed_multiplication = multi_subtract(gen_mixed_full, "\\.switch_multiplication", "\\.stay_multiplication", "\\.cost_multiplication")
+  cost_mixed_addition = multi_subtract(gen_mixed_full, "\\.switch_addition", "\\.stay_addition", "\\.cost_addition")
   
   out = bind_cols(gen, cost)
   out_mixed = bind_cols(list(gens_mixed,
@@ -148,9 +148,9 @@ module_arithmetic_verification <- function(df) {
 module_groupitizing <- function(df) {
   # calculate cost PAIRWISE (3 group number conditions)
   gen_num = proc_generic_module(df, Q_COL_CORRECT_BUTTON, rlang::sym("number_groups"), FUN = sea_descriptive_statistics)
-  cost_2_1 = multi_subtract(gen_num, "\\.1", "\\.2", "\\.2_1_cost")
-  cost_3_1 = multi_subtract(gen_num, "\\.1", "\\.3", "\\.3_1_cost")
-  cost_3_2 = multi_subtract(gen_num, "\\.2", "\\.3", "\\.3_2_cost")
+  cost_2_1 = multi_subtract(gen_num, "\\.2", "\\.1", "\\.2_1_cost")
+  cost_3_1 = multi_subtract(gen_num, "\\.3", "\\.1", "\\.3_1_cost")
+  cost_3_2 = multi_subtract(gen_num,  "\\.3", "\\.2", "\\.3_2_cost")
   # IN PROGRESS BELOW. need to modify apply_stats_dplyr to actually handle >2 grouping cols
  # gen_arr = proc_generic_module(df, Q_COL_CORRECT_BUTTON, rlang::syms(c("number_groups", "arrangement")), FUN = sea_descriptive_statistics)
 #  cost_g_r = multi_subtract(gen, "\\.random", "\\.group", "\\.group_random_cost")
