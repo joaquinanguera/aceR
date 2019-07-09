@@ -91,7 +91,7 @@ module_fractions_lvl_1 <- function(df) {
     # by left vs right and by size  but not crossed
   out <- tibble(condition = c(COL_CONDITION, "num_size"),
                 cost_args = list(c("\\.left", "\\.right", "\\.cost"),
-                                 c("\\.large", "\\.small", "\\.cost"))) %>%
+                                 c("\\.large", "\\.small", "\\.num_size_cost"))) %>%
     mutate(gen = map(condition, function(x) proc_generic_module(df, Q_COL_CORRECT_BUTTON, rlang::sym(x), FUN = sea_descriptive_statistics)),
            cost = map2(gen, cost_args, ~multi_subtract(.x, .y[1], .y[2], .y[3])),
            both = map2(gen, cost, ~dplyr::bind_cols(.x, .y)),
@@ -110,7 +110,7 @@ module_fractions_lvl_2 <- function(df) {
     # by left vs right and by matched value but not crossed
   out <- tibble(condition = c(COL_CONDITION, "matched_value"),
                 cost_args = list(c("\\.left", "\\.right", "\\.cost"),
-                                 c("\\.num_matched", "\\.denom_matched", "\\.cost"))) %>%
+                                 c("\\.num_matched", "\\.denom_matched", "\\.matched_value_cost"))) %>%
     mutate(gen = map(condition, function(x) proc_generic_module(df, Q_COL_CORRECT_BUTTON, rlang::sym(x), FUN = sea_descriptive_statistics)),
            cost = map2(gen, cost_args, ~multi_subtract(.x, .y[1], .y[2], .y[3])),
            both = map2(gen, cost, ~dplyr::bind_cols(.x, .y)),
