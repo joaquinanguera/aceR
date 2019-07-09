@@ -21,7 +21,7 @@ Imports:
     purrr,
     readr,
     reshape,
-    rlang,
+    rlang (>= 0.4.0),
     stats,
     stringr,
     tibble,
