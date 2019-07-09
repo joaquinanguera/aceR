@@ -16,7 +16,6 @@ Imports:
     ggplot2,
     lubridate,
     magrittr,
-    openxlsx,
     plyr,
     purrr,
     readr,
