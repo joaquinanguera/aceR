@@ -74,9 +74,7 @@ proc_by_module <- function(df, modules = "all", output = "wide",
     all_these_demos = ALL_POSSIBLE_SEA_DEMOS
   }
   
-  if (DEMOS %in% all_mods$module) {
-    # If ACE Explore, basically
-    is_explore = TRUE
+  if (is_ace) {
     all_procs <- all_mods %>%
       # Put demos in another column, wide-ish, so it's next to every other module
       mutate(demos = rerun(n(), .$data[.$module == DEMOS][[1]])) %>%
@@ -91,8 +89,6 @@ proc_by_module <- function(df, modules = "all", output = "wide",
         } else {a}
       }))
   } else {
-    is_explore = FALSE
-    # This is now here for BACKWARDS compatibility
     all_procs <- all_mods %>%
       mutate(demos = map(data, ~.x %>%
                            select(one_of(all_these_demos)) %>%
@@ -126,7 +122,7 @@ proc_by_module <- function(df, modules = "all", output = "wide",
   # prepare for output
   
   
-  if (is_ace & is_explore) {
+  if (is_ace) {
     # Try this: Ace Explore has demos collected at a separate date/time,
     # so BID will _basically never_ match up. Use PID to bind
     demo_merge_col = COL_PID
@@ -145,7 +141,7 @@ proc_by_module <- function(df, modules = "all", output = "wide",
                            select(-file) %>%
                            distinct()))
     
-    if (is_ace & is_explore) {
+    if (is_ace) {
       out <- out %>%
         mutate(proc = map2(proc, module, ~.x %>%
                              select(bid, pid, everything()) %>%
@@ -160,21 +156,12 @@ proc_by_module <- function(df, modules = "all", output = "wide",
     # do not join by bid_full if ACE data, because diff modules from same subj's session have diff timestamps
     # disambiguate full bids from diff modules by prepending module name
     if (is_ace) {
-      if (is_explore) {
-        out <- out %>%
-          mutate(proc = pmap(list(proc, demos, module), function (a, b, c) {
-            full_join(b, a, by = demo_merge_col) %>%
-              rename_at(COL_BID, funs(paste(toupper(c), ., sep = "."))) %>%
-              return()
-          }))
-      } else {
-        out <- out %>%
-          mutate(proc = pmap(list(proc, demos, module), function (a, b, c) {
-            full_join(b, a, by = demo_merge_col) %>%
-              rename_at(demo_merge_col, funs(paste(toupper(c), ., sep = "."))) %>%
-              return()
-          }))
-      }
+      out <- out %>%
+        mutate(proc = pmap(list(proc, demos, module), function (a, b, c) {
+          full_join(b, a, by = demo_merge_col) %>%
+            rename_at(COL_BID, funs(paste(toupper(c), ., sep = "."))) %>%
+            return()
+        }))
     } else {
       out <- out %>%
         mutate(proc = map2(proc, demos, ~full_join(.y, .x, by = demo_merge_col)))

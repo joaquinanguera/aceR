@@ -5,7 +5,7 @@
 #' @param col_acc column for accuracy, as string
 #' @param col_condition column containing "condition" or trial type, as string
 
-proc_generic_module <- function(df, col_acc, col_condition, FUN = ace_descriptive_statistics_dplyr) {
+proc_generic_module <- function(df, col_acc, col_condition, FUN = ace_descriptive_statistics) {
   
   # overall & broken-down by condition
   # RT broken-down by condition & accuracy  
@@ -43,13 +43,13 @@ proc_generic_module <- function(df, col_acc, col_condition, FUN = ace_descriptiv
 #' @importFrom magrittr %>%
 #' @keywords internal
 
-proc_by_condition <- function(df, variable, factors, include_overall = TRUE, FUN = ace_descriptive_statistics_dplyr, transform_dir = "wide") {
+proc_by_condition <- function(df, variable, factors, include_overall = TRUE, FUN = ace_descriptive_statistics, transform_dir = "wide") {
   # conditions to be "expected" (though this expectation is dangerous, don't hardcode):
   # subtask type ("col_condition")
   # late response (to subset accuracy by late resp)
   # accuracy (to subset RT by acc)
   # conditions to be subsetted should be fed in as a SYMBOL
-  overall = apply_stats_dplyr(
+  overall = apply_stats(
     x = df, 
     id_var = Q_COL_BID,
     col = variable, 
@@ -58,7 +58,7 @@ proc_by_condition <- function(df, variable, factors, include_overall = TRUE, FUN
     transform_dir = transform_dir)
   # needs to be flexible to handle 0-n number of subsetting conditions, and also NOT to cross them all with each other necessarily
   try({
-    by_condition = apply_stats_dplyr(
+    by_condition = apply_stats(
       x = df, 
       id_var = Q_COL_BID,
       col = variable,
