@@ -43,6 +43,7 @@ transform_raw <- function (file, dat) {
     mutate(file = file,
            # for faster performance bc each file should only contain one module
            module = identify_module(file[1])) %>%
+    standardize_ace_column_names() %>%
     # force lowercase everything to cover for weird capitalization diffs bw files
     mutate(!!Q_COL_PID := tolower(!!Q_COL_PID),
            # make block id from pid & time
