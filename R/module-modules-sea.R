@@ -29,7 +29,12 @@ module_math_fluency <- function(df) {
            names = map(both, ~names(.x)))
   
   duplicate_cols <- unique(unlist(out$names)[duplicated(unlist(out$names))])
-  return (purrr::reduce(out$both, full_join, by = duplicate_cols))
+  
+  out <- purrr::reduce(out$both, full_join, by = duplicate_cols)
+  
+  time <- proc_by_condition(df, "feedback_onset", include_overall = F, FUN = sea_task_duration)
+  
+  return (dplyr::full_join(out, time, by = COL_BID))
 }
 
 #' @keywords internal

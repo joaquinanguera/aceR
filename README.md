@@ -16,7 +16,7 @@ Install the latest release from github using [devtools](https://github.com/hadle
 
 ```
 # install.packages("devtools")
-devtools::install_github("josegallegos07/aceR")
+devtools::install_github("joaquinanguera/aceR")
 ```
 
 ## Updates
@@ -24,7 +24,7 @@ devtools::install_github("josegallegos07/aceR")
 Reinstall the package to update to the latest version:
 
 ```
-devtools::install_github("josegallegos07/aceR")
+devtools::install_github("joaquinanguera/aceR")
 ```
 
 ## Example Scripts
@@ -37,10 +37,14 @@ See [CONTRIBUTING](CONTRIBUTING.md) for development notes and guidelines.
 
 ### Branches
 
-#### development 
-
-Development of new features - i.e. non-trivial changes
-
 #### master
 
-Stable release branch.
+Stable release branch. Supports the **newest** version of the ACE Explorer app. **Not backwards compatible** with data from older ACE apps (e.g. ACE Classroom). 
+
+#### development 
+
+Development of new features, i.e. non-trivial changes. All development is for features intended for the `master` branch.
+
+#### classroom
+
+Backwards-compatible stable release branch for data from older ACE apps. Use only when processing older ACE data, for example from ACE Classroom. **No longer actively maintained.**

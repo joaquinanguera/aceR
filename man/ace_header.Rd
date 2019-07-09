@@ -45,6 +45,8 @@
 \alias{Q_COL_BLOCK_HALF}
 \alias{ALL_POSSIBLE_DEMOS}
 \alias{Q_ALL_POSSIBLE_DEMOS}
+\alias{ALL_POSSIBLE_EXPLORE_DEMOS}
+\alias{Q_ALL_POSSIBLE_EXPLORE_DEMOS}
 \alias{standardize_ace_column_names}
 \alias{standardize_ace_values}
 \title{ACE column name constants}
@@ -133,6 +135,10 @@ Q_COL_BLOCK_HALF
 ALL_POSSIBLE_DEMOS
 
 Q_ALL_POSSIBLE_DEMOS
+
+ALL_POSSIBLE_EXPLORE_DEMOS
+
+Q_ALL_POSSIBLE_EXPLORE_DEMOS
 
 standardize_ace_column_names(df)
 
