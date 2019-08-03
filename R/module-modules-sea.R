@@ -174,12 +174,20 @@ module_groupitizing <- function(df) {
   cost_2_1 = multi_subtract(gen_num, "\\.2", "\\.1", "\\.2_1_cost")
   cost_3_1 = multi_subtract(gen_num, "\\.3", "\\.1", "\\.3_1_cost")
   cost_3_2 = multi_subtract(gen_num,  "\\.3", "\\.2", "\\.3_2_cost")
-  # IN PROGRESS BELOW. need to modify apply_stats_dplyr to actually handle >2 grouping cols
- # gen_arr = proc_generic_module(df, Q_COL_CORRECT_BUTTON, rlang::syms(c("number_groups", "arrangement")), FUN = sea_descriptive_statistics)
-#  cost_g_r = multi_subtract(gen, "\\.random", "\\.group", "\\.group_random_cost")
- # cost_s_r = multi_subtract(gen, "\\.random", "\\.subitizing", "\\.subitizing_random_cost")
-#  cost_s_g = multi_subtract(gen, "\\.group", "\\.subitizing", "\\.subitizing_group_cost")
-  return (dplyr::bind_cols(gen_num, cost_2_1, cost_3_1, cost_3_2))
+  
+  out_num = dplyr::bind_cols(gen_num, cost_2_1, cost_3_1, cost_3_2)
+
+  # calculate cost PAIRWISE again (3 arrangement conditions)
+  gen_arr = proc_generic_module(df, Q_COL_CORRECT_BUTTON, rlang::sym("arrangement"), FUN = sea_descriptive_statistics)
+  cost_g_r = multi_subtract(gen_arr, "\\.random", "\\.group", "\\.group_random_cost")
+  cost_s_r = multi_subtract(gen_arr, "\\.random", "\\.subitizing", "\\.subitizing_random_cost")
+  cost_s_g = multi_subtract(gen_arr, "\\.group", "\\.subitizing", "\\.subitizing_group_cost")
+
+  out_arr = dplyr::bind_cols(gen_arr, cost_g_r, cost_s_r, cost_s_g)
+
+  duplicate_cols <- names(out_num)[names(out_num) %in% names(out_arr)]
+
+  return (dplyr::full_join(out_num, out_arr, by = duplicate_cols))
 }
 
 #' @importFrom rlang sym
