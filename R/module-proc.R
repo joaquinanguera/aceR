@@ -158,13 +158,13 @@ proc_by_module <- function(df, modules = "all", output = "wide",
     if (is_ace) {
       out <- out %>%
         mutate(proc = pmap(list(proc, demos, module), function (a, b, c) {
-          full_join(b, a, by = demo_merge_col) %>%
+          right_join(b, a, by = demo_merge_col) %>%
             rename_at(COL_BID, funs(paste(toupper(c), ., sep = "."))) %>%
             return()
         }))
     } else {
       out <- out %>%
-        mutate(proc = map2(proc, demos, ~full_join(.y, .x, by = demo_merge_col)))
+        mutate(proc = map2(proc, demos, ~right_join(.y, .x, by = demo_merge_col)))
     }
     
     valid_demos = get_valid_demos(out$proc[[1]], is_ace)
@@ -177,7 +177,7 @@ proc_by_module <- function(df, modules = "all", output = "wide",
   } else if (output == "long") {
     out <- all_procs %>%
       select(module, demos, proc) %>%
-      mutate(proc = map2(proc, demos, ~full_join(.y, .x, by = demo_merge_col)),
+      mutate(proc = map2(proc, demos, ~right_join(.y, .x, by = demo_merge_col)),
              proc = rlang::set_names(proc, module)) %>%
       select(-demos)
     return (out)
