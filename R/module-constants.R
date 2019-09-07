@@ -17,7 +17,7 @@ proc_generic_module <- function(df,
   # RT by block half
   rt_block_half = proc_by_condition(df, COL_RT, factors = Q_COL_BLOCK_HALF, include_overall = F, FUN = FUN)
   # TODO: RT by previous trial accuracy
-  rt_prev_acc = proc_by_condition(df, COL_RT, factors = c(col_condition, col_prev_acc), FUN = FUN)
+  rt_prev_acc = proc_by_condition(df, COL_RT, factors = c(col_condition, col_prev_acc),  include_overall = F, FUN = FUN)
   
   # accuracy broken down by condition and response window (early or late?)
   # if late response is not available for the task, don't factor by it
@@ -40,8 +40,8 @@ proc_generic_module <- function(df,
   }
   
   # TODO: Add version of proc_by_condition using a relabeled acc column where all lates are wrong
-  
-  merged = multi_merge(analy, by = COL_BID)
+  # again, assume all repeated column names are in fact the same columns
+  merged = suppressMessages(plyr::join_all(analy))
   return (merged)
 }
 
@@ -55,6 +55,7 @@ proc_by_condition <- function(df, variable, factors, include_overall = TRUE, FUN
   # late response (to subset accuracy by late resp)
   # accuracy (to subset RT by acc)
   # conditions to be subsetted should be fed in as a SYMBOL
+  
   overall = apply_stats(
     x = df, 
     id_var = Q_COL_BID,
@@ -83,7 +84,8 @@ proc_by_condition <- function(df, variable, factors, include_overall = TRUE, FUN
   proc <- proc %>%
     rename_all(funs(tolower(.))) %>%
     select(-contains(".short"), -contains(".no_response"), -contains(".late"),
-           -contains("correct_button_median"), -contains("correct_button_sd"))
+           -contains("correct_button_median"), -contains("correct_button_sd"),
+           -contains(".NA"), -contains("prev_na"), -contains("prev_no_response"))
   
   return(proc)
 }
