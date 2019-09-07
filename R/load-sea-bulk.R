@@ -57,7 +57,8 @@ load_sea_bulk <- function(path = ".",
                         replace_nas("") %>%
                         group_by(pid) %>%
                         # TODO: Can you quasi-quote inside of map? I think not
-                        mutate(previous_correct_button = lag(correct_button)) %>%
+                        mutate(previous_correct_button = lag(correct_button),
+                               previous_correct_button = paste0("prev_", previous_correct_button)) %>%
                         ungroup()
                       # TODO: write re-typing master function
                       # re-typing columns must occur here, AFTER data has been separated by module

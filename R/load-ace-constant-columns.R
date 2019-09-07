@@ -348,7 +348,8 @@ standardize_ace_values <- function(df) {
     df <- df %>%
       # needs to be grouped to prevent previous_correct_button from bleeding over between records
       group_by(bid) %>%
-      mutate(!!Q_COL_PREV_CORRECT_BUTTON := lag(!!Q_COL_CORRECT_BUTTON)) %>%
+      mutate(!!Q_COL_PREV_CORRECT_BUTTON := lag(!!Q_COL_CORRECT_BUTTON),
+             !!Q_COL_PREV_CORRECT_BUTTON := paste0("prev_", !!Q_COL_PREV_CORRECT_BUTTON)) %>%
       ungroup()
   }
   
