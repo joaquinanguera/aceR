@@ -30,6 +30,12 @@ COL_CORRECT_BUTTON = "correct_button"
 Q_COL_CORRECT_BUTTON = rlang::sym(COL_CORRECT_BUTTON)
 
 #' @name ace_header
+COL_PREV_CORRECT_BUTTON = "previous_correct_button"
+
+#' @name ace_header
+Q_COL_PREV_CORRECT_BUTTON = rlang::sym(COL_PREV_CORRECT_BUTTON)
+
+#' @name ace_header
 COL_CORRECT_RESPONSE = "correct_response"
 
 #' @name ace_header
@@ -196,7 +202,8 @@ standardize_ace_values <- function(df) {
       mutate_at(COL_RT, as.numeric)
   }, silent = TRUE)
   
-  try({df <- df %>%
+  try({
+    df <- df %>%
     mutate_at(COL_RW, as.numeric)
   }, silent = TRUE)
   
@@ -341,7 +348,7 @@ standardize_ace_values <- function(df) {
     df <- df %>%
       # needs to be grouped to prevent previous_correct_button from bleeding over between records
       group_by(bid) %>%
-      mutate(previous_correct_button = lag(correct_button)) %>%
+      mutate(!!Q_COL_PREV_CORRECT_BUTTON := lag(!!Q_COL_CORRECT_BUTTON)) %>%
       ungroup()
   }
   
