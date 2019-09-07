@@ -78,6 +78,7 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
       }
     } else {
       # if only one factor, only put out 1
+      if (is.list(factors)) factors = factors[[1]]
       z = x %>%
         group_by(!!!c(id_var, factors)) %>%
         FUN(col) %>%
