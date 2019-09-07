@@ -2,11 +2,13 @@
 % Please edit documentation in R/math-turns.R
 \name{ace_turns}
 \alias{ace_turns}
-\title{Average of the last n "turn around trials" - a correct trial that was preceded by an incorrect trial}
+\title{Average of the last n "turn around trials" - a correct trial that was preceded by an incorrect trial
+Do NOT give output if any of the vector of trial outcomes is missing}
 \usage{
 ace_turns(x, y, n = 3)
 }
 \description{
 Average of the last n "turn around trials" - a correct trial that was preceded by an incorrect trial
+Do NOT give output if any of the vector of trial outcomes is missing
 }
 \keyword{internal}

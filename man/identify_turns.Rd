@@ -7,12 +7,13 @@
 identify_turns(y)
 }
 \arguments{
-\item{y}{a list of "1" & "0"s}
+\item{y}{a list of 1 & 0s}
 }
 \value{
 Returns the indices of all turn trials.
 }
 \description{
-Given an list of "1" & "0"'s', identify indices where a "1" is preceded by a "0".
+Given an list of 1 & 0's', identify indices where a 1 is preceded by a 0.
+Patches 0s in place of NAs.
 }
 \keyword{internal}
