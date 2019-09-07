@@ -5,7 +5,7 @@
 #'  all SEA csv files in a directory.
 #'
 #' @export
-#' @importFrom dplyr bind_rows distinct filter mutate tibble
+#' @importFrom dplyr bind_rows distinct filter lag mutate tibble
 #' @importFrom purrr map map2 possibly walk2
 #' @importFrom tidyr nest unnest
 #' 
@@ -54,7 +54,11 @@ load_sea_bulk <- function(path = ".",
                         # RT should definitely be the same in duplicate rows but not otherwise
                         distinct(pid, question_id, rt, trial_onset, .keep_all = TRUE) %>%
                         # remove this once re-typing functionality has been added. only need while all cols are char
-                        replace_nas("")
+                        replace_nas("") %>%
+                        group_by(pid) %>%
+                        # TODO: Can you quasi-quote inside of map? I think not
+                        mutate(previous_correct_button = lag(correct_button)) %>%
+                        ungroup()
                       # TODO: write re-typing master function
                       # re-typing columns must occur here, AFTER data has been separated by module
                       # because individual data files contain data from multiple modules
