@@ -45,7 +45,7 @@ transform_raw <- function (file, dat) {
            module = identify_module(file[1])) %>%
     standardize_ace_column_names() %>%
     # force lowercase everything to cover for weird capitalization diffs bw files
-    mutate(!!Q_COL_PID := tolower(!!Q_COL_PID),
+    mutate(!!Q_COL_PID := stringr::str_replace_all(tolower(!!Q_COL_PID), "[^a-zA-Z0-9]+", ""),
            # make block id from pid & time
            !!Q_COL_BID := paste(!!Q_COL_PID, !!Q_COL_TIME, sep = ".")) %>%
     standardize_ace_values() %>%
