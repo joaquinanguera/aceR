@@ -52,14 +52,14 @@ load_ace_bulk <- function(path = ".",
       return (load_ace_file(x))
     })) %>%
     filter(map(data, ~nrow(.)) > 0) %>% # if extraction failed, data will have 0 rows and other commands on data will fail
-    mutate(data = map(data, ~nest(as_tibble(.x), -bid, -module, -file))) %>%
+    mutate(data = map(data, ~nest(as_tibble(.x), data = -c(bid, module, file)))) %>%
     select(-file) %>%
     unnest(data) %>%
     # new de-duplication strategy: dplyr::distinct() files by bid & module should work (NOT by file)
     # NOTE: old de-duplication was done only on emailed data,
     # but this should behave properly for both emailed and database data
     distinct(bid, module, .keep_all = TRUE) %>%
-    nest(-module) %>%
+    nest(data = -module) %>%
     mutate(data = map(data, ~unnest(.x, data)),
            data = rlang::set_names(data, module))
   

@@ -174,7 +174,7 @@ standardize_ace_column_names <- function(df) {
 }
 
 #' @name ace_header
-#' @importFrom dplyr coalesce funs group_by if_else lag mutate mutate_at recode ungroup
+#' @import dplyr
 #' @importFrom lubridate parse_date_time
 #' @importFrom magrittr %>%
 #' @importFrom rlang !! :=
@@ -224,6 +224,10 @@ standardize_ace_values <- function(df) {
       mutate(!!COL_CORRECT_BUTTON := dplyr::recode(!!Q_COL_CORRECT_BUTTON, `0` = "incorrect", `1` = "correct"))
   }, silent = TRUE)
   
+  if (DEMOS %in% df$module) {
+    df <- df %>%
+      mutate_at(c("gender"), as.character)
+  }
   
   # (mostly) module-general recoding of short RT trials etc
   #In older version, 'no response' trial RTs were replaced with Max Intertrial Interval. 
@@ -340,7 +344,9 @@ standardize_ace_values <- function(df) {
                                                TRUE ~ ""))
     
   } else if (SPATIAL_SPAN %in% df$module | BACK_SPATIAL_SPAN %in% df$module) {
-    df$object_count = as.numeric(df$object_count)
+    df <- df %>%
+      mutate(object_count = as.numeric(object_count)) %>%
+      mutate_at(vars(starts_with("point_")), as.character)
   }
   
   # needs to be called LAST, after all the other boutique accuracy corrections are complete
