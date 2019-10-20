@@ -70,17 +70,15 @@ post_clean_chance <- function (df, overall = TRUE, cutoff_dprime = 0, cutoff_2ch
                                    FLANKER,
                                    TASK_SWITCH,
                                    BOXED,
-                                   SAAT,
-                                   FILTER))
+                                   SAAT))
   if (overall) {
     metric_cols %<>%
-      mutate(metric = list(c("dprime.overall", "dprime.tap_only"),
-                           c("acc_mean.overall", "acc_mean.congruent"),
-                           c("acc_mean.overall", "acc_mean.congruent"),
-                           c("acc_mean.overall", "acc_mean.stay"),
-                           c("acc_mean.overall", "acc_mean.feature_4"),
-                           c("dprime.overall", "dprime.sustained", "dprime.impulsive"),
-                           c("k.R2B0", "k.R4B0")))
+      mutate(metric = list(c("dprime.overall"),
+                           c("acc_mean.overall"),
+                           c("acc_mean.overall"),
+                           c("acc_mean.overall"),
+                           c("acc_mean.overall"),
+                           c("dprime.overall")))
   } else {
     metric_cols %<>%
       mutate(metric = list(c("dprime.tap_only"),
@@ -88,13 +86,12 @@ post_clean_chance <- function (df, overall = TRUE, cutoff_dprime = 0, cutoff_2ch
                            c("acc_mean.congruent"),
                            c("acc_mean.stay"),
                            c("acc_mean.feature_4"),
-                           c("dprime.sustained", "dprime.impulsive"),
-                           c("k.R2B0", "k.R4B0")))
+                           c("dprime.sustained", "dprime.impulsive")))
   }
   
   metric_cols %<>%
     mutate(full = map2(module, metric, ~paste(.x, .y, sep = ".")),
-           cutoff = case_when(module %in% c(TNT, SAAT, FILTER) ~ cutoff_dprime,
+           cutoff = case_when(module %in% c(TNT, SAAT) ~ cutoff_dprime,
                               module %in% c(STROOP, TASK_SWITCH) ~ cutoff_4choice,
                               module %in% c(FLANKER, BOXED) ~ cutoff_2choice,
                               TRUE ~ NA_real_)) %>%
