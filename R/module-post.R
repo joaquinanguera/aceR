@@ -74,12 +74,12 @@ post_clean_chance <- function (df, overall = TRUE, cutoff_dprime = 0, cutoff_2ch
                                    FILTER))
   if (overall) {
     metric_cols %<>%
-      mutate(metric = list(c("dprime.overall", "dprime.tap_only"),
-                           c("acc_mean.overall", "acc_mean.congruent"),
-                           c("acc_mean.overall", "acc_mean.congruent"),
-                           c("acc_mean.overall", "acc_mean.stay"),
-                           c("acc_mean.overall", "acc_mean.feature_4"),
-                           c("dprime.overall", "dprime.sustained", "dprime.impulsive"),
+      mutate(metric = list(c("dprime.overall"),
+                           c("acc_mean.overall"),
+                           c("acc_mean.overall"),
+                           c("acc_mean.overall"),
+                           c("acc_mean.overall"),
+                           c("dprime.overall"),
                            c("k.R2B0", "k.R4B0")))
   } else {
     metric_cols %<>%
