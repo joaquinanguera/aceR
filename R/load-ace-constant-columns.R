@@ -226,7 +226,8 @@ standardize_ace_values <- function(df) {
   
   if (DEMOS %in% df$module) {
     df <- df %>%
-      mutate_at(c("gender"), as.character)
+      select(c(COL_MODULE, COL_FILE, COL_PID, COL_BID, COL_TIME, COL_AGE, COL_HANDEDNESS, COL_GENDER)) %>%
+      mutate_at(COL_GENDER, as.character)
   }
   
   # (mostly) module-general recoding of short RT trials etc
