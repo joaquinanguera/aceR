@@ -128,7 +128,7 @@ proc_by_module <- function(df, modules = "all", output = "wide",
     demo_merge_col = COL_PID
     all_procs <- all_procs %>%
       mutate(proc = map2(proc, demos, ~reconstruct_pid(.x, .y)),
-             demos = map(demos, ~select(.x, -!!Q_COL_BID)))
+             demos = map(demos, ~select(.x, -!!Q_COL_BID, -!!Q_COL_BID_SHORT, -!!Q_COL_TIME)))
   } else {
     demo_merge_col = COL_BID
   }
