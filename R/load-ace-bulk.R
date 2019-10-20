@@ -61,6 +61,7 @@ load_ace_bulk <- function(path = ".",
     distinct(bid, module, .keep_all = TRUE) %>%
     nest(data = -module) %>%
     mutate(data = map(data, ~unnest(.x, data)),
+           data = map(data, ~remove_empty_cols(.)),
            data = rlang::set_names(data, module))
   
   # currently returns a tibble where data is NOT rbind.filled together into one big df, but kept separate by module
