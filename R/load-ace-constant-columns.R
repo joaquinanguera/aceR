@@ -126,6 +126,12 @@ COL_SUB_ID = "subid"
 Q_COL_SUB_ID = rlang::sym(COL_SUB_ID)
 
 #' @name ace_header
+COL_PRACTICE = "session_type"
+
+#' @name ace_header
+Q_COL_PRACTICE = rlang::sym(COL_PRACTICE)
+
+#' @name ace_header
 COL_TRIAL_TYPE = "trial_type"
 
 #' @name ace_header
@@ -228,6 +234,11 @@ standardize_ace_values <- function(df) {
   try({
     df <- df %>%
       mutate(!!COL_CORRECT_BUTTON := dplyr::recode(!!Q_COL_CORRECT_BUTTON, `0` = "incorrect", `1` = "correct"))
+    
+    # TODO: Keep practice trials to extract data from them. Currently discarding all
+    df <- df %>%
+      filter(filter(!!Q_COL_PRACTICE == "Real"))
+    
   }, silent = TRUE)
   
   if (DEMOS %in% df$module) {
