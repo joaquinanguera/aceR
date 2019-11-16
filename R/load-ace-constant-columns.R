@@ -18,6 +18,12 @@ COL_TIME = "time"
 Q_COL_TIME = rlang::sym(COL_TIME)
 
 #' @name ace_header
+COL_N_FINISHED = "times_finished_game"
+
+#' @name ace_header
+Q_COL_N_FINISHED = rlang::sym(COL_N_FINISHED)
+
+#' @name ace_header
 COL_RT = "rt"
 
 #' @name ace_header
@@ -132,10 +138,10 @@ COL_BLOCK_HALF = "half"
 Q_COL_BLOCK_HALF = rlang::sym(COL_BLOCK_HALF)
 
 #' @name ace_header
-ALL_POSSIBLE_DEMOS <- c(COL_BID, COL_BID_SHORT, COL_PID, COL_AGE, COL_GENDER, COL_HANDEDNESS, COL_FILE)
+ALL_POSSIBLE_DEMOS <- c(COL_BID, COL_PID, COL_AGE, COL_GENDER, COL_HANDEDNESS, COL_FILE)
 
 #' @name ace_header
-Q_ALL_POSSIBLE_DEMOS <- c(Q_COL_BID, Q_COL_BID_SHORT, Q_COL_PID, Q_COL_AGE, Q_COL_GENDER, Q_COL_HANDEDNESS, Q_COL_TIME, Q_COL_FILE)
+Q_ALL_POSSIBLE_DEMOS <- c(Q_COL_BID, Q_COL_PID, Q_COL_AGE, Q_COL_GENDER, Q_COL_HANDEDNESS, Q_COL_TIME, Q_COL_FILE)
 
 #' @name ace_header
 ALL_POSSIBLE_EXPLORE_DEMOS = c("updated_at", "o_s_version", "app_id", "build", "client_time_zone",
