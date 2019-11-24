@@ -153,13 +153,13 @@ proc_by_module <- function(df, modules = "all", output = "wide",
                              rename_at(-1L, funs(paste(toupper(.y), ., sep = ".")))))
     }
     
-    # do not join by bid_full if ACE data, because diff modules from same subj's session have diff timestamps
-    # disambiguate full bids from diff modules by prepending module name
+    # ACE explorer data:
+    # DO join by full bid. now, with times gameplayed as the session identfier,
+    # all modules from a single session should have the same times gameplayed stamp
     if (is_ace) {
       out <- out %>%
         mutate(proc = pmap(list(proc, demos, module), function (a, b, c) {
           right_join(b, a, by = demo_merge_col) %>%
-            rename_at(COL_BID, funs(paste(toupper(c), ., sep = "."))) %>%
             return()
         }))
     } else {
