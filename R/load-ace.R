@@ -47,7 +47,7 @@ transform_raw <- function (file, dat) {
     # force lowercase everything to cover for weird capitalization diffs bw files
     mutate(!!Q_COL_PID := stringr::str_replace_all(tolower(!!Q_COL_PID), "[^a-zA-Z0-9]+", ""),
            # make block id from pid & time
-           !!Q_COL_BID := paste(!!Q_COL_PID, !!Q_COL_N_FINISHED, sep = ".")) %>%
+           !!Q_COL_BID := paste0(!!Q_COL_PID, ".session", !!Q_COL_N_FINISHED)) %>%
     standardize_ace_values() %>%
     # make short block id from pid and date only
     # TODO: Delete these next 3 lines of code once we confirm we don't need
