@@ -237,7 +237,7 @@ standardize_ace_values <- function(df) {
     
     # TODO: Keep practice trials to extract data from them. Currently discarding all
     df <- df %>%
-      filter(filter(!!Q_COL_PRACTICE == "Real"))
+      filter(!!Q_COL_PRACTICE == "Real")
     
   }, silent = TRUE)
   
