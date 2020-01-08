@@ -247,23 +247,7 @@ standardize_ace_values <- function(df) {
       mutate_at(COL_GENDER, as.character)
   }
   
-  # (mostly) module-general recoding of short RT trials etc
-  #In older version, 'no response' trial RTs were replaced with Max Intertrial Interval. 
-  #However, the value for Max Intertrial Interval is not always recorded in the data output
-  #This line marks trials with an RT that is evenly divisible by 10
-  # (i.e. is an integer and divisible by 10) as a 'no response' trial. 
-  # RT for the span tasks is handled differently and is left uninterpreted really
-  # so don't do all of this recoding of correctness by RT
-  if (COL_CORRECT_BUTTON %in% cols & !(SPATIAL_SPAN %in% df$module) & !(BACK_SPATIAL_SPAN %in% df$module)) {
-    
-    df <- df %>%
-      mutate(!!COL_CORRECT_BUTTON := case_when(!!Q_COL_RT < short_rt_cutoff & !!Q_COL_RT > 0 ~ "incorrect",
-                                        !!Q_COL_RT == !!Q_COL_RW ~ "no_response",
-                                        !!Q_COL_RT %% 10 == 0 & !!Q_COL_RT != 0 ~ "no_response",
-                                        is.na(!!Q_COL_RT) ~ "no_response",
-                                        TRUE ~ !!Q_COL_CORRECT_BUTTON))
-    
-  }
+  # No longer splices in "no_response" for trials where RT %% 10 == 0
   
   if (COL_LATE_RESPONSE %in% cols) {
     # original form of this column is 0/1
