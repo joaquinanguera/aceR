@@ -34,13 +34,6 @@ NULL
 #' @param output string indicating preferred output format. Can be \code{"wide"} (default),
 #' where one dataframe is output containing cols with data from all modules, or \code{"long"},
 #'  where a dataframe is output, with a list-column containing dataframes with each module's data.
-#' @param rm_outlier_rts_sd DEPRECATED numeric. Remove within-subject RTs further than this many SD from
-#' within-subject mean RT? Enter as one number. Specify either this or \code{rm_outlier_rts_range},
-#' but not both. If both specified, will use SD cutoff. Defaults to \code{FALSE}.
-#' @param rm_outlier_rts_range DEPRECATED numeric vector, length 2. Remove within-subject RTs outside of
-#' this specified range? Enter min and max accepted RTs as a vector length 2. If min or max
-#' not specified, enter that value as NA in the vector. Specify either this or \code{rm_outlier_rts_range},
-#' but not both. If both specified, will use SD cutoff. Defaults to \code{FALSE}.
 #' @param conditions character vector. If data contains multiple study conditions
 #' (e.g. pre & post), specify their labels here. Case insensitive.
 #' @param verbose logical. Print details? Defaults to \code{TRUE}.
@@ -49,8 +42,6 @@ NULL
 #'  See \code{\link{ace_procs}} for a list of supported modules.
 
 proc_by_module <- function(df, modules = "all", output = "wide",
-                               rm_outlier_rts_sd = FALSE,
-                               rm_outlier_rts_range = FALSE,
                                conditions = NULL, verbose = TRUE) {
   
   # if data now comes in as list-columns of separate dfs per module, subset_by_col is deprecated
@@ -212,26 +203,9 @@ label_study_conditions = function(info, conditions) {
 
 reconstruct_pid <- function (proc, demo) {
   # This SHOULD truncate at the last character before the times finished game portion of the bid
-  proc %>% mutate(!!COL_PID := str_sub(!!Q_COL_BID, end = -3L)) %>%
+  proc %>% mutate(!!COL_PID := str_sub(!!Q_COL_BID, end = -9L)) %>%
     select(COL_BID, COL_PID, everything()) %>%
     return()
-}
-
-#' @details Expects a vector of RTs
-#' @keywords internal deprecated
-
-remove_rts <- function(vec, sd.cutoff, range.cutoff) {
-  if (sd.cutoff != FALSE & range.cutoff != FALSE) {
-    warning("Both SD and range specified for within-subj outlier RT scrubbing, using SD cutoff.")
-    range = FALSE
-  }
-  if (is.character(vec)) vec = as.numeric(vec)
-  if (sd.cutoff != FALSE) vec[abs(scale(vec)) > sd.cutoff] = NA
-  else if (range.cutoff != FALSE) {
-    if (!is.na(range.cutoff[1])) vec[vec < range.cutoff[1]] = NA
-    if (!is.na(range.cutoff[2])) vec[vec > range.cutoff[2]] = NA
-  }
-  return(vec)
 }
 
 #' @keywords internal deprecated
