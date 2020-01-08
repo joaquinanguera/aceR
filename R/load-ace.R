@@ -55,7 +55,7 @@ transform_raw <- function (file, dat) {
     #                                   lubridate::floor_date(!!Q_COL_TIME, unit = "days"),
     #                                   sep = ".")) %>%
     group_by(!!Q_COL_BID) %>%
-    mutate(!!COL_BLOCK_HALF := plyr::mapvalues(make_half_seq(n()), from = c(1, 2), to = c("first_half", "second_half"))) %>%
+    mutate(!!COL_BLOCK_HALF := dplyr::recode(make_half_seq(n()), `1` = "first_half", `2` = "second_half")) %>%
     ungroup()
   
   # Don't do "half" labeling for demos, which should only have one row per subject
