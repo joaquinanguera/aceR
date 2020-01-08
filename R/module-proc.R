@@ -12,7 +12,8 @@ NULL
 #' Applies corresponding \code{\link{ace_procs}} to every unique module.
 #'
 #' @section Assumptions:
-#' Assumes the column \emph{module} exists in the \code{\link{data.frame}}.
+#' Assumes the \code{\link{data.frame}} is nested, with two columns:
+#' \code{module} (character) and \code{data} (list, each containing a \code{\link{data.frame}}).
 #'
 #' @export
 #' @import dplyr
@@ -42,7 +43,7 @@ NULL
 #' but not both. If both specified, will use SD cutoff. Defaults to \code{FALSE}.
 #' @param conditions character vector. If data contains multiple study conditions
 #' (e.g. pre & post), specify their labels here. Case insensitive.
-#' @param verbose logical. Print details? Defaults to \code{FALSE}.
+#' @param verbose logical. Print details? Defaults to \code{TRUE}.
 #' @return Returns summary statistics for every unique module included in the 
 #'  data as a list. Throws warnings for modules with undefined methods. 
 #'  See \code{\link{ace_procs}} for a list of supported modules.
@@ -50,7 +51,7 @@ NULL
 proc_by_module <- function(df, modules = "all", output = "wide",
                                rm_outlier_rts_sd = FALSE,
                                rm_outlier_rts_range = FALSE,
-                               conditions = NULL, verbose = FALSE) {
+                               conditions = NULL, verbose = TRUE) {
   
   # if data now comes in as list-columns of separate dfs per module, subset_by_col is deprecated
   all_mods = df
