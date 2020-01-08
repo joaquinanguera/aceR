@@ -226,9 +226,6 @@ standardize_ace_values <- function(df) {
   
   cols = names(df)
   
-  short_rt_cutoff <- 150
-   
-  
   # First, for ALL tasks, code correct_button with words, not 0 and 1
   
   try({
@@ -251,8 +248,7 @@ standardize_ace_values <- function(df) {
   
   if (COL_LATE_RESPONSE %in% cols) {
     # original form of this column is 0/1
-    df[[COL_LATE_RESPONSE]] = case_when(df[[COL_RT]] < short_rt_cutoff & df[[COL_RT]] > 0 ~ "short",
-                                        df[[COL_RT]] > df[[COL_RW]] ~ "late",
+    df[[COL_LATE_RESPONSE]] = case_when(df[[COL_RT]] > df[[COL_RW]] ~ "late",
                                         df[[COL_RT]] < df[[COL_RW]] ~ "early",
                                         df[[COL_RT]] > 0 & df[[COL_RT]] == df[[COL_RW]] ~ "no_response",
                                         df[[COL_RT]] %% 10 == 0 & df[[COL_RT]] != 0 ~ "no_response",
@@ -264,14 +260,13 @@ standardize_ace_values <- function(df) {
   # Most of this is an attempt to reconstruct accuracy as orthogonal to response lateness
   
   if (SAAT %in% df$module) {
-    # This fixes a condition naming error in the raw log files. Please remove this functionality if this ever gets fixed in the ACE program.
-    df[[COL_CONDITION]] = plyr::mapvalues(df[[COL_CONDITION]], from = c("Impulsive", "Sustained"), to = c("sustained", "impulsive"), warn_missing = FALSE)
+    # Impulsive/sustained switching removed as this has been corrected in ACE Explorer.
     
     #Correct hits and misses. For position is on top, if RT >cutoff and not equal to response window, hit, else miss
     #For position in not on top, if RT == 0, then correct rejection, else false alarm
     #This will also ensure RTs < cutoff are incorrect regardless of condition/button press
-    df$trial_accuracy = with(df, case_when(position_is_top == 1 & rt >= short_rt_cutoff & rt != rw ~ "Hit",
-                                           position_is_top == 1 & (rt < short_rt_cutoff | rt == rw) ~ "Miss",
+    df$trial_accuracy = with(df, case_when(position_is_top == 1 & rt != rw ~ "Hit",
+                                           position_is_top == 1 & (rt == rw) ~ "Miss",
                                            position_is_top == 1 & late_response == "no_response" ~ "Miss", # ??? really?
                                            position_is_top == 0 & rt == 0 ~ "Correct Rejection",
                                            position_is_top == 0 & rt != 0 ~ "False Alarm",
@@ -287,7 +282,7 @@ standardize_ace_values <- function(df) {
     # retype and clean accuracy
     df <- df %>%
       mutate(inter_time_interval = as.numeric(inter_time_interval),
-             correct_button = if_else(rt >= short_rt_cutoff & rt != inter_time_interval,
+             correct_button = if_else(rt != inter_time_interval,
                                       "correct",
                                       correct_button,
                                       missing = correct_button))
@@ -297,8 +292,8 @@ standardize_ace_values <- function(df) {
     #Correct hits and misses. For is valid cue, if RT >cutoff and not equal to response window, hit, else miss
     #For is not valid cue, if RT == 0, then correct rejection, else false alarm
     #This will also ensure RTs < cutoff are incorrect regardless of condition/button press
-    df$trial_accuracy = with(df, case_when(is_valid_cue == 1 & rt >= short_rt_cutoff & rt != rw ~ "Hit",
-                                           is_valid_cue == 1 & (rt < short_rt_cutoff | rt == rw) ~ "Miss",
+    df$trial_accuracy = with(df, case_when(is_valid_cue == 1 & rt != rw ~ "Hit",
+                                           is_valid_cue == 1 & (rt == rw) ~ "Miss",
                                            is_valid_cue == 1 & late_response == "no_response" ~ "Miss", # ??? really?
                                            is_valid_cue == 0 & rt == 0 ~ "Correct Rejection",
                                            is_valid_cue == 0 & rt != 0 ~ "False Alarm",
@@ -334,10 +329,10 @@ standardize_ace_values <- function(df) {
     #For cue is not rotated, if RT >cutoff and not equal to response window, and correct_button is correct, then correct rejection, else false alarm
     #This will also ensure RTs < cutoff are incorrect regardless of condition/button press
     df <- df %>%
-      mutate(trial_accuracy = case_when(cue_rotated == 1 & rt >= short_rt_cutoff & correct_button == "correct" ~ "Hit",
-                                        cue_rotated == 1 & rt >= short_rt_cutoff & correct_button == "incorrect" ~ "Miss",
-                                        cue_rotated == 0 & rt >= short_rt_cutoff & correct_button == "correct" ~ "Correct Rejection",
-                                        cue_rotated == 0 & rt >- short_rt_cutoff & correct_button == "incorrect" ~ "False Alarm",
+      mutate(trial_accuracy = case_when(cue_rotated == 1 & correct_button == "correct" ~ "Hit",
+                                        cue_rotated == 1 & correct_button == "incorrect" ~ "Miss",
+                                        cue_rotated == 0 & correct_button == "correct" ~ "Correct Rejection",
+                                        cue_rotated == 0 & correct_button == "incorrect" ~ "False Alarm",
                                         is.na(rt) ~ "no_response",
                                         rt == rw ~ "no_response",
                                         TRUE ~ ""),
