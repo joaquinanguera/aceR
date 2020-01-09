@@ -45,24 +45,38 @@ trim_rt_trials <- function(df, sd_cutoff = FALSE,
   
   # Quasiquoting does not seem to behave as planned inside of map()
   for (i in 1:nrow(df)) {
-    df$data[[i]] <- df$data[[i]] %>%
-      group_by(!!Q_COL_BID) %>%
-      mutate(!!COL_RT := remove_rts(!!Q_COL_RT, sd_cutoff, range_cutoff)) %>%
-      ungroup()
-  }
     
-}
-
-#' @details Expects a vector of RTs
-#' @keywords internal
-
-remove_rts <- function(vec, sd_cutoff, range_cutoff) {
-  if (is.character(vec)) vec = as.numeric(vec)
-  if (range_cutoff != FALSE) {
-    if (!is.na(range_cutoff[1])) vec = na_if_true(vec, vec < range_cutoff[1])
-    if (!is.na(range_cutoff[2])) vec = na_if_true(vec, vec > range_cutoff[2])
+    if (!(df$module[i] %in% c(DEMOS, ISHIHARA))) {
+      
+      df$data[[i]] <- df$data[[i]] %>%
+        group_by(!!Q_COL_BID) %>%
+        mutate(!!COL_RT := as.numeric(!!Q_COL_RT))
+      
+      # ordered so that removing acc first doesn't alter RT for the RT calculation
+      if (range_cutoff != FALSE) {
+        if (!is.na(range_cutoff[1])) {
+          df$data[[i]] <- df$data[[i]] %>%
+            mutate(!!COL_CORRECT_BUTTON := na_if_true(!!Q_COL_CORRECT_BUTTON, !!Q_COL_RT < range_cutoff[1]),
+                   !!COL_RT := na_if_true(!!Q_COL_RT, !!Q_COL_RT < range_cutoff[1]))
+        }
+        if (!is.na(range_cutoff[2])) {
+          df$data[[i]] <- df$data[[i]] %>%
+            mutate(!!COL_CORRECT_BUTTON := na_if_true(!!Q_COL_CORRECT_BUTTON, !!Q_COL_RT > range_cutoff[2]),
+                   !!COL_RT := na_if_true(!!Q_COL_RT, !!Q_COL_RT > range_cutoff[2]))
+        }
+      }
+      
+      if (sd_cutoff != FALSE) {
+        df$data[[i]] <- df$data[[i]] %>%
+          mutate(!!COL_CORRECT_BUTTON := na_if_true(!!Q_COL_CORRECT_BUTTON, c(abs(scale(!!Q_COL_RT))) > sd_cutoff),
+                 !!COL_RT := na_if_true(!!Q_COL_RT, c(abs(scale(!!Q_COL_RT))) > sd_cutoff))
+      }
+      
+      # needs to be grouped to prevent previous_correct_button from bleeding over between records
+      df$data[[i]] <- df$data[[i]] %>%
+        mutate(!!Q_COL_PREV_CORRECT_BUTTON := make_lagged_col(!!Q_COL_CORRECT_BUTTON)) %>%
+        ungroup()
+    }
   }
-  if (sd_cutoff != FALSE) vec = na_if_true(vec, c(abs(scale(vec))) > sd_cutoff)
-  return(vec)
+  return (df)
 }
-
