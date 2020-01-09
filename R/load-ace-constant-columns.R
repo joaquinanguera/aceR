@@ -30,6 +30,12 @@ COL_CORRECT_BUTTON = "correct_button"
 Q_COL_CORRECT_BUTTON = rlang::sym(COL_CORRECT_BUTTON)
 
 #' @name ace_header
+COL_PREV_CORRECT_BUTTON = "previous_correct_button"
+
+#' @name ace_header
+Q_COL_PREV_CORRECT_BUTTON = rlang::sym(COL_PREV_CORRECT_BUTTON)
+
+#' @name ace_header
 COL_CORRECT_RESPONSE = "correct_response"
 
 #' @name ace_header
@@ -46,6 +52,12 @@ COL_LATE_RESPONSE = "late_response"
 
 #' @name ace_header
 Q_COL_LATE_RESPONSE = rlang::sym(COL_LATE_RESPONSE)
+
+#' @name ace_header
+COL_PREV_LATE_RESPONSE = "previous_late_response"
+
+#' @name ace_header
+Q_COL_PREV_LATE_RESPONSE = rlang::sym(COL_PREV_LATE_RESPONSE)
 
 #' @name ace_header
 COL_CONDITION = "condition"
@@ -245,6 +257,11 @@ standardize_ace_values <- function(df) {
                                         df[[COL_RT]] %% 10 == 0 & df[[COL_RT]] != 0 ~ "no_response",
                                         is.na(df[[COL_RT]]) ~ "no_response",
                                         TRUE ~ "late")
+    
+    df <- df %>%
+      group_by(!!Q_COL_BID) %>%
+      mutate(!!COL_PREV_LATE_RESPONSE = make_lagged_col(!!Q_COL_LATE_RESPONSE)) %>%
+      ungroup()
   }
   
   # Forcible recoding of accuracy and other things for various modules below
@@ -341,7 +358,7 @@ standardize_ace_values <- function(df) {
     df <- df %>%
       # needs to be grouped to prevent previous_correct_button from bleeding over between records
       group_by(!!Q_COL_BID) %>%
-      mutate(previous_correct_button = make_lagged_col(!!Q_COL_CORRECT_BUTTON)) %>%
+      mutate(!!COL_PREV_CORRECT_BUTTON = make_lagged_col(!!Q_COL_CORRECT_BUTTON)) %>%
       ungroup()
   }
   
