@@ -45,16 +45,17 @@ transform_raw <- function (file, dat) {
            module = identify_module(file[1])) %>%
     standardize_ace_column_names() %>%
     # force lowercase everything to cover for weird capitalization diffs bw files
-    mutate(!!Q_COL_PID := tolower(!!Q_COL_PID),
+    mutate(!!Q_COL_PID := stringr::str_replace_all(tolower(!!Q_COL_PID), "[^a-zA-Z0-9]+", ""),
            # make block id from pid & time
-           !!Q_COL_BID := paste(!!Q_COL_PID, !!Q_COL_TIME, sep = ".")) %>%
+           !!Q_COL_BID := paste0(!!Q_COL_PID, ".session", !!Q_COL_N_FINISHED)) %>%
     standardize_ace_values() %>%
     # make short block id from pid and date only
-    mutate(!!Q_COL_BID_SHORT := paste(!!Q_COL_PID,
-                                      lubridate::floor_date(!!Q_COL_TIME, unit = "days"),
-                                      sep = ".")) %>%
+    # TODO: Delete these next 3 lines of code once we confirm we don't need
+    # mutate(!!Q_COL_BID_SHORT := paste(!!Q_COL_PID,
+    #                                   lubridate::floor_date(!!Q_COL_TIME, unit = "days"),
+    #                                   sep = ".")) %>%
     group_by(!!Q_COL_BID) %>%
-    mutate(!!COL_BLOCK_HALF := plyr::mapvalues(make_half_seq(n()), from = c(1, 2), to = c("first_half", "second_half"))) %>%
+    mutate(!!COL_BLOCK_HALF := dplyr::recode(make_half_seq(n()), `1` = "first_half", `2` = "second_half")) %>%
     ungroup()
   
   # Don't do "half" labeling for demos, which should only have one row per subject

@@ -23,7 +23,7 @@ module_math_fluency <- function(df) {
                 cost_args = list(c("\\.switch", "\\.stay", "\\.switch_cost"),
                                  c("\\.subtraction", "\\.addition", "\\.operation_cost"),
                                  c("\\.2", "\\.1", "\\.answer_size_cost"))) %>%
-    mutate(gen = map(condition, function(x) proc_generic_module(df, Q_COL_CORRECT_BUTTON, rlang::sym(x), FUN = sea_descriptive_statistics)),
+    mutate(gen = map(condition, function(x) proc_generic_module(df, col_condition = rlang::sym(x), FUN = sea_descriptive_statistics)),
            cost = map2(gen, cost_args, ~multi_subtract(.x, .y[1], .y[2], .y[3])),
            both = map2(gen, cost, ~dplyr::bind_cols(.x, .y)),
            names = map(both, ~names(.x)))
@@ -48,7 +48,7 @@ module_math_recall <- function(df) {
                                  c("\\.vertical", "\\.horizontal",  "\\.orientation_cost"),
                                  c("\\.subtraction", "\\.addition", "\\.operation_cost"),
                                  c("\\.2", "\\.1", "\\.answer_size_cost"))) %>%
-    mutate(gen = map(condition, function(x) proc_generic_module(df, Q_COL_CORRECT_BUTTON, rlang::sym(x), FUN = sea_descriptive_statistics)),
+    mutate(gen = map(condition, function(x) proc_generic_module(df, col_condition = rlang::sym(x), FUN = sea_descriptive_statistics)),
            cost = map2(gen, cost_args, ~multi_subtract(.x, .y[1], .y[2], .y[3])),
            both = map2(gen, cost, ~dplyr::bind_cols(.x, .y)),
            names = map(both, ~names(.x))) %>%
@@ -64,7 +64,7 @@ module_math_recall <- function(df) {
 #' @name sea_procs
 
 module_reading_fluency <- function(df) {
-  gen = proc_generic_module(df, Q_COL_CORRECT_BUTTON, FUN = sea_reading_descriptive_statistics)
+  gen = proc_generic_module(df, col_condition = NULL, FUN = sea_reading_descriptive_statistics)
   gen = dplyr::select(gen, -dplyr::contains("correct_button_mean"))
   time = proc_by_condition(df, "feedback_onset", include_overall = F, FUN = sea_task_duration)
   return (dplyr::left_join(gen, time, by = COL_BID))
@@ -74,7 +74,7 @@ module_reading_fluency <- function(df) {
 #' @name sea_procs
 
 module_reading_comprehension <- function(df) {
-  gen = proc_generic_module(df, Q_COL_CORRECT_BUTTON, FUN = sea_reading_descriptive_statistics)
+  gen = proc_generic_module(df, col_condition = NULL, FUN = sea_reading_descriptive_statistics)
   gen = dplyr::select(gen, -dplyr::contains("correct_button_mean"))
   time = proc_by_condition(df, "feedback_onset", include_overall = F, FUN = sea_task_duration)
   return (dplyr::left_join(gen, time, by = COL_BID))
@@ -92,7 +92,7 @@ module_fractions_lvl_1 <- function(df) {
   out <- tibble(condition = c(COL_CONDITION, "num_size"),
                 cost_args = list(c("\\.left", "\\.right", "\\.cost"),
                                  c("\\.large", "\\.small", "\\.num_size_cost"))) %>%
-    mutate(gen = map(condition, function(x) proc_generic_module(df, Q_COL_CORRECT_BUTTON, rlang::sym(x), FUN = sea_descriptive_statistics)),
+    mutate(gen = map(condition, function(x) proc_generic_module(df, col_condition = rlang::sym(x), FUN = sea_descriptive_statistics)),
            cost = map2(gen, cost_args, ~multi_subtract(.x, .y[1], .y[2], .y[3])),
            both = map2(gen, cost, ~dplyr::bind_cols(.x, .y)),
            names = map(both, ~names(.x)))
@@ -111,7 +111,7 @@ module_fractions_lvl_2 <- function(df) {
   out <- tibble(condition = c(COL_CONDITION, "matched_value"),
                 cost_args = list(c("\\.left", "\\.right", "\\.cost"),
                                  c("\\.num_matched", "\\.denom_matched", "\\.matched_value_cost"))) %>%
-    mutate(gen = map(condition, function(x) proc_generic_module(df, Q_COL_CORRECT_BUTTON, rlang::sym(x), FUN = sea_descriptive_statistics)),
+    mutate(gen = map(condition, function(x) proc_generic_module(df, col_condition = rlang::sym(x), FUN = sea_descriptive_statistics)),
            cost = map2(gen, cost_args, ~multi_subtract(.x, .y[1], .y[2], .y[3])),
            both = map2(gen, cost, ~dplyr::bind_cols(.x, .y)),
            names = map(both, ~names(.x)))
@@ -130,7 +130,7 @@ module_fractions_lvl_3 <- function(df) {
   out <- tibble(condition = c(COL_CONDITION, "congruency"),
                 cost_args = list(c("\\.left", "\\.right", "\\.cost"),
                                  c("\\.incongruent", "\\.congruent", "\\.congruency_cost"))) %>%
-    mutate(gen = map(condition, function(x) proc_generic_module(df, Q_COL_CORRECT_BUTTON, rlang::sym(x), FUN = sea_descriptive_statistics)),
+    mutate(gen = map(condition, function(x) proc_generic_module(df, col_condition = rlang::sym(x), FUN = sea_descriptive_statistics)),
            cost = map2(gen, cost_args, ~multi_subtract(.x, .y[1], .y[2], .y[3])),
            both = map2(gen, cost, ~dplyr::bind_cols(.x, .y)),
            names = map(both, ~names(.x)))
@@ -147,10 +147,10 @@ module_fractions_lvl_3 <- function(df) {
 
 module_arithmetic_verification <- function(df) {
   
-  gen = proc_generic_module(df, Q_COL_CORRECT_BUTTON, sym("block_type"), FUN = sea_descriptive_statistics)
-  gen_mixed = proc_generic_module(filter(df, block_type == "Mixed"), Q_COL_CORRECT_BUTTON, Q_COL_CONDITION, FUN = sea_descriptive_statistics) %>%
+  gen = proc_generic_module(df, col_condition = sym("block_type"), FUN = sea_descriptive_statistics)
+  gen_mixed = proc_generic_module(filter(df, block_type == "Mixed"), FUN = sea_descriptive_statistics) %>%
     select(-ends_with(".overall"), -ends_with("_half"), -ends_with("correct"))
-  gen_mixed_full = proc_generic_module(filter(df, block_type == "Mixed"), Q_COL_CORRECT_BUTTON, sym("switch_by_operation_type"), FUN = sea_descriptive_statistics) %>%
+  gen_mixed_full = proc_generic_module(filter(df, block_type == "Mixed"), col_condition = sym("switch_by_operation_type"), FUN = sea_descriptive_statistics) %>%
     select(-ends_with(".overall"), -ends_with("_half"), -ends_with("correct"))
   
   gens_mixed = full_join(gen_mixed, gen_mixed_full, by = "bid")
@@ -173,7 +173,7 @@ module_arithmetic_verification <- function(df) {
 
 module_groupitizing <- function(df) {
   # calculate cost PAIRWISE (3 group number conditions)
-  gen_num = proc_generic_module(df, Q_COL_CORRECT_BUTTON, rlang::sym("number_groups"), FUN = sea_descriptive_statistics)
+  gen_num = proc_generic_module(df, col_condition = rlang::sym("number_groups"), FUN = sea_descriptive_statistics)
   cost_2_1 = multi_subtract(gen_num, "\\.2", "\\.1", "\\.2_1_cost")
   cost_3_1 = multi_subtract(gen_num, "\\.3", "\\.1", "\\.3_1_cost")
   cost_3_2 = multi_subtract(gen_num,  "\\.3", "\\.2", "\\.3_2_cost")
@@ -181,7 +181,7 @@ module_groupitizing <- function(df) {
   out_num = dplyr::bind_cols(gen_num, cost_2_1, cost_3_1, cost_3_2)
   
   # calculate cost PAIRWISE again (3 arrangement conditions)
-  gen_arr = proc_generic_module(df, Q_COL_CORRECT_BUTTON, rlang::sym("arrangement"), FUN = sea_descriptive_statistics)
+  gen_arr = proc_generic_module(df, col_condition = rlang::sym("arrangement"), FUN = sea_descriptive_statistics)
   cost_g_r = multi_subtract(gen_arr, "\\.random", "\\.group", "\\.group_random_cost")
   cost_s_r = multi_subtract(gen_arr, "\\.random", "\\.subitizing", "\\.subitizing_random_cost")
   cost_s_g = multi_subtract(gen_arr, "\\.group", "\\.subitizing", "\\.subitizing_group_cost")
@@ -209,5 +209,5 @@ module_running_memory_span <- function(df) {
 #' @name sea_procs
 
 module_relational_matching <- function (df) {
-  return (proc_generic_module(df, Q_COL_CORRECT_BUTTON, Q_COL_CONDITION, FUN = sea_descriptive_statistics))
+  return (proc_generic_module(df, FUN = sea_descriptive_statistics))
 }

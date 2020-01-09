@@ -33,3 +33,10 @@ na_if_true <- function (x, condition) {
   x[condition] <- NA
   return (x)
 }
+
+#' @keywords internal
+
+make_lagged_col <- function (col) {
+  col = paste0("prev_", dplyr::lag(col))
+  return (col)
+}

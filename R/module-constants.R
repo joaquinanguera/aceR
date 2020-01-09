@@ -5,13 +5,19 @@
 #' @param col_acc column for accuracy, as string
 #' @param col_condition column containing "condition" or trial type, as string
 
-proc_generic_module <- function(df, col_acc, col_condition, FUN = ace_descriptive_statistics) {
+proc_generic_module <- function(df,
+                                col_acc = Q_COL_CORRECT_BUTTON,
+                                col_condition = Q_COL_CONDITION,
+                                col_prev_acc = Q_COL_PREV_CORRECT_BUTTON,
+                                FUN = ace_descriptive_statistics) {
   
   # overall & broken-down by condition
   # RT broken-down by condition & accuracy  
   rt_acc = proc_by_condition(df, COL_RT, factors = c(col_condition, col_acc), FUN = FUN)
   # RT by block half
   rt_block_half = proc_by_condition(df, COL_RT, factors = Q_COL_BLOCK_HALF, include_overall = F, FUN = FUN)
+  # TODO: RT by previous trial accuracy
+  rt_prev_acc = proc_by_condition(df, COL_RT, factors = c(col_condition, col_prev_acc),  include_overall = F, FUN = FUN)
   
   # accuracy broken down by condition and response window (early or late?)
   # if late response is not available for the task, don't factor by it
@@ -27,15 +33,15 @@ proc_generic_module <- function(df, col_acc, col_condition, FUN = ace_descriptiv
     rw = proc_by_condition(df, COL_RW, factors = col_condition, FUN = FUN)
     rw_block_half = proc_by_condition(df, COL_RW, factors = Q_COL_BLOCK_HALF, include_overall = F, FUN = FUN)
     # merge
-    analy = list(rt_acc, acc, rw, rt_block_half, rw_block_half)
+    analy = list(rt_acc, acc, rw, rt_prev_acc, rt_block_half, rw_block_half)
   } else {
     # merge
-    analy = list(rt_acc, acc, rt_block_half)
+    analy = list(rt_acc, acc, rt_prev_acc, rt_block_half)
   }
   
   # TODO: Add version of proc_by_condition using a relabeled acc column where all lates are wrong
-  
-  merged = multi_merge(analy, by = COL_BID)
+  # again, assume all repeated column names are in fact the same columns
+  merged = suppressMessages(plyr::join_all(analy))
   return (merged)
 }
 
@@ -49,6 +55,7 @@ proc_by_condition <- function(df, variable, factors, include_overall = TRUE, FUN
   # late response (to subset accuracy by late resp)
   # accuracy (to subset RT by acc)
   # conditions to be subsetted should be fed in as a SYMBOL
+  
   overall = apply_stats(
     x = df, 
     id_var = Q_COL_BID,
@@ -77,7 +84,8 @@ proc_by_condition <- function(df, variable, factors, include_overall = TRUE, FUN
   proc <- proc %>%
     rename_all(funs(tolower(.))) %>%
     select(-contains(".short"), -contains(".no_response"), -contains(".late"),
-           -contains("correct_button_median"), -contains("correct_button_sd"))
+           -contains("correct_button_median"), -contains("correct_button_sd"),
+           -contains(".NA"), -contains("prev_na"), -contains("prev_no_response"))
   
   return(proc)
 }

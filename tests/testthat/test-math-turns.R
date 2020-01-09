@@ -1,7 +1,7 @@
 context("test turns")
 
 test_that("accuracy turn-counting helper functions work", {
-  sample_flanker = paste(aceR_sample_data_path(), "sample-ace-flanker.csv", sep = "/")
+  sample_flanker = paste(aceR_sample_data_path(), "sample-ace-flanker-2.csv", sep = "/")
   flanker_proc = load_ace_file(sample_flanker)
   
   rws = aceR:::to_numeric(flanker_proc$rw)
