@@ -60,6 +60,12 @@ COL_LATE_RESPONSE = "late_response"
 Q_COL_LATE_RESPONSE = rlang::sym(COL_LATE_RESPONSE)
 
 #' @name ace_header
+COL_PREV_LATE_RESPONSE = "previous_late_response"
+
+#' @name ace_header
+Q_COL_PREV_LATE_RESPONSE = rlang::sym(COL_PREV_LATE_RESPONSE)
+
+#' @name ace_header
 COL_CONDITION = "condition"
 
 #' @name ace_header
@@ -255,6 +261,11 @@ standardize_ace_values <- function(df) {
                                         df[[COL_RT]] %% 10 == 0 & df[[COL_RT]] != 0 ~ "no_response",
                                         is.na(df[[COL_RT]]) ~ "no_response",
                                         TRUE ~ "late")
+    
+    df <- df %>%
+      group_by(!!Q_COL_BID) %>%
+      mutate(!!Q_COL_PREV_LATE_RESPONSE := make_lagged_col(!!Q_COL_LATE_RESPONSE)) %>%
+      ungroup()
   }
   
   # Forcible recoding of accuracy and other things for various modules below
