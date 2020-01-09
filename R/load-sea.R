@@ -52,11 +52,10 @@ load_sea_file <- function (file, verbose = FALSE) {
                                             "no_response",
                                             correct_button)) %>%
     group_by(!!Q_COL_MODULE, !!Q_COL_BID_SHORT) %>%
-    mutate(previous_correct_button = lag(correct_button),
+    mutate(!!COL_PREV_CORRECT_BUTTON := lag(!!Q_COL_CORRECT_BUTTON),
            half = dplyr::recode(make_half_seq(n()), `1` = "first_half", `2` = "second_half")) %>%
-    group_by(!!Q_COL_MODULE) %>%
-    nest() %>%
-    mutate(data = map2(data, module, ~append_info(.x, module = .y))) %>%
-    unnest()
+    nest(data = -!!Q_COL_MODULE) %>%
+    mutate(data = map2(data, !!Q_COL_MODULE, ~append_info(.x, module = .y))) %>%
+    unnest(data)
   return (dat)
 }
