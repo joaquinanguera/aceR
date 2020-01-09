@@ -1,8 +1,8 @@
 context("load raw csv data")
 
 test_that("ACE Explorer CSV loads in", {
-  sample_brt = paste(aceR_sample_data_path(), "sample-ace-brt.csv", sep = "/")
-  sample_flanker = paste(aceR_sample_data_path(), "sample-ace-flanker.csv", sep = "/")
+  sample_brt = paste(aceR_sample_data_path(), "sample-ace-brt-2.csv", sep = "/")
+  sample_flanker = paste(aceR_sample_data_path(), "sample-ace-flanker-2.csv", sep = "/")
   
   expect_gt(nrow(load_ace_file(sample_brt)), 0)
   expect_gt(nrow(load_ace_file(sample_flanker)), 0)
