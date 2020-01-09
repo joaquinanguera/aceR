@@ -203,7 +203,7 @@ label_study_conditions = function(info, conditions) {
 
 reconstruct_pid <- function (proc, demo) {
   # This SHOULD truncate at the last character before the times finished game portion of the bid
-  proc %>% mutate(!!COL_PID := str_sub(!!Q_COL_BID, end = -9L)) %>%
+  proc %>% mutate(!!COL_PID := str_sub(!!Q_COL_BID, end = -10L)) %>%
     select(COL_BID, COL_PID, everything()) %>%
     return()
 }
