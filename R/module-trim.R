@@ -17,10 +17,8 @@ NULL
 #'
 #' @export
 #' @import dplyr
-#' @importFrom stringr str_replace
-#' @importFrom purrr map map2 map_int pmap reduce rerun
+#' @importFrom purrr map
 #' @importFrom rlang !!
-#' @importFrom stats aggregate median na.omit qnorm sd time var
 #' @importFrom tidyr nest
 #' @param df a \code{\link{data.frame}} containing formatted trialwise ACE data. 
 #'
