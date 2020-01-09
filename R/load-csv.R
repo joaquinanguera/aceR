@@ -1,108 +1,78 @@
 
 #' @keywords internal
 
-load_csv <- function(file, pulvinar = FALSE) {
-  if (pulvinar) {
-    df = dplyr::as_tibble(data.table::fread(file, header = T, na.strings = c("NA", "N/A", "")))
-  } else {
-    num_cols = max(count.fields(file, sep = ','), na.rm = TRUE)
-    df = read.csv(file, header = FALSE, row.names = NULL, col.names = seq_len(num_cols), fill = TRUE, stringsAsFactors = FALSE) 
-  }
+load_csv <- function(file) {
+  df = dplyr::as_tibble(data.table::fread(file, header = T, na.strings = c("NA", "N/A", "")))
   return (df)
 }
 
+#' Because the "Reading Fluency" module has some cells with unquoted commas,
+#' They are causing the usual read.csv delimiter guessing to split
+#' one cell into two, creating too many columns for just a few rows
+#' 
+#' @importFrom magrittr %>%
+#' @importFrom stringr str_trim
+#' @importFrom utils read.table
 #' @keywords internal
 
-breakup_by_user <- function(raw) {
-  subs = which(grepl("USER ID:|PARTICIPANT ID:", raw[, 2])) - 1
-  if (length(subs) !=  0) {
-    out = split(raw, cumsum(1:nrow(raw) %in% subs))
-    out = lapply(out, "rownames<-", NULL)
-  } else {
-    out = raw
+load_sea_csv <- function(file) {
+  # this quote arg SHOULD work to exclude apostrophes but allow double quotes
+  dat <- read.table(file, sep = ",", quote = "\"", header = F, stringsAsFactors = F,
+                    col.names = paste0("V", 1:32), fill = T) %>%
+    # first, remove any "extra" cols (dat is loaded in with padding cols if necessary)
+    remove_empty_cols()
+  
+  # this returns true for cols which do NOT have a header, but DO have data in some rows
+  # if ANY of these are true, these are the cols which need to get pushed back into place
+  bad_cols <- purrr::map_lgl(dat, ~(is.na(.[1]) | .[1] == "") & !(all(unique(.) == "") | all(is.na(.))))
+  
+  # if none of bad_cols are true, no preprocessing necessary
+  if (all(!bad_cols)) {
+    names(dat) <- str_trim(dat[1, ])
+    # need second JUST IN CASE some of them have duplicated cols (e.g. "Semester")
+    dat <- dat[2:nrow(dat), !duplicated(colnames(dat))]
+    return (dat)
   }
-  return (out)
-}
-
-#' @keywords internal
-
-standardize_raw_csv_data <- function(dat) {
-  dat[is.na(dat)] = ""
-  dat = remove_empty_cols(dat)
-  dat = remove_empty_rows(dat)
-  row.names(dat) = NULL
+  
+  names(dat) <- c(str_trim(dat[1, !bad_cols]), paste0("junk", 1:sum(bad_cols)))
+  dat <- dat[2:nrow(dat), !duplicated(colnames(dat))]
+  
+  if (!("junk2" %in% names(dat))) {
+    # if only one extra col of bad data
+    bad_rows <- which(dat$junk1 != "")
+    dat[bad_rows, "Question Text"] <- paste(dat[bad_rows, "Question Text"],
+                                            dat[bad_rows, "Question Type"], sep = ",")
+    # Moving these bad rows' data after the bad delimiter one column to the left
+    dat[bad_rows, 6:(length(dat) - 1)] <- dat[bad_rows, 7:length(dat)]
+    # removing bad cols
+    dat <- dat[, 1:(length(dat) - 1)]
+  } else {
+    # if two extra cols of bad data
+    # need this because future stuff expects the empty cols to be empty strings, not NAs
+    dat$junk2 <- dplyr::coalesce(as.character(dat$junk2), "")
+    bad_rows1 <- which(dat$junk1 != "" & dat$junk2 == "")
+    dat[bad_rows1, "Question Text"] <- paste(dat[bad_rows1, "Question Text"],
+                                             dat[bad_rows1, "Question Type"], sep = ",")
+    # Moving these bad rows' data after the bad delimiter one column to the left
+    dat[bad_rows1, 6:(length(dat) - 2)] <- dat[bad_rows1, 7:(length(dat) - 1)]
+    
+    bad_rows2 <- which(dat$junk2 != "")
+    dat[bad_rows2, "Question Text"] <- paste(dat[bad_rows2, "Question Text"],
+                                             dat[bad_rows2, "Question Type"],
+                                             dat[bad_rows2, "User Answer"], sep = ",")
+    # Moving these bad rows' data after the bad delimiters two columns to the left
+    dat[bad_rows2, 6:(length(dat) - 2)] <- dat[bad_rows2, 8:length(dat)]
+    # removing bad cols
+    dat <- dat[, 1:(length(dat) - 2)]
+  }
   return (dat)
-}
-
-#' @keywords internal
-
-standardize_session_info <- function(dat) {
-  incomplete_rows = identify_incomplete_session_info(dat)
-  null_trial_rows = identify_null_trials(dat)
-  
-  dat[incomplete_rows, 2] = "TIME:"
-  dat[null_trial_rows, 1] = "0" # need this to avoid having null trials accidentally detected as new data subsets
-  
-  return(dat)
-}
-
-#' @keywords internal
-
-identify_grouping_rows <- function(dat) {
-  matching_rows = dat[dat[1] != "" & dat[2] == "", ]
-  return (numeric_row_names(matching_rows))
-}
-
-#' @keywords internal
-
-identify_nondata_rows <- function(dat) {
-  possible_groups = identify_grouping_rows(dat)
-  consec = group_consecutive_integers(possible_groups)
-  # for consecutive 'non-data' rows we're assuming the last value is the grouping value and everything is throwaway
-  non_data = sapply(consec, function(x) {
-    if (length(x) > 1) {
-      return (head(x, -1))
-    } else {
-      return (c())
-    }
-  })
-  throw_away = dat[dat[1] != "" & dat[2] != "" & dat[3] == "", ]
-  vals = c(unlist(non_data), numeric_row_names(throw_away))
-  vals = sort(unique(vals))
-  if (length(vals) < 1) { # MT 9/18/16 changing to < to throw away single rows
-    return (c())
-  } else {
-    return (vals)
-  }
-}
-
-#' @keywords internal
-
-identify_incomplete_session_info <- function(dat) {
-  # for some reason this doesn't return a logical vector if using %in%
-  incomplete_info_rows = dat[dat[[1]] == "" & dat[[2]] == "" & dat[[3]] != "" & dat[[3]] != "0" , ] # if 0 is in the 3rd col then it is probably REAL DATA where S failed to respond
-  return (numeric_row_names(incomplete_info_rows))
-}
-
-#' @keywords internal
-
-identify_null_trials <- function(dat) {
-  null_trials = dat[dat[[1]] == "" & dat[[2]] == "" & dat[[3]] == "0" , ] # if 0 is in the 3rd col then it is probably REAL DATA where S failed to respond
-  return (numeric_row_names(null_trials))
-}
-
-#' @keywords internal
-
-remove_nondata_rows <- function(raw_dat) {
-  rows = identify_nondata_rows(raw_dat)
-  return (remove_rows(raw_dat, rows))
 }
 
 #' @importFrom magrittr %>%
 #' @importFrom dplyr filter mutate select
 #' @importFrom rlang !!
 #' @importFrom tidyr separate
-#' @keywords internal
+#' @keywords internal deprecated
 
 remove_nondata_rows_pulvinar <- function(dat) {
   # using data.table internally for speed, generally
@@ -126,7 +96,7 @@ remove_nondata_rows_pulvinar <- function(dat) {
 
 #' @importFrom dplyr mutate select
 #' @importFrom magrittr %>%
-#' @keywords internal
+#' @keywords internal deprecated
 
 fix_blank_pids <- function(dat) {
   dat = dat %>%
@@ -139,205 +109,7 @@ fix_blank_pids <- function(dat) {
   return (dat)
 }
 
-#' @keywords internal
-
-transform_grouping_rows <- function(dat) {
-  rows = identify_grouping_rows(dat)
-  new_col = length(dat) + 1
-  dat[[new_col]] = NA
-  for (row in rows) {
-    group = dat[row, 1]
-    dat[row + 1, new_col] = "CONDITION:" # so we can identify "new" columns
-    dat[row + 2, new_col] = as.character(group)
-  }
-  dat = remove_rows(dat, rows)
-  # In cases where an improper header section is triggered,
-  # e.g. task was only run for one of 2 blocked conditions,
-  # scrub rows of only NA that are introduced bc of bad grouping column appending
-  dat = remove_rows(dat, which(is.na(dat[[1]]) & is.na(dat[[length(dat) - 1]])))
-  
-  # Removing this to avoid accidentally triggering a new "header" section
-  # when the first column of real data has NAs (aka some spatial span cases)
-  # dat = replace_nas(dat, "")
-  return (dat)
-}
-
-#' @keywords internal
-
-transform_session_info <- function(dat) {
-  rles = rle(dat[, 1] == "")
-  sums = consecutive_sums(rles$lengths)
-  max_len = max(rles$lengths[rles$values])
-  dat_len = length(dat)
-  new_cols = (dat_len + 1) : (dat_len + max_len + 1)
-  dat[, new_cols] = NA
-  rem = c()
-  for (i in 1:length(sums)) {
-    is_sec = rles$values[i] == TRUE
-    if (is_sec) {
-      end = sums[i]
-      first = (end - rles$lengths[i]) + 1
-      rows = seq(first, end)
-      sec_header = dat[rows, c(2, 3)]
-      sec_cols = (dat_len + 1) : (dat_len + length(rows))
-      dat[end + 1, sec_cols] = as.vector(sec_header[, 1])
-      dat[end + 2, sec_cols] = as.vector(sec_header[, 2])
-      rem = c(rem, rows)
-    }
-  }
-  dat = remove_rows(dat, rem)
-  return (standardize_raw_csv_data(dat))
-}
-
-#' @keywords internal
-
-parse_subsections <- function(dat) {
-  subs = which(dat[, 1] ==  dat[1, 1])
-  len = length(subs)
-  out = data.frame()
-  new_cols = c()
-  for (i in 1:len) {
-    header = subs[i]
-    body = (header + 1):(ifelse(i == len, nrow(dat), subs[i + 1] - 1))
-    sub = as.data.frame(dat[body, ])
-    col_names = unname(unlist(dat[header, ]))
-    valid_cols = which(col_names != "")
-    valid = sub[, valid_cols]
-    names(valid) = col_names[valid_cols]
-    is_new_col = sapply(names(valid), function(x) return(grepl(":", x)))
-    new_cols = c(new_cols, names(valid)[is_new_col])
-    clean = remove_empty_rows(replace_blanks(valid, NA))
-    clean[[COL_SUB_ID]] = i
-    clean[[COL_BLOCK_HALF]] = plyr::mapvalues(make_half_seq(nrow(clean)), from = c(1, 2), to = c("first_half", "second_half"))
-    out = plyr::rbind.fill(out, clean)
-  }
-  new_cols = unique(new_cols)
-  out[new_cols] = na_locf(out, new_cols)
-  return (out)
-}
-
 #' @keywords internal deprecated
-#' @import dplyr
-#' @importFrom utils txtProgressBar setTxtProgressBar
-
-parse_subsections_pulvinar <- function(dat) {
-  # TODO: remove data.table implementation completely!!
-  subs = unique(dat[[COL_PID]]) # use "subid" bc is unique for each data submission (2 submissions by same PID will have diff subids)
-  len = length(subs)
-  out = tibble()
-  if (COL_NAME %in% names(dat) & grepl("ADMIN-UCSF", dat[1, COL_PID])) { # this function expects a "name" column by which to do the matching
-    dat = remove_nondata_rows_pulvinar(dat)
-  }
-  # STRICT DATASET REJECTION HERE, too many submitted datasets where pid and name don't match, so ONLY including ones where they do bc can't be confident about demographic data otherwise
-  cat("Stage 1 PID search: only matching datasets\n")
-  pb = txtProgressBar(min = 0, max = len, style = 3) # progress bar for this for loop
-  for (i in 1:len) {
-    sub = subs[i]
-    if ("name" %in% names(dat)) {
-      clean = dat[pid == sub & name == substr(sub, 12, 17), ] # grab only data where name and pid match, for now
-    }
-    clean = dat[pid == sub, ] # currently data doesn't include the name field
-    # TODO: here is where automatic detection of pre and post can be implemented
-    for (this_time in unique(clean[, time])) {
-      this_clean = clean[time == this_time, ] # in this subset, delimit by time gameplayed to collect pre and post data
-      if (nrow(this_clean) > 0) {
-        this_clean[, COL_BLOCK_HALF] = plyr::mapvalues(make_half_seq(nrow(this_clean)), from = c(1, 2), to = c("first_half", "second_half"))
-      }
-      out = plyr::rbind.fill(out, this_clean)
-    }
-    # } else if (!(clean[1, COL_PID] %in% unique(out[, COL_PID]))) { # in general, only append sub if not duplicate
-    setTxtProgressBar(pb, i)
-  }
-  close(pb)
-  
-  if ("name" %in% names(dat) & nrow(dat[pid == "ADMIN-UCSF-"]) > 0) { # can only run if there ARE blank PIDs and a name column
-    # stage 2: patch blank PIDs, then append any subs where they ONLY existed as a blank pid
-    cat("Stage 2 PID search: empty PID datasets\n")
-    dat_empty_pid = dat[pid == "ADMIN-UCSF-"]
-    dat_empty_pid = fix_blank_pids(dat_empty_pid)
-    subs = unique(dat_empty_pid[, pid])
-    len = length(subs)
-    pb = txtProgressBar(min = 0, max = len, style = 3) # progress bar for this for loop
-    for (i in 1:len) {
-      sub = subs[i]
-      clean = dat_empty_pid[pid == sub & name == substr(sub, 12, 17), ] # grab only data where name and pid match, for now
-      for (this_time in unique(clean[, time])) {
-        this_clean = clean[time == this_time, ] # in this subset, delimit by time gameplayed to collect pre and post data
-        if (nrow(this_clean) > 0) {
-          this_clean[, COL_BLOCK_HALF] = plyr::mapvalues(make_half_seq(nrow(this_clean)), from = c(1, 2), to = c("first_half", "second_half"))
-        }
-        if (!(clean[1, COL_PID] %in% unique(out[, COL_PID]))) { # in general, only append sub if not duplicate
-          out = plyr::rbind.fill(out, clean)
-        }
-      }
-      setTxtProgressBar(pb, i)
-    }
-    close(pb)
-  }
-  
-  if ("name" %in% names(dat)) { # can only run if there is a name column
-    # stage 3: append any subs where the PID ONLY exists w/ mismatched name
-    # and said name also exists w/ matched PID
-    cat("Stage 3 PID search: orphaned mis-named PID datasets level 1\n")
-    clean_subnames = unique(out[, COL_NAME]) # recording subs who survived at stage 1 & 2 for comparison in stage 3
-    dat_mismatched_pid = tidyr::separate_(dat, COL_PID, into = c("pid_stem", "pid_num"), sep = 11, remove = F)
-    dat_mismatched_pid$name = tolower(dat_mismatched_pid$name)
-    dat_mismatched_pid = dat_mismatched_pid[pid_num != name]
-    subs = unique(dat_mismatched_pid[, pid])
-    len = length(subs)
-    if (len > 0) {
-      pb = txtProgressBar(min = 0, max = len, style = 3) # progress bar for this for loop
-      for (i in 1:len) {
-        sub = subs[i]
-        clean = dat_mismatched_pid[pid == sub & name %in% clean_subnames] # grab only data where name matches an already matched PID
-        for (this_time in unique(clean[, time])) {
-          this_clean = clean[time == this_time, ] # in this subset, delimit by time gameplayed to collect pre and post data
-          if (nrow(this_clean) > 0) {
-            this_clean[, COL_BLOCK_HALF] = plyr::mapvalues(make_half_seq(nrow(this_clean)), from = c(1, 2), to = c("first_half", "second_half"))
-          }
-          if (!(clean[1, pid] %in% unique(out[, COL_PID]))) { # in general, only append sub if not duplicate
-            out = plyr::rbind.fill(out, clean)
-          }
-        }
-        setTxtProgressBar(pb, i)
-      }
-      close(pb)
-    }
-    
-    # stage 4: append any subs where the PID ONLY exists w/ mismatched name
-    # and said name also exists w/ a stage 3 orphan-matched PID
-    cat("Stage 4 PID search: orphaned mis-named PID datasets level 2\n")
-    clean_subnames = unique(out[, COL_NAME]) # recording subs who survived at stage 1-3 for comparison in stage 3
-    dat_mismatched_pid = tidyr::separate_(dat, COL_PID, into = c("pid_stem", "pid_num"), sep = 11, remove = F)
-    dat_mismatched_pid$name = tolower(dat_mismatched_pid$name)
-    dat_mismatched_pid = dat_mismatched_pid[pid_num != name]
-    subs = unique(dat_mismatched_pid[, pid])
-    len = length(subs)
-    if (len > 0) {
-      pb = txtProgressBar(min = 0, max = len, style = 3) # progress bar for this for loop
-      for (i in 1:len) {
-        sub = subs[i]
-        clean = dat_mismatched_pid[pid == sub & name %in% clean_subnames] # grab only data where name matches an already matched PID
-        for (this_time in unique(clean[, time])) {
-          this_clean = clean[time == this_time, ] # in this subset, delimit by time gameplayed to collect pre and post data
-          if (nrow(this_clean) > 0) {
-            this_clean[, COL_BLOCK_HALF] = plyr::mapvalues(make_half_seq(nrow(this_clean)), from = c(1, 2), to = c("first_half", "second_half"))
-          }
-          if (!(clean[1, pid] %in% unique(out[, COL_PID]))) { # in general, only append sub if not duplicate
-            out = plyr::rbind.fill(out, clean)
-          }
-        }
-        setTxtProgressBar(pb, i)
-      }
-      close(pb)
-    }
-    dat$pid_stem = NULL
-    dat$pid_num = NULL
-  }
-  return (as.data.frame(out))
-}
-
-#' @keywords internal
 
 make_half_seq <- function(num) {
   len = ifelse(num %% 2 == 0, num, num + 1)

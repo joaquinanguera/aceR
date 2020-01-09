@@ -1,15 +1,13 @@
 
+#' @importFrom magrittr %>%
 #' @keywords internal
 
-standardize_names <- function (df, pulvinar = FALSE) {
-  new_names = names(df)
-  new_names = tolower(new_names)
-  if (pulvinar) {
-    new_names = remove_special_characters(new_names, replacement = "_")
-  } else {
-    new_names = remove_special_characters(new_names)
-  }
-  new_names = replace_spaces(new_names, "_")
+standardize_names <- function (df) {
+  new_names = names(df) %>%
+    tolower() %>%
+    remove_special_characters() %>%
+    replace_spaces("_")
+  
   names(df) = new_names
   return (df)
 }

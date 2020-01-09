@@ -1,4 +1,5 @@
 
+#' Returns the highest value that occurs at least 2x consecutively
 #' @keywords internal
 
 ace_span <- function(x) {

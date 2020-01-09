@@ -1,36 +1,11 @@
 
-#' @keywords internal deprecated
-
-apply_stats <- function(x, y, col, FUN, factor = NULL, suffix = "", ...){
-  # DONE: rewrite ddply call using data.table or dplyr for speed boost
-  if (length(y) > 2) {
-    stop("y must be of equal or less than length of 2")
-  }
-  by_factor = !missing(factor)
-  z = plyr::ddply(x, y, .fun = function(xx) { 
-    yy = xx[ ,col]
-    if (!by_factor) {
-      return (FUN(yy, ...))
-    } else {
-      gg = xx[ ,factor]
-      calc = FUN(yy, gg, ...)
-      out = as.data.frame(as.list(calc))
-      return (out)
-    }
-  })
-  ind = (length(y) + 1):length(z)
-  if (suffix != "") suffix = paste0(".", suffix)
-  if (by_factor) suffix = ""
-  names(z)[ind] = sapply(names(z)[ind], function (n) paste0(col, "_", n, suffix))
-  return(z)
-}
 #' @keywords internal
 #' @import dplyr
 #' @importFrom magrittr %>%
 #' @importFrom rlang sym syms quo_name UQ UQS !! !!!
 #' @import tidyr
 
-apply_stats_dplyr <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transform_dir = "wide", ...) {
+apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transform_dir = "wide", ...) {
   # id_var: name of column containing subject ID
   # col: name of column containing outcome var of interest to be summarized
   # FUN: name of convenience function to apply all the stats
@@ -103,6 +78,7 @@ apply_stats_dplyr <- function(x, id_var, col, FUN, factors = NULL, suffix = "", 
       }
     } else {
       # if only one factor, only put out 1
+      if (is.list(factors)) factors = factors[[1]]
       z = x %>%
         group_by(!!!c(id_var, factors)) %>%
         FUN(col) %>%
