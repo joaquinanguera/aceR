@@ -199,11 +199,14 @@ label_study_conditions = function(info, conditions) {
 #' @keywords internal
 #' @importFrom dplyr mutate select everything
 #' @importFrom magrittr %>%
+#' @importFrom purrr map_chr
 #' @importFrom rlang !! :=
+#' @importFrom stringr str_split
 
 reconstruct_pid <- function (proc, demo) {
   # This SHOULD truncate at the last character before the times finished game portion of the bid
-  proc %>% mutate(!!COL_PID := str_sub(!!Q_COL_BID, end = -9L)) %>%
+  proc %>% mutate(!!COL_PID := str_split(!!Q_COL_BID, pattern = "[.]"),
+                  !!COL_PID := map_chr(!!Q_COL_PID, 1L)) %>%
     select(COL_BID, COL_PID, everything()) %>%
     return()
 }
