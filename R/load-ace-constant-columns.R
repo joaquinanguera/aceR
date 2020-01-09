@@ -168,6 +168,7 @@ standardize_ace_column_names <- function(df) {
   new = names(df)
   new = case_when(new == "response_time" ~ COL_RT,
                   new == "response_window" ~ COL_RW,
+                  new == "trial_correct" ~ COL_CORRECT_BUTTON,
                   new %in% c("participant_id", "user_id") ~ COL_PID,
                   new == "user_name" ~ COL_NAME,
                   new == "user_age" ~ COL_AGE,
@@ -350,9 +351,8 @@ standardize_ace_values <- function(df) {
   if (COL_CORRECT_BUTTON %in% cols) {
     df <- df %>%
       # needs to be grouped to prevent previous_correct_button from bleeding over between records
-      group_by(bid) %>%
-      mutate(!!Q_COL_PREV_CORRECT_BUTTON := lag(!!Q_COL_CORRECT_BUTTON),
-             !!Q_COL_PREV_CORRECT_BUTTON := paste0("prev_", !!Q_COL_PREV_CORRECT_BUTTON)) %>%
+      group_by(!!Q_COL_BID) %>%
+      mutate(!!Q_COL_PREV_CORRECT_BUTTON := make_lagged_col(!!Q_COL_CORRECT_BUTTON)) %>%
       ungroup()
   }
   
