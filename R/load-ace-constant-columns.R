@@ -264,7 +264,7 @@ standardize_ace_values <- function(df) {
     
     df <- df %>%
       group_by(!!Q_COL_BID) %>%
-      mutate(!!Q_COL_PREV_LATE_RESPONSE := make_lagged_col(!!Q_COL_LATE_RESPONSE)) %>%
+      mutate(!!COL_PREV_LATE_RESPONSE := make_lagged_col(!!Q_COL_LATE_RESPONSE)) %>%
       ungroup()
   }
   
@@ -363,7 +363,7 @@ standardize_ace_values <- function(df) {
     df <- df %>%
       # needs to be grouped to prevent previous_correct_button from bleeding over between records
       group_by(!!Q_COL_BID) %>%
-      mutate(!!Q_COL_PREV_CORRECT_BUTTON := make_lagged_col(!!Q_COL_CORRECT_BUTTON)) %>%
+      mutate(!!COL_PREV_CORRECT_BUTTON := make_lagged_col(!!Q_COL_CORRECT_BUTTON)) %>%
       ungroup()
   }
   
