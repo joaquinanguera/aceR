@@ -142,7 +142,9 @@ module_backwardsspatialspan <- function(df) {
 #' @name ace_procs
 
 module_filter <- function(df) {
-  # MT: implementing long format for filter only because it appears only appropriate for this module. open to changing if later modules benefit from this
+  # MT: implementing long format for filter only because it appears only appropriate for this module.
+  # open to changing if later modules benefit from this
+  
   df <- df %>%
     mutate(cue_rotated = dplyr::recode(cue_rotated,
                                        `0` = "no_change",
