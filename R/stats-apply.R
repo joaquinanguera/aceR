@@ -32,7 +32,10 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
           # need to add the name prefix here so gather can call the columns easily
           rename_at(-(1:2), funs(paste0(col, "_", .))) %>%
           ungroup() %>%
-          super_spread(!!factors[[1]], starts_with(!!col), name_order = "value_first", sep = ".")
+          pivot_wider(id_cols = !!id_var,
+                      names_from = !!factors[[1]],
+                      values_from = starts_with(!!col),
+                      names_sep = ".")
         
         z[[2]] = x %>%
           group_by(!!!c(id_var, factors[2])) %>%
@@ -40,7 +43,10 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
           # need to add the name prefix here so gather can call the columns easily
           rename_at(-(1:2), funs(paste0(col, "_", .))) %>%
           ungroup() %>%
-          super_spread(!!factors[[2]], starts_with(!!col), name_order = "value_first", sep = ".")
+          pivot_wider(id_cols = !!id_var,
+                      names_from = !!factors[[2]],
+                      values_from = starts_with(!!col),
+                      names_sep = ".")
         
         z[[3]] = x %>%
           group_by(!!!c(id_var, factors)) %>%
@@ -49,7 +55,10 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
           ungroup() %>%
           complete(!!!c(id_var, factors)) %>%
           unite(cond, !!!factors[2:1], sep = ".") %>%
-          super_spread(cond, starts_with(!!col), name_order = "value_first", sep = ".")
+          pivot_wider(id_cols = !!id_var,
+                      names_from = cond,
+                      values_from = starts_with(!!col),
+                      names_sep = ".")
         
         z = multi_merge(z, by = quo_name(id_var))
         
@@ -67,10 +76,9 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
           group_by(!!!c(id_var, factors)) %>%
           FUN(col) %>%
           rename_at(-(1:3), funs(paste0(col, "_", .))) %>%
-          gather("metric", "value", starts_with(!!col)) %>%
-          unite("key", !!!c(sym("metric"), factors[[2]]), sep = ".") %>%
-          spread(key = "key", value = "value") %>%
-          ungroup()
+          ungroup() %>%
+          pivot_wider(names_from = !!factors[[2]], values_from = starts_with(!!col), names_sep = ".")
+          
         
         # using join_all here instead of multi_merge bc easily accepts multiple joining vars
         # join across all common vars, we are assuming common named vars are in fact the same measurement
@@ -84,7 +92,7 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
         FUN(col) %>%
         rename_at(-(1:2), funs(paste0(col, "_", .))) %>%
         ungroup() %>%
-        super_spread(!!factors, starts_with(!!col), name_order = "value_first", sep = ".")
+        pivot_wider(names_from = !!factors, values_from = starts_with(!!col), names_sep = ".")
     }
   }
   
