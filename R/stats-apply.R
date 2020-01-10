@@ -13,12 +13,24 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
   if (length(id_var) > 2) {
     stop("y must be of equal or less than length of 2")
   }
+  
+  if (length(col) > 1) {
+    # assume that the only FUN that takes a vector for col is the rcs calculator
+    col_out = "rcs"
+    col_prefix = "rcs."
+  } else {
+    col_out = col
+    col_prefix = ""
+  }
+  
   by_factor = !missing(factors)
   if (!by_factor) {
     z = x %>%
       group_by(!!id_var) %>%
       FUN(col) %>%
-      rename_at(-1, funs(paste0(col, "_", .))) %>%
+      rename_at(-1, funs(paste0(col_out, "_", .))) %>%
+      # only triggers for RCS
+      rename_at(-1, funs(str_replace(., "rcs_", ""))) %>%
       ungroup()
 
   } else {
@@ -30,34 +42,37 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
           group_by(!!!c(id_var, factors[[1]])) %>%
           FUN(col) %>%
           # need to add the name prefix here so gather can call the columns easily
-          rename_at(-(1:2), funs(paste0(col, "_", .))) %>%
+          rename_at(-(1:2), funs(paste0(col_out, "_", .))) %>%
           ungroup() %>%
           pivot_wider(id_cols = !!id_var,
                       names_from = !!factors[[1]],
-                      values_from = starts_with(!!col),
+                      values_from = starts_with(!!col_out),
+                      names_prefix = col_prefix,
                       names_sep = ".")
         
         z[[2]] = x %>%
           group_by(!!!c(id_var, factors[2])) %>%
           FUN(col) %>%
           # need to add the name prefix here so gather can call the columns easily
-          rename_at(-(1:2), funs(paste0(col, "_", .))) %>%
+          rename_at(-(1:2), funs(paste0(col_out, "_", .))) %>%
           ungroup() %>%
           pivot_wider(id_cols = !!id_var,
                       names_from = !!factors[[2]],
-                      values_from = starts_with(!!col),
+                      values_from = starts_with(!!col_out),
+                      names_prefix = col_prefix,
                       names_sep = ".")
         
         z[[3]] = x %>%
           group_by(!!!c(id_var, factors)) %>%
           FUN(col) %>%
-          rename_at(-(1:3), funs(paste0(col, "_", .))) %>%
+          rename_at(-(1:3), funs(paste0(col_out, "_", .))) %>%
           ungroup() %>%
           complete(!!!c(id_var, factors)) %>%
           unite(cond, !!!factors[2:1], sep = ".") %>%
           pivot_wider(id_cols = !!id_var,
                       names_from = cond,
-                      values_from = starts_with(!!col),
+                      values_from = starts_with(!!col_out),
+                      names_prefix = col_prefix,
                       names_sep = ".")
         
         z = multi_merge(z, by = quo_name(id_var))
@@ -69,15 +84,18 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
         z[[1]] = x %>%
           group_by(!!!c(id_var, factors[[1]])) %>%
           FUN(col) %>%
-          rename_at(-(1:2), funs(paste0(col, "_", .))) %>%
+          rename_at(-(1:2), funs(paste0(col_out, "_", .))) %>%
           ungroup()
         
         z[[2]] = x %>%
           group_by(!!!c(id_var, factors)) %>%
           FUN(col) %>%
-          rename_at(-(1:3), funs(paste0(col, "_", .))) %>%
+          rename_at(-(1:3), funs(paste0(col_out, "_", .))) %>%
           ungroup() %>%
-          pivot_wider(names_from = !!factors[[2]], values_from = starts_with(!!col), names_sep = ".")
+          pivot_wider(names_from = !!factors[[2]],
+                      values_from = starts_with(!!col_out),
+                      names_prefix = col_prefix,
+                      names_sep = ".")
           
         
         # using join_all here instead of multi_merge bc easily accepts multiple joining vars
@@ -90,9 +108,12 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
       z = x %>%
         group_by(!!!c(id_var, factors)) %>%
         FUN(col) %>%
-        rename_at(-(1:2), funs(paste0(col, "_", .))) %>%
+        rename_at(-(1:2), funs(paste0(col_out, "_", .))) %>%
         ungroup() %>%
-        pivot_wider(names_from = !!factors, values_from = starts_with(!!col), names_sep = ".")
+        pivot_wider(names_from = !!factors,
+                    values_from = starts_with(!!col_out),
+                    names_prefix = col_prefix,
+                    names_sep = ".")
     }
   }
   
