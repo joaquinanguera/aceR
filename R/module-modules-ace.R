@@ -137,7 +137,7 @@ module_backwardsspatialspan <- function(df) {
 #' @importFrom rlang sym !!
 #' @importFrom stats reshape
 #' @importFrom stringr str_sub
-#' @importFrom tidyr separate
+#' @importFrom tidyr pivot_wider separate
 #' @keywords internal
 #' @name ace_procs
 
@@ -158,7 +158,9 @@ module_filter <- function(df) {
     # TODO: implement k w/ proc_standard (if possible)
     mutate(k = ace_wm_k(correct_button_mean.change, 1 - correct_button_mean.no_change, targets)) %>%
     select(-targets, -distractors) %>%
-    super_spread(condition, -bid, -condition, name_order = "value_first", sep = ".")
+    pivot_wider(id_cols = !!Q_COL_BID, names_from = !!COL_CONDITION, values_from = k, names_sep = ".")
+  # Haven't gotten to test this yet but should remove need for super_spread completely
+    # super_spread(condition, -bid, -condition, name_order = "value_first", sep = ".")
 
   return (select(merged, -contains(".."), -starts_with(PROC_COL_OLD[1]), -starts_with(PROC_COL_OLD[2])))
 }
