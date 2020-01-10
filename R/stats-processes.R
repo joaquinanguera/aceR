@@ -67,6 +67,18 @@ ace_ishihara <- function(x) { # uses y/n readings from "rg_color_deficiency" col
   } else {return ("NO")}
 }
 
+#' @importFrom dplyr summarize
+#' @importFrom rlang !!
+#' @keywords internal
+
+ace_rcs <- function(x, cols) {
+  acc = sym(cols[1])
+  rt = sym(cols[2])
+  out = summarize(x, 
+                  rcs = ace_sum(!!acc) / ace_sum(!!rt) * 1000L)
+  return (out)
+}
+
 #' @importFrom dplyr funs one_of summarize_at vars
 #' @keywords internal 
 
