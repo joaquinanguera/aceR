@@ -231,6 +231,17 @@ standardize_ace_values <- function(df) {
       mutate_at(COL_AGE, as.numeric)
   }, silent = TRUE)
   
+  try({
+    df <- df %>%
+      mutate_at(COL_CONDITION, tolower)
+  }, silent = TRUE)
+  
+  
+  try({
+    df <- df %>%
+      mutate_at(COL_TRIAL_TYPE, tolower)
+  }, silent = TRUE)
+  
   cols = names(df)
   
   # First, for ALL tasks, code correct_button with words, not 0 and 1
@@ -287,7 +298,8 @@ standardize_ace_values <- function(df) {
                                          df$trial_accuracy %in% c("Miss", "False Alarm") ~ "incorrect",
                                          TRUE ~ "")
   } else if (STROOP %in% df$module) {
-    df[, COL_CORRECT_BUTTON] = if_else(df$color_pressed == df$color_shown, "correct", "incorrect", missing = "incorrect") # missing implies no response
+    stroop_correct_col = ifelse("color_ink_shown" %in% cols, "color_ink_shown", "color_shown")
+    df[[COL_CORRECT_BUTTON]] = if_else(df[["color_pressed"]] == df[[stroop_correct_col]], "correct", "incorrect", missing = "incorrect") # missing implies no response
   } else if (FLANKER %in% df$module) {
     df[(df$displayed_cue %in% c("A", "B") & df$first_button=="YES") | (df$displayed_cue %in% c("C", "D") & df$second_button=="YES"), COL_CORRECT_BUTTON] = "correct"
   } else if (BRT %in% df$module) {
