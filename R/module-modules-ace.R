@@ -50,8 +50,9 @@ module_discrimination <- function(df) {
 
 module_flanker <- function(df) {
   gen = proc_generic_module(df, col_condition = Q_COL_TRIAL_TYPE)
+  rcs = proc_by_condition(df, c(COL_CORRECT_BUTTON, COL_RT), Q_COL_TRIAL_TYPE, FUN = ace_rcs)
   cost = multi_subtract(gen, "\\.incongruent", "\\.congruent", "\\.cost")
-  return (dplyr::bind_cols(gen, cost))
+  return (left_join(gen, rcs, by = COL_BID) %>% dplyr::bind_cols(cost))
 }
 
 #' @importFrom dplyr funs left_join mutate na_if rename_all
@@ -78,8 +79,9 @@ module_saat <- function(df) {
 
 module_stroop <- function(df) {
   gen = proc_generic_module(df, col_condition = Q_COL_TRIAL_TYPE)
+  rcs = proc_by_condition(df, c(COL_CORRECT_BUTTON, COL_RT), Q_COL_TRIAL_TYPE, FUN = ace_rcs)
   cost = multi_subtract(gen, "\\.incongruent", "\\.congruent", "\\.cost")
-  return (dplyr::bind_cols(gen, cost))
+  return (left_join(gen, rcs, by = COL_BID) %>% dplyr::bind_cols(cost))
 }
 
 #' @keywords internal
@@ -102,8 +104,9 @@ module_spatialspan <- function(df) {
 module_taskswitch <- function(df) {
   df$taskswitch_state = plyr::mapvalues(df$taskswitch_state, from = c(0, 1 , 2), to = c("start", "switch", "stay"), warn_missing = FALSE)
   gen = proc_generic_module(df, col_condition = rlang::sym("taskswitch_state"))
+  rcs = proc_by_condition(df, c(COL_CORRECT_BUTTON, COL_RT), rlang::sym("taskswitch_state"), FUN = ace_rcs)
   cost = multi_subtract(gen, "\\.switch", "\\.stay", "\\.cost")
-  return (dplyr::bind_cols(gen, cost))
+  return (left_join(gen, rcs, by = COL_BID) %>% dplyr::bind_cols(cost))
 }
 
 #' @importFrom magrittr %>%
@@ -179,6 +182,7 @@ module_ishihara <- function(df) {
 
 module_spatialcueing <- function(df) {
   gen = proc_generic_module(df, col_condition = Q_COL_TRIAL_TYPE)
+  rcs = proc_by_condition(df, c(COL_CORRECT_BUTTON, COL_RT), Q_COL_TRIAL_TYPE, FUN = ace_rcs)
   cost = multi_subtract(gen, "\\.incongruent", "\\.congruent", "\\.cost")
-  return (dplyr::bind_cols(gen, cost))
+  return (left_join(gen, rcs, by = COL_BID) %>% dplyr::bind_cols(cost))
 }
