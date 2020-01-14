@@ -81,13 +81,29 @@ proc_by_condition <- function(df, variable, factors, include_overall = TRUE, FUN
   } else {
     proc = by_condition
   }
-  proc <- proc %>%
-    rename_all(funs(tolower(.))) %>%
-    select(-contains(".short"), -contains(".no_response"), -contains(".late"),
-           -contains("correct_button_median"), -contains("correct_button_sd"),
-           -contains(".NA"), -contains("prev_na"), -contains("prev_no_response"))
   
   return(proc)
+}
+
+#' @importFrom dplyr funs rename_all select
+#' @importFrom magrittr %>%
+#' @importFrom tidyselect contains ends_with
+#' @keywords internal
+
+clean_proc_cols <- function (df) {
+  df <- df %>%
+    rename_all(funs(tolower(.))) %>%
+    rename_all(funs(str_replace(., COL_CORRECT_BUTTON, "acc"))) %>%
+    rename_all(funs(str_replace(., COL_CORRECT_RESPONSE, "acc"))) %>%
+    select(-contains(".short"), -contains(".no_response"), -contains(".late"),
+                  -contains("acc_median"), -contains("acc_sd"),
+                  -contains(".NA"), -contains("prev_na"), -contains("prev_no_response"),
+                  -contains("rw_count"), -contains("rw_length"),
+                  -contains("count.cost"), -contains("length.cost")) %>%
+  # grandfathering Jose's patch for invalid cols produced from empty conditions
+  select(-ends_with("."))
+  
+  return (df)
 }
 
 #' @keywords internal deprecated
