@@ -9,7 +9,7 @@ ace_length <- function(x) {
 
 ace_count <- function(x) {
   if (is.character(x)) {
-    y = x[!(x %in% c("", "no_response"))]
+    y = x[!(is.na(x) | x %in% c("", "no_response"))]
   } else if (is.numeric(x)) {
     y = x[!is.na(x)]
   }
