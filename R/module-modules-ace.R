@@ -42,7 +42,9 @@ module_brt <- function(df) {
 
 module_discrimination <- function(df) {
   # TODO: Standardize correct? column name
-  return (proc_generic_module(df, col_acc = Q_COL_CORRECT_RESPONSE, col_condition = rlang::sym("cue_type")))
+  gen = proc_generic_module(df, col_acc = Q_COL_CORRECT_RESPONSE, col_condition = rlang::sym("cue_type"))
+  rcs = proc_by_condition(df, c(Q_COL_CORRECT_RESPONSE, COL_RT), Q_COL_TRIAL_TYPE, FUN = ace_rcs)
+  return (left_join(gen, rcs, by = COL_BID))
 }
 
 #' @keywords internal
