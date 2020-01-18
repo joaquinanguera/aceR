@@ -103,17 +103,26 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
         z = plyr::join_all(z)
       }
     } else {
-      # if only one factor, only put out 1
-      if (is.list(factors)) factors = factors[[1]]
-      z = x %>%
-        group_by(!!!c(id_var, factors)) %>%
-        FUN(col) %>%
-        rename_at(-(1:2), funs(paste0(col_out, "_", .))) %>%
-        ungroup() %>%
-        pivot_wider(names_from = !!factors,
-                    values_from = starts_with(!!col_out),
-                    names_prefix = col_prefix,
-                    names_sep = ".")
+      if (transform_dir == "wide") {
+        # if only one factor, only put out 1
+        if (is.list(factors)) factors = factors[[1]]
+        z = x %>%
+          group_by(!!!c(id_var, factors)) %>%
+          FUN(col) %>%
+          rename_at(-(1:2), funs(paste0(col_out, "_", .))) %>%
+          ungroup() %>%
+          pivot_wider(names_from = !!factors,
+                      values_from = starts_with(!!col_out),
+                      names_prefix = col_prefix,
+                      names_sep = ".")
+      } else if (transform_dir == "long") {
+        z = x %>%
+          group_by(!!!c(id_var, factors)) %>%
+          FUN(col) %>%
+          rename_at(-(1:2), funs(paste0(col_out, "_", .))) %>%
+          rename_at(-(1:2), funs(str_replace(., "rcs_", ""))) %>%
+          ungroup()
+      }
     }
   }
   
