@@ -5,7 +5,7 @@
 #'  all ACE csv files in a directory.
 #'
 #' @export
-#' @importFrom dplyr as_tibble distinct filter mutate select tibble
+#' @import dplyr
 #' @importFrom magrittr %>%
 #' @importFrom purrr map map_int
 #' @importFrom tidyr nest unnest
@@ -52,18 +52,28 @@ load_ace_bulk <- function(path = ".",
     mutate(data = map(files, function (x) {
       if (verbose) print(x)
       return (load_ace_file(x, pulvinar = pulvinar))
-    })) %>%
+    }))
+  
+  out <- out %>%
     filter(map(data, ~nrow(.)) > 0) %>% # if extraction failed, data will have 0 rows and other commands on data will fail
-    mutate(data = map(data, ~nest(as_tibble(.x), -bid, -module, -file))) %>%
+    mutate(data = map(data, ~nest(as_tibble(.x), data = -c(bid, module, file)))) %>%
     select(-file) %>%
     unnest(data) %>%
     # new de-duplication strategy: dplyr::distinct() files by bid & module should work (NOT by file)
     # NOTE: old de-duplication was done only on emailed data,
     # but this should behave properly for both emailed and database data
     distinct(bid, module, .keep_all = TRUE) %>%
-    nest(-module) %>%
+    nest(data = -module) %>%
     mutate(data = map(data, ~unnest(.x, data)),
-           data = rlang::set_names(data, module))
+           data = rlang::set_names(data, module),
+           # Set demos to the side to simulate ACE Explorer
+           # Not one separate demos module, but this is how the data get put
+           # in proc_by_module so that will have to expect this col in some cases
+           demos = map(data, ~.x %>%
+                         select(one_of(ALL_POSSIBLE_DEMOS)) %>%
+                         distinct()),
+           data = map(data, ~.x %>%
+                        select(-one_of(ALL_POSSIBLE_DEMOS[!(ALL_POSSIBLE_DEMOS %in% c(COL_BID, COL_BID_SHORT))]))))
   
   
   if (FALSE) { # keeping this code in here for now, need to talk to Jeci about how to deal with this legacy functionality
