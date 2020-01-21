@@ -119,7 +119,7 @@ module_taskswitch <- function(df) {
 #' @name ace_procs
 
 module_tnt <- function(df) {
-  df$condition = plyr::mapvalues(df$condition, from = c("Tap & Trace", "Tap Only"), to = c("tap_trace", "tap_only"), warn_missing = FALSE)
+  df$condition = plyr::mapvalues(df$condition, from = c("tap & trace", "tap only"), to = c("tap_trace", "tap_only"), warn_missing = FALSE)
   gen = proc_generic_module(df)
   cost = multi_subtract(gen, "\\.tap_trace", "\\.tap_only", "\\.cost")
   sdt = proc_by_condition(df, "trial_accuracy", Q_COL_CONDITION, FUN = ace_dprime_dplyr) %>%
