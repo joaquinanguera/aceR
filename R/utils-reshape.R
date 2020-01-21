@@ -1,8 +1,9 @@
 
-#' @keywords internal
+#' @keywords internal deprecated
 #' 
 #' Spread key-values pairs across multiple columns.
 #' 
+#' DEPRECATED as of tidyr 1.0.0, use official \code{\link{[tidyr]{pivot_wider}}} instead.
 #' Spread key-values pairs, where one key maps analogously onto multiple values,
 #' into across multiple columns. Equivalent to calling \code{\link[tidyr]{spread}} separately
 #' for dataframes with the same key and different values,

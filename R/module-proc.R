@@ -65,6 +65,12 @@ proc_by_module <- function(df, modules = "all", output = "wide",
       filter(module %in% modules)
   }
   
+  if (any(all_mods$module == "unknown")) {
+    warning("Unsupported modules found. They will not be processed.")
+    all_mods <- all_mods %>%
+      filter(module != "unknown")
+  }
+  
   # need this for proper specification of which demos and such to pull
   is_ace = if_else(all(all_mods$module %in% ALL_MODULES), TRUE, FALSE)
   
@@ -113,13 +119,8 @@ proc_by_module <- function(df, modules = "all", output = "wide",
            demos = map(demos, ~remove_empty_cols(.x)),
            # rename "correct_button" etc to "acc"
            proc = pmap(list(data, module, verbose), function(a, b, c) {
-             attempt_module(a, b, verbose = c) %>%
-               as_tibble() %>%
-               rename_all(funs(str_replace(., COL_CORRECT_BUTTON, "acc"))) %>%
-               rename_all(funs(str_replace(., COL_CORRECT_RESPONSE, "acc")))
-           }),
-           # grandfathering Jose's patch for invalid cols produced from empty conditions
-           proc = map(proc, ~select(.x, -dplyr::ends_with(".")))) %>%
+             attempt_module(a, b, verbose = c)
+           })) %>%
     # removing any modules that failed to process to allow the remaining ones to bind properly
     filter(map_int(proc, ~nrow(.)) > 0)
   
