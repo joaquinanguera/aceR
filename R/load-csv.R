@@ -1,11 +1,12 @@
 
 #' @keywords internal
 
-load_csv <- function(file, pulvinar = FALSE) {
-  if (pulvinar) {
+load_csv <- function(file, app_type = "explorer") {
+  if (app_type != "email") {
+    # Not gonna risk it and change it to readr::read_csv. Too much weird shit
     df = dplyr::as_tibble(data.table::fread(file, header = T, na.strings = c("NA", "N/A", "")))
   } else {
-    # Need to use the old school one bc of the fill argument, and probably other stuff
+    # Need to use the old school read.csv bc of the fill argument, and probably other stuff
     # The emailed files are so funny shaped
     num_cols = max(count.fields(file, sep = ','), na.rm = TRUE)
     df = read.csv(file, header = FALSE, row.names = NULL, col.names = seq_len(num_cols), fill = TRUE, stringsAsFactors = FALSE)

@@ -15,7 +15,8 @@
 #' @param recursive logical. Load files in subfolders also? Defaults to \code{TRUE}
 #' @param exclude a list of patterns to exclude
 #' @param which_modules Specify modules to process. Defaults to all modules.
-#' @param pulvinar logical. Expect raw data in Pulvinar format? Defaults to \code{TRUE}
+#' @param app_type character What app data export type produced this data? One of
+#' \code{c("explorer", "email", "pulvinar")}. Defaults to \code{"explorer"},
 #' @return Returns a data.frame containing the content of every file in the
 #'  specified \code{path}.
 
@@ -25,7 +26,7 @@ load_ace_bulk <- function(path = ".",
                           exclude = c(),
                           pattern = "",
                           which_modules = "",
-                          pulvinar = FALSE) {
+                          app_type = "explorer") {
   csv = list.files(path = path, pattern = ".csv", recursive = recursive)
   xls = list.files(path = path, pattern = ".xls", recursive = recursive)
   files = sort(c(csv, xls))
@@ -46,7 +47,7 @@ load_ace_bulk <- function(path = ".",
   out = tibble(file = files) %>%
     mutate(data = map(files, function (x) {
       if (verbose) print(x)
-      return (load_ace_file(x, pulvinar = pulvinar))
+      return (load_ace_file(x, app_type = app_type))
     }))
   
   out <- out %>%
@@ -60,15 +61,20 @@ load_ace_bulk <- function(path = ".",
     distinct(bid, module, .keep_all = TRUE) %>%
     nest(data = -module) %>%
     mutate(data = map(data, ~unnest(.x, data)),
-           data = rlang::set_names(data, module),
-           # Set demos to the side to simulate ACE Explorer
-           # Not one separate demos module, but this is how the data get put
-           # in proc_by_module so that will have to expect this col in some cases
-           demos = map(data, ~.x %>%
-                         select(one_of(ALL_POSSIBLE_DEMOS)) %>%
-                         distinct()),
-           data = map(data, ~.x %>%
-                        select(-one_of(ALL_POSSIBLE_DEMOS[!(ALL_POSSIBLE_DEMOS %in% c(COL_BID, COL_BID_SHORT))]))))
+           data = map(data, ~remove_empty_cols(.)),
+           data = rlang::set_names(data, module))
+  
+  if (app_type == "email") {
+    # Set demos to the side to simulate ACE Explorer
+    # Not one separate demos module, but this is how the data get put
+    # in proc_by_module so that will have to expect this col in some cases
+    out <- out %>%
+      mutate(demos = map(data, ~.x %>%
+                           select(one_of(ALL_POSSIBLE_DEMOS)) %>%
+                           distinct()),
+             data = map(data, ~.x %>%
+                          select(-one_of(ALL_POSSIBLE_DEMOS[!(ALL_POSSIBLE_DEMOS %in% c(COL_BID, COL_BID_SHORT))]))))
+  }
   
   # currently returns a tibble where data is NOT rbind.filled together into one big df
   # but kept separate by module

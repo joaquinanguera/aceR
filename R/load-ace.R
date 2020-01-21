@@ -11,30 +11,36 @@
 #' @param pulvinar logical. Expect raw data in Pulvinar format? Defaults to \code{FALSE}
 #' @return Returns the file's content as an R \code{\link{data.frame}}.
 
-load_ace_file <- function(file, pulvinar = FALSE) {
+load_ace_file <- function(file, app_type = "explorer") {
   # read raw csv file
   if (is_excel(file)) {
     warning (file, " is Excel format, currently not supported ")
     return (data.frame())
     # raw_dat <- load_excel(file)
   } 
-  if (is_pulvinar(file) | pulvinar) { # TODO: can we get a common phrase in all pulvinar export filenames? 
-    raw_dat <- load_csv(file, pulvinar = T)
+  
+  raw_dat <- load_csv(file, app_type = app_type)
+  
+  if (app_type != "email") {
     out <- raw_dat %>%
-      transform_mid(file = file, pulvinar = T) %>%
-      transform_post_pulvinar()
+      transform_mid(file = file, app_type = app_type)
     return (out)
-  } else if (!is_excel(file)) { # only if it hasn't already been loaded
-    raw_dat <- load_csv(file)
+    if (is_pulvinar(file) | app_type == "pulvinar") {
+      out <- out %>%
+        transform_post_pulvinar()
+    }
+    return (out)
+  } else if (app_type == "email") { # only if it hasn't already been loaded
     raw_dat <- breakup_by_user(raw_dat)
-  }
-  if (is.vector(raw_dat)) {
-    ortho_names = paste(file, names(raw_dat), sep = "-")
-    dfs = map2(ortho_names, raw_dat, ~attempt_transform_email(.x, .y))
-    out = plyr::rbind.fill(dfs)
-    return (out)
-  } else {
-    return (attempt_transform_email(file, raw_dat))
+    
+    if (is.vector(raw_dat)) {
+      ortho_names = paste(file, names(raw_dat), sep = "-")
+      dfs = map2(ortho_names, raw_dat, ~attempt_transform_email(.x, .y))
+      out = plyr::rbind.fill(dfs)
+      return (out)
+    } else {
+      return (attempt_transform_email(file, raw_dat))
+    }
   }
 }
 
@@ -59,7 +65,7 @@ attempt_transform_email <- function(file, raw_dat) {
   df = tryCatch ({
     transformed = raw_dat %>% 
       transform_pre_email() %>%
-      transform_mid(file = file, pulvinar = F) %>%
+      transform_mid(file = file, app_type = "email") %>%
       transform_post_email()
     # test if data is usable
     st = paste(transformed, collapse = "")
@@ -128,12 +134,13 @@ transform_post_email <- function (dat) {
 #' @importFrom rlang !! :=
 #' @keywords internal
 
-transform_mid <- function (dat, file, pulvinar) {
+transform_mid <- function (dat, file, app_type) {
   if (nrow(dat) == 0) return (data.frame())
   # This chunk same between email and pulvinar
   # standardize output
+  
   dat <- dat %>%
-    standardize_names(pulvinar = pulvinar) %>%
+    standardize_names(email = app_type == "email") %>%
     mutate(file = file,
            # for faster performance bc each pulvinar file should only contain one module
            module = identify_module(file[1])) %>%
@@ -146,15 +153,21 @@ transform_mid <- function (dat, file, pulvinar) {
     dat[[COL_TIME]] = paste(dat[[COL_FILE]], dat[[COL_SUB_ID]], sep = ".")
   }
   
-  # clean, standardize, possibly construct PID, BID, short BID
   dat <- dat %>%
-    standardize_ace_ids() %>%
-    group_by(!!Q_COL_BID) %>%
-    mutate(!!COL_BLOCK_HALF := plyr::mapvalues(make_half_seq(n()), from = c(1, 2), to = c("first_half", "second_half"))) %>%
-    ungroup() %>%
     # replace all text "NA"s with real NA
     replace_nas(NA) %>%
-    standardize_ace_values()
+    standardize_ace_column_types() %>%
+    # clean, standardize, possibly construct PID, BID, short BID
+    standardize_ace_ids() %>%
+    standardize_ace_values(app_type = app_type)
+  
+  # Should only activate for explorer demos modules
+  if (dat$module[1] != DEMOS) {
+    dat <- dat %>%
+      group_by(!!Q_COL_BID) %>%
+      mutate(!!COL_BLOCK_HALF := plyr::mapvalues(make_half_seq(n()), from = c(1, 2), to = c("first_half", "second_half"))) %>%
+      ungroup()
+  }
   
   return (dat)
 }

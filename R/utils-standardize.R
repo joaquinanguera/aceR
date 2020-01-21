@@ -1,10 +1,10 @@
 
 #' @keywords internal
 
-standardize_names <- function (df, pulvinar = FALSE) {
+standardize_names <- function (df, email = FALSE) {
   new_names = names(df)
   new_names = tolower(new_names)
-  if (pulvinar) {
+  if (!email) {
     new_names = remove_special_characters(new_names, replacement = "_")
   } else {
     new_names = remove_special_characters(new_names)

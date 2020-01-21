@@ -195,7 +195,7 @@ standardize_ace_ids <- function(dat) {
   }
   
   # very band-aid: attempt to repair PID using name field if PID is empty stem or otherwise filler
-  if (unique(dat[[COL_PID]]) %in% c("ADMIN-UCSF-", "ADMIN-UCSF-0", "ADMIN-UCSF-0000") & COL_NAME %in% names(dat)) {
+  if (all(unique(dat[[COL_PID]]) %in% c("ADMIN-UCSF-", "ADMIN-UCSF-0", "ADMIN-UCSF-0000")) & COL_NAME %in% names(dat)) {
     dat <- dat %>%
       mutate(!!COL_PID := paste0("ADMIN-UCSF-", !!Q_COL_NAME))
   }
@@ -208,7 +208,7 @@ standardize_ace_ids <- function(dat) {
            # make short block id using only pid and date
            # (to allow for less granular matching of records between diff modules)
            !!COL_BID_SHORT := paste(!!col_to_bid,
-                                    lubridate::floor_date(lubridate::parse_date_time(!!Q_COL_TIME, "ymdHMSz"), unit = "days"),
+                                    lubridate::floor_date(!!Q_COL_TIME, unit = "days"),
                                     sep = "."))
   
 }
@@ -223,38 +223,60 @@ guess_pid <- function(x) {
 }
 
 #' @name ace_header
-#' @importFrom dplyr coalesce funs group_by if_else lag mutate mutate_at recode ungroup
+#' @import dplyr
 #' @importFrom lubridate parse_date_time
 #' @importFrom magrittr %>%
 #' @importFrom rlang !! :=
 #' @importFrom stringr str_replace
 
-standardize_ace_values <- function(df) {
-  # this function handles re-typing of columns
-  # especially in emailed data, all columns are necessarily read in as character
-  # we SHOULD hard-code expected type of columns by module
+standardize_ace_column_types <- function (df) {
+  # re-type non-character columns to their intended types
+  # All of these should behave the same on classroom and explorer data
   
-  # FIRST: re-type non-character columns to their intended types
-  # ACROSS TASK I think:
   try({
     df <- df %>%
       mutate(# !!COL_TIME := str_replace(!!Q_COL_TIME, "T", ""), # the T causes parse_date_time to flip out
         # parse_date_time appears to be behaving okay with the T in between the date and time... as of apr 27 2019
-             time1 = suppressWarnings(parse_date_time(!!Q_COL_TIME, "ymdHMSz")),
-             time2 = suppressWarnings(parse_date_time(!!Q_COL_TIME, "abdyHMSz")),
-             !!COL_TIME := coalesce(time1, time2)) %>%
+        time1 = suppressWarnings(parse_date_time(!!Q_COL_TIME, "ymdHMSz")),
+        time2 = suppressWarnings(parse_date_time(!!Q_COL_TIME, "abdyHMSz")),
+        !!COL_TIME := coalesce(time1, time2)) %>%
       select(-time1, -time2)
   }, silent = TRUE)
   
+  # No responses in classroom (pulvinar) are coded as "N/A"
+  # No responses in explorer are coded as 0
+  # Neither of these should fail on the other case
   try({
     df <- df %>%
       mutate(!!COL_RT := as.numeric(!!Q_COL_RT),
              !!COL_RT := na_if(!!Q_COL_RT, 0))
   }, silent = TRUE)
   
-  try({df <- df %>%
+  try({
+    df <- df %>%
     mutate_at(COL_RW, as.numeric)
   }, silent = TRUE)
+  
+  # code correct_button with words, not 0 and 1
+  # No responses in classroom (pulvinar) are coded as "N/A" in the RT column
+  # No responses in explorer are coded as 0 in the RT column
+  # Neither of these should fail on the other case
+  try({
+    df <- df %>%
+      mutate(!!COL_CORRECT_BUTTON := dplyr::recode(!!Q_COL_CORRECT_BUTTON, `0` = "incorrect", `1` = "correct"),
+             # Noticed this in ACE Explorer as of Jan 2020. Might have changed before then
+             !!COL_CORRECT_BUTTON := if_else(is.na(!!Q_COL_RT),
+                                             "no_response",
+                                             !!Q_COL_CORRECT_BUTTON))
+  }, silent = TRUE)
+  
+  # various condition cols that should be numeric
+  try(suppressWarnings({
+    df <- df %>%
+    mutate_at(vars(one_of(c("position_is_top",
+                            "is_valid_cue",
+                            "object_count"))), as.numeric)
+  }), silent = TRUE)
   
   try({
     df <- df %>%
@@ -272,46 +294,48 @@ standardize_ace_values <- function(df) {
       mutate_at(COL_TRIAL_TYPE, tolower)
   }, silent = TRUE)
   
+  return (df)
+}
+
+#' @name ace_header
+#' @importFrom dplyr coalesce funs group_by if_else lag mutate mutate_at recode ungroup
+#' @importFrom lubridate parse_date_time
+#' @importFrom magrittr %>%
+#' @importFrom rlang sym !! :=
+#' @importFrom stringr str_replace
+
+standardize_ace_values <- function(df, app_type) {
+  # this function handles re-typing of columns
+  # especially in emailed data, all columns are necessarily read in as character
+  # we SHOULD hard-code expected type of columns by module
+  
   cols = names(df)
   
   short_rt_cutoff <- 150
-   
   
-  # First, for ALL tasks, code correct_button with words, not 0 and 1
+  if (app_type == "classroom") {
+    # Extra shit for classroom type data bc the RT no response coding was often effed up
+    try({
+      df <- df %>%
+        mutate(!!COL_RT := na_if_true(!!Q_COL_RT, !!Q_COL_RT == !!Q_COL_RW),
+               !!COL_RT := na_if_true(!!Q_COL_RT, !!Q_COL_RT %% 10 == 0))
+    }, silent = TRUE)
+  }
   
-  try({
-    df <- df %>%
-      mutate(!!COL_CORRECT_BUTTON := dplyr::recode(!!Q_COL_CORRECT_BUTTON, `0` = "incorrect", `1` = "correct"))
-  }, silent = TRUE)    
-  
+  # Should fail silently on classroom data with no practice trials and no practice column
   try({
     # TODO: Keep practice trials to extract data from them. Currently discarding all
     df <- df %>%
-      filter(!!Q_COL_PRACTICE == "Real") %>%
-      # Noticed this in ACE Explorer as of Jan 2020. Might have changed before then
-      mutate(!!COL_CORRECT_BUTTON := if_else(!!Q_COL_RT == 0, "no_response", !!Q_COL_CORRECT_BUTTON))
+      filter(!!Q_COL_PRACTICE == "Real")
   }, silent = TRUE)
-  
-  
-  if (DEMOS %in% df$module) {
-    df <- df %>%
-      mutate(!!COL_CORRECT_BUTTON := case_when(!!Q_COL_RT < short_rt_cutoff & !!Q_COL_RT > 0 ~ "incorrect",
-                                        !!Q_COL_RT == !!Q_COL_RW ~ "no_response",
-                                        !!Q_COL_RT %% 10 == 0 & !!Q_COL_RT != 0 ~ "no_response",
-                                        is.na(!!Q_COL_RT) ~ "no_response",
-                                        TRUE ~ !!Q_COL_CORRECT_BUTTON))
-    
-  }
   
   if (COL_LATE_RESPONSE %in% cols) {
     # original form of this column is 0/1
-    df[[COL_LATE_RESPONSE]] = case_when(df[[COL_RT]] < short_rt_cutoff & df[[COL_RT]] > 0 ~ "short",
-                                        df[[COL_RT]] > df[[COL_RW]] ~ "late",
-                                        df[[COL_RT]] < df[[COL_RW]] ~ "early",
-                                        df[[COL_RT]] == 0 ~ "no_response",
-                                        df[[COL_RT]] > 0 & df[[COL_RT]] == df[[COL_RW]] ~ "no_response",
-                                        is.na(df[[COL_RT]]) ~ "no_response",
-                                        TRUE ~ "late")
+    df <- df %>%
+      mutate(!!COL_LATE_RESPONSE := case_when(!!Q_COL_RT > !!Q_COL_RW ~ "late",
+                                              !!Q_COL_RT < !!Q_COL_RW ~ "early",
+                                              is.na(!!Q_COL_RT) ~ "no_response",
+                                              TRUE ~ "late"))
     
     df <- df %>%
       group_by(!!Q_COL_BID) %>%
@@ -323,50 +347,48 @@ standardize_ace_values <- function(df) {
   # Most of this is an attempt to reconstruct accuracy as orthogonal to response lateness
   
   if (SAAT %in% df$module) {
-    # This fixes a condition naming error in the raw log files. Please remove this functionality if this ever gets fixed in the ACE program.
-    df[[COL_CONDITION]] = plyr::mapvalues(df[[COL_CONDITION]], from = c("Impulsive", "Sustained"), to = c("sustained", "impulsive"), warn_missing = FALSE)
+    if (app_type == "classroom") {
+      # This fixes a condition naming error in the raw log files
+      # present in classroom but fixed in explorer data
+      df[[COL_CONDITION]] = plyr::mapvalues(toupper(df[[COL_CONDITION]]),
+                                            from = c("IMPULSIVE", "SUSTAINED"),
+                                            to = c("sustained", "impulsive"),
+                                            warn_missing = FALSE)
+    }
     
-    #Correct hits and misses. For position is on top, if RT >cutoff and not equal to response window, hit, else miss
-    #For position in not on top, if RT == 0, then correct rejection, else false alarm
-    #This will also ensure RTs < cutoff are incorrect regardless of condition/button press
-    df$trial_accuracy = with(df, case_when(position_is_top == 1 & rt >= short_rt_cutoff & rt != rw ~ "Hit",
-                                           position_is_top == 1 & (rt < short_rt_cutoff | rt == rw) ~ "Miss",
-                                           position_is_top == 1 & late_response == "no_response" ~ "Miss", # ??? really?
-                                           position_is_top == 0 & rt == 0 ~ "Correct Rejection",
-                                           position_is_top == 0 & rt != 0 ~ "False Alarm",
-                                           TRUE ~ ""))
-    df[[COL_CORRECT_BUTTON]] = case_when(df$trial_accuracy %in% c("Hit", "Correct Rejection") ~ "correct",
-                                         df$trial_accuracy %in% c("Miss", "False Alarm") ~ "incorrect",
-                                         TRUE ~ "")
+    df <- df %>%
+      standardize_saat_tnt(col = "position_is_top")
+    
   } else if (STROOP %in% df$module) {
-    stroop_correct_col = ifelse("color_ink_shown" %in% cols, "color_ink_shown", "color_shown")
-    df[[COL_CORRECT_BUTTON]] = case_when(df[[COL_CORRECT_BUTTON]] == "no_response" ~ "no_response",
-                                         df[["color_pressed"]] == df[[stroop_correct_col]] ~ "correct",
-                                         df[["color_pressed"]] != df[[stroop_correct_col]] ~ "incorrect",
-                                         TRUE ~ NA_character_) # missing implies fucked up somehow
+    # This one technically varies it on classroom vs explorer,
+    # but I think color_ink_shown/color_word_shown are a mid-explorer update
+    # so don't assume this varies on app_type
+    stroop_correct_col = sym(ifelse("color_ink_shown" %in% cols, "color_ink_shown", "color_shown"))
+    df <- df %>%
+      mutate(!!COL_CORRECT_BUTTON := case_when(!!Q_COL_CORRECT_BUTTON == "no_response" ~ "no_response",
+                                               color_pressed == !!stroop_correct_col ~ "correct",
+                                               color_pressed != !!stroop_correct_col ~ "incorrect",
+                                               TRUE ~ NA_character_)) # missing implies fucked up somehow
+    
   } else if (FLANKER %in% df$module) {
-    df[(df$displayed_cue %in% c("A", "B") & df$first_button=="YES") | (df$displayed_cue %in% c("C", "D") & df$second_button=="YES"), COL_CORRECT_BUTTON] = "correct"
+    df <- df %>%
+      mutate(!!COL_CORRECT_BUTTON := case_when(displayed_cue %in% c("A", "B") & first_button == "YES" ~ "correct",
+                                               displayed_cue %in% c("C", "D") & second_button == "YES" ~ "correct",
+                                               first_button == "NO" & second_button == "NO" ~ "no_response",
+                                               TRUE ~ "incorrect"))
   } else if (BRT %in% df$module) {
     # retype and clean accuracy
     df <- df %>%
       mutate(inter_time_interval = as.numeric(inter_time_interval),
              !!COL_CORRECT_BUTTON := if_else(!!Q_COL_RT != inter_time_interval,
-                                      "correct",
-                                      !!Q_COL_CORRECT_BUTTON,
-                                      missing = !!Q_COL_CORRECT_BUTTON))
+                                             "correct",
+                                             !!Q_COL_CORRECT_BUTTON,
+                                             missing = !!Q_COL_CORRECT_BUTTON))
   } else if (TNT %in% df$module) {
-    #Correct hits and misses. For is valid cue, if RT >cutoff and not equal to response window, hit, else miss
-    #For is not valid cue, if RT == 0, then correct rejection, else false alarm
-    #This will also ensure RTs < cutoff are incorrect regardless of condition/button press
-    df$trial_accuracy = with(df, case_when(is_valid_cue == 1 & rt >= short_rt_cutoff & rt != rw ~ "Hit",
-                                           is_valid_cue == 1 & (rt < short_rt_cutoff | rt == rw) ~ "Miss",
-                                           is_valid_cue == 1 & late_response == "no_response" ~ "Miss", # ??? really?
-                                           is_valid_cue == 0 & rt == 0 ~ "Correct Rejection",
-                                           is_valid_cue == 0 & rt != 0 ~ "False Alarm",
-                                           TRUE ~ ""))
-    df[[COL_CORRECT_BUTTON]] = case_when(df$trial_accuracy %in% c("Hit", "Correct Rejection") ~ "correct",
-                                         df$trial_accuracy %in% c("Miss", "False Alarm") ~ "incorrect",
-                                         TRUE ~ "")
+    
+    df <- df %>%
+      standardize_saat_tnt(col = "is_valid_cue")
+    
   } else if (FILTER %in% df$module) {
     
     # special column re-typing for filter only
@@ -376,10 +398,10 @@ standardize_ace_values <- function(df) {
              degree_of_change = as.numeric(degree_of_change),
              cue_rotated = as.integer(cue_rotated))
     
-    # NOW HERE FOR BACKWARDS COMPATIBILITY:
     # in the past (before 2019?), degree_of_change was the meaningful variable of adaptation
     # hence this re-patching is sometimes necessary
-    
+    # I believe only applies to classroom data but may apply to old explorer data
+    # So not varying on app_type just in case
     if (any(!is.na(df$degree_of_change))) {
       df <- df %>%
         mutate(# 180 degree rotation was incorrectly marked as "change" when there's no visual change
@@ -388,26 +410,20 @@ standardize_ace_values <- function(df) {
                                      cue_rotated),
                !!COL_CORRECT_BUTTON := case_when(abs(round(degree_of_change, 2)) == 3.14 & correct_button == "correct" ~ "incorrect",
                                                  abs(round(degree_of_change, 2)) == 3.14 & correct_button == "incorrect" ~ "correct",
-                                                 TRUE ~ correct_button))
+                                                 TRUE ~ !!Q_COL_CORRECT_BUTTON))
     }
     
     #Add in trial_accuracy labels for Filter. For cue is rotated, if RT >cutoff and not equal to response window, and correct_button is correct, hit, else miss
     #For cue is not rotated, if RT >cutoff and not equal to response window, and correct_button is correct, then correct rejection, else false alarm
     #This will also ensure RTs < cutoff are incorrect regardless of condition/button press
     df <- df %>%
-      mutate(trial_accuracy = case_when(cue_rotated == 1 & rt >= short_rt_cutoff & correct_button == "correct" ~ "Hit",
-                                        cue_rotated == 1 & rt >= short_rt_cutoff & correct_button == "incorrect" ~ "Miss",
-                                        cue_rotated == 0 & rt >= short_rt_cutoff & correct_button == "correct" ~ "Correct Rejection",
-                                        cue_rotated == 0 & rt >- short_rt_cutoff & correct_button == "incorrect" ~ "False Alarm",
+      mutate(trial_accuracy = case_when(cue_rotated & !!Q_COL_CORRECT_BUTTON == "correct" ~ "Hit",
+                                        cue_rotated & !!Q_COL_CORRECT_BUTTON == "incorrect" ~ "Miss",
+                                        !cue_rotated & !!Q_COL_CORRECT_BUTTON == "correct" ~ "Correct Rejection",
+                                        !cue_rotated & !!Q_COL_CORRECT_BUTTON == "incorrect" ~ "False Alarm",
                                         is.na(rt) ~ "no_response",
-                                        rt == rw ~ "no_response",
-                                        TRUE ~ ""),
-             !!COL_CORRECT_BUTTON := case_when(trial_accuracy %in% c("Hit", "Correct Rejection") ~ "correct",
-                                               trial_accuracy %in% c("Miss", "False Alarm") ~ "incorrect",
-                                               TRUE ~ ""))
+                                        TRUE ~ NA_character_))
     
-  } else if (SPATIAL_SPAN %in% df$module | BACK_SPATIAL_SPAN %in% df$module) {
-    df$object_count = as.numeric(df$object_count)
   }
   
   # needs to be called LAST, after all the other boutique accuracy corrections are complete
@@ -418,6 +434,29 @@ standardize_ace_values <- function(df) {
       mutate(!!COL_PREV_CORRECT_BUTTON := make_lagged_col(!!Q_COL_CORRECT_BUTTON)) %>%
       ungroup()
   }
+  
+  return (df)
+}
+
+#' @importFrom dplyr mutate case_when
+#' @importFrom magrittr %>%
+#' @importFrom rlang sym !! :=
+#' @keywords internal
+
+standardize_saat_tnt <- function(df, col) {
+  # Correct hits and misses. For position is on top, if RT, hit, else miss
+  # For position in not on top, if no RT, then correct rejection, else false alarm
+  # short rt no longer considered as a factor
+  q_col = sym(col)
+  df <- df %>%
+    mutate(trial_accuracy = case_when(!!q_col == 1 & !is.na(!!Q_COL_RT) ~ "Hit",
+                                      !!q_col == 1 & is.na(!!Q_COL_RT) ~ "Miss",
+                                      !!q_col == 0 & is.na(!!Q_COL_RT) ~ "Correct Rejection",
+                                      !!q_col == 0 & !is.na(!!Q_COL_RT) ~ "False Alarm",
+                                      TRUE ~ NA_character_),
+           !!COL_CORRECT_BUTTON := case_when(trial_accuracy %in% c("Hit", "Correct Rejection") ~ "correct",
+                                             trial_accuracy %in% c("Miss", "False Alarm") ~ "incorrect",
+                                             TRUE ~ NA_character_))
   
   return (df)
 }
