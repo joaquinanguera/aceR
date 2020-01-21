@@ -70,7 +70,8 @@ post_clean_chance <- function (df, overall = TRUE, cutoff_dprime = 0, cutoff_2ch
                                    FLANKER,
                                    TASK_SWITCH,
                                    BOXED,
-                                   SAAT))
+                                   SAAT,
+                                   FILTER))
   if (overall) {
     metric_cols %<>%
       mutate(metric = list(c("dprime.overall"),
@@ -79,7 +80,7 @@ post_clean_chance <- function (df, overall = TRUE, cutoff_dprime = 0, cutoff_2ch
                            c("acc_mean.overall"),
                            c("acc_mean.overall"),
                            c("dprime.overall"),
-                           c("k.r2b0", "k.r4b0")))
+                           c("k.R2B0", "k.R4B0")))
   } else {
     metric_cols %<>%
       mutate(metric = list(c("dprime.tap_only"),
@@ -88,12 +89,12 @@ post_clean_chance <- function (df, overall = TRUE, cutoff_dprime = 0, cutoff_2ch
                            c("acc_mean.stay"),
                            c("acc_mean.feature_4"),
                            c("dprime.sustained", "dprime.impulsive"),
-                           c("k.r2b0", "k.r4b0")))
+                           c("k.R2B0", "k.R4B0")))
   }
   
   metric_cols %<>%
     mutate(full = map2(module, metric, ~paste(.x, .y, sep = ".")),
-           cutoff = case_when(module %in% c(TNT, SAAT) ~ cutoff_dprime,
+           cutoff = case_when(module %in% c(TNT, SAAT, FILTER) ~ cutoff_dprime,
                               module %in% c(STROOP, TASK_SWITCH) ~ cutoff_4choice,
                               module %in% c(FLANKER, BOXED) ~ cutoff_2choice,
                               TRUE ~ NA_real_)) %>%

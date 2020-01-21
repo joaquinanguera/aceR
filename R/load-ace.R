@@ -8,10 +8,11 @@
 #' @importFrom utils read.table read.csv write.csv head tail count.fields
 #' 
 #' @param file The name of the file which the data is to be read from.
-#' @param pulvinar logical. Expect raw data in Pulvinar format? Defaults to \code{FALSE}
+#' @param app_type character What app data export type produced this data? One of
+#' \code{c("explorer", "email", "pulvinar")}.
 #' @return Returns the file's content as an R \code{\link{data.frame}}.
 
-load_ace_file <- function(file, app_type = "explorer") {
+load_ace_file <- function(file, app_type) {
   # read raw csv file
   if (is_excel(file)) {
     warning (file, " is Excel format, currently not supported ")

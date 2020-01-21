@@ -240,23 +240,6 @@ reconstruct_pid <- function (proc, demo) {
     return()
 }
 
-#' @details Expects a vector of RTs
-#' @keywords internal deprecated
-
-remove_rts <- function(vec, sd.cutoff, range.cutoff) {
-  if (sd.cutoff != FALSE & range.cutoff != FALSE) {
-    warning("Both SD and range specified for within-subj outlier RT scrubbing, using SD cutoff.")
-    range = FALSE
-  }
-  if (is.character(vec)) vec = as.numeric(vec)
-  if (sd.cutoff != FALSE) vec[abs(scale(vec)) > sd.cutoff] = NA
-  else if (range.cutoff != FALSE) {
-    if (!is.na(range.cutoff[1])) vec[vec < range.cutoff[1]] = NA
-    if (!is.na(range.cutoff[2])) vec[vec > range.cutoff[2]] = NA
-  }
-  return(vec)
-}
-
 #' @keywords internal deprecated
 
 get_proc_info <- function(mod, proc, conditions) {
