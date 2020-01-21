@@ -24,7 +24,7 @@ Imports:
     stats,
     stringr,
     tibble,
-    tidyr,
+    tidyr (>= 1.0.0),
     utils,
     zoo
 License: file LICENSE

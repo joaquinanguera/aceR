@@ -1,10 +1,13 @@
 
 #' @keywords internal
 #' @name sea_procs
+#' @importFrom magrittr %>%
 
 attempt_module <- function(df, module, verbose) {
   out <- tryCatch({
-    df <- do.call(paste0("module_", tolower(module)), list(df = df))
+    df <- do.call(paste0("module_", tolower(module)), list(df = df)) %>%
+      tibble::as_tibble() %>%
+      clean_proc_cols()
     if (verbose) cat("Processed ", module, "\n")
     return(df)
   }, error = function (e) {
