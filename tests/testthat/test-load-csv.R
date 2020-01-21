@@ -1,8 +1,8 @@
 context("load raw csv data")
 
-sample_bad = paste(aceR_sample_data_path(), "bad-data.csv", sep = "/")
-sample_valid_but_bad_because_empty = paste(aceR_sample_data_path(), "bad-data-2.csv", sep = "/")
-sample_boxed = paste(aceR_sample_data_path(), "sample-boxed.csv", sep = "/")
+sample_bad = paste(aceR_sample_data_path(), "bad-data-email.csv", sep = "/")
+sample_valid_but_bad_because_empty = paste(aceR_sample_data_path(), "bad-data-email-2.csv", sep = "/")
+sample_boxed = paste(aceR_sample_data_path(), "sample-boxed-email.csv", sep = "/")
 sample_brt_pulvinar = paste(aceR_sample_data_path(), "sample-brt-pulvinar.csv", sep = "/")
 
 
