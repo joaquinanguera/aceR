@@ -12,8 +12,7 @@ NULL
 #' Applies corresponding \code{\link{ace_procs}} to every unique module.
 #'
 #' @section Assumptions:
-#' Assumes the \code{\link{data.frame}} is nested, with two columns:
-#' \code{module} (character) and \code{data} (list, each containing a \code{\link{data.frame}}).
+#' Assumes the column \emph{module} exists in the \code{\link{data.frame}}.
 #'
 #' @export
 #' @import dplyr
@@ -34,15 +33,24 @@ NULL
 #' @param output string indicating preferred output format. Can be \code{"wide"} (default),
 #' where one dataframe is output containing cols with data from all modules, or \code{"long"},
 #'  where a dataframe is output, with a list-column containing dataframes with each module's data.
+#' @param rm_outlier_rts_sd DEPRECATED numeric. Remove within-subject RTs further than this many SD from
+#' within-subject mean RT? Enter as one number. Specify either this or \code{rm_outlier_rts_range},
+#' but not both. If both specified, will use SD cutoff. Defaults to \code{FALSE}.
+#' @param rm_outlier_rts_range DEPRECATED numeric vector, length 2. Remove within-subject RTs outside of
+#' this specified range? Enter min and max accepted RTs as a vector length 2. If min or max
+#' not specified, enter that value as NA in the vector. Specify either this or \code{rm_outlier_rts_range},
+#' but not both. If both specified, will use SD cutoff. Defaults to \code{FALSE}.
 #' @param conditions character vector. If data contains multiple study conditions
 #' (e.g. pre & post), specify their labels here. Case insensitive.
-#' @param verbose logical. Print details? Defaults to \code{TRUE}.
+#' @param verbose logical. Print details? Defaults to \code{FALSE}.
 #' @return Returns summary statistics for every unique module included in the 
 #'  data as a list. Throws warnings for modules with undefined methods. 
 #'  See \code{\link{ace_procs}} for a list of supported modules.
 
 proc_by_module <- function(df, modules = "all", output = "wide",
-                               conditions = NULL, verbose = TRUE) {
+                               rm_outlier_rts_sd = FALSE,
+                               rm_outlier_rts_range = FALSE,
+                               conditions = NULL, verbose = FALSE) {
   
   # if data now comes in as list-columns of separate dfs per module, subset_by_col is deprecated
   all_mods = df
@@ -72,7 +80,9 @@ proc_by_module <- function(df, modules = "all", output = "wide",
     all_these_demos = ALL_POSSIBLE_SEA_DEMOS
   }
   
-  if (is_ace) {
+  if (DEMOS %in% all_mods$module) {
+    # If ACE Explore, basically
+    is_explore = TRUE
     all_procs <- all_mods %>%
       # Put demos in another column, wide-ish, so it's next to every other module
       mutate(demos = rerun(n(), .$data[.$module == DEMOS][[1]])) %>%
@@ -87,6 +97,8 @@ proc_by_module <- function(df, modules = "all", output = "wide",
         } else {a}
       }))
   } else {
+    is_explore = FALSE
+    # This is now here for BACKWARDS compatibility
     all_procs <- all_mods %>%
       mutate(demos = map(data, ~.x %>%
                            select(one_of(all_these_demos)) %>%
@@ -115,13 +127,13 @@ proc_by_module <- function(df, modules = "all", output = "wide",
   # prepare for output
   
   
-  if (is_ace) {
+  if (is_ace & is_explore) {
     # Try this: Ace Explore has demos collected at a separate date/time,
     # so BID will _basically never_ match up. Use PID to bind
     demo_merge_col = COL_PID
     all_procs <- all_procs %>%
       mutate(proc = map2(proc, demos, ~reconstruct_pid(.x, .y)),
-             demos = map(demos, ~select(.x, -!!Q_COL_BID, -!!Q_COL_TIME)))
+             demos = map(demos, ~select(.x, -!!Q_COL_BID)))
   } else {
     demo_merge_col = COL_BID
   }
@@ -134,7 +146,7 @@ proc_by_module <- function(df, modules = "all", output = "wide",
                            select(-file) %>%
                            distinct()))
     
-    if (is_ace) {
+    if (is_ace & is_explore) {
       out <- out %>%
         mutate(proc = map2(proc, module, ~.x %>%
                              select(bid, pid, everything()) %>%
@@ -146,18 +158,27 @@ proc_by_module <- function(df, modules = "all", output = "wide",
                              rename_at(-1L, funs(paste(toupper(.y), ., sep = ".")))))
     }
     
-    # ACE explorer data:
-    # DO join by full bid. now, with times gameplayed as the session identfier,
-    # all modules from a single session should have the same times gameplayed stamp
+    # do not join by bid_full if ACE data, because diff modules from same subj's session have diff timestamps
+    # disambiguate full bids from diff modules by prepending module name
     if (is_ace) {
-      out <- out %>%
-        mutate(proc = pmap(list(proc, demos, module), function (a, b, c) {
-          right_join(b, a, by = demo_merge_col) %>%
-            return()
-        }))
+      if (is_explore) {
+        out <- out %>%
+          mutate(proc = pmap(list(proc, demos, module), function (a, b, c) {
+            full_join(b, a, by = demo_merge_col) %>%
+              rename_at(COL_BID, funs(paste(toupper(c), ., sep = "."))) %>%
+              return()
+          }))
+      } else {
+        out <- out %>%
+          mutate(proc = pmap(list(proc, demos, module), function (a, b, c) {
+            full_join(b, a, by = demo_merge_col) %>%
+              rename_at(demo_merge_col, funs(paste(toupper(c), ., sep = "."))) %>%
+              return()
+          }))
+      }
     } else {
       out <- out %>%
-        mutate(proc = map2(proc, demos, ~right_join(.y, .x, by = demo_merge_col)))
+        mutate(proc = map2(proc, demos, ~full_join(.y, .x, by = demo_merge_col)))
     }
     
     valid_demos = get_valid_demos(out$proc[[1]], is_ace)
@@ -170,7 +191,7 @@ proc_by_module <- function(df, modules = "all", output = "wide",
   } else if (output == "long") {
     out <- all_procs %>%
       select(module, demos, proc) %>%
-      mutate(proc = map2(proc, demos, ~right_join(.y, .x, by = demo_merge_col)),
+      mutate(proc = map2(proc, demos, ~full_join(.y, .x, by = demo_merge_col)),
              proc = rlang::set_names(proc, module)) %>%
       select(-demos)
     return (out)
@@ -200,16 +221,30 @@ label_study_conditions = function(info, conditions) {
 #' @keywords internal
 #' @importFrom dplyr mutate select everything
 #' @importFrom magrittr %>%
-#' @importFrom purrr map_chr
 #' @importFrom rlang !! :=
-#' @importFrom stringr str_split
 
 reconstruct_pid <- function (proc, demo) {
-  # This SHOULD truncate at the last character before the times finished game portion of the bid
-  proc %>% mutate(!!COL_PID := str_split(!!Q_COL_BID, pattern = "[.]"),
-                  !!COL_PID := map_chr(!!Q_COL_PID, 1L)) %>%
+  # This SHOULD truncate at the last character before the date portion of the bid
+  proc %>% mutate(!!COL_PID := str_sub(!!Q_COL_BID, end = -26L)) %>%
     select(COL_BID, COL_PID, everything()) %>%
     return()
+}
+
+#' @details Expects a vector of RTs
+#' @keywords internal deprecated
+
+remove_rts <- function(vec, sd.cutoff, range.cutoff) {
+  if (sd.cutoff != FALSE & range.cutoff != FALSE) {
+    warning("Both SD and range specified for within-subj outlier RT scrubbing, using SD cutoff.")
+    range = FALSE
+  }
+  if (is.character(vec)) vec = as.numeric(vec)
+  if (sd.cutoff != FALSE) vec[abs(scale(vec)) > sd.cutoff] = NA
+  else if (range.cutoff != FALSE) {
+    if (!is.na(range.cutoff[1])) vec[vec < range.cutoff[1]] = NA
+    if (!is.na(range.cutoff[2])) vec[vec > range.cutoff[2]] = NA
+  }
+  return(vec)
 }
 
 #' @keywords internal deprecated

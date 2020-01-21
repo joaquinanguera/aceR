@@ -1,7 +1,7 @@
 
 #' @keywords internal
 
-load_csv <- function(file, pulvinar = FALSE) {
+load_csv_classroom <- function(file, pulvinar = FALSE) {
   if (pulvinar) {
     df = dplyr::as_tibble(data.table::fread(file, header = T, na.strings = c("NA", "N/A", "")))
   } else {

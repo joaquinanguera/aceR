@@ -1,8 +1,17 @@
 
+#' @keywords internal
+
+ace_descriptive_statistics <- function(x) {
+  variance = c(sd = ace_sd(x), se = ace_se(x))
+  summary = c(length = ace_length(x), count = ace_count(x))
+  averages = c(mean = ace_mean(x), median = ace_median(x))
+  return (c(variance, summary, averages))
+}
+
 #' @importFrom dplyr funs one_of summarize_at vars
 #' @keywords internal
 
-ace_descriptive_statistics <- function(x, col) {
+ace_descriptive_statistics_dplyr <- function(x, col) {
   out = summarize_at(x, vars(one_of(col)), funs(
     mean = ace_mean,
     median = ace_median,

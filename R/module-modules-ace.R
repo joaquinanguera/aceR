@@ -5,7 +5,7 @@
 #' @name ace_procs
 
 module_boxed <- function(df) {
-  gen = proc_generic_module(df)
+  gen = proc_generic_module(df, Q_COL_CORRECT_BUTTON, Q_COL_CONDITION)
   gen$score = (((gen$rt_mean.conjunction_12 - gen$rt_mean.conjunction_4) / gen$rt_mean.conjunction_4) * 100) + 100
   rcs = proc_by_condition(df, c(COL_CORRECT_BUTTON, COL_RT), Q_COL_CONDITION, FUN = ace_rcs)
   gen = dplyr::left_join(gen, rcs, by = COL_BID)
@@ -31,10 +31,10 @@ module_brt <- function(df) {
       mutate(condition_hand = ifelse(grepl("right", !!Q_COL_HANDEDNESS),
                                recode(!!Q_COL_HANDEDNESS, right = "dominant", left = "nondominant"),
                                recode(!!Q_COL_HANDEDNESS, left = "dominant", right = "nondominant")))
-    gen = proc_generic_module(df, col_condition = sym("condition_hand"))
+    gen = proc_generic_module(df, Q_COL_CORRECT_BUTTON, sym("condition_hand"))
   } else {
     warning("No handedness data found. Unable to label BRT data by dominant hand")
-    gen = proc_generic_module(df)
+    gen = proc_generic_module(df, Q_COL_CORRECT_BUTTON, Q_COL_CONDITION)
   }
   gen = select(gen, -starts_with(PROC_COL_OLD[1]), -starts_with(PROC_COL_OLD[2]))
   return (gen)
@@ -71,7 +71,7 @@ module_saat <- function(df) {
     # non-response trials should have NA rt, not 0 rt, so it will be excluded from mean calculations
     mutate_at(COL_RT, funs(na_if(., 0)))
  
-  gen = proc_generic_module(df)
+  gen = proc_generic_module(df, Q_COL_CORRECT_BUTTON, Q_COL_CONDITION)
   # doing this will output true hit and FA rates (accuracy by target/non-target condition) for calculating SDT metrics in later code
   # TODO: fix functions in math-detection.R to calculate SDT metrics inline. this is a bandaid
   sdt = proc_by_condition(df, "trial_accuracy", Q_COL_CONDITION, FUN = ace_dprime_dplyr) %>%
@@ -120,7 +120,7 @@ module_taskswitch <- function(df) {
 
 module_tnt <- function(df) {
   df$condition = plyr::mapvalues(df$condition, from = c("Tap & Trace", "Tap Only"), to = c("tap_trace", "tap_only"), warn_missing = FALSE)
-  gen = proc_generic_module(df)
+  gen = proc_generic_module(df, Q_COL_CORRECT_BUTTON, Q_COL_CONDITION)
   cost = multi_subtract(gen, "\\.tap_trace", "\\.tap_only", "\\.cost")
   sdt = proc_by_condition(df, "trial_accuracy", Q_COL_CONDITION, FUN = ace_dprime_dplyr) %>%
     dplyr::rename_all(dplyr::funs(stringr::str_replace(., "trial_accuracy_", "")))

@@ -5,7 +5,7 @@
 #'  all SEA csv files in a directory.
 #'
 #' @export
-#' @importFrom dplyr bind_rows distinct filter lag mutate tibble
+#' @importFrom dplyr bind_rows distinct filter mutate tibble
 #' @importFrom purrr map map2 possibly walk2
 #' @importFrom tidyr nest unnest
 #' 
@@ -46,7 +46,7 @@ load_sea_bulk <- function(path = ".",
     filter(map(data, ~nrow(.)) > 0) %>%
     select(-file) %>% # because it's already pasted inside load_ace_file
     unnest(data) %>%
-    nest(-module) %>%
+    nest(data = -!!Q_COL_MODULE) %>%
     mutate(data = map(data, ~.x %>%
                         remove_empty_cols() %>%
                         # coarse duplicate rejection
@@ -54,12 +54,7 @@ load_sea_bulk <- function(path = ".",
                         # RT should definitely be the same in duplicate rows but not otherwise
                         distinct(pid, question_id, rt, trial_onset, .keep_all = TRUE) %>%
                         # remove this once re-typing functionality has been added. only need while all cols are char
-                        replace_nas("") %>%
-                        group_by(pid) %>%
-                        # TODO: Can you quasi-quote inside of map? I think not
-                        mutate(previous_correct_button = lag(correct_button),
-                               previous_correct_button = paste0("prev_", previous_correct_button)) %>%
-                        ungroup()
+                        replace_nas("")
                       # TODO: write re-typing master function
                       # re-typing columns must occur here, AFTER data has been separated by module
                       # because individual data files contain data from multiple modules
