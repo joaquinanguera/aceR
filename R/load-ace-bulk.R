@@ -15,9 +15,12 @@
 #' @param recursive logical. Load files in subfolders also? Defaults to \code{TRUE}
 #' @param exclude a list of patterns to exclude
 #' @param which_modules Specify modules to process. Defaults to all modules.
+#' @param pid_stem Specify the string stem of the ID in the "PID" field. Defaults to "ADMIN-UCSF-".
+#' @param force_pid_name_match logical. Replace ALL PIDs with IDs in "name" field? Defaults to \code{FALSE}
 #' @param pulvinar logical. Expect raw data in Pulvinar format? Defaults to \code{TRUE}
 #' @return Returns a data.frame containing the content of every file in the
 #'  specified \code{path}.
+
 
 load_ace_bulk <- function(path = ".",
                           verbose = TRUE,
@@ -25,6 +28,8 @@ load_ace_bulk <- function(path = ".",
                           exclude = c(),
                           pattern = "",
                           which_modules = "",
+                          pid_stem = "ADMIN-UCSF-",
+                          force_pid_name_match = FALSE,
                           pulvinar = FALSE) {
   csv = list.files(path = path, pattern = ".csv", recursive = recursive)
   xls = list.files(path = path, pattern = ".xls", recursive = recursive)
@@ -70,7 +75,36 @@ load_ace_bulk <- function(path = ".",
            data = map(data, ~.x %>%
                         select(-one_of(ALL_POSSIBLE_DEMOS[!(ALL_POSSIBLE_DEMOS %in% c(COL_BID, COL_BID_SHORT))]))))
   
-  # currently returns a tibble where data is NOT rbind.filled together into one big df
-  # but kept separate by module
+  
+  if (FALSE) { # keeping this code in here for now, need to talk to Jeci about how to deal with this legacy functionality
+    if (force_pid_name_match | all(unique(dat[, COL_PID]) == pid_stem)) { # run if instructed, or if all PIDs are stem only
+      # for Ss where PID was incorrectly duplicated from another S but the name is DIFFERENT, repair the PID
+      this_pid = unique(dat[, COL_PID])
+      this_name = unique(dat[, COL_NAME])
+      if (tolower(substr(this_pid, nchar(pid_stem) + 1, nchar(this_pid))) != tolower(this_name)) dat[, COL_PID] = paste0(pid_stem, dat[, COL_NAME])
+    }
+  }
+  
+  # currently returns a tibble where data is NOT rbind.filled together into one big df, but kept separate by module
   return(out)
+}
+
+#' @keywords internal deprecated
+
+sort_files_by_module <- function(files, modules = c(BOXED, BRT, FLANKER, SAAT, SPATIAL_SPAN, STROOP, TASK_SWITCH, TNT, BACK_SPATIAL_SPAN, FILTER, SPATIAL_CUE, ISHIHARA)) {
+  files_nospace = gsub(" ", "", files, fixed = T) # strip spaces from module names for searching ONLY!
+  sorted_files = list()
+  for (module in modules) {
+    sorted_files[[module]] = files[grepl(module, files_nospace, ignore.case = T)] # actually grab unadulterated file names at appropriate indices
+    if (module == SPATIAL_SPAN) sorted_files[[module]] = sorted_files[[module]][!grepl(BACK_SPATIAL_SPAN, sorted_files[[module]], ignore.case = T)]
+  }
+  return (Filter(length, sorted_files)) # remove empty fields
+}
+
+#' @keywords internal deprecated
+
+remove_email_dupes <- function(dat, existing_bids = c(temp_out[, COL_BID], module_out[, COL_BID])) {
+  these_bids = unique(dat[, COL_BID])
+  dat = dplyr::filter(dat, !(bid %in% existing_bids))
+  return (dat)
 }
