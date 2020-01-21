@@ -161,18 +161,11 @@ proc_by_module <- function(df,
     # do not join by bid_full if ACE data, because diff modules from same subj's session have diff timestamps
     # disambiguate full bids from diff modules by prepending module name
     
-    if (app_type == "explorer") {
+    if (app_type != "sea") {
       out <- out %>%
         mutate(proc = pmap(list(proc, demos, module), function (a, b, c) {
           full_join(b, a, by = demo_merge_col) %>%
-            rename_at(COL_BID, funs(paste(toupper(c), ., sep = "."))) %>%
-            return()
-        }))
-    } else if (app_type == "classroom") {
-      out <- out %>%
-        mutate(proc = pmap(list(proc, demos, module), function (a, b, c) {
-          full_join(b, a, by = demo_merge_col) %>%
-            rename_at(demo_merge_col, funs(paste(toupper(c), ., sep = "."))) %>%
+            rename_at(vars(one_of(COL_BID, COL_TIME)), funs(paste(toupper(c), ., sep = "."))) %>%
             return()
         }))
     } else {
@@ -225,8 +218,8 @@ label_study_conditions = function(info, conditions) {
 reconstruct_pid <- function (proc, demo) {
   # This SHOULD truncate at the last character before the session-unique portion of the bid
   # safe for time and times finished game bc the period should only appear once
-  proc %>% mutate(!!COL_PID := str_split(!!Q_COL_BID, pattern = "[.]"),
-                  !!COL_PID := map_chr(!!Q_COL_PID, 1L)) %>%
+  proc %>% mutate(!!COL_PID := stringr::str_split(!!Q_COL_BID, pattern = "[.]"),
+                  !!COL_PID := purrr::map_chr(!!Q_COL_PID, 1L)) %>%
     select(!!COL_BID, !!COL_PID, everything()) %>%
     return()
 }
