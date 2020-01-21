@@ -80,7 +80,7 @@ post_clean_chance <- function (df, overall = TRUE, cutoff_dprime = 0, cutoff_2ch
                            c("acc_mean.overall"),
                            c("acc_mean.overall"),
                            c("dprime.overall"),
-                           c("k.R2B0", "k.R4B0")))
+                           c("k.r2b0", "k.r4b0")))
   } else {
     metric_cols %<>%
       mutate(metric = list(c("dprime.tap_only"),
@@ -89,7 +89,7 @@ post_clean_chance <- function (df, overall = TRUE, cutoff_dprime = 0, cutoff_2ch
                            c("acc_mean.stay"),
                            c("acc_mean.feature_4"),
                            c("dprime.sustained", "dprime.impulsive"),
-                           c("k.R2B0", "k.R4B0")))
+                           c("k.r2b0", "k.r4b0")))
   }
   
   metric_cols %<>%
