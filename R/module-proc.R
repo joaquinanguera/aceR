@@ -87,6 +87,7 @@ proc_by_module <- function(df,
     } else {
       all_procs <- all_mods
     }
+    
     all_procs <- all_procs %>%
       # patch handedness from demos directly into brt data
       mutate(data = pmap(list(data, module, demos), function(a, b, c) {
@@ -97,6 +98,7 @@ proc_by_module <- function(df,
                       by = COL_PID)
         } else {a}
       }))
+    
   } else {
     # This is now here for SEA compatibility
     all_procs <- all_mods %>%
@@ -117,7 +119,6 @@ proc_by_module <- function(df,
            }),
            # remove any demo cols that appear to contain no info
            demos = map(demos, ~remove_empty_cols(.x)),
-           # rename "correct_button" etc to "acc"
            proc = pmap(list(data, module, verbose), function(a, b, c) {
              attempt_module(a, b, verbose = c)
            })) %>%
