@@ -11,7 +11,7 @@
 #' @param pulvinar logical. Expect raw data in Pulvinar format? Defaults to \code{FALSE}
 #' @return Returns the file's content as an R \code{\link{data.frame}}.
 
-load_ace_file <- function(file, pulvinar = FALSE) {
+load_ace_classroom_file <- function(file, pulvinar = FALSE) {
   # read raw csv file
   if (is_excel(file)) {
     warning (file, " is Excel format, currently not supported ")
@@ -19,13 +19,13 @@ load_ace_file <- function(file, pulvinar = FALSE) {
     # raw_dat <- load_excel(file)
   } 
   if (is_pulvinar(file) | pulvinar) { # TODO: can we get a common phrase in all pulvinar export filenames? 
-    raw_dat <- load_csv(file, pulvinar = T)
+    raw_dat <- load_csv_classroom(file, pulvinar = T)
     out <- raw_dat %>%
       transform_mid(file = file, pulvinar = T) %>%
       transform_post_pulvinar()
     return (out)
   } else if (!is_excel(file)) { # only if it hasn't already been loaded
-    raw_dat <- load_csv(file)
+    raw_dat <- load_csv_classroom(file)
     raw_dat <- breakup_by_user(raw_dat)
   }
   if (is.vector(raw_dat)) {
@@ -154,7 +154,7 @@ transform_mid <- function (dat, file, pulvinar) {
     ungroup() %>%
     # replace all text "NA"s with real NA
     replace_nas(NA) %>%
-    standardize_ace_values()
+    standardize_ace_classroom_values()
   
   return (dat)
 }

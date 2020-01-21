@@ -229,7 +229,7 @@ guess_pid <- function(x) {
 #' @importFrom rlang !! :=
 #' @importFrom stringr str_replace
 
-standardize_ace_values <- function(df) {
+standardize_ace_classroom_values <- function(df) {
   # this function handles re-typing of columns
   # especially in emailed data, all columns are necessarily read in as character
   # we SHOULD hard-code expected type of columns by module

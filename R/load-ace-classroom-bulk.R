@@ -1,7 +1,7 @@
 
 #' Read & Load all ACE csv & xls files in a directory
 #'
-#' Wrapper function around \code{\link{load_ace_file}()} to read & parse 
+#' Wrapper function around \code{\link{load_ace_classroom_file}()} to read & parse 
 #'  all ACE csv files in a directory.
 #'
 #' @export
@@ -19,7 +19,7 @@
 #' @return Returns a data.frame containing the content of every file in the
 #'  specified \code{path}.
 
-load_ace_bulk <- function(path = ".",
+load_ace_classroom_bulk <- function(path = ".",
                           verbose = TRUE,
                           recursive = TRUE,
                           exclude = c(),
@@ -42,11 +42,11 @@ load_ace_bulk <- function(path = ".",
   
   files = filter_vec(files, which_modules)
   
-  # Use purrr::map to vectorize the load_ace_file call :3
+  # Use purrr::map to vectorize the load_ace_classroom_file call :3
   out = tibble(file = files) %>%
     mutate(data = map(files, function (x) {
       if (verbose) print(x)
-      return (load_ace_file(x, pulvinar = pulvinar))
+      return (load_ace_classroom_file(x, pulvinar = pulvinar))
     }))
   
   out <- out %>%
