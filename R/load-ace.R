@@ -13,6 +13,9 @@
 
 load_ace_file <- function(file, pulvinar = FALSE) {
   # read raw csv file
+  if (is_filtered(file)) {
+    return (load_ace_filtered_file(file))
+  }
   if (is_excel(file)) {
     warning (file, " is Excel format, currently not supported ")
     return (data.frame())
@@ -36,6 +39,53 @@ load_ace_file <- function(file, pulvinar = FALSE) {
   } else {
     return (attempt_transform_email(file, raw_dat))
   }
+}
+
+#' @keywords internal deprecated
+
+load_ace_filtered_file <- function(file) {
+  if (is_excel(file)) {
+    df = openxlsx::read.xlsx(file, sheet = 1)
+  } else {
+    df = read.csv(file, header = TRUE, sep = ",")
+  }
+  cols = names(df)
+  pid_col = cols[grep("id", cols)[1]]
+  names(df)[names(df) == pid_col] = COL_PID
+  names(df) = sapply(names(df), function(x) to_snake_case(x))
+  df = standardize_ace_column_names(df)
+  df[, COL_PID] = as.character(df[, COL_PID])
+  df$file = file
+  df$module = identify_module(file)
+  df = standardize_ace_values(df)
+  df = replace_nas(df, "")
+  df[, COL_TIME] = df$time_gameplayed_utc
+  df[, COL_CONDITION] = df$details
+  by_block = tryCatch({
+    df[, COL_BID] = paste(df[, COL_PID], df[, COL_TIME])
+    return (add_block_half(subset_by_col(df, "bid")))
+  }, error = function(e) {
+    return (add_block_half(subset_by_col(df, "pid")))
+  })
+  out = flatten_df_list(by_block)
+  return (out)
+}
+
+#' @keywords internal
+
+add_block_half = function(x) {
+  df_list = lapply(x, function(x) {
+    df = x
+    df[, COL_BLOCK_HALF] =  plyr::mapvalues(make_half_seq(nrow(x)), from = c(1, 2), to = c("first_half", "second_half"))
+    return(df)
+  })
+  return (df_list)
+}
+
+#' @keywords internal deprecated
+
+is_filtered <- function (filename) {
+  return (grepl("filtered", filename))
 }
 
 #' @keywords internal
@@ -166,4 +216,31 @@ transform_post_pulvinar <- function (dat) {
     dat <- remove_nondata_rows_pulvinar(dat)
   }
   return (dat)
+}
+
+#' @keywords internal deprecated
+
+clean_invalid_subs <- function(dat) {
+  # leaving this function here for now in case it becomes necessary later.
+  # currently this function is made obsolete by remove_nondata_rows_pulvinar() and the rejection criterion of only matching PID-names in parse_subsections_pulvinar()
+  # using data.table internally for speed & reduction of with() calls
+  # using bare colnames here because we can assume these cols will exist under this name and data.table doesn't like quoted varnames
+  # repairing those with valid but not matching pid_num and name
+  dat <- as.data.table(tidyr::separate_(dat, COL_PID, into = c("pid_stem", "pid_num"), sep = 11, remove = F))
+  dat_good = dat[pid_num == name]
+  dat_bad = dat[pid_num != name]
+  subs = unique(dat_bad[[COL_PID]])
+  for (sub in subs) {
+    this_name = unique(dat_bad[pid == sub, name])
+    # if pid_num already exists as matching data, change this pid_num to name
+    if (dim(dat_good[pid_num == this_name])[1] > 0) {
+      dat_bad[, pid_num := ifelse(pid == sub, name, pid_num)]
+      dat_bad[, pid := ifelse(pid == sub, paste0(pid_stem, name), pid)]
+    } else if (dim(dat_good[name == this_name])[1] > 0) {
+      # else if name already exists as matching data, change this name to pid_num
+      dat_bad[, name := ifelse(pid == sub, pid_num, name)]
+    }
+  }
+  clean = rbind(dat_good, dat_bad)
+  return(as.data.frame(clean[, c("pid_stem", "pid_num") := NULL]))
 }
