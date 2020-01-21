@@ -9,8 +9,7 @@ BugReports: https://github.com/joaquinanguera/aceR/issues
 Depends:
     R (>= 3.4.0)
 Suggests:
-    testthat,
-    openxlsx
+    testthat
 Imports:
     data.table,
     dplyr,
