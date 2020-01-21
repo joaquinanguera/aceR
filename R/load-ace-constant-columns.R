@@ -179,49 +179,6 @@ standardize_ace_column_names <- function(df) {
   return (df)
 }
 
-#' @importFrom dplyr mutate
-#' @importFrom magrittr %>%
-#' @importFrom rlang !! :=
-#' @keywords internal
-
-standardize_ace_ids <- function(dat) {
-  
-  if (!(COL_PID %in% names(dat))) {
-    col_to_bid = Q_COL_FILE
-    dat <- dat %>%
-      mutate(!!COL_PID := guess_pid(!!Q_COL_FILE))
-  } else {
-    col_to_bid = Q_COL_PID
-  }
-  
-  # very band-aid: attempt to repair PID using name field if PID is empty stem or otherwise filler
-  if (unique(dat[[COL_PID]]) %in% c("ADMIN-UCSF-", "ADMIN-UCSF-0", "ADMIN-UCSF-0000") & COL_NAME %in% names(dat)) {
-    dat <- dat %>%
-      mutate(!!COL_PID := paste0("ADMIN-UCSF-", !!Q_COL_NAME))
-  }
-  
-  dat <- dat %>%
-    # To comply with ACE Explorer
-    mutate(!!COL_PID := stringr::str_replace_all(tolower(!!Q_COL_PID), "[^a-zA-Z0-9]+", ""),
-           # make block id from pid & time
-           !!COL_BID := paste(!!col_to_bid, !!Q_COL_TIME, sep = "."),
-           # make short block id using only pid and date
-           # (to allow for less granular matching of records between diff modules)
-           !!COL_BID_SHORT := paste(!!col_to_bid,
-                                    lubridate::floor_date(lubridate::parse_date_time(!!Q_COL_TIME, "ymdHMSz"), unit = "days"),
-                                    sep = "."))
-  
-}
-
-#' @keywords internal
-
-guess_pid <- function(x) {
-  file = basename(x)
-  # maybe_pid = stringr::str_extract(file, "^[a-zA-Z0-9]*")
-  maybe_pid = unique(na.omit(as.numeric(unlist(strsplit(unlist(file), "[^0-9]+")))))[1]
-  return (maybe_pid)
-}
-
 #' @name ace_header
 #' @importFrom dplyr coalesce funs group_by if_else lag mutate mutate_at recode ungroup
 #' @importFrom lubridate parse_date_time

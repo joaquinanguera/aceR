@@ -8,10 +8,11 @@
 #' @importFrom utils read.table read.csv write.csv head tail count.fields
 #' 
 #' @param file The name of the file which the data is to be read from.
+#' @param pid_stem The string stem of the ID in the "PID" field. Defaults to "ADMIN-UCSF-".
 #' @param pulvinar logical. Expect raw data in Pulvinar format? Defaults to \code{FALSE}
 #' @return Returns the file's content as an R \code{\link{data.frame}}.
 
-load_ace_file <- function(file, pulvinar = FALSE) {
+load_ace_file <- function(file, pid_stem = "ADMIN-UCSF-", pulvinar = FALSE) {
   # read raw csv file
   if (is_filtered(file)) {
     return (load_ace_filtered_file(file))
@@ -19,29 +20,26 @@ load_ace_file <- function(file, pulvinar = FALSE) {
   if (is_excel(file)) {
     warning (file, " is Excel format, currently not supported ")
     return (data.frame())
-    # raw_dat <- load_excel(file)
+    # raw_dat = load_excel(file)
   } 
   if (is_pulvinar(file) | pulvinar) { # TODO: can we get a common phrase in all pulvinar export filenames? 
-    raw_dat <- load_csv(file, pulvinar = T)
-    out <- raw_dat %>%
-      transform_mid(file = file, pulvinar = T) %>%
-      transform_post_pulvinar()
-    return (out)
+    raw_dat = load_csv(file, pulvinar = T)
+    return (transform_pulvinar(file, raw_dat))
   } else if (!is_excel(file)) { # only if it hasn't already been loaded
-    raw_dat <- load_csv(file)
-    raw_dat <- breakup_by_user(raw_dat)
+    raw_dat = load_csv(file)
+    raw_dat = breakup_by_user(raw_dat)
   }
   if (is.vector(raw_dat)) {
     ortho_names = paste(file, names(raw_dat), sep = "-")
-    dfs = map2(ortho_names, raw_dat, ~attempt_transform_email(.x, .y))
+    dfs = map2(ortho_names, raw_dat, ~attempt_transform(.x, .y))
     out = plyr::rbind.fill(dfs)
     return (out)
   } else {
-    return (attempt_transform_email(file, raw_dat))
+    return (attempt_transform(file, raw_dat))
   }
 }
 
-#' @keywords internal deprecated
+#' @keywords internal
 
 load_ace_filtered_file <- function(file) {
   if (is_excel(file)) {
@@ -82,7 +80,7 @@ add_block_half = function(x) {
   return (df_list)
 }
 
-#' @keywords internal deprecated
+#' @keywords internal
 
 is_filtered <- function (filename) {
   return (grepl("filtered", filename))
@@ -101,20 +99,15 @@ is_pulvinar <- function (filename) {
   return (grepl("pulvinar", filename, ignore.case = T))
 }
 
-#' @importFrom magrittr %>%
 #' @keywords internal
 
-attempt_transform_email <- function(file, raw_dat) {
+attempt_transform <- function(file, raw_dat) {
   # transform data to data frame
   df = tryCatch ({
-    transformed = raw_dat %>% 
-      transform_pre_email() %>%
-      transform_mid(file = file, pulvinar = F) %>%
-      transform_post_email()
+    transformed = transform_raw(file, raw_dat)
     # test if data is usable
     st = paste(transformed, collapse = "")
-    # hacky workaround: newest edition of spatial span data DOES contain braces in "okay" datasets
-    if (grepl("}", st) & !grepl(SPATIAL_SPAN, file, ignore.case = TRUE)) {
+    if (grepl("}", st) & !grepl(SPATIAL_SPAN, file, ignore.case = TRUE)) { # hacky workaround: newest edition of spatial span data DOES contain braces in "okay" datasets
       warning(file, " contains invalid data ")
       return (data.frame())
     }
@@ -134,7 +127,7 @@ attempt_transform_email <- function(file, raw_dat) {
 #' @importFrom magrittr %>%
 #' @keywords internal
 
-transform_pre_email <- function (raw_dat) {
+transform_raw <- function (file, raw_dat) {
   if (nrow(raw_dat) == 0) return (data.frame())
   
   dat <- raw_dat %>%
@@ -149,14 +142,42 @@ transform_pre_email <- function (raw_dat) {
     # transform session info into columns
     transform_session_info() %>%
     # parse subsections
-    parse_subsections()
+    parse_subsections() %>%
+    # standardize output
+    standardize_names() %>%
+    dplyr::mutate(file = file,
+                  module = identify_module(file[1])) %>%
+    standardize_ace_column_names()
   
-  return (dat)
-}
-
-#' @keywords internal
-
-transform_post_email <- function (dat) {
+  cols = names(dat)
+  
+  if (!(COL_TIME %in% cols)) {
+    # make "time" column from subid & filename if file doesn't contain time
+    # DANGEROUS: if constructing time from filename, this will cause de-duplication to fail silently
+    # because duplicated records have different filenames
+    dat[[COL_TIME]] = paste(dat[[COL_FILE]], dat[[COL_SUB_ID]], sep = ".")
+  }
+  
+  if (COL_PID %in% cols) {
+    # very band-aid: attempt to repair PID using name field if PID is empty stem or otherwise filler
+    if (unique(dat[[COL_PID]]) %in% c("ADMIN-UCSF-", "ADMIN-UCSF-0", "ADMIN-UCSF-0000")) {
+      dat[[COL_PID]] = paste0("ADMIN-UCSF-", dat[[COL_NAME]])
+    }
+    # make block id from pid & time
+    dat[[COL_BID]] = paste(dat[[COL_PID]], dat[[COL_TIME]], sep = ".")
+    # make short block id using only pid and date (to allow for less granular matching of records between diff modules)
+    dat[[COL_BID_SHORT]] = paste(dat[[COL_PID]],
+                                 lubridate::floor_date(lubridate::parse_date_time(dat[[COL_TIME]], "ymdHMSz"), unit = "days"),
+                                 sep = ".")
+  } else {
+    # make block id from file name & time if file doesn't contain PID
+    dat[[COL_BID]] = paste(dat[[COL_FILE]], dat[[COL_TIME]], sep = ".")
+    # make short block id using only pid and date (to allow for less granular matching of records between diff modules)
+    dat[[COL_BID_SHORT]] = paste(dat[[COL_FILE]],
+                                 lubridate::floor_date(lubridate::parse_date_time(dat[[COL_TIME]], "ymdHMSz"), unit = "days"),
+                                 sep = ".")
+    dat[[COL_PID]] = guess_pid(dat[[COL_FILE]])
+  }
   
   try({ # so will fail silently if gender isn't in data
     # this patch to propagate gender down has to be done for OLD files where gender was called "age1"
@@ -169,7 +190,9 @@ transform_post_email <- function (dat) {
       dat[[COL_GENDER]] = this_gender
     }
   }, silent = TRUE)
-  
+  # replace all text "NA"s with real NA
+  dat = replace_nas(dat, NA)
+  dat = standardize_ace_values(dat)
   return (dat)
 }
 
@@ -178,42 +201,36 @@ transform_post_email <- function (dat) {
 #' @importFrom rlang !! :=
 #' @keywords internal
 
-transform_mid <- function (dat, file, pulvinar) {
+transform_pulvinar <- function (file, dat) {
   if (nrow(dat) == 0) return (data.frame())
-  # This chunk same between email and pulvinar
   # standardize output
-  dat <- dat %>%
-    standardize_names(pulvinar = pulvinar) %>%
+  dat = dat %>%
+    standardize_names(pulvinar = T) %>%
     mutate(file = file,
            # for faster performance bc each pulvinar file should only contain one module
            module = identify_module(file[1])) %>%
-    standardize_ace_column_names()
-  
-  if (!(COL_TIME %in% names(dat))) {
-    # make "time" column from subid & filename if file doesn't contain time
-    # DANGEROUS: if constructing time from filename, this will cause de-duplication to fail silently
-    # because duplicated records have different filenames
-    dat[[COL_TIME]] = paste(dat[[COL_FILE]], dat[[COL_SUB_ID]], sep = ".")
-  }
-  
-  # clean, standardize, possibly construct PID, BID, short BID
-  dat <- dat %>%
-    standardize_ace_ids() %>%
+    standardize_ace_column_names() %>%
+    # force lowercase everything to cover for weird capitalization diffs bw files
+    mutate(!!Q_COL_PID := tolower(!!Q_COL_PID),
+           # make block id from pid & time
+           !!Q_COL_BID := paste(!!Q_COL_PID, !!Q_COL_TIME, sep = ".")) %>%
+    standardize_ace_values() %>%
+    # make short block id from pid and date only
+    mutate(!!Q_COL_BID_SHORT := paste(!!Q_COL_PID,
+                                      lubridate::floor_date(!!Q_COL_TIME, unit = "days"),
+                                      sep = ".")) %>%
     group_by(!!Q_COL_BID) %>%
     mutate(!!COL_BLOCK_HALF := plyr::mapvalues(make_half_seq(n()), from = c(1, 2), to = c("first_half", "second_half"))) %>%
-    ungroup() %>%
-    # replace all text "NA"s with real NA
-    replace_nas(NA) %>%
-    standardize_ace_values()
+    ungroup()
   
-  return (dat)
-}
+  # Don't do "half" labeling for demos, which should only have one row per subject
+  if (dat$module[1] == DEMOS) {
+    dat = dat %>%
+      select(-!!COL_BLOCK_HALF)
+  }
 
-#' @keywords internal
-
-transform_post_pulvinar <- function (dat) {
   if (COL_NAME %in% names(dat) & grepl("ADMIN-UCSF", dat[1, COL_PID])) { # this function expects a "name" column by which to do the matching
-    dat <- remove_nondata_rows_pulvinar(dat)
+    dat = remove_nondata_rows_pulvinar(dat)
   }
   return (dat)
 }
@@ -226,7 +243,7 @@ clean_invalid_subs <- function(dat) {
   # using data.table internally for speed & reduction of with() calls
   # using bare colnames here because we can assume these cols will exist under this name and data.table doesn't like quoted varnames
   # repairing those with valid but not matching pid_num and name
-  dat <- as.data.table(tidyr::separate_(dat, COL_PID, into = c("pid_stem", "pid_num"), sep = 11, remove = F))
+  dat = as.data.table(tidyr::separate_(dat, COL_PID, into = c("pid_stem", "pid_num"), sep = 11, remove = F))
   dat_good = dat[pid_num == name]
   dat_bad = dat[pid_num != name]
   subs = unique(dat_bad[[COL_PID]])
@@ -243,4 +260,13 @@ clean_invalid_subs <- function(dat) {
   }
   clean = rbind(dat_good, dat_bad)
   return(as.data.frame(clean[, c("pid_stem", "pid_num") := NULL]))
+}
+
+#' @keywords internal
+
+guess_pid <- function(x) {
+  file = basename(x)
+  # maybe_pid = stringr::str_extract(file, "^[a-zA-Z0-9]*")
+  maybe_pid = unique(na.omit(as.numeric(unlist(strsplit(unlist(file), "[^0-9]+")))))[1]
+  return (maybe_pid)
 }
