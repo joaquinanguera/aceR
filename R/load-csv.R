@@ -133,7 +133,7 @@ remove_nondata_rows_pulvinar <- function(dat) {
 
 #' @importFrom dplyr mutate select
 #' @importFrom magrittr %>%
-#' #' @importFrom rlang !! :=
+#' @importFrom rlang !! :=
 #' @keywords internal deprecated
 
 fix_blank_pids <- function(dat) {

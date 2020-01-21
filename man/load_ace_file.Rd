@@ -4,12 +4,10 @@
 \alias{load_ace_file}
 \title{Reads raw ACE data from a file.}
 \usage{
-load_ace_file(file, pid_stem = "ADMIN-UCSF-", pulvinar = FALSE)
+load_ace_file(file, app_type = "explorer")
 }
 \arguments{
 \item{file}{The name of the file which the data is to be read from.}
-
-\item{pid_stem}{The string stem of the ID in the "PID" field. Defaults to "ADMIN-UCSF-".}
 
 \item{pulvinar}{logical. Expect raw data in Pulvinar format? Defaults to \code{FALSE}}
 }

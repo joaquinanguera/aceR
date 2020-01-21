@@ -16,7 +16,7 @@
 #' @param exclude a list of patterns to exclude
 #' @param which_modules Specify modules to process. Defaults to all modules.
 #' @param app_type character What app data export type produced this data? One of
-#' \code{c("explorer", "email", "pulvinar")}. Defaults to \code{"explorer"},
+#' \code{c("explorer", "email", "pulvinar")}. Defaults to \code{"explorer"}.
 #' @return Returns a data.frame containing the content of every file in the
 #'  specified \code{path}.
 

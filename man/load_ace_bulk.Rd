@@ -6,8 +6,7 @@
 \usage{
 load_ace_bulk(path = ".", verbose = TRUE, recursive = TRUE,
   exclude = c(), pattern = "", which_modules = "",
-  pid_stem = "ADMIN-UCSF-", force_pid_name_match = FALSE,
-  pulvinar = FALSE)
+  app_type = "explorer")
 }
 \arguments{
 \item{path}{a character vector of full path names; the default
@@ -26,11 +25,8 @@ load_ace_bulk(path = ".", verbose = TRUE, recursive = TRUE,
 
 \item{which_modules}{Specify modules to process. Defaults to all modules.}
 
-\item{pid_stem}{Specify the string stem of the ID in the "PID" field. Defaults to "ADMIN-UCSF-".}
-
-\item{force_pid_name_match}{logical. Replace ALL PIDs with IDs in "name" field? Defaults to \code{FALSE}}
-
-\item{pulvinar}{logical. Expect raw data in Pulvinar format? Defaults to \code{TRUE}}
+\item{app_type}{character What app data export type produced this data? One of
+\code{c("explorer", "email", "pulvinar")}. Defaults to \code{"explorer"}.}
 }
 \value{
 Returns a data.frame containing the content of every file in the

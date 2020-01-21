@@ -4,9 +4,9 @@
 \alias{proc_by_module}
 \title{Process ACE/SEA data by module}
 \usage{
-proc_by_module(df, modules = "all", output = "wide",
-  rm_outlier_rts_sd = FALSE, rm_outlier_rts_range = FALSE,
-  conditions = NULL, verbose = FALSE)
+proc_by_module(df, app_type = c("classroom", "explorer", "sea"),
+  modules = "all", output = "wide", rm_outlier_rts_sd = FALSE,
+  rm_outlier_rts_range = FALSE, conditions = NULL, verbose = TRUE)
 }
 \arguments{
 \item{df}{a \code{\link{data.frame}} containing formatted trialwise ACE data. 
@@ -16,6 +16,9 @@ This includes data loaded with the following methods:
   \item \code{\link{load_ace_file}}
   \item \code{\link{load_ace_bulk}}
 }}
+
+\item{app_type}{character. What app type produced this data? One of
+\code{c("classroom", "explorer", "sea")}. Must be specified.}
 
 \item{modules}{character vector. Specify the names of modules (proper naming convention!)
 to output data for. Defaults to all modules detected in data.}
