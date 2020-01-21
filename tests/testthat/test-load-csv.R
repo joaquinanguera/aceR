@@ -5,6 +5,14 @@ sample_valid_but_bad_because_empty = paste(aceR_sample_data_path(), "bad-data-em
 sample_boxed = paste(aceR_sample_data_path(), "sample-boxed-email.csv", sep = "/")
 sample_brt_pulvinar = paste(aceR_sample_data_path(), "sample-brt-pulvinar.csv", sep = "/")
 
+test_that("ACE Explorer CSV loads in", {
+  sample_brt = paste(aceR_sample_data_path(), "sample-ace-brt-2.csv", sep = "/")
+  sample_flanker = paste(aceR_sample_data_path(), "sample-ace-flanker-2.csv", sep = "/")
+  
+  expect_gt(nrow(load_ace_file(sample_brt)), 0)
+  expect_gt(nrow(load_ace_file(sample_flanker)), 0)
+})
+
 
 expect_warning(load_ace_file(sample_bad))
 expect_warning(load_ace_file(sample_valid_but_bad_because_empty))

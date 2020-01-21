@@ -248,7 +248,8 @@ standardize_ace_values <- function(df) {
   
   try({
     df <- df %>%
-      mutate_at(COL_RT, as.numeric)
+      mutate(!!COL_RT := as.numeric(!!Q_COL_RT),
+             !!COL_RT := na_if(!!Q_COL_RT, 0))
   }, silent = TRUE)
   
   try({df <- df %>%
@@ -258,6 +259,17 @@ standardize_ace_values <- function(df) {
   try({
     df <- df %>%
       mutate_at(COL_AGE, as.numeric)
+  }, silent = TRUE)
+  
+  try({
+    df <- df %>%
+      mutate_at(COL_CONDITION, tolower)
+  }, silent = TRUE)
+  
+  
+  try({
+    df <- df %>%
+      mutate_at(COL_TRIAL_TYPE, tolower)
   }, silent = TRUE)
   
   cols = names(df)
@@ -270,18 +282,18 @@ standardize_ace_values <- function(df) {
   try({
     df <- df %>%
       mutate(!!COL_CORRECT_BUTTON := dplyr::recode(!!Q_COL_CORRECT_BUTTON, `0` = "incorrect", `1` = "correct"))
+  }, silent = TRUE)    
+  
+  try({
+    # TODO: Keep practice trials to extract data from them. Currently discarding all
+    df <- df %>%
+      filter(!!Q_COL_PRACTICE == "Real") %>%
+      # Noticed this in ACE Explorer as of Jan 2020. Might have changed before then
+      mutate(!!COL_CORRECT_BUTTON := if_else(!!Q_COL_RT == 0, "no_response", !!Q_COL_CORRECT_BUTTON))
   }, silent = TRUE)
   
   
-  # (mostly) module-general recoding of short RT trials etc
-  #In older version, 'no response' trial RTs were replaced with Max Intertrial Interval. 
-  #However, the value for Max Intertrial Interval is not always recorded in the data output
-  #This line marks trials with an RT that is evenly divisible by 10
-  # (i.e. is an integer and divisible by 10) as a 'no response' trial. 
-  # RT for the span tasks is handled differently and is left uninterpreted really
-  # so don't do all of this recoding of correctness by RT
-  if (COL_CORRECT_BUTTON %in% cols & !(SPATIAL_SPAN %in% df$module) & !(BACK_SPATIAL_SPAN %in% df$module)) {
-    
+  if (DEMOS %in% df$module) {
     df <- df %>%
       mutate(!!COL_CORRECT_BUTTON := case_when(!!Q_COL_RT < short_rt_cutoff & !!Q_COL_RT > 0 ~ "incorrect",
                                         !!Q_COL_RT == !!Q_COL_RW ~ "no_response",
@@ -296,8 +308,8 @@ standardize_ace_values <- function(df) {
     df[[COL_LATE_RESPONSE]] = case_when(df[[COL_RT]] < short_rt_cutoff & df[[COL_RT]] > 0 ~ "short",
                                         df[[COL_RT]] > df[[COL_RW]] ~ "late",
                                         df[[COL_RT]] < df[[COL_RW]] ~ "early",
+                                        df[[COL_RT]] == 0 ~ "no_response",
                                         df[[COL_RT]] > 0 & df[[COL_RT]] == df[[COL_RW]] ~ "no_response",
-                                        df[[COL_RT]] %% 10 == 0 & df[[COL_RT]] != 0 ~ "no_response",
                                         is.na(df[[COL_RT]]) ~ "no_response",
                                         TRUE ~ "late")
     
@@ -327,20 +339,22 @@ standardize_ace_values <- function(df) {
                                          df$trial_accuracy %in% c("Miss", "False Alarm") ~ "incorrect",
                                          TRUE ~ "")
   } else if (STROOP %in% df$module) {
-    df[, COL_CORRECT_BUTTON] = if_else(df$color_pressed == df$color_shown, "correct", "incorrect", missing = "incorrect") # missing implies no response
+    stroop_correct_col = ifelse("color_ink_shown" %in% cols, "color_ink_shown", "color_shown")
+    df[[COL_CORRECT_BUTTON]] = case_when(df[[COL_CORRECT_BUTTON]] == "no_response" ~ "no_response",
+                                         df[["color_pressed"]] == df[[stroop_correct_col]] ~ "correct",
+                                         df[["color_pressed"]] != df[[stroop_correct_col]] ~ "incorrect",
+                                         TRUE ~ NA_character_) # missing implies fucked up somehow
   } else if (FLANKER %in% df$module) {
     df[(df$displayed_cue %in% c("A", "B") & df$first_button=="YES") | (df$displayed_cue %in% c("C", "D") & df$second_button=="YES"), COL_CORRECT_BUTTON] = "correct"
   } else if (BRT %in% df$module) {
     # retype and clean accuracy
     df <- df %>%
       mutate(inter_time_interval = as.numeric(inter_time_interval),
-             correct_button = if_else(rt >= short_rt_cutoff & rt != inter_time_interval,
+             !!COL_CORRECT_BUTTON := if_else(!!Q_COL_RT != inter_time_interval,
                                       "correct",
-                                      correct_button,
-                                      missing = correct_button))
+                                      !!Q_COL_CORRECT_BUTTON,
+                                      missing = !!Q_COL_CORRECT_BUTTON))
   } else if (TNT %in% df$module) {
-    #Make sure late trials are marked as late
-    df$late_response = if_else(df$rt > df$rw, "late", "early", missing = "late")
     #Correct hits and misses. For is valid cue, if RT >cutoff and not equal to response window, hit, else miss
     #For is not valid cue, if RT == 0, then correct rejection, else false alarm
     #This will also ensure RTs < cutoff are incorrect regardless of condition/button press

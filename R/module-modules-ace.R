@@ -1,4 +1,5 @@
 
+#' @importFrom magrittr %>%
 #' @importFrom rlang !!
 #' @keywords internal
 #' @name ace_procs
@@ -6,6 +7,8 @@
 module_boxed <- function(df) {
   gen = proc_generic_module(df, Q_COL_CORRECT_BUTTON, Q_COL_CONDITION)
   gen$score = (((gen$rt_mean.conjunction_12 - gen$rt_mean.conjunction_4) / gen$rt_mean.conjunction_4) * 100) + 100
+  rcs = proc_by_condition(df, c(COL_CORRECT_BUTTON, COL_RT), Q_COL_CONDITION, FUN = ace_rcs)
+  gen = dplyr::left_join(gen, rcs, by = COL_BID)
   proc_cost_median = multi_fun(gen, "\\.conjunction_4", "\\.conjunction_12", "\\.proc_cost_median", ace_median) - multi_fun(gen, "\\.feature_4", "\\.feature_12", "\\.proc_cost_median", ace_median)
   proc_cost_mean = multi_fun(gen, "\\.conjunction_4", "\\.conjunction_12", "\\.proc_cost_mean", ace_mean) - multi_fun(gen, "\\.feature_4", "\\.feature_12", "\\.proc_cost_mean", ace_mean)
   dist_cost_median = multi_fun(gen, "\\.conjunction_4", "\\.feature_4", "\\.dist_cost_median", ace_median) - multi_fun(gen, "\\.conjunction_12", "\\.feature_12", "\\.dist_cost_median", ace_median)
@@ -41,16 +44,20 @@ module_brt <- function(df) {
 #' @name ace_procs
 
 module_discrimination <- function(df) {
-  return (proc_generic_module(df, Q_COL_CORRECT_RESPONSE, rlang::sym("cue_type")))
+  # TODO: Standardize correct? column name
+  gen = proc_generic_module(df, col_acc = Q_COL_CORRECT_RESPONSE, col_condition = rlang::sym("cue_type"))
+  rcs = proc_by_condition(df, c(Q_COL_CORRECT_RESPONSE, COL_RT), Q_COL_TRIAL_TYPE, FUN = ace_rcs)
+  return (left_join(gen, rcs, by = COL_BID))
 }
 
 #' @keywords internal
 #' @name ace_procs
 
 module_flanker <- function(df) {
-  gen = proc_generic_module(df, Q_COL_CORRECT_BUTTON, Q_COL_TRIAL_TYPE)
+  gen = proc_generic_module(df, col_condition = Q_COL_TRIAL_TYPE)
+  rcs = proc_by_condition(df, c(COL_CORRECT_BUTTON, COL_RT), Q_COL_TRIAL_TYPE, FUN = ace_rcs)
   cost = multi_subtract(gen, "\\.incongruent", "\\.congruent", "\\.cost")
-  return (dplyr::bind_cols(gen, cost))
+  return (left_join(gen, rcs, by = COL_BID) %>% dplyr::bind_cols(cost))
 }
 
 #' @importFrom dplyr funs left_join mutate na_if rename_all
@@ -76,9 +83,10 @@ module_saat <- function(df) {
 #' @name ace_procs
 
 module_stroop <- function(df) {
-  gen = proc_generic_module(df, Q_COL_CORRECT_BUTTON, Q_COL_TRIAL_TYPE)
+  gen = proc_generic_module(df, col_condition = Q_COL_TRIAL_TYPE)
+  rcs = proc_by_condition(df, c(COL_CORRECT_BUTTON, COL_RT), Q_COL_TRIAL_TYPE, FUN = ace_rcs)
   cost = multi_subtract(gen, "\\.incongruent", "\\.congruent", "\\.cost")
-  return (dplyr::bind_cols(gen, cost))
+  return (left_join(gen, rcs, by = COL_BID) %>% dplyr::bind_cols(cost))
 }
 
 #' @keywords internal
@@ -100,9 +108,10 @@ module_spatialspan <- function(df) {
 
 module_taskswitch <- function(df) {
   df$taskswitch_state = plyr::mapvalues(df$taskswitch_state, from = c(0, 1 , 2), to = c("start", "switch", "stay"), warn_missing = FALSE)
-  gen = proc_generic_module(df, Q_COL_CORRECT_BUTTON, rlang::sym("taskswitch_state"))
+  gen = proc_generic_module(df, col_condition = rlang::sym("taskswitch_state"))
+  rcs = proc_by_condition(df, c(COL_CORRECT_BUTTON, COL_RT), rlang::sym("taskswitch_state"), FUN = ace_rcs)
   cost = multi_subtract(gen, "\\.switch", "\\.stay", "\\.cost")
-  return (dplyr::bind_cols(gen, cost))
+  return (left_join(gen, rcs, by = COL_BID) %>% dplyr::bind_cols(cost))
 }
 
 #' @importFrom magrittr %>%
@@ -136,12 +145,14 @@ module_backwardsspatialspan <- function(df) {
 #' @importFrom rlang sym !!
 #' @importFrom stats reshape
 #' @importFrom stringr str_sub
-#' @importFrom tidyr separate
+#' @importFrom tidyr pivot_wider separate
 #' @keywords internal
 #' @name ace_procs
 
 module_filter <- function(df) {
-  # MT: implementing long format for filter only because it appears only appropriate for this module. open to changing if later modules benefit from this
+  # MT: implementing long format for filter only because it appears only appropriate for this module.
+  # open to changing if later modules benefit from this
+  
   df <- df %>%
     mutate(cue_rotated = dplyr::recode(cue_rotated,
                                        `0` = "no_change",
@@ -149,13 +160,16 @@ module_filter <- function(df) {
 
   acc = proc_by_condition(df, COL_CORRECT_BUTTON, factors = c(Q_COL_CONDITION, sym("cue_rotated")), transform_dir = "long")
   rt = proc_by_condition(df, COL_RT, factors = c(Q_COL_CONDITION, Q_COL_CORRECT_BUTTON), transform_dir = "long")
-  merged = left_join(acc, rt, by = c("bid", "condition")) %>%
+  rcs = proc_by_condition(df, c(COL_CORRECT_BUTTON, COL_RT), Q_COL_CONDITION, FUN = ace_rcs, transform_dir = "long")
+  merged = reduce(list(acc, rt, rcs), left_join, by = c("bid", "condition")) %>%
     separate(!!Q_COL_CONDITION, c("targets", "distractors"), sep = 2, remove = FALSE) %>%
     mutate_at(c("targets", "distractors"), funs(as.integer(str_sub(., start = -1L)))) %>%
     # TODO: implement k w/ proc_standard (if possible)
     mutate(k = ace_wm_k(correct_button_mean.change, 1 - correct_button_mean.no_change, targets)) %>%
     select(-targets, -distractors) %>%
-    super_spread(condition, -bid, -condition, name_order = "value_first", sep = ".")
+    pivot_wider(names_from = !!COL_CONDITION,
+                values_from = -c(!!Q_COL_BID, !!Q_COL_CONDITION, contains("overall")),
+                names_sep = ".")
 
   return (select(merged, -contains(".."), -starts_with(PROC_COL_OLD[1]), -starts_with(PROC_COL_OLD[2])))
 }
@@ -173,7 +187,8 @@ module_ishihara <- function(df) {
 #' @name ace_procs
 
 module_spatialcueing <- function(df) {
-  gen = proc_generic_module(df, Q_COL_CORRECT_BUTTON, Q_COL_TRIAL_TYPE)
+  gen = proc_generic_module(df, col_condition = Q_COL_TRIAL_TYPE)
+  rcs = proc_by_condition(df, c(COL_CORRECT_BUTTON, COL_RT), Q_COL_TRIAL_TYPE, FUN = ace_rcs)
   cost = multi_subtract(gen, "\\.incongruent", "\\.congruent", "\\.cost")
-  return (dplyr::bind_cols(gen, cost))
+  return (left_join(gen, rcs, by = COL_BID) %>% dplyr::bind_cols(cost))
 }
