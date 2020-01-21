@@ -35,13 +35,6 @@ NULL
 #' @param output string indicating preferred output format. Can be \code{"wide"} (default),
 #' where one dataframe is output containing cols with data from all modules, or \code{"long"},
 #'  where a dataframe is output, with a list-column containing dataframes with each module's data.
-#' @param rm_outlier_rts_sd DEPRECATED numeric. Remove within-subject RTs further than this many SD from
-#' within-subject mean RT? Enter as one number. Specify either this or \code{rm_outlier_rts_range},
-#' but not both. If both specified, will use SD cutoff. Defaults to \code{FALSE}.
-#' @param rm_outlier_rts_range DEPRECATED numeric vector, length 2. Remove within-subject RTs outside of
-#' this specified range? Enter min and max accepted RTs as a vector length 2. If min or max
-#' not specified, enter that value as NA in the vector. Specify either this or \code{rm_outlier_rts_range},
-#' but not both. If both specified, will use SD cutoff. Defaults to \code{FALSE}.
 #' @param conditions character vector. If data contains multiple study conditions
 #' (e.g. pre & post), specify their labels here. Case insensitive.
 #' @param verbose logical. Print details? Defaults to \code{FALSE}.
@@ -53,8 +46,6 @@ proc_by_module <- function(df,
                            app_type = c("classroom", "explorer", "sea"),
                            modules = "all",
                            output = "wide",
-                           rm_outlier_rts_sd = FALSE,
-                           rm_outlier_rts_range = FALSE,
                            conditions = NULL, verbose = TRUE) {
   stopifnot(length(app_type) == 1)
   # if data now comes in as list-columns of separate dfs per module, subset_by_col is deprecated
