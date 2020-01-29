@@ -29,8 +29,8 @@ module_brt <- function(df) {
     df <- df %>%
       mutate_at(COL_HANDEDNESS, tolower) %>%
       mutate(condition_hand = ifelse(grepl("right", !!Q_COL_HANDEDNESS),
-                               recode(!!Q_COL_HANDEDNESS, right = "dominant", left = "nondominant"),
-                               recode(!!Q_COL_HANDEDNESS, left = "dominant", right = "nondominant")))
+	                             recode(!!Q_COL_CONDITION, right = "dominant", left = "nondominant", rightthumb="dominant.thumb", leftthumb="nondominant.thumb"),
+	                             recode(!!Q_COL_CONDITION, left = "dominant", right = "nondominant", leftthumb="dominant.thumb", rightthumb="nondominant.thumb")))
     gen = proc_generic_module(df, col_condition = sym("condition_hand"))
   } else {
     warning("No handedness data found. Unable to label BRT data by dominant hand")
