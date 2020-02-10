@@ -76,7 +76,7 @@ module_saat <- function(df) {
   # TODO: fix functions in math-detection.R to calculate SDT metrics inline. this is a bandaid
   sdt = proc_by_condition(df, "trial_accuracy", Q_COL_CONDITION, FUN = ace_dprime_dplyr) %>%
     rename_all(funs(stringr::str_replace(., "trial_accuracy_", "")))
-  return (left_join(gen, sdt))
+  return (left_join(gen, sdt, by = COL_BID))
 }
 
 #' @keywords internal

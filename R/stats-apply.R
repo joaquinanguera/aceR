@@ -18,6 +18,10 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
     # assume that the only FUN that takes a vector for col is the rcs calculator
     col_out = "rcs"
     col_prefix = "rcs."
+  } else if (col == "trial_accuracy") {
+    # this should catch the dprime calculator
+    col_out = "dprime"
+    col_prefix = "dprime."
   } else {
     col_out = col
     col_prefix = ""
@@ -29,8 +33,9 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
       group_by(!!id_var) %>%
       FUN(col) %>%
       rename_at(-1, funs(paste0(col_out, "_", .))) %>%
-      # only triggers for RCS
+      # only triggers for the boutique columns
       rename_at(-1, funs(str_replace(., "rcs_", ""))) %>%
+      rename_at(-1, funs(str_replace(., "dprime_", ""))) %>%
       ungroup()
     
   } else {
