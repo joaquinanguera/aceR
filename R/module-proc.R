@@ -82,7 +82,7 @@ proc_by_module <- function(df,
     if (app_type == "explorer") {
       all_procs <- all_mods %>%
         # Put demos in another column, wide-ish, so it's next to every other module
-        mutate(demos = rerun(n(), .$data[.$module == DEMOS][[1]])) %>%
+        mutate(demos = map(1:n(), ~all_mods$data[all_mods$module == DEMOS][[1]])) %>%
         filter(module != DEMOS)
     } else {
       all_procs <- all_mods
