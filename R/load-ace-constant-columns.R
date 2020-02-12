@@ -204,12 +204,7 @@ standardize_ace_ids <- function(dat) {
     # To comply with ACE Explorer
     mutate(!!COL_PID := stringr::str_replace_all(tolower(!!Q_COL_PID), "[^a-zA-Z0-9]+", ""),
            # make block id from pid & time
-           !!COL_BID := paste(!!col_to_bid, !!Q_COL_TIME, sep = "."),
-           # make short block id using only pid and date
-           # (to allow for less granular matching of records between diff modules)
-           !!COL_BID_SHORT := paste(!!col_to_bid,
-                                    lubridate::floor_date(!!Q_COL_TIME, unit = "days"),
-                                    sep = "."))
+           !!COL_BID := paste(!!col_to_bid, !!Q_COL_TIME, sep = "."))
   
 }
 
