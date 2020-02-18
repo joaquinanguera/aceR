@@ -49,7 +49,6 @@ proc_by_module <- function(df,
                            conditions = NULL, verbose = TRUE) {
   stopifnot(length(app_type) == 1)
   # if data now comes in as list-columns of separate dfs per module, subset_by_col is deprecated
-  all_mods = df
   
   # select some modules to process out of all present, if specified
   if (any(modules != "all")) {
@@ -57,13 +56,13 @@ proc_by_module <- function(df,
       warning("Modules improperly specified! Check spelling?")
       return (data.frame())
     }
-    all_mods <- all_mods %>%
+    df <- df %>%
       filter(module %in% modules)
   }
   
-  if (any(all_mods$module == "unknown")) {
+  if (any(df$module == "unknown")) {
     warning("Unsupported modules found. They will not be processed.")
-    all_mods <- all_mods %>%
+    df <- df %>%
       filter(module != "unknown")
   }
   
@@ -80,19 +79,19 @@ proc_by_module <- function(df,
     # If ACE Explorer, basically
 
     if (app_type == "explorer") {
-      all_procs <- all_mods %>%
+      out <- df %>%
         # Put demos in another column, wide-ish, so it's next to every other module
-        mutate(demos = map(1:n(), ~all_mods$data[all_mods$module == DEMOS][[1]])) %>%
+        mutate(demos = map(1:n(), ~df$data[df$module == DEMOS][[1]])) %>%
         filter(module != DEMOS)
     } else {
-      all_procs <- all_mods
+      out <- df
     }
     
-    all_procs <- all_procs %>%
+    out <- out %>%
       # patch handedness from demos directly into brt data
       mutate(data = pmap(list(data, module, demos), function(a, b, c) {
         if (b == BRT) {
-          reconstruct_pid(a, c) %>%
+          reconstruct_pid(a) %>%
             left_join(c %>%
                         select(COL_PID, COL_HANDEDNESS),
                       by = COL_PID)
@@ -101,14 +100,14 @@ proc_by_module <- function(df,
     
   } else {
     # This is now here for SEA compatibility
-    all_procs <- all_mods %>%
+    out <- out %>%
       mutate(demos = map(data, ~.x %>%
                            select(one_of(all_these_demos)) %>%
                            select(-!!Q_COL_TIME) %>%
                            distinct()))
   }
   
-  all_procs <- all_procs %>%
+  out <- out %>%
     mutate(# this should extract between-subject study conditions from file names
            demos = map(demos, function(x) {
              if (!is.null(conditions)) {
@@ -130,18 +129,18 @@ proc_by_module <- function(df,
   
   if (app_type == "explorer") {
     # Try this: Ace Explore has demos collected at a separate date/time,
-    # so BID will _basically never_ match up. Use PID to bind
+    # so BID will _basically never_ match up. Use PID to bind demos to proc
     demo_merge_col = COL_PID
-    all_procs <- all_procs %>%
-      mutate(proc = map2(proc, demos, ~reconstruct_pid(.x, .y)),
-             demos = map(demos, ~select(.x, -!!Q_COL_BID)))
+    out <- out %>%
+      mutate(proc = map(proc, ~reconstruct_pid(.x)),
+             demos = map(demos, ~select(.x, -!!Q_COL_BID, -!!Q_COL_TIME)))
   } else {
     demo_merge_col = COL_BID
   }
   
   if (output == "wide") {
     
-    out <- all_procs %>%
+    out <- out %>%
       select(module, demos, proc) %>%
       mutate(demos = map(demos, ~.x %>%
                            select(-file) %>%
@@ -159,17 +158,30 @@ proc_by_module <- function(df,
                              rename_at(-1L, funs(paste(toupper(.y), ., sep = ".")))))
     }
     
-    # do not join by bid_full if ACE data, because diff modules from same subj's session have diff timestamps
-    # disambiguate full bids from diff modules by prepending module name
-    
-    if (app_type != "sea") {
+    if (app_type == "classroom") {
+      # do not join module to module by full BID if ACE Classroom data
+      # because diff modules from same subj's session have diff timestamps
+      # disambiguate full bids from diff modules by prepending module name
       out <- out %>%
         mutate(proc = pmap(list(proc, demos, module), function (a, b, c) {
           full_join(b, a, by = demo_merge_col) %>%
             rename_at(vars(one_of(COL_BID, COL_TIME)), funs(paste(toupper(c), ., sep = "."))) %>%
             return()
         }))
+    } else if (app_type == "explorer") {
+      # ACE explorer data:
+      # join demos to proc with pid
+      # BUT, DO join module to module by full bid. now, with times gameplayed as the session identfier,
+      # all modules from a single session should have the same times gameplayed stamp
+      out <- out %>%
+        mutate(proc = pmap(list(proc, demos, module), function (a, b, c) {
+          right_join(b, a, by = demo_merge_col) %>%
+            return()
+        }))
     } else {
+      # DO join by full BID if ACE Explorer data
+      # bc all modules from one subj's session should have same times-finished-game stamps
+      # and for SEA data, we forcibly assume data from one subject are all from one session?
       out <- out %>%
         mutate(proc = map2(proc, demos, ~full_join(.y, .x, by = demo_merge_col)))
     }
@@ -182,7 +194,7 @@ proc_by_module <- function(df,
       return()
     
   } else if (output == "long") {
-    out <- all_procs %>%
+    out <- out %>%
       select(module, demos, proc) %>%
       mutate(proc = map2(proc, demos, ~full_join(.y, .x, by = demo_merge_col)),
              proc = rlang::set_names(proc, module)) %>%
@@ -216,7 +228,7 @@ label_study_conditions = function(info, conditions) {
 #' @importFrom magrittr %>%
 #' @importFrom rlang !! :=
 
-reconstruct_pid <- function (proc, demo) {
+reconstruct_pid <- function (proc) {
   # This SHOULD truncate at the last character before the session-unique portion of the bid
   # safe for time and times finished game bc the period should only appear once
   proc %>% mutate(!!COL_PID := stringr::str_split(!!Q_COL_BID, pattern = "[.]"),
