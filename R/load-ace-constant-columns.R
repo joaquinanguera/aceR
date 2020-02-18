@@ -18,6 +18,12 @@ COL_TIME = "time"
 Q_COL_TIME = rlang::sym(COL_TIME)
 
 #' @name ace_header
+COL_N_FINISHED = "times_finished_game"
+
+#' @name ace_header
+Q_COL_N_FINISHED = rlang::sym(COL_N_FINISHED)
+
+#' @name ace_header
 COL_RT = "rt"
 
 #' @name ace_header
@@ -126,6 +132,12 @@ COL_SUB_ID = "subid"
 Q_COL_SUB_ID = rlang::sym(COL_SUB_ID)
 
 #' @name ace_header
+COL_PRACTICE = "session_type"
+
+#' @name ace_header
+Q_COL_PRACTICE = rlang::sym(COL_PRACTICE)
+
+#' @name ace_header
 COL_TRIAL_TYPE = "trial_type"
 
 #' @name ace_header
@@ -191,7 +203,15 @@ standardize_ace_ids <- function(dat) {
     dat <- dat %>%
       mutate(!!COL_PID := guess_pid(!!Q_COL_FILE))
   } else {
-    col_to_bid = Q_COL_PID
+    col_to_bid_id = Q_COL_PID
+  }
+  
+  if (COL_N_FINISHED %in% names(dat)) {
+    col_to_bid_session = Q_COL_N_FINISHED
+    bid_sep = ".session"
+  } else {
+    col_to_bid_session = Q_COL_TIME
+    bid_sep = "."
   }
   
   # very band-aid: attempt to repair PID using name field if PID is empty stem or otherwise filler
@@ -204,7 +224,7 @@ standardize_ace_ids <- function(dat) {
     # To comply with ACE Explorer
     mutate(!!COL_PID := stringr::str_replace_all(tolower(!!Q_COL_PID), "[^a-zA-Z0-9]+", ""),
            # make block id from pid & time
-           !!COL_BID := paste(!!col_to_bid, !!Q_COL_TIME, sep = "."))
+           !!COL_BID := paste(!!col_to_bid_id, !!col_to_bid_session, sep = bid_sep))
   
 }
 
@@ -293,7 +313,7 @@ standardize_ace_column_types <- function (df) {
 }
 
 #' @name ace_header
-#' @importFrom dplyr coalesce funs group_by if_else lag mutate mutate_at recode ungroup
+#' @importFrom dplyr coalesce funs group_by if_else lag mutate mutate_at one_of recode ungroup
 #' @importFrom lubridate parse_date_time
 #' @importFrom magrittr %>%
 #' @importFrom rlang sym !! :=
@@ -321,7 +341,9 @@ standardize_ace_values <- function(df, app_type) {
   try({
     # TODO: Keep practice trials to extract data from them. Currently discarding all
     df <- df %>%
-      filter(!!Q_COL_PRACTICE == "Real")
+      filter(!!Q_COL_PRACTICE == "Real") %>%
+      # Noticed this in ACE Explorer as of Jan 2020. Might have changed before then
+      mutate(!!COL_CORRECT_BUTTON := if_else(!!Q_COL_RT == 0, "no_response", !!Q_COL_CORRECT_BUTTON))
   }, silent = TRUE)
   
   if (COL_LATE_RESPONSE %in% cols) {
@@ -336,6 +358,12 @@ standardize_ace_values <- function(df, app_type) {
       group_by(!!Q_COL_BID) %>%
       mutate(!!COL_PREV_LATE_RESPONSE := make_lagged_col(!!Q_COL_LATE_RESPONSE)) %>%
       ungroup()
+  }
+  
+  if (DEMOS %in% df$module) {
+    df <- df %>%
+      select(one_of(c(COL_MODULE, ALL_POSSIBLE_DEMOS, COL_TIME))) %>%
+      mutate_at(COL_GENDER, as.character)
   }
   
   # Forcible recoding of accuracy and other things for various modules below
