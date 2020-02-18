@@ -69,7 +69,11 @@ proc_by_module <- function(df,
   # need this for proper specification of which demos and such to pull
   is_ace = if_else(app_type != "sea", TRUE, FALSE)
   
-  if (is_ace) {
+  if (app_type == "classroom") {
+    all_these_demos = ALL_POSSIBLE_DEMOS
+  } else if (app_type == "explorer") {
+    # TODO: If you want ALL_POSSIBLE_EXPLORE_DEMOS, it goes in here with ALL_POSSIBLE_DEMOS
+    # But maybe this functionality should wait until the device stuff is faithfully only in the task data
     all_these_demos = ALL_POSSIBLE_DEMOS
   } else {
     all_these_demos = ALL_POSSIBLE_SEA_DEMOS
