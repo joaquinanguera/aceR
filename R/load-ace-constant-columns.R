@@ -150,10 +150,10 @@ COL_BLOCK_HALF = "half"
 Q_COL_BLOCK_HALF = rlang::sym(COL_BLOCK_HALF)
 
 #' @name ace_header
-ALL_POSSIBLE_DEMOS <- c(COL_BID, COL_BID_SHORT, COL_PID, COL_AGE, COL_GRADE, COL_GENDER, COL_HANDEDNESS, COL_TIME, COL_FILE)
+ALL_POSSIBLE_DEMOS <- c(COL_BID, COL_PID, COL_AGE, COL_GRADE, COL_GENDER, COL_HANDEDNESS, COL_TIME, COL_FILE)
 
 #' @name ace_header
-Q_ALL_POSSIBLE_DEMOS <- c(Q_COL_BID, Q_COL_BID_SHORT, Q_COL_PID, Q_COL_AGE, Q_COL_GRADE, Q_COL_GENDER, Q_COL_HANDEDNESS, Q_COL_TIME, Q_COL_FILE)
+Q_ALL_POSSIBLE_DEMOS <- c(Q_COL_BID, Q_COL_PID, Q_COL_AGE, Q_COL_GRADE, Q_COL_GENDER, Q_COL_HANDEDNESS, Q_COL_TIME, Q_COL_FILE)
 
 #' @name ace_header
 ALL_POSSIBLE_EXPLORE_DEMOS = c("updated_at", "o_s_version", "app_id", "build", "client_time_zone",
@@ -361,6 +361,9 @@ standardize_ace_values <- function(df, app_type) {
   }
   
   if (DEMOS %in% df$module) {
+    # Only triggers for Explorer data
+    # TODO: If you want ALL_POSSIBLE_EXPLORE_DEMOS, it goes in here with ALL_POSSIBLE_DEMOS
+    # But maybe this functionality should wait until the device stuff is faithfully only in the task data
     df <- df %>%
       select(one_of(c(COL_MODULE, ALL_POSSIBLE_DEMOS, COL_TIME))) %>%
       mutate_at(COL_GENDER, as.character)
