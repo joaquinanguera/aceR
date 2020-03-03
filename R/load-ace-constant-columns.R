@@ -199,7 +199,7 @@ standardize_ace_column_names <- function(df) {
 standardize_ace_ids <- function(dat) {
   
   if (!(COL_PID %in% names(dat))) {
-    col_to_bid = Q_COL_FILE
+    col_to_bid_id = Q_COL_FILE
     dat <- dat %>%
       mutate(!!COL_PID := guess_pid(!!Q_COL_FILE))
   } else {
