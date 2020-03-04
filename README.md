@@ -39,7 +39,7 @@ See [CONTRIBUTING](CONTRIBUTING.md) for development notes and guidelines.
 
 #### master
 
-Stable release branch. Supports the **newest** version of the ACE Explorer app. **Not backwards compatible** with data from older ACE apps (e.g. ACE Classroom). 
+Stable release branch. Supports the **newest** version of the ACE Explorer app. **Mostly backwards compatible** with data from older ACE apps (e.g. ACE Classroom). However, early builds of ACE Classroom were often unstable, and there may be idiosyncratic problems in legacy ACE Classroom data that cannot be repaired by `aceR`.
 
 #### development 
 
