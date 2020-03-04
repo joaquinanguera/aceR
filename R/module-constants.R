@@ -96,12 +96,12 @@ clean_proc_cols <- function (df) {
     rename_all(funs(str_replace(., COL_CORRECT_BUTTON, "acc"))) %>%
     rename_all(funs(str_replace(., COL_CORRECT_RESPONSE, "acc"))) %>%
     select(-contains(".short"), -contains(".no_response"), -contains(".late"),
-                  -contains("acc_median"), -contains("acc_sd"),
-                  -contains(".NA"), -contains("prev_na"), -contains("prev_no_response"),
-                  -contains("rw_count"), -contains("rw_length"),
-                  -contains("count.cost"), -contains("length.cost")) %>%
-  # grandfathering Jose's patch for invalid cols produced from empty conditions
-  select(-ends_with("."))
+           -contains("acc_median"), -contains("acc_sd"),
+           -contains(".NA"), -contains("prev_na"), -contains("prev_no_response"),
+           -contains("rw_count"), -contains("rw_length"),
+           -contains("count.cost"), -contains("length.cost")) %>%
+    # grandfathering Jose's patch for invalid cols produced from empty conditions
+    select(-ends_with("."))
   
   return (df)
 }

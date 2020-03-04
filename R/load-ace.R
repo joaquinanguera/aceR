@@ -8,19 +8,41 @@
 #' @importFrom utils read.table read.csv write.csv head tail count.fields
 #' 
 #' @param file The name of the file which the data is to be read from.
-#' @param pid_stem The string stem of the ID in the "PID" field. Defaults to "ADMIN-UCSF-".
+#' @param app_type character What app data export type produced this data? One of
+#' \code{c("explorer", "email", "pulvinar")}.
 #' @return Returns the file's content as an R \code{\link{data.frame}}.
 
-load_ace_file <- function(file, pid_stem = "ADMIN-UCSF-") {
-  
+load_ace_file <- function(file, app_type) {
+  # read raw csv file
   if (is_excel(file)) {
-    warning (file, " is Excel format, currently not supported\n")
+    warning (file, " is Excel format, currently not supported ")
     return (data.frame())
-    # raw_dat = load_excel(file)
+    # raw_dat <- load_excel(file)
   } 
   
-  raw_dat = load_csv(file)
-  return (transform_raw(file, raw_dat))
+  raw_dat <- load_csv(file, app_type = app_type)
+  
+  if (app_type != "email") {
+    out <- raw_dat %>%
+      transform_mid(file = file, app_type = app_type)
+    return (out)
+    if (is_pulvinar(file) | app_type == "pulvinar") {
+      out <- out %>%
+        transform_post_pulvinar()
+    }
+    return (out)
+  } else if (app_type == "email") { # only if it hasn't already been loaded
+    raw_dat <- breakup_by_user(raw_dat)
+    
+    if (is.vector(raw_dat)) {
+      ortho_names = paste(file, names(raw_dat), sep = "-")
+      dfs = map2(ortho_names, raw_dat, ~attempt_transform_email(.x, .y))
+      out = plyr::rbind.fill(dfs)
+      return (out)
+    } else {
+      return (attempt_transform_email(file, raw_dat))
+    }
+  }
 }
 
 #' @keywords internal
@@ -30,52 +52,132 @@ is_excel <- function (filename) {
   return (grepl("xls", filename))
 }
 
-#' @import dplyr
-#' @importFrom magrittr %>%
-#' @importFrom rlang !! :=
 #' @keywords internal
 
-transform_raw <- function (file, dat) {
-  if (nrow(dat) == 0) return (data.frame())
-  # standardize output
-  dat = dat %>%
-    standardize_names() %>%
-    mutate(file = file,
-           # for faster performance bc each file should only contain one module
-           module = identify_module(file[1])) %>%
-    standardize_ace_column_names() %>%
-    # force lowercase everything to cover for weird capitalization diffs bw files
-    mutate(!!Q_COL_PID := stringr::str_replace_all(tolower(!!Q_COL_PID), "[^a-zA-Z0-9]+", ""),
-           # make block id from pid & time
-           !!Q_COL_BID := paste0(!!Q_COL_PID, ".session", !!Q_COL_N_FINISHED)) %>%
-    standardize_ace_values() %>%
-    # make short block id from pid and date only
-    # TODO: Delete these next 3 lines of code once we confirm we don't need
-    # mutate(!!Q_COL_BID_SHORT := paste(!!Q_COL_PID,
-    #                                   lubridate::floor_date(!!Q_COL_TIME, unit = "days"),
-    #                                   sep = ".")) %>%
-    group_by(!!Q_COL_BID) %>%
-    mutate(!!COL_BLOCK_HALF := dplyr::recode(make_half_seq(n()), `1` = "first_half", `2` = "second_half")) %>%
-    ungroup()
-  
-  # Don't do "half" labeling for demos, which should only have one row per subject
-  if (dat$module[1] == DEMOS) {
-    dat = dat %>%
-      select(-!!COL_BLOCK_HALF)
-  }
+is_pulvinar <- function (filename) {
+  return (grepl("pulvinar", filename, ignore.case = T))
+}
 
-  # DEPRECATED I THINK: COL_NAME should not be a thing in ACE Explorer
-  if (COL_NAME %in% names(dat) & grepl("ADMIN-UCSF", dat[1, COL_PID])) { # this function expects a "name" column by which to do the matching
-    dat = remove_nondata_rows_pulvinar(dat)
-  }
+#' @importFrom magrittr %>%
+#' @keywords internal
+
+attempt_transform_email <- function(file, raw_dat) {
+  # transform data to data frame
+  df = tryCatch ({
+    transformed = raw_dat %>% 
+      transform_pre_email() %>%
+      transform_mid(file = file, app_type = "email") %>%
+      transform_post_email()
+    # test if data is usable
+    st = paste(transformed, collapse = "")
+    # hacky workaround: newest edition of spatial span data DOES contain braces in "okay" datasets
+    if (grepl("}", st) & !grepl(SPATIAL_SPAN, file, ignore.case = TRUE)) {
+      warning(file, " contains invalid data ")
+      return (data.frame())
+    }
+    # technically a 'valid' file, BUT contains no data.
+    if (nrow(transformed) < 2) {
+      warning(file, "is valid, but contains no data!")
+      return (data.frame())
+    }
+    return (transformed)
+  }, error = function(e) {
+    warning("unable to load ", file)
+    return (data.frame())
+  })
+  return (df)
+}
+
+#' @importFrom magrittr %>%
+#' @keywords internal
+
+transform_pre_email <- function (raw_dat) {
+  if (nrow(raw_dat) == 0) return (data.frame())
+  
+  dat <- raw_dat %>%
+    # standardize raw data
+    standardize_raw_csv_data() %>%
+    # remove nondata rows
+    remove_nondata_rows() %>%
+    # move grouping rows into column
+    transform_grouping_rows() %>%
+    # standardize session info
+    standardize_session_info() %>%
+    # transform session info into columns
+    transform_session_info() %>%
+    # parse subsections
+    parse_subsections()
+  
   return (dat)
 }
 
 #' @keywords internal
 
-guess_pid <- function(x) {
-  file = basename(x)
-  # maybe_pid = stringr::str_extract(file, "^[a-zA-Z0-9]*")
-  maybe_pid = unique(na.omit(as.numeric(unlist(strsplit(unlist(file), "[^0-9]+")))))[1]
-  return (maybe_pid)
+transform_post_email <- function (dat) {
+  
+  try({ # so will fail silently if gender isn't in data
+    # this patch to propagate gender down has to be done for OLD files where gender was called "age1"
+    if (length(unique(dat[[COL_GENDER]])) > 1) {
+      if ("FEMALE" %in% unique(dat[[COL_GENDER]])) { 
+        this_gender = "FEMALE"
+      } else if ("MALE" %in% unique(dat[[COL_GENDER]])) {
+        this_gender = "MALE"
+      } else {this_gender = "OTHER"}
+      dat[[COL_GENDER]] = this_gender
+    }
+  }, silent = TRUE)
+  
+  return (dat)
+}
+
+#' @import dplyr
+#' @importFrom magrittr %>%
+#' @importFrom rlang !! :=
+#' @keywords internal
+
+transform_mid <- function (dat, file, app_type) {
+  if (nrow(dat) == 0) return (data.frame())
+  # This chunk same between email and pulvinar
+  # standardize output
+  
+  dat <- dat %>%
+    standardize_names(email = app_type == "email") %>%
+    mutate(file = file,
+           # for faster performance bc each pulvinar file should only contain one module
+           module = identify_module(file[1])) %>%
+    standardize_ace_column_names()
+  
+  if (!(COL_TIME %in% names(dat))) {
+    # make "time" column from subid & filename if file doesn't contain time
+    # DANGEROUS: if constructing time from filename, this will cause de-duplication to fail silently
+    # because duplicated records have different filenames
+    dat[[COL_TIME]] = paste(dat[[COL_FILE]], dat[[COL_SUB_ID]], sep = ".")
+  }
+  
+  dat <- dat %>%
+    # replace all text "NA"s with real NA
+    replace_nas(NA) %>%
+    standardize_ace_column_types() %>%
+    # clean, standardize, possibly construct PID, BID, short BID
+    standardize_ace_ids() %>%
+    standardize_ace_values(app_type = app_type)
+  
+  # Should only activate for explorer demos modules
+  if (dat$module[1] != DEMOS) {
+    dat <- dat %>%
+      group_by(!!Q_COL_BID) %>%
+      mutate(!!COL_BLOCK_HALF := plyr::mapvalues(make_half_seq(n()), from = c(1, 2), to = c("first_half", "second_half"))) %>%
+      ungroup()
+  }
+  
+  return (dat)
+}
+
+#' @keywords internal
+
+transform_post_pulvinar <- function (dat) {
+  if (COL_NAME %in% names(dat) & grepl("ADMIN-UCSF", dat[1, COL_PID])) { # this function expects a "name" column by which to do the matching
+    dat <- remove_nondata_rows_pulvinar(dat)
+  }
+  return (dat)
 }

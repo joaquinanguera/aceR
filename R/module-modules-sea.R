@@ -83,15 +83,15 @@ module_reading_comprehension <- function(df) {
   return (dplyr::left_join(gen, time, by = COL_BID))
 }
 
-       
+
 #' @keywords internal
 #' @name sea_procs
 #' @importFrom dplyr tibble mutate
 #' @importFrom purrr map map2 reduce
 
 module_fractions_lvl_1 <- function(df) {
-
-    # by left vs right and by size  but not crossed
+  
+  # by left vs right and by size  but not crossed
   out <- tibble(condition = c(COL_CONDITION, "num_size"),
                 cost_args = list(c("\\.left", "\\.right", "\\.cost"),
                                  c("\\.large", "\\.small", "\\.num_size_cost"))) %>%
@@ -110,7 +110,7 @@ module_fractions_lvl_1 <- function(df) {
 #' @importFrom purrr map map2 reduce
 
 module_fractions_lvl_2 <- function(df) {
-    # by left vs right and by matched value but not crossed
+  # by left vs right and by matched value but not crossed
   out <- tibble(condition = c(COL_CONDITION, "matched_value"),
                 cost_args = list(c("\\.left", "\\.right", "\\.cost"),
                                  c("\\.num_matched", "\\.denom_matched", "\\.matched_value_cost"))) %>%
@@ -122,7 +122,7 @@ module_fractions_lvl_2 <- function(df) {
   duplicate_cols <- unique(unlist(out$names)[duplicated(unlist(out$names))])
   return (reduce(out$both, full_join, by = duplicate_cols))
 }
-           
+
 #' @keywords internal
 #' @name sea_procs
 #' @importFrom dplyr tibble mutate

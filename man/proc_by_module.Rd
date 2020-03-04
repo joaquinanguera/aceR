@@ -4,8 +4,9 @@
 \alias{proc_by_module}
 \title{Process ACE/SEA data by module}
 \usage{
-proc_by_module(df, modules = "all", output = "wide",
-  conditions = NULL, verbose = TRUE)
+proc_by_module(df, app_type = c("classroom", "explorer", "sea"),
+  modules = "all", output = "wide", conditions = NULL,
+  verbose = TRUE)
 }
 \arguments{
 \item{df}{a \code{\link{data.frame}} containing formatted trialwise ACE data. 
@@ -15,6 +16,9 @@ This includes data loaded with the following methods:
   \item \code{\link{load_ace_file}}
   \item \code{\link{load_ace_bulk}}
 }}
+
+\item{app_type}{character. What app type produced this data? One of
+\code{c("classroom", "explorer", "sea")}. Must be specified.}
 
 \item{modules}{character vector. Specify the names of modules (proper naming convention!)
 to output data for. Defaults to all modules detected in data.}
@@ -26,7 +30,7 @@ where one dataframe is output containing cols with data from all modules, or \co
 \item{conditions}{character vector. If data contains multiple study conditions
 (e.g. pre & post), specify their labels here. Case insensitive.}
 
-\item{verbose}{logical. Print details? Defaults to \code{TRUE}.}
+\item{verbose}{logical. Print details? Defaults to \code{FALSE}.}
 }
 \value{
 Returns summary statistics for every unique module included in the 
@@ -38,7 +42,6 @@ Applies corresponding \code{\link{ace_procs}} to every unique module.
 }
 \section{Assumptions}{
 
-Assumes the \code{\link{data.frame}} is nested, with two columns:
-\code{module} (character) and \code{data} (list, each containing a \code{\link{data.frame}}).
+Assumes the column \emph{module} exists in the \code{\link{data.frame}}.
 }
 

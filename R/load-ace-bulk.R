@@ -5,7 +5,7 @@
 #'  all ACE csv files in a directory.
 #'
 #' @export
-#' @importFrom dplyr as_tibble distinct filter mutate select tibble
+#' @import dplyr
 #' @importFrom magrittr %>%
 #' @importFrom purrr map map_int
 #' @importFrom tidyr nest unnest
@@ -15,11 +15,10 @@
 #' @param recursive logical. Load files in subfolders also? Defaults to \code{TRUE}
 #' @param exclude a list of patterns to exclude
 #' @param which_modules Specify modules to process. Defaults to all modules.
-#' @param pid_stem Specify the string stem of the ID in the "PID" field. Defaults to "ADMIN-UCSF-".
-#' @param force_pid_name_match logical. Replace ALL PIDs with IDs in "name" field? Defaults to \code{FALSE}
+#' @param app_type character What app data export type produced this data? One of
+#' \code{c("explorer", "email", "pulvinar")}. Defaults to \code{"explorer"}.
 #' @return Returns a data.frame containing the content of every file in the
 #'  specified \code{path}.
-
 
 load_ace_bulk <- function(path = ".",
                           verbose = TRUE,
@@ -27,8 +26,7 @@ load_ace_bulk <- function(path = ".",
                           exclude = c(),
                           pattern = "",
                           which_modules = "",
-                          pid_stem = "ADMIN-UCSF-",
-                          force_pid_name_match = FALSE) {
+                          app_type = "explorer") {
   csv = list.files(path = path, pattern = ".csv", recursive = recursive)
   xls = list.files(path = path, pattern = ".xls", recursive = recursive)
   files = sort(c(csv, xls))
@@ -49,8 +47,10 @@ load_ace_bulk <- function(path = ".",
   out = tibble(file = files) %>%
     mutate(data = map(files, function (x) {
       if (verbose) print(x)
-      return (load_ace_file(x))
-    })) %>%
+      return (load_ace_file(x, app_type = app_type))
+    }))
+  
+  out <- out %>%
     filter(map(data, ~nrow(.)) > 0) %>% # if extraction failed, data will have 0 rows and other commands on data will fail
     mutate(data = map(data, ~nest(as_tibble(.x), data = -c(bid, module, file)))) %>%
     select(-file) %>%
@@ -64,6 +64,19 @@ load_ace_bulk <- function(path = ".",
            data = map(data, ~remove_empty_cols(.)),
            data = rlang::set_names(data, module))
   
-  # currently returns a tibble where data is NOT rbind.filled together into one big df, but kept separate by module
+  if (app_type == "email") {
+    # Set demos to the side to simulate ACE Explorer
+    # Not one separate demos module, but this is how the data get put
+    # in proc_by_module so that will have to expect this col in some cases
+    out <- out %>%
+      mutate(demos = map(data, ~.x %>%
+                           select(one_of(ALL_POSSIBLE_DEMOS)) %>%
+                           distinct()),
+             data = map(data, ~.x %>%
+                          select(-one_of(ALL_POSSIBLE_DEMOS[!(ALL_POSSIBLE_DEMOS %in% c(COL_BID, COL_BID_SHORT))]))))
+  }
+  
+  # currently returns a tibble where data is NOT rbind.filled together into one big df
+  # but kept separate by module
   return(out)
 }

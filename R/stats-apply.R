@@ -18,6 +18,10 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
     # assume that the only FUN that takes a vector for col is the rcs calculator
     col_out = "rcs"
     col_prefix = "rcs."
+  } else if (col == "trial_accuracy") {
+    # this should catch the dprime calculator
+    col_out = "dprime"
+    col_prefix = "dprime."
   } else {
     col_out = col
     col_prefix = ""
@@ -29,10 +33,11 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
       group_by(!!id_var) %>%
       FUN(col) %>%
       rename_at(-1, funs(paste0(col_out, "_", .))) %>%
-      # only triggers for RCS
+      # only triggers for the boutique columns
       rename_at(-1, funs(str_replace(., "rcs_", ""))) %>%
+      rename_at(-1, funs(str_replace(., "dprime_", ""))) %>%
       ungroup()
-
+    
   } else {
     if (length(factors) == 2) {
       if (transform_dir == "wide") {
@@ -96,7 +101,7 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
                       values_from = starts_with(!!col_out),
                       names_prefix = col_prefix,
                       names_sep = ".")
-          
+        
         
         # using join_all here instead of multi_merge bc easily accepts multiple joining vars
         # join across all common vars, we are assuming common named vars are in fact the same measurement
@@ -128,7 +133,7 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
   
   if (by_factor) suffix = ""
   if (suffix != "") z = rename_at(z, -1, funs(paste(., suffix, sep = ".")))
-
+  
   return(z)
 }
 
@@ -150,4 +155,3 @@ ace_apply_by_group <- function(x, y, FUN) {
   row.names(out) <- NULL
   return (out)
 }
-
