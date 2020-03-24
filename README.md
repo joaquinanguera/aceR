@@ -27,6 +27,16 @@ Reinstall the package to update to the latest version:
 devtools::install_github("joaquinanguera/aceR")
 ```
 
+The package, as of March 2020, has transitioned to the [CalVer](https://calver.org/) versioning system, with the `0Y.MINOR.MICRO` setup.
+
+- `0Y`: Zero-padded short year. It is assumed that if the year version rolls over, there are breaking changes between this and the last version dated to the previous year.
+- `MINOR`: Minor version. The minor version will be rolled over for any of the following. These changes are likely to be breaking to your current pipeline.
+    - new functions are added
+    - existing functions take a different argument structure
+    - existing functions output different data structure
+- `MICRO`: Bug fixes. The micro version will be rolled over when internal cleanup or other changes are made that _should_ have no obvious impact to the user.
+
+
 ## Example Scripts
 
 See [here](scripts/) for example scripts.
