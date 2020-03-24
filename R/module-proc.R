@@ -104,7 +104,7 @@ proc_by_module <- function(df,
     
   } else {
     # This is now here for SEA compatibility
-    out <- out %>%
+    out <- df %>%
       mutate(demos = map(data, ~.x %>%
                            select(one_of(all_these_demos)) %>%
                            select(-!!Q_COL_TIME) %>%
