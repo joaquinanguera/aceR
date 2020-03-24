@@ -187,6 +187,9 @@ module_filter <- function(df) {
 #' @name ace_procs
 
 module_ishihara <- function(df) {
+  if (!("rg_color_deficiency" %in% names(df))) {
+    df$rg_color_deficiency = (df$trial_correct - 1L) * -1L
+  }
   df = dplyr::group_by(df, !!Q_COL_BID)
   return (ungroup(ace_ishihara_dplyr(df, "rg_color_deficiency")))
 }
