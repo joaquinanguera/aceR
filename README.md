@@ -21,11 +21,13 @@ devtools::install_github("joaquinanguera/aceR")
 
 ## Updates
 
-Reinstall the package to update to the latest version:
+Reinstall the package to update to the latest **stable** version:
 
 ```
 devtools::install_github("joaquinanguera/aceR")
 ```
+
+To install the beta version, use `"joaquinanguera/aceR@development"` in the above command. Please be aware that the beta version may have breaking changes relative to your current setup, or just bugs!
 
 The package, as of March 2020, has transitioned to the [CalVer](https://calver.org/) versioning system, with the `0Y.MINOR.MICRO` setup.
 
