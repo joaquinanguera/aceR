@@ -12,10 +12,13 @@ aceR_lib_path <- function() {
 #' aceR sample data path
 #'
 #' @export
-#' @return Returns the path containing sample aceR data
+#' @param subfolder which subfolder (and task type) do you want to test?
+#' One of \code{c("email", "pulvinar","explorer", "sea")}. Must be specified.
+#' @return Returns the path containing sample aceR data for the
+#' desired subfolder
 
-aceR_sample_data_path <- function() {
-  path = paste(aceR_lib_path(), "extdata", sep = "/")
+aceR_sample_data_path <- function(subfolder) {
+  path = paste(aceR_lib_path(), "extdata", subfolder, sep = "/")
   return (path)
 }
 
