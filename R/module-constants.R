@@ -85,9 +85,8 @@ proc_by_condition <- function(df, variable, factors, include_overall = TRUE, FUN
   return(proc)
 }
 
-#' @importFrom dplyr funs rename_all select
+#' @importFrom dplyr contains ends_with funs rename_all select
 #' @importFrom magrittr %>%
-#' @importFrom tidyselect contains ends_with
 #' @keywords internal
 
 clean_proc_cols <- function (df) {

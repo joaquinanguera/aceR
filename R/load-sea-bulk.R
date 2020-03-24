@@ -46,16 +46,16 @@ load_sea_bulk <- function(path = ".",
     filter(map(data, ~nrow(.)) > 0) %>%
     select(-file) %>% # because it's already pasted inside load_ace_file
     unnest(data) %>%
-    nest(-module) %>%
+    nest(data = -!!Q_COL_MODULE) %>%
     mutate(data = map(data, ~.x %>%
                         remove_empty_cols() %>%
                         # coarse duplicate rejection
                         # assumes duplicate rows will be the same along at least these few columns
                         # RT should definitely be the same in duplicate rows but not otherwise
-                        distinct(pid, question_id, rt, trial_onset, .keep_all = TRUE) %>%
+                        distinct(!!Q_COL_PID, question_id, rt, trial_onset, .keep_all = TRUE) %>%
                         # remove this once re-typing functionality has been added. only need while all cols are char
                         replace_nas("") %>%
-                        group_by(pid) %>%
+                        group_by(!!Q_COL_PID) %>%
                         # TODO: Can you quasi-quote inside of map? I think not
                         mutate(previous_correct_button = lag(correct_button),
                                previous_correct_button = paste0("prev_", previous_correct_button)) %>%
@@ -64,7 +64,7 @@ load_sea_bulk <- function(path = ".",
                       # re-typing columns must occur here, AFTER data has been separated by module
                       # because individual data files contain data from multiple modules
     ),
-    data = rlang::set_names(data, module))
+    data = rlang::set_names(data, !!Q_COL_MODULE))
   
   return(out)
 }
