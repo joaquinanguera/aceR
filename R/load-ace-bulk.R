@@ -16,7 +16,7 @@
 #' @param exclude a list of patterns to exclude
 #' @param which_modules Specify modules to process. Defaults to all modules.
 #' @param app_type character What app data export type produced this data? One of
-#' \code{c("explorer", "email", "pulvinar")}. Defaults to \code{"explorer"}.
+#' \code{c("explorer", "email", "pulvinar")}. Must be specified.
 #' @return Returns a data.frame containing the content of every file in the
 #'  specified \code{path}.
 
@@ -26,7 +26,9 @@ load_ace_bulk <- function(path = ".",
                           exclude = c(),
                           pattern = "",
                           which_modules = "",
-                          app_type = "explorer") {
+                          app_type = c("explorer", "email", "pulvinar")) {
+  stopifnot(length(app_type) == 1)
+  
   csv = list.files(path = path, pattern = ".csv", recursive = recursive)
   xls = list.files(path = path, pattern = ".xls", recursive = recursive)
   files = sort(c(csv, xls))
