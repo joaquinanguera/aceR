@@ -4,13 +4,19 @@
 \alias{load_sea_bulk}
 \title{Read & Load all SEA csv files in a directory}
 \usage{
-load_sea_bulk(path = ".", verbose = TRUE, recursive = TRUE,
-  exclude = c(), pattern = "", which_modules = "")
+load_sea_bulk(
+  path = ".",
+  verbose = TRUE,
+  recursive = TRUE,
+  exclude = c(),
+  pattern = "",
+  which_modules = ""
+)
 }
 \arguments{
 \item{path}{a character vector of full path names; the default
-    corresponds to the working directory, \code{\link{getwd}()}.  Tilde
-    expansion (see \code{\link{path.expand}}) is performed.  Missing
+    corresponds to the working directory, \code{\link[base]{getwd}()}.  Tilde
+    expansion (see \code{\link[base]{path.expand}}) is performed.  Missing
     values will be ignored.}
 
 \item{verbose}{logical. Print details? Defaults to \code{TRUE}}
@@ -19,7 +25,7 @@ load_sea_bulk(path = ".", verbose = TRUE, recursive = TRUE,
 
 \item{exclude}{a list of patterns to exclude}
 
-\item{pattern}{an optional \link{regular expression}.  Only file names
+\item{pattern}{an optional \link[base]{regular expression}.  Only file names
     which match the regular expression will be returned.}
 
 \item{which_modules}{Specify modules to process. Defaults to all modules.}

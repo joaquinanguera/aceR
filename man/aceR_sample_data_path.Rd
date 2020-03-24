@@ -4,10 +4,15 @@
 \alias{aceR_sample_data_path}
 \title{aceR sample data path}
 \usage{
-aceR_sample_data_path()
+aceR_sample_data_path(subfolder)
+}
+\arguments{
+\item{subfolder}{which subfolder (and task type) do you want to test?
+One of \code{c("email", "pulvinar","explorer", "sea")}. Must be specified.}
 }
 \value{
-Returns the path containing sample aceR data
+Returns the path containing sample aceR data for the
+desired subfolder
 }
 \description{
 aceR sample data path

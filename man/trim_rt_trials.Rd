@@ -4,8 +4,7 @@
 \alias{trim_rt_trials}
 \title{Trim trials from ACE/SEA data by reaction time}
 \usage{
-trim_rt_trials(df, sd_cutoff = FALSE, range_cutoff = FALSE,
-  verbose = TRUE)
+trim_rt_trials(df, sd_cutoff = FALSE, range_cutoff = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{df}{a \code{\link{data.frame}} containing formatted trialwise ACE data. 

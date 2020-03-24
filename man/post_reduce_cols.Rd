@@ -4,8 +4,11 @@
 \alias{post_reduce_cols}
 \title{Subset columns from processed ACE/SEA modules}
 \usage{
-post_reduce_cols(df, demo_names = c("pid", "age", "grade", "gender"),
-  metric_names = c())
+post_reduce_cols(
+  df,
+  demo_names = c("pid", "age", "grade", "gender"),
+  metric_names = c()
+)
 }
 \arguments{
 \item{df}{a df, output by \code{\link{proc_by_module}}, containing processed
