@@ -25,7 +25,7 @@ load_ace_file <- function(file, app_type) {
   if (app_type != "email") {
     out <- raw_dat %>%
       transform_mid(file = file, app_type = app_type)
-    return (out)
+
     if (is_pulvinar(file) | app_type == "pulvinar") {
       out <- out %>%
         transform_post_pulvinar()
@@ -141,7 +141,7 @@ transform_mid <- function (dat, file, app_type) {
   # standardize output
   
   dat <- dat %>%
-    standardize_names(email = app_type == "email") %>%
+    standardize_names(email = (app_type == "email")) %>%
     mutate(file = file,
            # for faster performance bc each pulvinar file should only contain one module
            module = identify_module(file[1])) %>%
@@ -164,8 +164,14 @@ transform_mid <- function (dat, file, app_type) {
   
   # Should only activate for explorer demos modules
   if (dat$module[1] != DEMOS) {
+    if (COL_CONDITION %in% names(dat)) {
+      dat <- dat %>%
+        group_by(!!Q_COL_BID, !!Q_COL_CONDITION) 
+    } else {
+      dat <- dat %>%
+        group_by(!!Q_COL_BID)
+    }
     dat <- dat %>%
-      group_by(!!Q_COL_BID) %>%
       mutate(!!COL_BLOCK_HALF := plyr::mapvalues(make_half_seq(n()), from = c(1, 2), to = c("first_half", "second_half"))) %>%
       ungroup()
   }
