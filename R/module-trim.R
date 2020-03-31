@@ -72,9 +72,18 @@ trim_rt_trials <- function(df, sd_cutoff = FALSE,
       
       # needs to be grouped to prevent previous_correct_button from bleeding over between records
       df$data[[i]] <- df$data[[i]] %>%
-        mutate(!!Q_COL_PREV_CORRECT_BUTTON := make_lagged_col(!!Q_COL_CORRECT_BUTTON)) %>%
+        mutate(!!COL_PREV_CORRECT_BUTTON := make_lagged_col(!!Q_COL_CORRECT_BUTTON)) %>%
         ungroup()
     }
+    
+    # After all the heavy lifting is done on COL_CORRECT_BUTTON
+    # if trial_accuracy is a column, NA it to match
+    if ("trial_accuracy" %in% names(df$data[[i]])) {
+      df$data[[i]] <- df$data[[i]] %>%
+        mutate(trial_accuracy = na_if_true(trial_accuracy, is.na(!!Q_COL_CORRECT_BUTTON)))
+    }
+    
   }
+  
   return (df)
 }
