@@ -1,0 +1,83 @@
+"","TIME:","2017-09-08T09:20:25-0700","",""
+"","USER ID:","ADMIN-UCSF-bo034","",""
+"","User Name:","bo034","",""
+"","User Age:","9","",""
+"","User Grade:","4","",""
+"","User Gender:","FEMALE","",""
+"","User Handedness:","RIGHT","",""
+"","iPad Number:","38","",""
+"","Test Type:","Real","",""
+"","Build Number:","17","",""
+"","OS Version:","10.2.1","",""
+"","Device Type:","iPad Mini 3rd Gen", "",""
+"","ADAPTIVITY:","YES","",""
+"Game Settings:","{
+    Actual = 25;
+    Adaptive = 1;
+    ITI = 1000;
+    MaxInterval = 800;
+    "P-Start" = 1500;
+    Practice = 10;
+    Start = 800;
+    TRI = 200;
+}","",""
+"Correct Button","Displayed Cue","First Button","Flanking Cue","Response Window","Second Button","Trial Type","Response Time","Late Response",
+"0","D","NO","B","800","NO","INCONGRUENT","N/A","0",
+"1","B","YES","D","840","NO","INCONGRUENT","715.5309915542603","0",
+"0","D","NO","B","830","NO","INCONGRUENT","N/A","1",
+"1","B","YES","B","800","NO","CONGRUENT","719.5299863815308","0",
+"1","D","NO","D","790","YES","CONGRUENT","658.748984336853","0",
+"1","A","YES","A","780","NO","CONGRUENT","621.3849782943726","0",
+"0","B","NO","D","870","NO","INCONGRUENT","N/A","0",
+"1","A","YES","D","910","NO","INCONGRUENT","895.4839706420898","0",
+"1","A","YES","A","760","NO","CONGRUENT","885.1089477539062","1",
+"1","B","YES","B","750","NO","CONGRUENT","837.6709818840027","1",
+"0","A","NO","D","900","NO","INCONGRUENT","N/A","1",
+"0","B","NO","C","940","YES","INCONGRUENT","666.6669845581055","0",
+"1","D","NO","D","740","YES","CONGRUENT","651.2479782104492","0",
+"1","C","NO","B","980","YES","INCONGRUENT","658.3679914474487","0",
+"1","B","YES","C","970","NO","INCONGRUENT","671.9510555267334","0",
+"1","B","YES","C","960","NO","INCONGRUENT","668.1480407714844","0",
+"1","B","YES","D","940","NO","INCONGRUENT","917.4630045890808","0",
+"1","A","YES","A","730","NO","CONGRUENT","804.6939969062805","1",
+"1","B","YES","D","900","NO","INCONGRUENT","683.2489967346191","0",
+"1","D","NO","D","720","YES","CONGRUENT","651.2609720230103","0",
+"1","C","NO","C","710","YES","CONGRUENT","793.362021446228","1",
+"1","B","YES","B","700","NO","CONGRUENT","751.4539957046509","1",
+"1","B","YES","B","690","NO","CONGRUENT","602.3220419883728","0",
+"0","B","NO","C","820","NO","INCONGRUENT","N/A","1",
+"1","D","NO","D","680","YES","CONGRUENT","754.6849846839905","1",
+"1","B","YES","B","670","NO","CONGRUENT","704.9239873886108","1",
+"0","B","NO","C","860","NO","INCONGRUENT","N/A","1",
+"1","A","YES","D","900","NO","INCONGRUENT","747.3970055580139","0",
+"0","C","YES","A","890","NO","INCONGRUENT","581.026017665863","0",
+"1","C","NO","A","930","YES","INCONGRUENT","484.3739867210388","0",
+"0","D","YES","D","660","NO","CONGRUENT","883.7239742279053","1",
+"1","D","NO","B","920","YES","INCONGRUENT","685.4770183563232","0",
+"1","A","YES","A","740","NO","CONGRUENT","766.5690183639526","1",
+"1","B","YES","B","730","NO","CONGRUENT","930.3210377693176","1",
+"1","C","NO","C","720","YES","CONGRUENT","691.2319660186768","0",
+"1","A","YES","A","710","NO","CONGRUENT","545.4300045967102","0",
+"0","B","NO","D","910","NO","INCONGRUENT","N/A","1",
+"1","C","NO","C","700","YES","CONGRUENT","865.7000064849854","1",
+"0","C","YES","C","690","NO","CONGRUENT","910.0220203399658","1",
+"1","C","NO","A","950","YES","INCONGRUENT","930.6409955024719","0",
+"1","A","YES","A","730","NO","CONGRUENT","730.4109930992126","1",
+"1","A","YES","D","940","NO","INCONGRUENT","864.5740151405334","0",
+"1","A","YES","A","720","NO","CONGRUENT","796.5980172157288","1",
+"1","C","NO","C","710","YES","CONGRUENT","696.0639953613281","0",
+"1","A","YES","C","930","NO","INCONGRUENT","696.4690089225769","0",
+"0","D","NO","B","910","NO","INCONGRUENT","N/A","1",
+"0","C","YES","A","950","NO","INCONGRUENT","696.1060166358948","0",
+"0","A","NO","C","990","NO","INCONGRUENT","N/A","0",
+"1","A","YES","A","700","NO","CONGRUENT","851.7409563064575","1",
+"1","B","YES","B","690","NO","CONGRUENT","829.7710418701172","1",
+
+
+"First Button","Second Button",
+"A and B","C and D",
+
+
+
+
+
