@@ -15,7 +15,7 @@ to_numeric <- function(x) {
                     .missing = NA_real_)
     return (vals)
   } else { # if it's an RT column
-    return(as.numeric(x))
+    return(suppressWarnings(as.numeric(x)))
   }
 }
 
