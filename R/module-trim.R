@@ -51,7 +51,7 @@ trim_rt_trials <- function(df, sd_cutoff = FALSE,
         mutate(!!COL_RT := as.numeric(!!Q_COL_RT))
       
       # ordered so that removing acc first doesn't alter RT for the RT calculation
-      if (range_cutoff != FALSE) {
+      if (any(range_cutoff != FALSE)) {
         if (!is.na(range_cutoff[1])) {
           df$data[[i]] <- df$data[[i]] %>%
             mutate(!!COL_CORRECT_BUTTON := na_if_true(!!Q_COL_CORRECT_BUTTON, !!Q_COL_RT < range_cutoff[1]),
@@ -64,7 +64,7 @@ trim_rt_trials <- function(df, sd_cutoff = FALSE,
         }
       }
       
-      if (sd_cutoff != FALSE) {
+      if (any(sd_cutoff != FALSE)) {
         df$data[[i]] <- df$data[[i]] %>%
           mutate(!!COL_CORRECT_BUTTON := na_if_true(!!Q_COL_CORRECT_BUTTON, c(abs(scale(!!Q_COL_RT))) > sd_cutoff),
                  !!COL_RT := na_if_true(!!Q_COL_RT, c(abs(scale(!!Q_COL_RT))) > sd_cutoff))
