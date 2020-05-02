@@ -326,8 +326,6 @@ standardize_ace_values <- function(df, app_type) {
   
   cols = names(df)
   
-  short_rt_cutoff <- 150
-  
   if (app_type %in% c("email", "pulvinar")) {
     # Extra shit for classroom type data bc the RT no response coding was often effed up
     try({
