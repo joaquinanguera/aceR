@@ -4,7 +4,9 @@
 
 to_numeric <- function(x) {
   if (is.numeric(x)) {
-    return (x)
+    vals = x
+    vals[vals < 0] = NA
+    return (vals)
   } else if ("correct" %in% unique(x) | "incorrect" %in% unique(x)) { # if it's an accuracy column
     # being more type-strict than plyr::mapvalues, this WILL return numeric every time
     vals = x %>%
@@ -15,7 +17,9 @@ to_numeric <- function(x) {
                     .missing = NA_real_)
     return (vals)
   } else { # if it's an RT column
-    return(suppressWarnings(as.numeric(x)))
+    vals = suppressWarnings(as.numeric(x))
+    vals[vals < 0] = NA
+    return (vals)
   }
 }
 

@@ -471,6 +471,7 @@ standardize_saat_tnt <- function(df, col) {
   # Correct hits and misses. For position is on top, if RT, hit, else miss
   # For position in not on top, if no RT, then correct rejection, else false alarm
   # short rt no longer considered as a factor
+  # Also recode no-go RTs (eg position not on top) as -1 for special treatment
   q_col = sym(col)
   df <- df %>%
     mutate(trial_accuracy = case_when(!!q_col == 1 & !is.na(!!Q_COL_RT) ~ "Hit",
@@ -480,7 +481,8 @@ standardize_saat_tnt <- function(df, col) {
                                       TRUE ~ NA_character_),
            !!COL_CORRECT_BUTTON := case_when(trial_accuracy %in% c("Hit", "Correct Rejection") ~ "correct",
                                              trial_accuracy %in% c("Miss", "False Alarm") ~ "incorrect",
-                                             TRUE ~ NA_character_))
+                                             TRUE ~ NA_character_),
+           !!COL_RT := if_else(!!q_col == 0, -1, !!Q_COL_RT))
   
   return (df)
 }
