@@ -5,7 +5,7 @@
 to_numeric <- function(x) {
   if (is.numeric(x)) {
     vals = x
-    vals[vals < 0] = NA
+    vals[vals == -99] = NA
     return (vals)
   } else if ("correct" %in% unique(x) | "incorrect" %in% unique(x)) { # if it's an accuracy column
     # being more type-strict than plyr::mapvalues, this WILL return numeric every time
@@ -18,7 +18,7 @@ to_numeric <- function(x) {
     return (vals)
   } else { # if it's an RT column
     vals = suppressWarnings(as.numeric(x))
-    vals[vals < 0] = NA
+    vals[vals == -99] = NA
     return (vals)
   }
 }
