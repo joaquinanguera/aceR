@@ -475,15 +475,15 @@ standardize_saat_tnt <- function(df, col) {
 
   q_col = sym(col)
   df <- df %>%
-    mutate(trial_accuracy = case_when(!!q_col == 1 & !is.na(!!Q_COL_RT) ~ "Hit",
-                                      !!q_col == 1 & is.na(!!Q_COL_RT) ~ "Miss",
-                                      !!q_col == 0 & is.na(!!Q_COL_RT) ~ "Correct Rejection",
-                                      !!q_col == 0 & !is.na(!!Q_COL_RT) ~ "False Alarm",
+    mutate(trial_accuracy = case_when(!!q_col == 1 & (!is.na(!!Q_COL_RT) & !!Q_COL_RT != 0) ~ "Hit",
+                                      !!q_col == 1 & (is.na(!!Q_COL_RT) | !!Q_COL_RT == 0) ~ "Miss",
+                                      !!q_col == 0 & (is.na(!!Q_COL_RT) | !!Q_COL_RT == 0) ~ "Correct Rejection",
+                                      !!q_col == 0 & (!is.na(!!Q_COL_RT) & !!Q_COL_RT != 0) ~ "False Alarm",
                                       TRUE ~ NA_character_),
            !!COL_CORRECT_BUTTON := case_when(trial_accuracy %in% c("Hit", "Correct Rejection") ~ "correct",
                                              trial_accuracy %in% c("Miss", "False Alarm") ~ "incorrect",
                                              TRUE ~ NA_character_),
-           !!COL_RT := if_else(!!q_col == 0 | !!Q_COL_CORRECT_BUTTON == 0, -99, !!Q_COL_RT))
+           !!COL_RT := if_else(!!q_col == 0 | (!!q_col == 1 & !!Q_COL_CORRECT_BUTTON == "incorrect"), -99, !!Q_COL_RT))
 
   
   return (df)
