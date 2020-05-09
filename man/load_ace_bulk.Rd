@@ -4,14 +4,20 @@
 \alias{load_ace_bulk}
 \title{Read & Load all ACE csv & xls files in a directory}
 \usage{
-load_ace_bulk(path = ".", verbose = TRUE, recursive = TRUE,
-  exclude = c(), pattern = "", which_modules = "",
-  app_type = "explorer")
+load_ace_bulk(
+  path = ".",
+  verbose = TRUE,
+  recursive = TRUE,
+  exclude = c(),
+  pattern = "",
+  which_modules = "",
+  app_type = c("explorer", "email", "pulvinar")
+)
 }
 \arguments{
 \item{path}{a character vector of full path names; the default
-    corresponds to the working directory, \code{\link{getwd}()}.  Tilde
-    expansion (see \code{\link{path.expand}}) is performed.  Missing
+    corresponds to the working directory, \code{\link[base]{getwd}()}.  Tilde
+    expansion (see \code{\link[base]{path.expand}}) is performed.  Missing
     values will be ignored.}
 
 \item{verbose}{logical. Print details? Defaults to \code{TRUE}}
@@ -20,13 +26,13 @@ load_ace_bulk(path = ".", verbose = TRUE, recursive = TRUE,
 
 \item{exclude}{a list of patterns to exclude}
 
-\item{pattern}{an optional \link{regular expression}.  Only file names
+\item{pattern}{an optional \link[base]{regular expression}.  Only file names
     which match the regular expression will be returned.}
 
 \item{which_modules}{Specify modules to process. Defaults to all modules.}
 
 \item{app_type}{character What app data export type produced this data? One of
-\code{c("explorer", "email", "pulvinar")}. Defaults to \code{"explorer"}.}
+\code{c("explorer", "email", "pulvinar")}. Must be specified.}
 }
 \value{
 Returns a data.frame containing the content of every file in the

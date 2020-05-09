@@ -326,9 +326,7 @@ standardize_ace_values <- function(df, app_type) {
   
   cols = names(df)
   
-  short_rt_cutoff <- 150
-  
-  if (app_type == "classroom") {
+  if (app_type %in% c("email", "pulvinar")) {
     # Extra shit for classroom type data bc the RT no response coding was often effed up
     try({
       df <- df %>%
@@ -373,7 +371,7 @@ standardize_ace_values <- function(df, app_type) {
   # Most of this is an attempt to reconstruct accuracy as orthogonal to response lateness
   
   if (SAAT %in% df$module) {
-    if (app_type == "classroom") {
+    if (app_type %in% c("email", "pulvinar")) {
       # This fixes a condition naming error in the raw log files
       # present in classroom but fixed in explorer data
       df[[COL_CONDITION]] = plyr::mapvalues(toupper(df[[COL_CONDITION]]),
@@ -473,16 +471,20 @@ standardize_saat_tnt <- function(df, col) {
   # Correct hits and misses. For position is on top, if RT, hit, else miss
   # For position in not on top, if no RT, then correct rejection, else false alarm
   # short rt no longer considered as a factor
+  # Also recode no-go RTs (eg position not on top) and miss RTs (correct button = 0) as -99 for special treatment
+
   q_col = sym(col)
   df <- df %>%
-    mutate(trial_accuracy = case_when(!!q_col == 1 & !is.na(!!Q_COL_RT) ~ "Hit",
-                                      !!q_col == 1 & is.na(!!Q_COL_RT) ~ "Miss",
-                                      !!q_col == 0 & is.na(!!Q_COL_RT) ~ "Correct Rejection",
-                                      !!q_col == 0 & !is.na(!!Q_COL_RT) ~ "False Alarm",
+    mutate(trial_accuracy = case_when(!!q_col == 1 & (!is.na(!!Q_COL_RT) & !!Q_COL_RT != 0) ~ "Hit",
+                                      !!q_col == 1 & (is.na(!!Q_COL_RT) | !!Q_COL_RT == 0) ~ "Miss",
+                                      !!q_col == 0 & (is.na(!!Q_COL_RT) | !!Q_COL_RT == 0) ~ "Correct Rejection",
+                                      !!q_col == 0 & (!is.na(!!Q_COL_RT) & !!Q_COL_RT != 0) ~ "False Alarm",
                                       TRUE ~ NA_character_),
            !!COL_CORRECT_BUTTON := case_when(trial_accuracy %in% c("Hit", "Correct Rejection") ~ "correct",
                                              trial_accuracy %in% c("Miss", "False Alarm") ~ "incorrect",
-                                             TRUE ~ NA_character_))
+                                             TRUE ~ NA_character_),
+           !!COL_RT := if_else(!!q_col == 0 | (!!q_col == 1 & !!Q_COL_CORRECT_BUTTON == "incorrect"), -99, !!Q_COL_RT))
+
   
   return (df)
 }

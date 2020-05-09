@@ -85,9 +85,8 @@ proc_by_condition <- function(df, variable, factors, include_overall = TRUE, FUN
   return(proc)
 }
 
-#' @importFrom dplyr funs rename_all select
+#' @importFrom dplyr contains ends_with funs rename_all select
 #' @importFrom magrittr %>%
-#' @importFrom tidyselect contains ends_with
 #' @keywords internal
 
 clean_proc_cols <- function (df) {
@@ -104,23 +103,4 @@ clean_proc_cols <- function (df) {
     select(-ends_with("."))
   
   return (df)
-}
-
-#' @keywords internal deprecated
-
-proc_standard <- function (df, variable, col_condition = NULL, col_condition2 = NULL, y = c(Q_COL_BID, col_condition), FUN, transform_dir = "wide", ...) {
-  proc = apply_stats(
-    x = df, 
-    y = y, 
-    col = variable, 
-    FUN = FUN, 
-    ...)
-  if (is.null(col_condition)) {
-    return (proc)
-  }
-  if (transform_dir == "wide") {
-    transform = stats::reshape(proc, timevar = col_condition, idvar = COL_BID, direction = "wide")
-  } else {transform = proc}
-  names(transform) = tolower(names(transform))
-  return (transform)
 }

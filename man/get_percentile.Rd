@@ -4,8 +4,15 @@
 \alias{get_percentile}
 \title{Get percentile for ONE ACE metric}
 \usage{
-get_percentile(df, module, id_var = "pid", var, reverse = FALSE,
-  norm_dist = "self", norm_dist_grade = NULL)
+get_percentile(
+  df,
+  module,
+  id_var = "pid",
+  var,
+  reverse = FALSE,
+  norm_dist = "self",
+  norm_dist_grade = NULL
+)
 }
 \arguments{
 \item{module}{user-specified string to be appended in the output colname}

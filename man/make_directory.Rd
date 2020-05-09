@@ -8,7 +8,7 @@ make_directory(path, showWarnings = FALSE)
 }
 \arguments{
 \item{path}{a character vector containing a single path name.  Tilde
-    expansion (see \code{\link{path.expand}}) is done.}
+    expansion (see \code{\link[base]{path.expand}}) is done.}
 
 \item{showWarnings}{logical; should the warnings on failure be shown?}
 }

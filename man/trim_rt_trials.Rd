@@ -2,10 +2,9 @@
 % Please edit documentation in R/module-trim.R
 \name{trim_rt_trials}
 \alias{trim_rt_trials}
-\title{Trim trials from ACE/SEA data by reaction time}
+\title{Trim trials from ACE/SEA data by response time}
 \usage{
-trim_rt_trials(df, sd_cutoff = FALSE, range_cutoff = FALSE,
-  verbose = TRUE)
+trim_rt_trials(df, sd_cutoff = FALSE, range_cutoff = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{df}{a \code{\link{data.frame}} containing formatted trialwise ACE data. 

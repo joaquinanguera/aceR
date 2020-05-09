@@ -4,8 +4,13 @@
 \alias{post_clean_chance}
 \title{Scrub processed data with below-chance accuracy}
 \usage{
-post_clean_chance(df, overall = TRUE, cutoff_dprime = 0,
-  cutoff_2choice = 0.5, cutoff_4choice = 0.25)
+post_clean_chance(
+  df,
+  overall = TRUE,
+  cutoff_dprime = 0,
+  cutoff_2choice = 0.5,
+  cutoff_4choice = 0.25
+)
 }
 \arguments{
 \item{df}{a df, output by \code{\link{proc_by_module}}, containing processed

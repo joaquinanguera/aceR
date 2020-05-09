@@ -7,7 +7,7 @@
 #' @name ace_trims
 NULL
 
-#' Trim trials from ACE/SEA data by reaction time
+#' Trim trials from ACE/SEA data by response time
 #'
 #' Applies corresponding \code{\link{ace_trims}} to every session of data.
 #'
@@ -51,30 +51,44 @@ trim_rt_trials <- function(df, sd_cutoff = FALSE,
         mutate(!!COL_RT := as.numeric(!!Q_COL_RT))
       
       # ordered so that removing acc first doesn't alter RT for the RT calculation
-      if (range_cutoff != FALSE) {
+      if (any(range_cutoff != FALSE)) {
         if (!is.na(range_cutoff[1])) {
           df$data[[i]] <- df$data[[i]] %>%
-            mutate(!!COL_CORRECT_BUTTON := na_if_true(!!Q_COL_CORRECT_BUTTON, !!Q_COL_RT < range_cutoff[1]),
-                   !!COL_RT := na_if_true(!!Q_COL_RT, !!Q_COL_RT < range_cutoff[1]))
+            mutate(!!COL_CORRECT_BUTTON := na_if_true(!!Q_COL_CORRECT_BUTTON, !!Q_COL_RT < range_cutoff[1] & !!Q_COL_RT != -99),
+                   !!COL_RT := na_if_true(!!Q_COL_RT, !!Q_COL_RT < range_cutoff[1] & !!Q_COL_RT != -99))
         }
         if (!is.na(range_cutoff[2])) {
           df$data[[i]] <- df$data[[i]] %>%
-            mutate(!!COL_CORRECT_BUTTON := na_if_true(!!Q_COL_CORRECT_BUTTON, !!Q_COL_RT > range_cutoff[2]),
-                   !!COL_RT := na_if_true(!!Q_COL_RT, !!Q_COL_RT > range_cutoff[2]))
+            mutate(!!COL_CORRECT_BUTTON := na_if_true(!!Q_COL_CORRECT_BUTTON, !!Q_COL_RT > range_cutoff[2] & !!Q_COL_RT != -99),
+                   !!COL_RT := na_if_true(!!Q_COL_RT, !!Q_COL_RT > range_cutoff[2] & !!Q_COL_RT != -99))
         }
       }
       
-      if (sd_cutoff != FALSE) {
+      if (any(sd_cutoff != FALSE)) {
+        this_sd = scale(data[[COL_RT]])
+        
         df$data[[i]] <- df$data[[i]] %>%
-          mutate(!!COL_CORRECT_BUTTON := na_if_true(!!Q_COL_CORRECT_BUTTON, c(abs(scale(!!Q_COL_RT))) > sd_cutoff),
-                 !!COL_RT := na_if_true(!!Q_COL_RT, c(abs(scale(!!Q_COL_RT))) > sd_cutoff))
+          mutate(rt_scaled = na_if(!!Q_COL_RT, -99),
+                 rt_scaled = c(scale(rt_scaled)),
+                 !!COL_CORRECT_BUTTON := na_if_true(!!Q_COL_CORRECT_BUTTON, abs(rt_scaled) > sd_cutoff),
+                 !!COL_RT := na_if_true(!!Q_COL_RT, abs(rt_scaled) > sd_cutoff)) %>% 
+          select(-rt_scaled)
       }
       
       # needs to be grouped to prevent previous_correct_button from bleeding over between records
       df$data[[i]] <- df$data[[i]] %>%
-        mutate(!!Q_COL_PREV_CORRECT_BUTTON := make_lagged_col(!!Q_COL_CORRECT_BUTTON)) %>%
+        mutate(!!COL_PREV_CORRECT_BUTTON := make_lagged_col(!!Q_COL_CORRECT_BUTTON)) %>%
         ungroup()
     }
+    
+    # After all the heavy lifting is done on COL_CORRECT_BUTTON
+    # if trial_accuracy is a column, NA it to match
+    if ("trial_accuracy" %in% names(df$data[[i]])) {
+      df$data[[i]] <- df$data[[i]] %>%
+        mutate(trial_accuracy = na_if_true(trial_accuracy, is.na(!!Q_COL_CORRECT_BUTTON)))
+    }
+    
   }
+  
   return (df)
 }

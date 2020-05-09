@@ -8,11 +8,11 @@ files_in_directory(path = ".", pattern = ".csv", recursive = TRUE)
 }
 \arguments{
 \item{path}{a character vector of full path names; the default
-    corresponds to the working directory, \code{\link{getwd}()}.  Tilde
-    expansion (see \code{\link{path.expand}}) is performed.  Missing
+    corresponds to the working directory, \code{\link[base]{getwd}()}.  Tilde
+    expansion (see \code{\link[base]{path.expand}}) is performed.  Missing
     values will be ignored.}
 
-\item{pattern}{an optional \link{regular expression}.  Only file names
+\item{pattern}{an optional \link[base]{regular expression}.  Only file names
     which match the regular expression will be returned.}
 
 \item{recursive}{logical.  Should the listing recurse into directories?}

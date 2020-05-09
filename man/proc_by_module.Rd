@@ -4,9 +4,14 @@
 \alias{proc_by_module}
 \title{Process ACE/SEA data by module}
 \usage{
-proc_by_module(df, app_type = c("classroom", "explorer", "sea"),
-  modules = "all", output = "wide", conditions = NULL,
-  verbose = TRUE)
+proc_by_module(
+  df,
+  app_type = c("classroom", "explorer", "sea"),
+  modules = "all",
+  output = "wide",
+  conditions = NULL,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{df}{a \code{\link{data.frame}} containing formatted trialwise ACE data. 

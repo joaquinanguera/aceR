@@ -7,6 +7,8 @@
 \alias{Q_COL_FILE}
 \alias{COL_TIME}
 \alias{Q_COL_TIME}
+\alias{COL_N_FINISHED}
+\alias{Q_COL_N_FINISHED}
 \alias{COL_RT}
 \alias{Q_COL_RT}
 \alias{COL_CORRECT_BUTTON}
@@ -43,6 +45,8 @@
 \alias{Q_COL_HANDEDNESS}
 \alias{COL_SUB_ID}
 \alias{Q_COL_SUB_ID}
+\alias{COL_PRACTICE}
+\alias{Q_COL_PRACTICE}
 \alias{COL_TRIAL_TYPE}
 \alias{Q_COL_TRIAL_TYPE}
 \alias{COL_BLOCK_HALF}
@@ -55,7 +59,111 @@
 \alias{standardize_ace_column_types}
 \alias{standardize_ace_values}
 \title{ACE column name constants}
-\format{An object of class \code{character} of length 1.}
+\format{
+An object of class \code{character} of length 1.
+
+An object of class \code{name} of length 1.
+
+An object of class \code{character} of length 1.
+
+An object of class \code{name} of length 1.
+
+An object of class \code{character} of length 1.
+
+An object of class \code{name} of length 1.
+
+An object of class \code{character} of length 1.
+
+An object of class \code{name} of length 1.
+
+An object of class \code{character} of length 1.
+
+An object of class \code{name} of length 1.
+
+An object of class \code{character} of length 1.
+
+An object of class \code{name} of length 1.
+
+An object of class \code{character} of length 1.
+
+An object of class \code{name} of length 1.
+
+An object of class \code{character} of length 1.
+
+An object of class \code{name} of length 1.
+
+An object of class \code{character} of length 1.
+
+An object of class \code{name} of length 1.
+
+An object of class \code{character} of length 1.
+
+An object of class \code{name} of length 1.
+
+An object of class \code{character} of length 1.
+
+An object of class \code{name} of length 1.
+
+An object of class \code{character} of length 1.
+
+An object of class \code{name} of length 1.
+
+An object of class \code{character} of length 1.
+
+An object of class \code{name} of length 1.
+
+An object of class \code{character} of length 1.
+
+An object of class \code{name} of length 1.
+
+An object of class \code{character} of length 1.
+
+An object of class \code{name} of length 1.
+
+An object of class \code{character} of length 1.
+
+An object of class \code{name} of length 1.
+
+An object of class \code{character} of length 1.
+
+An object of class \code{name} of length 1.
+
+An object of class \code{character} of length 1.
+
+An object of class \code{name} of length 1.
+
+An object of class \code{character} of length 1.
+
+An object of class \code{name} of length 1.
+
+An object of class \code{character} of length 1.
+
+An object of class \code{name} of length 1.
+
+An object of class \code{character} of length 1.
+
+An object of class \code{name} of length 1.
+
+An object of class \code{character} of length 1.
+
+An object of class \code{name} of length 1.
+
+An object of class \code{character} of length 1.
+
+An object of class \code{name} of length 1.
+
+An object of class \code{character} of length 1.
+
+An object of class \code{name} of length 1.
+
+An object of class \code{character} of length 8.
+
+An object of class \code{list} of length 8.
+
+An object of class \code{character} of length 23.
+
+An object of class \code{list} of length 23.
+}
 \usage{
 COL_FILE
 
@@ -64,6 +172,10 @@ Q_COL_FILE
 COL_TIME
 
 Q_COL_TIME
+
+COL_N_FINISHED
+
+Q_COL_N_FINISHED
 
 COL_RT
 
@@ -136,6 +248,10 @@ Q_COL_HANDEDNESS
 COL_SUB_ID
 
 Q_COL_SUB_ID
+
+COL_PRACTICE
+
+Q_COL_PRACTICE
 
 COL_TRIAL_TYPE
 

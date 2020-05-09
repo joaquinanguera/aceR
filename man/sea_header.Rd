@@ -12,7 +12,19 @@
 \alias{standardize_sea_column_names}
 \alias{standardize_sea_values}
 \title{SEA column name constants}
-\format{An object of class \code{character} of length 1.}
+\format{
+An object of class \code{character} of length 1.
+
+An object of class \code{character} of length 1.
+
+An object of class \code{character} of length 1.
+
+An object of class \code{character} of length 1.
+
+An object of class \code{character} of length 9.
+
+An object of class \code{list} of length 9.
+}
 \usage{
 COL_RESPONSE
 

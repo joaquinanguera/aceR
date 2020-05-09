@@ -137,14 +137,6 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
   return(z)
 }
 
-#' @keywords internal deprecated
-
-apply_stats_transform <- function(proc_list, timevar, idvar, ...) {
-  proc_merge = reshape::merge_recurse(proc_list)
-  proc_reshaped = stats::reshape(proc_merge, timevar = timevar, idvar = idvar, direction = "wide", ...) 
-  return (proc_reshaped)
-}
-
 #' @keywords internal
 
 ace_apply_by_group <- function(x, y, FUN) {

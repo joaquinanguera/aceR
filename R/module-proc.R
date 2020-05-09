@@ -104,7 +104,7 @@ proc_by_module <- function(df,
     
   } else {
     # This is now here for SEA compatibility
-    out <- out %>%
+    out <- df %>%
       mutate(demos = map(data, ~.x %>%
                            select(one_of(all_these_demos)) %>%
                            select(-!!Q_COL_TIME) %>%
@@ -137,7 +137,7 @@ proc_by_module <- function(df,
     demo_merge_col = COL_PID
     out <- out %>%
       mutate(proc = map(proc, ~reconstruct_pid(.x)),
-             demos = map(demos, ~select(.x, -!!Q_COL_BID, -!!Q_COL_TIME)))
+             demos = map(demos, ~select(.x, -!!Q_COL_BID, -!!Q_COL_TIME, -!!Q_COL_FILE)))
   } else {
     demo_merge_col = COL_BID
   }

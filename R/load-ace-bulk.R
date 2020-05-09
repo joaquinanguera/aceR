@@ -16,7 +16,7 @@
 #' @param exclude a list of patterns to exclude
 #' @param which_modules Specify modules to process. Defaults to all modules.
 #' @param app_type character What app data export type produced this data? One of
-#' \code{c("explorer", "email", "pulvinar")}. Defaults to \code{"explorer"}.
+#' \code{c("explorer", "email", "pulvinar")}. Must be specified.
 #' @return Returns a data.frame containing the content of every file in the
 #'  specified \code{path}.
 
@@ -26,7 +26,9 @@ load_ace_bulk <- function(path = ".",
                           exclude = c(),
                           pattern = "",
                           which_modules = "",
-                          app_type = "explorer") {
+                          app_type = c("explorer", "email", "pulvinar")) {
+  stopifnot(length(app_type) == 1)
+  
   csv = list.files(path = path, pattern = ".csv", recursive = recursive)
   xls = list.files(path = path, pattern = ".xls", recursive = recursive)
   files = sort(c(csv, xls))
@@ -52,17 +54,17 @@ load_ace_bulk <- function(path = ".",
   
   out <- out %>%
     filter(map(data, ~nrow(.)) > 0) %>% # if extraction failed, data will have 0 rows and other commands on data will fail
-    mutate(data = map(data, ~nest(as_tibble(.x), data = -c(bid, module, file)))) %>%
-    select(-file) %>%
+    mutate(data = map(data, ~nest(as_tibble(.x), data = -c(!!COL_BID, !!COL_MODULE, !!COL_FILE)))) %>%
+    select(-!!COL_FILE) %>%
     unnest(data) %>%
     # new de-duplication strategy: dplyr::distinct() files by bid & module should work (NOT by file)
     # NOTE: old de-duplication was done only on emailed data,
     # but this should behave properly for both emailed and database data
-    distinct(bid, module, .keep_all = TRUE) %>%
-    nest(data = -module) %>%
+    distinct(!!Q_COL_BID, !!Q_COL_MODULE, .keep_all = TRUE) %>%
+    nest(data = -!!COL_MODULE) %>%
     mutate(data = map(data, ~unnest(.x, data)),
            data = map(data, ~remove_empty_cols(.)),
-           data = rlang::set_names(data, module))
+           data = rlang::set_names(data, !!Q_COL_MODULE))
   
   if (app_type == "email") {
     # Set demos to the side to simulate ACE Explorer

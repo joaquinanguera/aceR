@@ -1,0 +1,488 @@
+"","TIME:","2017-09-08T09:55:54-0700","",""
+"","USER ID:","ADMIN-UCSF-bo034","",""
+"","User Name:","bo034","",""
+"","User Age:","9","",""
+"","User Grade:","4","",""
+"","User Gender:","FEMALE","",""
+"","User Handedness:","RIGHT","",""
+"","iPad Number:","38","",""
+"","Test Type:","Real","",""
+"","Build Number:","17","",""
+"","OS Version:","10.2.1","",""
+"","Device Type:","iPad Mini 3rd Gen", "",""
+"","ADAPTIVITY:","YES","",""
+"Game Settings:","{
+    Actual = 40;
+    Adaptive = 1;
+    ITI = 1000;
+    MaxInterval = 800;
+    "P-Start" = 1500;
+    Practice = 10;
+    Start = 800;
+    TRI = 200;
+    TraceTime = 20;
+}","",""
+"Tap & Trace (Trace)",
+"TOTAL DOTS TRACED"
+"213",
+"Trace Only",
+"TOTAL DOTS TRACED"
+"49",
+"Tap & Trace",
+"Correct Button","DISCRIMINATION CUE TYPE","Is Valid Cue","Response Window","Trial Accuracy","Response Time","CUE","Late Response",
+"0","TARGET","1","800","Miss","N/A","Green Circle","0",
+"1","HCL","0","840","Correct Rejection","0","Green Square","N/A",
+"1","HCL","0","840","Correct Rejection","0","Green Square","N/A",
+"1","LCL","0","840","Correct Rejection","0","Yellow Pentagon","N/A",
+"0","TARGET","1","840","Miss","N/A","Green Circle","0",
+"0","TARGET","1","880","Miss","N/A","Green Circle","0",
+"1","MCL","0","920","Correct Rejection","0","Red Circle","N/A",
+"1","TARGET","1","920","Hit","654.8460125923157","Green Circle","0",
+"0","TARGET","1","910","Miss","N/A","Green Circle","1",
+"1","LCL","0","950","Correct Rejection","0","Red Square","N/A",
+"1","LCL","0","950","Correct Rejection","0","Red Pentagon","N/A",
+"1","MCL","0","950","Correct Rejection","0","Yellow Circle","N/A",
+"1","HCL","0","950","Correct Rejection","0","Green Square","N/A",
+"1","TARGET","1","950","Hit","793.2389974594116","Green Circle","0",
+"1","TARGET","1","940","Hit","830.3560018539429","Green Circle","0",
+"1","HCL","0","930","Correct Rejection","0","Green Square","N/A",
+"1","LCL","0","930","Correct Rejection","0","Red Pentagon","N/A",
+"0","TARGET","1","930","Miss","N/A","Green Circle","1",
+"0","TARGET","1","970","Miss","N/A","Green Circle","0",
+"0","TARGET","1","1010","Miss","N/A","Green Circle","0",
+"1","LCL","0","1090","Correct Rejection","0","Red Square","N/A",
+"0","TARGET","1","1090","Miss","N/A","Green Circle","0",
+"0","TARGET","1","1130","Miss","N/A","Green Circle","0",
+"0","TARGET","1","1170","Miss","N/A","Green Circle","0",
+"1","TARGET","1","1250","Hit","578.46599817276","Green Circle","0",
+"0","TARGET","1","1240","Miss","N/A","Green Circle","1",
+"0","TARGET","1","1280","Miss","N/A","Green Circle","0",
+"1","HCL","0","1320","Correct Rejection","0","Green Square","N/A",
+"0","HCL","0","1320","False Alarm","1245.041966438293","Green Square","N/A",
+"0","TARGET","1","1360","Miss","N/A","Green Circle","0",
+"1","HCL","0","1400","Correct Rejection","0","Green Pentagon","N/A",
+"0","TARGET","1","1400","Miss","N/A","Green Circle","0",
+"1","LCL","0","1440","Correct Rejection","0","Red Square","N/A",
+"0","TARGET","1","1440","Miss","N/A","Green Circle","0",
+"0","TARGET","1","1480","Miss","N/A","Green Circle","0",
+"0","HCL","0","1520","False Alarm","1481.184959411621","Green Pentagon","N/A",
+"1","LCL","0","1600","Correct Rejection","0","Red Square","N/A",
+"1","HCL","0","1600","Correct Rejection","0","Green Pentagon","N/A",
+"1","HCL","0","1600","Correct Rejection","0","Green Pentagon","N/A",
+"1","LCL","0","1600","Correct Rejection","0","Red Pentagon","N/A",
+
+
+"Tap Only",
+"Correct Button","DISCRIMINATION CUE TYPE","Is Valid Cue","Response Window","Trial Accuracy","Response Time","CUE","Late Response",
+"0","TARGET","1","800","Miss","N/A","Green Circle","0",
+"1","MCL","0","840","Correct Rejection","0","Red Circle","N/A",
+"1","MCL","0","840","Correct Rejection","0","Yellow Circle","N/A",
+"1","TARGET","1","840","Hit","451.4090418815613","Green Circle","0",
+"1","LCL","0","830","Correct Rejection","0","Yellow Pentagon","N/A",
+"1","TARGET","1","830","Hit","470.6340432167053","Green Circle","0",
+"1","HCL","0","820","Correct Rejection","0","Green Square","N/A",
+"1","MCL","0","820","Correct Rejection","0","Yellow Circle","N/A",
+"1","LCL","0","820","Correct Rejection","0","Red Square","N/A",
+"1","TARGET","1","820","Hit","509.8170042037964","Green Circle","0",
+"0","TARGET","1","800","Miss","N/A","Green Circle","1",
+"1","HCL","0","840","Correct Rejection","0","Green Square","N/A",
+"1","TARGET","1","840","Hit","514.244019985199","Green Circle","0",
+"0","MCL","0","830","False Alarm","536.4000201225281","Red Circle","N/A",
+"1","LCL","0","870","Correct Rejection","0","Yellow Square","N/A",
+"1","TARGET","1","870","Hit","544.3960428237915","Green Circle","0",
+"1","TARGET","1","860","Hit","505.1590204238892","Green Circle","0",
+"1","TARGET","1","850","Hit","621.9130158424377","Green Circle","0",
+"1","TARGET","1","830","Hit","401.8310308456421","Green Circle","0",
+"1","HCL","0","790","Correct Rejection","0","Green Square","N/A",
+"1","TARGET","1","790","Hit","526.8620252609253","Green Circle","0",
+"1","HCL","0","710","Correct Rejection","0","Green Pentagon","N/A",
+"0","TARGET","1","710","Hit","784.466028213501","Green Circle","1",
+"1","HCL","0","750","Correct Rejection","0","Green Square","N/A",
+"1","TARGET","1","750","Hit","635.4179978370667","Green Circle","0",
+"1","MCL","0","740","Correct Rejection","0","Yellow Circle","N/A",
+"1","HCL","0","740","Correct Rejection","0","Green Square","N/A",
+"1","TARGET","1","740","Hit","537.3489856719971","Green Circle","0",
+"1","HCL","0","730","Correct Rejection","0","Green Pentagon","N/A",
+"1","MCL","0","730","Correct Rejection","0","Red Circle","N/A",
+"1","TARGET","1","730","Hit","515.1450037956238","Green Circle","0",
+"1","HCL","0","710","Correct Rejection","0","Green Square","N/A",
+"0","TARGET","1","710","Miss","N/A","Green Circle","1",
+"1","MCL","0","750","Correct Rejection","0","Yellow Circle","N/A",
+"1","HCL","0","750","Correct Rejection","0","Green Square","N/A",
+"1","HCL","0","750","Correct Rejection","0","Green Square","N/A",
+"1","TARGET","1","750","Hit","525.1980423927307","Green Circle","0",
+"0","TARGET","1","740","Miss","N/A","Green Circle","1",
+"1","TARGET","1","780","Hit","523.438036441803","Green Circle","0",
+"1","TARGET","1","770","Hit","765.841007232666","Green Circle","0",
+
+
+
+
+
+
+"","TIME:","2017-09-13T11:37:19-0700","",""
+"","USER ID:","ADMIN-UCSF-cp024","",""
+"","User Name:","cp024","",""
+"","User Age:","9","",""
+"","User Grade:","4","",""
+"","User Gender:","FEMALE","",""
+"","User Handedness:","RIGHT","",""
+"","iPad Number:","38","",""
+"","Test Type:","Real","",""
+"","Build Number:","17","",""
+"","OS Version:","10.2.1","",""
+"","Device Type:","iPad Mini 3rd Gen", "",""
+"","ADAPTIVITY:","YES","",""
+"Game Settings:","{
+    Actual = 40;
+    Adaptive = 1;
+    ITI = 1000;
+    MaxInterval = 800;
+    "P-Start" = 1500;
+    Practice = 10;
+    Start = 800;
+    TRI = 200;
+    TraceTime = 20;
+}","",""
+"Tap & Trace (Trace)",
+"TOTAL DOTS TRACED"
+"165",
+"Trace Only",
+"TOTAL DOTS TRACED"
+"54",
+"Tap & Trace",
+"Correct Button","DISCRIMINATION CUE TYPE","Is Valid Cue","Response Window","Trial Accuracy","Response Time","CUE","Late Response",
+"1","LCL","0","800","Correct Rejection","0","Red Square","N/A",
+"1","HCL","0","800","Correct Rejection","0","Green Pentagon","N/A",
+"1","LCL","0","800","Correct Rejection","0","Red Pentagon","N/A",
+"1","HCL","0","800","Correct Rejection","0","Green Pentagon","N/A",
+"0","TARGET","1","800","Miss","N/A","Green Circle","0",
+"0","TARGET","1","840","Miss","N/A","Green Circle","0",
+"1","HCL","0","880","Correct Rejection","0","Green Pentagon","N/A",
+"0","TARGET","1","880","Miss","N/A","Green Circle","0",
+"1","TARGET","1","920","Hit","462.1649980545044","Green Circle","0",
+"1","HCL","0","910","Correct Rejection","0","Green Square","N/A",
+"0","HCL","0","910","False Alarm","660.8049869537354","Green Square","N/A",
+"1","HCL","0","950","Correct Rejection","0","Green Square","N/A",
+"1","MCL","0","950","Correct Rejection","0","Yellow Circle","N/A",
+"0","TARGET","1","950","Miss","N/A","Green Circle","0",
+"0","TARGET","1","990","Miss","N/A","Green Circle","0",
+"1","TARGET","1","1030","Hit","464.1069769859314","Green Circle","0",
+"1","LCL","0","1020","Correct Rejection","0","Yellow Pentagon","N/A",
+"1","MCL","0","1020","Correct Rejection","0","Red Circle","N/A",
+"1","TARGET","1","1020","Hit","889.9909853935242","Green Circle","0",
+"1","HCL","0","1010","Correct Rejection","0","Green Square","N/A",
+"1","MCL","0","1010","Correct Rejection","0","Yellow Circle","N/A",
+"1","HCL","0","1010","Correct Rejection","0","Green Square","N/A",
+"0","TARGET","1","1010","Miss","N/A","Green Circle","1",
+"1","TARGET","1","1050","Hit","516.759991645813","Green Circle","0",
+"1","TARGET","1","1040","Hit","462.8369808197021","Green Circle","0",
+"1","TARGET","1","1030","Hit","641.444981098175","Green Circle","0",
+"1","MCL","0","1010","Correct Rejection","0","Yellow Circle","N/A",
+"1","MCL","0","1010","Correct Rejection","0","Yellow Circle","N/A",
+"1","MCL","0","1010","Correct Rejection","0","Red Circle","N/A",
+"0","TARGET","1","1010","Miss","N/A","Green Circle","1",
+"1","HCL","0","1050","Correct Rejection","0","Green Pentagon","N/A",
+"1","TARGET","1","1050","Hit","959.8090052604675","Green Circle","0",
+"0","TARGET","1","1040","Miss","N/A","Green Circle","1",
+"1","HCL","0","1080","Correct Rejection","0","Green Square","N/A",
+"1","TARGET","1","1080","Hit","613.4340167045593","Green Circle","0",
+"1","TARGET","1","1070","Hit","722.2819924354553","Green Circle","0",
+"1","TARGET","1","1060","Hit","984.2169880867004","Green Circle","0",
+"1","TARGET","1","1040","Hit","506.9859623908997","Green Circle","0",
+"1","LCL","0","1000","Correct Rejection","0","Yellow Pentagon","N/A",
+"1","TARGET","1","1000","Hit","956.7819833755493","Green Circle","0",
+
+
+"Tap Only",
+"Correct Button","DISCRIMINATION CUE TYPE","Is Valid Cue","Response Window","Trial Accuracy","Response Time","CUE","Late Response",
+"1","LCL","0","800","Correct Rejection","0","Yellow Square","N/A",
+"1","HCL","0","800","Correct Rejection","0","Green Square","N/A",
+"1","TARGET","1","800","Hit","669.3010330200195","Green Circle","0",
+"1","TARGET","1","790","Hit","507.7930092811584","Green Circle","0",
+"1","TARGET","1","780","Hit","475.7739901542664","Green Circle","0",
+"1","TARGET","1","760","Hit","391.5190100669861","Green Circle","0",
+"1","MCL","0","720","Correct Rejection","0","Yellow Circle","N/A",
+"1","TARGET","1","720","Hit","449.9080181121826","Green Circle","0",
+"1","TARGET","1","640","Hit","590.0790095329285","Green Circle","0",
+"1","TARGET","1","480","Hit","423.272967338562","Green Circle","0",
+"0","TARGET","1","160","Hit","640.6430006027222","Green Circle","1",
+"1","HCL","0","200","Correct Rejection","0","Green Square","N/A",
+"1","LCL","0","200","Correct Rejection","0","Yellow Pentagon","N/A",
+"1","HCL","0","200","Correct Rejection","0","Green Square","N/A",
+"1","HCL","0","200","Correct Rejection","0","Green Square","N/A",
+"0","TARGET","1","200","Hit","797.6530194282532","Green Circle","1",
+"1","MCL","0","240","Correct Rejection","0","Red Circle","N/A",
+"1","LCL","0","240","Correct Rejection","0","Red Pentagon","N/A",
+"0","TARGET","1","240","Hit","681.1980009078979","Green Circle","1",
+"0","TARGET","1","280","Hit","616.1909699440002","Green Circle","1",
+"1","HCL","0","320","Correct Rejection","0","Green Pentagon","N/A",
+"0","TARGET","1","320","Hit","445.1450109481812","Green Circle","1",
+"0","TARGET","1","360","Hit","634.1609954833984","Green Circle","1",
+"0","TARGET","1","400","Hit","784.1830253601074","Green Circle","1",
+"0","MCL","0","480","False Alarm","553.0830025672913","Red Circle","N/A",
+"1","LCL","0","640","Correct Rejection","0","Yellow Square","N/A",
+"1","TARGET","1","640","Hit","588.7579917907715","Green Circle","0",
+"0","TARGET","1","630","Hit","717.4550294876099","Green Circle","1",
+"1","MCL","0","670","Correct Rejection","0","Red Circle","N/A",
+"0","TARGET","1","670","Hit","670.665979385376","Green Circle","1",
+"1","HCL","0","710","Correct Rejection","0","Green Pentagon","N/A",
+"1","HCL","0","710","Correct Rejection","0","Green Square","N/A",
+"1","TARGET","1","710","Hit","556.7790269851685","Green Circle","0",
+"1","HCL","0","700","Correct Rejection","0","Green Pentagon","N/A",
+"1","LCL","0","700","Correct Rejection","0","Red Square","N/A",
+"1","HCL","0","700","Correct Rejection","0","Green Pentagon","N/A",
+"1","LCL","0","700","Correct Rejection","0","Red Pentagon","N/A",
+"0","TARGET","1","700","Hit","728.2800078392029","Green Circle","1",
+"1","HCL","0","740","Correct Rejection","0","Green Pentagon","N/A",
+"0","TARGET","1","740","Miss","N/A","Green Circle","1",
+
+
+
+
+
+
+"","TIME:","2017-09-14T10:55:07-0700","",""
+"","USER ID:","ADMIN-UCSF-se084","",""
+"","User Name:","se084","",""
+"","User Age:","13","",""
+"","User Grade:","8","",""
+"","User Gender:","FEMALE","",""
+"","User Handedness:","RIGHT","",""
+"","iPad Number:","38","",""
+"","Test Type:","Real","",""
+"","Build Number:","17","",""
+"","OS Version:","10.2.1","",""
+"","Device Type:","iPad Mini 3rd Gen", "",""
+"","ADAPTIVITY:","YES","",""
+"Game Settings:","{
+    Actual = 40;
+    Adaptive = 1;
+    ITI = 1000;
+    MaxInterval = 800;
+    "P-Start" = 1500;
+    Practice = 10;
+    Start = 800;
+    TRI = 200;
+    TraceTime = 20;
+}","",""
+"Tap & Trace (Trace)",
+"TOTAL DOTS TRACED"
+"172",
+"Trace Only",
+"TOTAL DOTS TRACED"
+"44",
+"Tap & Trace",
+"Correct Button","DISCRIMINATION CUE TYPE","Is Valid Cue","Response Window","Trial Accuracy","Response Time","CUE","Late Response",
+"1","TARGET","1","800","Hit","657.6039791107178","Green Circle","0",
+"1","MCL","0","790","Correct Rejection","0","Yellow Circle","N/A",
+"1","TARGET","1","790","Hit","408.3030223846436","Green Circle","0",
+"1","HCL","0","780","Correct Rejection","0","Green Pentagon","N/A",
+"1","HCL","0","780","Correct Rejection","0","Green Pentagon","N/A",
+"1","TARGET","1","780","Hit","456.8470120429993","Green Circle","0",
+"1","HCL","0","760","Correct Rejection","0","Green Square","N/A",
+"1","MCL","0","760","Correct Rejection","0","Yellow Circle","N/A",
+"1","TARGET","1","760","Hit","439.2420053482056","Green Circle","0",
+"1","LCL","0","720","Correct Rejection","0","Yellow Pentagon","N/A",
+"1","TARGET","1","720","Hit","442.6690340042114","Green Circle","0",
+"1","LCL","0","640","Correct Rejection","0","Yellow Pentagon","N/A",
+"1","LCL","0","640","Correct Rejection","0","Red Pentagon","N/A",
+"1","TARGET","1","640","Hit","411.5639925003052","Green Circle","0",
+"1","HCL","0","480","Correct Rejection","0","Green Square","N/A",
+"1","TARGET","1","480","Hit","455.4719924926758","Green Circle","0",
+"0","TARGET","1","160","Hit","494.1850304603577","Green Circle","1",
+"1","HCL","0","200","Correct Rejection","0","Green Square","N/A",
+"1","LCL","0","200","Correct Rejection","0","Red Pentagon","N/A",
+"0","TARGET","1","200","Hit","458.7820172309875","Green Circle","1",
+"1","MCL","0","240","Correct Rejection","0","Yellow Circle","N/A",
+"0","TARGET","1","240","Miss","N/A","Green Circle","1",
+"0","TARGET","1","280","Hit","323.9839673042297","Green Circle","1",
+"0","TARGET","1","320","Miss","N/A","Green Circle","1",
+"0","TARGET","1","400","Hit","720.2649712562561","Green Circle","1",
+"1","LCL","0","560","Correct Rejection","0","Yellow Square","N/A",
+"1","TARGET","1","560","Hit","409.2289805412292","Green Circle","0",
+"0","TARGET","1","550","Miss","N/A","Green Circle","1",
+"1","HCL","0","590","Correct Rejection","0","Green Pentagon","N/A",
+"0","HCL","0","590","False Alarm","394.1360116004944","Green Square","N/A",
+"1","HCL","0","630","Correct Rejection","0","Green Pentagon","N/A",
+"1","HCL","0","630","Correct Rejection","0","Green Pentagon","N/A",
+"0","TARGET","1","630","Hit","700.281023979187","Green Circle","1",
+"1","TARGET","1","670","Hit","526.2170433998108","Green Circle","0",
+"1","LCL","0","660","Correct Rejection","0","Red Pentagon","N/A",
+"1","TARGET","1","660","Hit","609.9679470062256","Green Circle","0",
+"1","TARGET","1","650","Hit","561.6210103034973","Green Circle","0",
+"1","LCL","0","630","Correct Rejection","0","Red Square","N/A",
+"0","HCL","0","630","False Alarm","245.1369762420654","Green Pentagon","N/A",
+"1","TARGET","1","670","Hit","528.7959575653076","Green Circle","0",
+
+
+"Tap Only",
+"Correct Button","DISCRIMINATION CUE TYPE","Is Valid Cue","Response Window","Trial Accuracy","Response Time","CUE","Late Response",
+"1","TARGET","1","800","Hit","522.130012512207","Green Circle","0",
+"1","TARGET","1","790","Hit","358.7369918823242","Green Circle","0",
+"1","LCL","0","780","Correct Rejection","0","Red Square","N/A",
+"1","HCL","0","780","Correct Rejection","0","Green Square","N/A",
+"1","HCL","0","780","Correct Rejection","0","Green Square","N/A",
+"1","HCL","0","780","Correct Rejection","0","Green Pentagon","N/A",
+"1","TARGET","1","780","Hit","456.1519622802734","Green Circle","0",
+"1","TARGET","1","760","Hit","440.7069683074951","Green Circle","0",
+"1","LCL","0","720","Correct Rejection","0","Red Square","N/A",
+"1","LCL","0","720","Correct Rejection","0","Yellow Pentagon","N/A",
+"1","HCL","0","720","Correct Rejection","0","Green Square","N/A",
+"1","HCL","0","720","Correct Rejection","0","Green Square","N/A",
+"1","TARGET","1","720","Hit","462.9830121994019","Green Circle","0",
+"1","TARGET","1","640","Hit","387.8009915351868","Green Circle","0",
+"1","MCL","0","480","Correct Rejection","0","Yellow Circle","N/A",
+"1","TARGET","1","480","Hit","473.5649824142456","Green Circle","0",
+"1","HCL","0","160","Correct Rejection","0","Green Square","N/A",
+"1","LCL","0","160","Correct Rejection","0","Red Square","N/A",
+"0","TARGET","1","160","Hit","392.4729824066162","Green Circle","1",
+"0","TARGET","1","200","Hit","404.8799872398376","Green Circle","1",
+"0","TARGET","1","240","Hit","455.4019570350647","Green Circle","1",
+"0","TARGET","1","320","Hit","403.3250212669373","Green Circle","1",
+"1","LCL","0","480","Correct Rejection","0","Yellow Square","N/A",
+"1","TARGET","1","480","Hit","388.7460231781006","Green Circle","0",
+"1","HCL","0","470","Correct Rejection","0","Green Square","N/A",
+"1","HCL","0","470","Correct Rejection","0","Green Square","N/A",
+"1","TARGET","1","470","Hit","340.5839800834656","Green Circle","0",
+"1","TARGET","1","460","Hit","401.5649557113647","Green Circle","0",
+"1","LCL","0","440","Correct Rejection","0","Yellow Pentagon","N/A",
+"1","HCL","0","440","Correct Rejection","0","Green Square","N/A",
+"1","LCL","0","440","Correct Rejection","0","Red Square","N/A",
+"1","TARGET","1","440","Hit","328.836977481842","Green Circle","0",
+"1","LCL","0","400","Correct Rejection","0","Yellow Pentagon","N/A",
+"1","LCL","0","400","Correct Rejection","0","Yellow Square","N/A",
+"0","TARGET","1","400","Hit","456.4520120620728","Green Circle","1",
+"0","TARGET","1","440","Hit","482.6599955558777","Green Circle","1",
+"1","TARGET","1","480","Hit","450.1599669456482","Green Circle","0",
+"1","HCL","0","470","Correct Rejection","0","Green Square","N/A",
+"1","TARGET","1","470","Hit","402.6129841804504","Green Circle","0",
+"1","TARGET","1","460","Hit","409.2029929161072","Green Circle","0",
+
+
+
+
+
+
+"","TIME:","2017-09-26T09:28:37-0700","",""
+"","USER ID:","ADMIN-UCSF-la130","",""
+"","User Name:","la130","",""
+"","User Age:","9","",""
+"","User Grade:","4","",""
+"","User Gender:","MALE","",""
+"","User Handedness:","RIGHT","",""
+"","iPad Number:","38","",""
+"","Test Type:","Real","",""
+"","Build Number:","17","",""
+"","OS Version:","10.2.1","",""
+"","Device Type:","iPad Mini 3rd Gen", "",""
+"","ADAPTIVITY:","YES","",""
+"Game Settings:","{
+    Actual = 40;
+    Adaptive = 1;
+    ITI = 1000;
+    MaxInterval = 800;
+    "P-Start" = 1500;
+    Practice = 10;
+    Start = 800;
+    TRI = 200;
+    TraceTime = 20;
+}","",""
+"Tap & Trace (Trace)",
+"TOTAL DOTS TRACED"
+"242",
+"Trace Only",
+"TOTAL DOTS TRACED"
+"66",
+"Tap & Trace",
+"Correct Button","DISCRIMINATION CUE TYPE","Is Valid Cue","Response Window","Trial Accuracy","Response Time","CUE","Late Response",
+"1","LCL","0","800","Correct Rejection","0","Red Square","N/A",
+"1","TARGET","1","800","Hit","682.4190020561218","Green Circle","0",
+"1","HCL","0","790","Correct Rejection","0","Green Square","N/A",
+"1","LCL","0","790","Correct Rejection","0","Red Square","N/A",
+"1","HCL","0","790","Correct Rejection","0","Green Square","N/A",
+"0","TARGET","1","790","Miss","N/A","Green Circle","1",
+"0","LCL","0","830","False Alarm","172.0619797706604","Yellow Square","N/A",
+"1","HCL","0","870","Correct Rejection","0","Green Square","N/A",
+"1","TARGET","1","870","Hit","557.3850274085999","Green Circle","0",
+"1","LCL","0","860","Correct Rejection","0","Yellow Pentagon","N/A",
+"1","MCL","0","860","Correct Rejection","0","Red Circle","N/A",
+"0","TARGET","1","860","Hit","73.6839771270752","Green Circle","1",
+"0","TARGET","1","900","Miss","N/A","Green Circle","0",
+"1","HCL","0","940","Correct Rejection","0","Green Square","N/A",
+"1","HCL","0","940","Correct Rejection","0","Green Pentagon","N/A",
+"1","TARGET","1","940","Hit","820.3389644622803","Green Circle","0",
+"0","TARGET","1","930","Miss","N/A","Green Circle","1",
+"1","TARGET","1","970","Hit","806.7200183868408","Green Circle","0",
+"0","TARGET","1","960","Miss","N/A","Green Circle","1",
+"1","HCL","0","1000","Correct Rejection","0","Green Square","N/A",
+"0","TARGET","1","1000","Miss","N/A","Green Circle","0",
+"1","TARGET","1","1040","Hit","586.3760113716125","Green Circle","0",
+"1","TARGET","1","1030","Hit","619.7019815444946","Green Circle","0",
+"1","HCL","0","1020","Correct Rejection","0","Green Pentagon","N/A",
+"1","HCL","0","1020","Correct Rejection","0","Green Pentagon","N/A",
+"1","LCL","0","1020","Correct Rejection","0","Yellow Pentagon","N/A",
+"1","TARGET","1","1020","Hit","911.7700457572937","Green Circle","0",
+"1","MCL","0","1000","Correct Rejection","0","Red Circle","N/A",
+"1","MCL","0","1000","Correct Rejection","0","Yellow Circle","N/A",
+"1","MCL","0","1000","Correct Rejection","0","Red Circle","N/A",
+"1","TARGET","1","1000","Hit","727.3090481758118","Green Circle","0",
+"1","LCL","0","960","Correct Rejection","0","Red Square","N/A",
+"1","TARGET","1","960","Hit","692.8640007972717","Green Circle","0",
+"1","TARGET","1","880","Hit","508.7939500808716","Green Circle","0",
+"1","TARGET","1","720","Hit","634.8649859428406","Green Circle","0",
+"0","TARGET","1","400","Hit","479.9489974975586","Green Circle","1",
+"1","HCL","0","440","Correct Rejection","0","Green Pentagon","N/A",
+"0","HCL","0","440","False Alarm","695.4649686813354","Green Pentagon","N/A",
+"0","TARGET","1","480","Miss","N/A","Green Circle","1",
+"0","TARGET","1","520","Miss","N/A","Green Circle","1",
+
+
+"Tap Only",
+"Correct Button","DISCRIMINATION CUE TYPE","Is Valid Cue","Response Window","Trial Accuracy","Response Time","CUE","Late Response",
+"1","HCL","0","800","Correct Rejection","0","Green Pentagon","N/A",
+"1","TARGET","1","800","Hit","531.0519933700562","Green Circle","0",
+"1","TARGET","1","790","Hit","576.4569640159607","Green Circle","0",
+"0","HCL","0","780","False Alarm","324.9099850654602","Green Square","N/A",
+"1","TARGET","1","820","Hit","558.7570071220398","Green Circle","0",
+"1","TARGET","1","810","Hit","526.7230272293091","Green Circle","0",
+"1","TARGET","1","800","Hit","653.1279683113098","Green Circle","0",
+"1","MCL","0","780","Correct Rejection","0","Red Circle","N/A",
+"1","HCL","0","780","Correct Rejection","0","Green Square","N/A",
+"1","TARGET","1","780","Hit","455.547034740448","Green Circle","0",
+"1","TARGET","1","740","Hit","559.162974357605","Green Circle","0",
+"1","MCL","0","660","Correct Rejection","0","Red Circle","N/A",
+"1","TARGET","1","660","Hit","611.8999719619751","Green Circle","0",
+"0","HCL","0","500","False Alarm","490.5419945716858","Green Pentagon","N/A",
+"0","TARGET","1","540","Hit","657.5120091438293","Green Circle","1",
+"1","LCL","0","580","Correct Rejection","0","Yellow Pentagon","N/A",
+"1","TARGET","1","580","Hit","340.0359749794006","Green Circle","0",
+"0","TARGET","1","570","Hit","620.9750175476074","Green Circle","1",
+"1","LCL","0","610","Correct Rejection","0","Yellow Pentagon","N/A",
+"1","LCL","0","610","Correct Rejection","0","Red Pentagon","N/A",
+"1","TARGET","1","610","Hit","452.7789950370789","Green Circle","0",
+"1","HCL","0","600","Correct Rejection","0","Green Pentagon","N/A",
+"1","TARGET","1","600","Hit","504.9440264701843","Green Circle","0",
+"1","TARGET","1","590","Hit","506.0169696807861","Green Circle","0",
+"0","TARGET","1","570","Hit","704.8500180244446","Green Circle","1",
+"1","HCL","0","610","Correct Rejection","0","Green Pentagon","N/A",
+"1","HCL","0","610","Correct Rejection","0","Green Pentagon","N/A",
+"1","TARGET","1","610","Hit","437.7689957618713","Green Circle","0",
+"1","MCL","0","600","Correct Rejection","0","Red Circle","N/A",
+"0","HCL","0","600","False Alarm","518.6429619789124","Green Pentagon","N/A",
+"1","MCL","0","640","Correct Rejection","0","Yellow Circle","N/A",
+"1","TARGET","1","640","Hit","402.5070071220398","Green Circle","0",
+"1","LCL","0","630","Correct Rejection","0","Yellow Square","N/A",
+"0","HCL","0","630","False Alarm","483.6789965629578","Green Pentagon","N/A",
+"1","MCL","0","670","Correct Rejection","0","Yellow Circle","N/A",
+"1","TARGET","1","670","Hit","448.8109946250916","Green Circle","0",
+"1","TARGET","1","660","Hit","413.8170480728149","Green Circle","0",
+"1","MCL","0","650","Correct Rejection","0","Yellow Circle","N/A",
+"1","TARGET","1","650","Hit","397.2209692001343","Green Circle","0",
+"1","HCL","0","630","Correct Rejection","0","Green Pentagon","N/A",
+
+
+
+
+
+

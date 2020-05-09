@@ -234,7 +234,7 @@ proc_wide_to_long <- function (df) {
   out <- tibble(module = valid_modules,
                 proc = vector("list", length(valid_modules))) %>%
     mutate(proc = map(module, ~ df %>%
-                        select(valid_demos, tidyselect::starts_with(.x)) %>%
+                        select(valid_demos, dplyr::starts_with(.x)) %>%
                         distinct()))
   # Note that the "long-ish" output will still have module names preprended to colnames (for now)
   return (out)
