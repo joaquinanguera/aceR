@@ -38,6 +38,11 @@ The package, as of March 2020, has transitioned to the [CalVer](https://calver.o
     - existing functions output different data structure
 - `MICRO`: Bug fixes. The micro version will be rolled over when internal cleanup or other changes are made that _should_ have no obvious impact to the user.
 
+### Brief release notes
+
+20.1.1: Previously, no recoding was done on no-go "RTs" in go/no-go ACE tasks (SAAT and TNT). Now, these no-go RTs are coded as **-99**. This is not included in RT summary statistics, but these trials are counted in `ace_count()`.
+
+20.1.0: New functions `nest_ace_raw()` and `unnest_ace_raw()`, to pull loaded ACE data into traditional unnested dataframe form for custom analysis, and to re-package ACE data back into nested form for analysis with `proc_by_module()`.
 
 ## Example Scripts
 
