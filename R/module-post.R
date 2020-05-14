@@ -147,7 +147,9 @@ post_clean_chance <- function (df, overall = TRUE, cutoff_dprime = 0, cutoff_2ch
 #' @param df a df, output by \code{\link{proc_by_module}}, containing processed
 #' ACE or SEA data.
 #' @param min_trials Minimum number of trials to require in most restrictive condition.
-#' Defaults to 5.
+#' Defaults to 5. This condition is checked against the \code{*_count} summary columns,
+#' that count all trials with a valid response time (and all no-go trials, if a response
+#' was not expected.)
 #' @return a df, similar in structure to \code{proc}, but with records with too few trials
 #' converted to \code{NA}.
 
@@ -170,7 +172,7 @@ post_clean_low_trials <- function (df, min_trials = 5) {
   # will then populate all the non-demo cols with NA
   
   df %<>%
-    mutate(filter_cols = map(proc, ~names(.x)[grepl("length", names(.x)) & !grepl("half", names(.x)) & !grepl("correct", names(.x)) & !grepl("cost", names(.x)) & !grepl("start", names(.x))]),
+    mutate(filter_cols = map(proc, ~names(.x)[grepl("count", names(.x)) & !grepl("half", names(.x)) & !grepl("correct", names(.x)) & !grepl("cost", names(.x)) & !grepl("start", names(.x))]),
            non_demo_cols = map(proc, ~names(.x)[!(names(.x) %in% get_valid_demos(.x, is_ace = T))]),
            call_filter_cols_bad = map(filter_cols,  ~map_call2_rel("<", .x, min_trials)),
            call_filter_cols_good = map(filter_cols,  ~map_call2_rel(">=", .x, min_trials)))
