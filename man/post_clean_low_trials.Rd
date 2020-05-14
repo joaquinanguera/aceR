@@ -11,7 +11,9 @@ post_clean_low_trials(df, min_trials = 5)
 ACE or SEA data.}
 
 \item{min_trials}{Minimum number of trials to require in most restrictive condition.
-Defaults to 5.}
+Defaults to 5. This condition is checked against the \code{*_count} summary columns,
+that count all trials with a valid response time (and all no-go trials, if a response
+was not expected.)}
 }
 \value{
 a df, similar in structure to \code{proc}, but with records with too few trials
