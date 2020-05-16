@@ -40,6 +40,14 @@ The package, as of March 2020, has transitioned to the [CalVer](https://calver.o
 
 ### Brief release notes
 
+20.2.0: New outputs of `proc_by_module()` added:
+
+- ACE spatial cueing: For newer Explorer data that has a "neutral" condition, outputs costs for neutral - incongruent and neutral - incongruent
+- ACE filter: Outputs Snodgrass-corrected d'. Use with caution when trial counts are low!
+- ACE modules in general: where response window summaries are output, now outputs minimum response window as well
+
+Now requires `dplyr >= 0.8.0` as well. Tidyverse updates are generally solid about backwards compatibility, so we boldly go for more sensible features!
+
 20.1.1: Previously, no recoding was done on no-go "RTs" in go/no-go ACE tasks (SAAT and TNT). Now, these no-go RTs are coded as **-99**. This is not included in RT summary statistics, but these trials are counted in `ace_count()`.
 
 20.1.0: New functions `nest_ace_raw()` and `unnest_ace_raw()`, to pull loaded ACE data into traditional unnested dataframe form for custom analysis, and to re-package ACE data back into nested form for analysis with `proc_by_module()`.
