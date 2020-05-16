@@ -63,6 +63,15 @@ ace_dprime <- function(acc_col, snodgrass = TRUE) {
 
 #' @keywords internal
 
+ace_dprime_wide <- function(hit, fa, count_hit, count_fa) {
+  # ALWAYS snodgrasses, because of low trial counts
+    hit_rate = snodgrass_correction_rate(hit, count_hit)
+    fa_rate = snodgrass_correction_rate(fa, count_fa)
+  return (qnorm(hit_rate) - qnorm(fa_rate))
+}
+
+#' @keywords internal
+
 ace_wm_k <- function(hit, fa, targets) {
   return (targets * (hit - fa))
 }

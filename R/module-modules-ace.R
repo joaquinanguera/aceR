@@ -173,7 +173,9 @@ module_filter <- function(df) {
     separate(!!Q_COL_CONDITION, c("targets", "distractors"), sep = 2, remove = FALSE) %>%
     mutate_at(c("targets", "distractors"), funs(as.integer(str_sub(., start = -1L)))) %>%
     # TODO: implement k w/ proc_standard (if possible)
-    mutate(k = ace_wm_k(correct_button_mean.change, 1 - correct_button_mean.no_change, targets)) %>%
+    mutate(k = ace_wm_k(correct_button_mean.change, 1 - correct_button_mean.no_change, targets),
+           dprime = ace_dprime_wide(correct_button_mean.change, 1 - correct_button_mean.no_change,
+                                    correct_button_count.change, correct_button_count.no_change)) %>%
     select(-targets, -distractors) %>%
     pivot_wider(names_from = !!COL_CONDITION,
                 values_from = -c(!!Q_COL_BID, !!Q_COL_CONDITION, contains("overall")),
@@ -200,6 +202,15 @@ module_ishihara <- function(df) {
 module_spatialcueing <- function(df) {
   gen = proc_generic_module(df, col_condition = Q_COL_TRIAL_TYPE)
   rcs = proc_by_condition(df, c(COL_CORRECT_BUTTON, COL_RT), Q_COL_TRIAL_TYPE, FUN = ace_rcs)
-  cost = multi_subtract(gen, "\\.incongruent", "\\.congruent", "\\.cost")
-  return (left_join(gen, rcs, by = COL_BID) %>% dplyr::bind_cols(cost))
+  cost = multi_subtract(gen, "\\.incongruent", "\\.congruent", "\\.inc_con_cost")
+  # This should only trigger for newer versions of ACE Explorer where a "neutral" condition was added
+  if (any(grepl("neutral", names(gen)))) {
+    cost_neutral_incongruent = multi_subtract(gen, "\\.neutral", "\\.incongruent", "\\.neu_inc_cost")
+    cost_neutral_congruent = multi_subtract(gen, "\\.neutral", "\\.congruent", "\\.neu_con_cost")
+    
+    cost_full = dplyr::bind_cols(cost, cost_neutral_incongruent, cost_neutral_congruent)
+  } else {
+    cost_full = cost
+  }
+  return (left_join(gen, rcs, by = COL_BID) %>% dplyr::bind_cols(cost_full))
 }

@@ -8,7 +8,8 @@ ace_descriptive_statistics <- function(x, col) {
     median = ace_median,
     count = ace_count,
     length = ace_length,
-    sd = ace_sd))
+    sd = ace_sd,
+    min = ace_min))
   return (out)
 }
 
