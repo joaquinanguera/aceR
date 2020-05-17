@@ -147,7 +147,7 @@ proc_by_module <- function(df,
     out <- out %>%
       select(module, demos, proc) %>%
       mutate(demos = map(demos, ~.x %>%
-                           select(-file) %>%
+                           select(-one_of("file")) %>%
                            distinct()))
     
     if (app_type == "explorer") {
