@@ -138,6 +138,18 @@ COL_PRACTICE = "session_type"
 Q_COL_PRACTICE = rlang::sym(COL_PRACTICE)
 
 #' @name ace_header
+COL_PRACTICE_RD = "practice_round"
+
+#' @name ace_header
+Q_COL_PRACTICE_RD = rlang::sym(COL_PRACTICE_RD)
+
+#' @name ace_header
+COL_PRACTICE_COUNT = "practice_count"
+
+#' @name ace_header
+Q_COL_PRACTICE_COUNT = rlang::sym(COL_PRACTICE_COUNT)
+
+#' @name ace_header
 COL_TRIAL_TYPE = "trial_type"
 
 #' @name ace_header
@@ -337,9 +349,7 @@ standardize_ace_values <- function(df, app_type) {
   
   # Should fail silently on classroom data with no practice trials and no practice column
   try({
-    # TODO: Keep practice trials to extract data from them. Currently discarding all
     df %<>%
-      filter(!!Q_COL_PRACTICE == "Real") %>%
       # Noticed this in ACE Explorer as of Jan 2020. Might have changed before then
       mutate(!!COL_CORRECT_BUTTON := if_else(!!Q_COL_RT == 0, "no_response", !!Q_COL_CORRECT_BUTTON))
   }, silent = TRUE)

@@ -290,6 +290,40 @@ parse_subsections <- function(dat) {
   return (out)
 }
 
+#' @importFrom dplyr filter group_by left_join mutate summarize
+#' @importFrom magrittr %>%
+#' @importFrom rlang !! :=
+#' @keywords internal
+
+summarize_practice <- function (dat) {
+  practice <- dat %>%
+    # the finish_status column is hard-coded atm
+    filter(!!Q_COL_PRACTICE == "StartingWindow", finish_status == "Successful") %>%
+    group_by(!!Q_COL_PID) %>%
+    mutate(!!COL_PRACTICE_RD := count_practice_rounds(trial_number)) %>%
+    summarize(!!COL_PRACTICE_COUNT := max(!!Q_COL_PRACTICE_RD))
+  
+  dat %>%
+    filter(!!Q_COL_PRACTICE == "Real") %>%
+    left_join(practice, by = COL_PID) %>% 
+    return()
+}
+
+#' @keywords internal
+
+count_practice_rounds <- function (col) {
+  
+  counter = NULL; group = 0L
+  
+  for (i in 1:length(col)) {
+    if (col[i] == 0) group = group + 1L
+    counter = c(counter, group)
+  }
+  
+  return (counter)
+}
+
+
 #' @keywords internal
 
 make_half_seq <- function(num) {
