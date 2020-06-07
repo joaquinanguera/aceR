@@ -49,6 +49,7 @@ The package, as of March 2020, has transitioned to the [CalVer](https://calver.o
 Bug fixes:
 - `proc_by_module()` failed when `app_type = "explorer"` and `output = "wide"` because it attempted to drop a column that didn't exist in demographics
 - `load_ace_bulk()` now returns all `tap_.*_rt` columns in forward/backward spatial span data as double instead of character
+- `post_clean_low_trials()` checks for the minimum trial count only in at-all-responded trials within each condition. Previously, was accidentally checking within early-responded trials, which is likely too strict of a response requirement.
 
 Now requires `dplyr >= 0.8.0` as well. Tidyverse updates are generally solid about backwards compatibility, so we boldly go for more sensible features!
 
