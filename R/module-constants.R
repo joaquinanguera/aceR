@@ -1,4 +1,5 @@
 
+#' @importFrom magrittr %>%
 #' @importFrom rlang quo_name
 #' @keywords internal
 #' @param df data for one module
@@ -37,6 +38,14 @@ proc_generic_module <- function(df,
   } else {
     # merge
     analy = list(rt_acc, acc, rt_prev_acc, rt_block_half)
+  }
+  
+  # Should only activate for ACE Explorer data, where this column is passed through
+  # Summarizes # practice rounds completed (already should be one unique value per participant)
+  if (COL_PRACTICE_COUNT %in% names(df)) {
+    prac = proc_by_condition(df, COL_PRACTICE_COUNT, include_overall = FALSE, FUN = ace_practice_count) %>% 
+      rename(!!Q_COL_PRACTICE_COUNT := paste(!!COL_PRACTICE_COUNT, !!COL_PRACTICE_COUNT, sep = "_"))
+    analy = c(analy, list(prac))
   }
   
   # TODO: Add version of proc_by_condition using a relabeled acc column where all lates are wrong

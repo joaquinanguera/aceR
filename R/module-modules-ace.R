@@ -105,6 +105,11 @@ module_spatialspan <- function(df) {
   span = proc_by_condition(df, "object_count", FUN = ace_spatial_span)
   rt_block_half = proc_by_condition(df, COL_RT, factors = Q_COL_BLOCK_HALF, include_overall = F)
   analy = list(rt, span, rt_block_half)
+  if (COL_PRACTICE_COUNT %in% names(df)) {
+    prac = proc_by_condition(df, COL_PRACTICE_COUNT, include_overall = FALSE, FUN = ace_practice_count) %>% 
+      rename(!!Q_COL_PRACTICE_COUNT := paste(!!COL_PRACTICE_COUNT, !!COL_PRACTICE_COUNT, sep = "_"))
+    analy = c(analy, list(prac))
+  }
   merged = multi_merge(analy, by = COL_BID)
   # Assume that all subjects who return a span less than 3 are technical failures and scrub
   merged = dplyr::filter(merged, object_count_span.overall >= 3)
@@ -144,6 +149,11 @@ module_backwardsspatialspan <- function(df) {
   span = proc_by_condition(df, "object_count", FUN = ace_spatial_span)
   rt_block_half = proc_by_condition(df, COL_RT, factors = Q_COL_BLOCK_HALF, include_overall = F)
   analy = list(rt, span, rt_block_half)
+  if (COL_PRACTICE_COUNT %in% names(df)) {
+    prac = proc_by_condition(df, COL_PRACTICE_COUNT, include_overall = FALSE, FUN = ace_practice_count) %>% 
+      rename(!!Q_COL_PRACTICE_COUNT := paste(!!COL_PRACTICE_COUNT, !!COL_PRACTICE_COUNT, sep = "_"))
+    analy = c(analy, list(prac))
+  }
   merged = multi_merge(analy, by = COL_BID)
   merged = dplyr::filter(merged, object_count_span.overall >= 3)
   return (merged)
@@ -169,7 +179,7 @@ module_filter <- function(df) {
   acc = proc_by_condition(df, COL_CORRECT_BUTTON, factors = c(Q_COL_CONDITION, sym("cue_rotated")), transform_dir = "long")
   rt = proc_by_condition(df, COL_RT, factors = c(Q_COL_CONDITION, Q_COL_CORRECT_BUTTON), transform_dir = "long")
   rcs = proc_by_condition(df, c(COL_CORRECT_BUTTON, COL_RT), Q_COL_CONDITION, FUN = ace_rcs, transform_dir = "long")
-  merged = reduce(list(acc, rt, rcs), left_join, by = c("bid", "condition")) %>%
+  merged = reduce(list(acc, rt, rcs), left_join, by = c(COL_BID, COL_CONDITION)) %>%
     separate(!!Q_COL_CONDITION, c("targets", "distractors"), sep = 2, remove = FALSE) %>%
     mutate_at(c("targets", "distractors"), funs(as.integer(str_sub(., start = -1L)))) %>%
     # TODO: implement k w/ proc_standard (if possible)
@@ -180,6 +190,11 @@ module_filter <- function(df) {
     pivot_wider(names_from = !!COL_CONDITION,
                 values_from = -c(!!Q_COL_BID, !!Q_COL_CONDITION, contains("overall")),
                 names_sep = ".")
+  if (COL_PRACTICE_COUNT %in% names(df)) {
+    prac = proc_by_condition(df, COL_PRACTICE_COUNT, include_overall = FALSE, FUN = ace_practice_count) %>% 
+      rename(!!Q_COL_PRACTICE_COUNT := paste(!!COL_PRACTICE_COUNT, !!COL_PRACTICE_COUNT, sep = "_"))
+    merged = left_join(merged, prac, by = COL_BID)
+  }
   
   return (select(merged, -contains(".."), -starts_with(PROC_COL_OLD[1]), -starts_with(PROC_COL_OLD[2])))
 }

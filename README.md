@@ -44,7 +44,9 @@ The package, as of March 2020, has transitioned to the [CalVer](https://calver.o
 
 - ACE spatial cueing: For newer Explorer data that has a "neutral" condition, outputs costs for neutral - incongruent and neutral - incongruent
 - ACE filter: Outputs Snodgrass-corrected d'. Use with caution when trial counts are low!
-- ACE modules in general: where response window summaries are output, now outputs minimum response window as well
+- ACE modules in general:
+    - where response window summaries are output, now outputs minimum response window as well
+    - For ACE Explorer data, now outputs `practice_count`, or the number of practice rounds that subject did for that module. Note that at the max value, 5 rounds, it does _not_ currently differentiate between whether the subject maxed out practice and failed the last round, or passed the last round.
 
 Bug fixes:
 - `proc_by_module()` failed when `app_type = "explorer"` and `output = "wide"` because it attempted to drop a column that didn't exist in demographics

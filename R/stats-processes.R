@@ -80,6 +80,17 @@ ace_rcs <- function(x, cols) {
   return (out)
 }
 
+#' @importFrom dplyr mutate_if summarize_at vars one_of funs
+#' @importFrom rlang !! :=
+#' @keywords internal 
+
+ace_practice_count <- function(x, col) {
+  out = summarize_at(x, vars(one_of(col)), funs(
+    !!COL_PRACTICE_COUNT := ace_median)) %>% 
+    mutate(!!COL_PRACTICE_COUNT := as.integer(!!Q_COL_PRACTICE_COUNT))
+  return (out)
+}
+
 #' @importFrom dplyr funs one_of summarize_at vars
 #' @keywords internal 
 
