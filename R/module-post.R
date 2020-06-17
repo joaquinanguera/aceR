@@ -172,7 +172,7 @@ post_clean_low_trials <- function (df, min_trials = 5) {
   # will then populate all the non-demo cols with NA
   
   df %<>%
-    mutate(filter_cols = map(proc, ~names(.x)[grepl("count", names(.x)) & !grepl("half", names(.x)) & !grepl("correct", names(.x)) & !grepl("cost", names(.x)) & !grepl("start", names(.x)) & !grepl("early", names(.x))]),
+    mutate(filter_cols = map(proc, ~names(.x)[grepl("count", names(.x)) & !grepl("half", names(.x)) & !grepl("correct", names(.x)) & !grepl("cost", names(.x)) & !grepl("start", names(.x)) & !grepl("early", names(.x)) & !grepl("practice", names(.x))]),
            non_demo_cols = map(proc, ~names(.x)[!(names(.x) %in% get_valid_demos(.x, is_ace = T))]),
            call_filter_cols_bad = map(filter_cols,  ~map_call2_rel("<", .x, min_trials)),
            call_filter_cols_good = map(filter_cols,  ~map_call2_rel(">=", .x, min_trials)))
