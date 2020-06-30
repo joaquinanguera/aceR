@@ -136,7 +136,7 @@ post_clean_chance <- function (df, overall = TRUE, cutoff_dprime = 0, cutoff_2ch
 
 #' Scrub processed data with too few trials
 #' 
-#' User-friendly wrapper to replace below-chance records with \code{NA}
+#' User-friendly wrapper to replace records with too many no-responses with \code{NA}
 #' in ACE/SEA data processed with \code{\link{proc_by_module}}.
 #' 
 #' @export

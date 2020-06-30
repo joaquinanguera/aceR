@@ -20,6 +20,6 @@ a df, similar in structure to \code{proc}, but with records with too few trials
 converted to \code{NA}.
 }
 \description{
-User-friendly wrapper to replace below-chance records with \code{NA}
+User-friendly wrapper to replace records with too many no-responses with \code{NA}
 in ACE/SEA data processed with \code{\link{proc_by_module}}.
 }
