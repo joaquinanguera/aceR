@@ -1,4 +1,5 @@
 
+#' @importFrom magrittr %>%
 #' @importFrom rlang quo_name
 #' @keywords internal
 #' @param df data for one module
@@ -37,6 +38,14 @@ proc_generic_module <- function(df,
   } else {
     # merge
     analy = list(rt_acc, acc, rt_prev_acc, rt_block_half)
+  }
+  
+  # Should only activate for ACE Explorer data, where this column is passed through
+  # Summarizes # practice rounds completed (already should be one unique value per participant)
+  if (COL_PRACTICE_COUNT %in% names(df)) {
+    prac = proc_by_condition(df, COL_PRACTICE_COUNT, include_overall = FALSE, FUN = ace_practice_count) %>% 
+      rename(!!Q_COL_PRACTICE_COUNT := paste(!!COL_PRACTICE_COUNT, !!COL_PRACTICE_COUNT, sep = "_"))
+    analy = c(analy, list(prac))
   }
   
   # TODO: Add version of proc_by_condition using a relabeled acc column where all lates are wrong
@@ -91,14 +100,16 @@ proc_by_condition <- function(df, variable, factors, include_overall = TRUE, FUN
 
 clean_proc_cols <- function (df) {
   df <- df %>%
-    rename_all(funs(tolower(.))) %>%
-    rename_all(funs(str_replace(., COL_CORRECT_BUTTON, "acc"))) %>%
-    rename_all(funs(str_replace(., COL_CORRECT_RESPONSE, "acc"))) %>%
+    rename_all(~tolower(.)) %>%
+    rename_all(~str_replace(., COL_CORRECT_BUTTON, "acc")) %>%
+    rename_all(~str_replace(., COL_CORRECT_RESPONSE, "acc")) %>%
     select(-contains(".short"), -contains(".no_response"), -contains(".late"),
            -contains("acc_median"), -contains("acc_sd"),
            -contains(".NA"), -contains("prev_na"), -contains("prev_no_response"),
            -contains("rw_count"), -contains("rw_length"),
            -contains("count.cost"), -contains("length.cost")) %>%
+    # remove min summary cols for not response window
+    select(!(contains("_min") & !contains("rw"))) %>% 
     # grandfathering Jose's patch for invalid cols produced from empty conditions
     select(-ends_with("."))
   

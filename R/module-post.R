@@ -80,7 +80,7 @@ post_clean_chance <- function (df, overall = TRUE, cutoff_dprime = 0, cutoff_2ch
                            c("acc_mean.overall"),
                            c("acc_mean.overall"),
                            c("dprime.overall"),
-                           c("k.R2B0", "k.R4B0")))
+                           c("k.r2b0", "k.r4b0")))
   } else {
     metric_cols %<>%
       mutate(metric = list(c("dprime.tap_only"),
@@ -89,7 +89,7 @@ post_clean_chance <- function (df, overall = TRUE, cutoff_dprime = 0, cutoff_2ch
                            c("acc_mean.stay"),
                            c("acc_mean.feature_4"),
                            c("dprime.sustained", "dprime.impulsive"),
-                           c("k.R2B0", "k.R4B0")))
+                           c("k.r2b0", "k.r4b0")))
   }
   
   metric_cols %<>%
@@ -136,7 +136,7 @@ post_clean_chance <- function (df, overall = TRUE, cutoff_dprime = 0, cutoff_2ch
 
 #' Scrub processed data with too few trials
 #' 
-#' User-friendly wrapper to replace below-chance records with \code{NA}
+#' User-friendly wrapper to replace records with too many no-responses with \code{NA}
 #' in ACE/SEA data processed with \code{\link{proc_by_module}}.
 #' 
 #' @export
@@ -147,7 +147,9 @@ post_clean_chance <- function (df, overall = TRUE, cutoff_dprime = 0, cutoff_2ch
 #' @param df a df, output by \code{\link{proc_by_module}}, containing processed
 #' ACE or SEA data.
 #' @param min_trials Minimum number of trials to require in most restrictive condition.
-#' Defaults to 5.
+#' Defaults to 5. This condition is checked against the \code{*_count} summary columns,
+#' that count all trials with a valid response time (and all no-go trials, if a response
+#' was not expected.)
 #' @return a df, similar in structure to \code{proc}, but with records with too few trials
 #' converted to \code{NA}.
 
@@ -170,7 +172,7 @@ post_clean_low_trials <- function (df, min_trials = 5) {
   # will then populate all the non-demo cols with NA
   
   df %<>%
-    mutate(filter_cols = map(proc, ~names(.x)[grepl("length", names(.x)) & !grepl("half", names(.x)) & !grepl("correct", names(.x)) & !grepl("cost", names(.x)) & !grepl("start", names(.x))]),
+    mutate(filter_cols = map(proc, ~names(.x)[grepl("count", names(.x)) & !grepl("half", names(.x)) & !grepl("correct", names(.x)) & !grepl("cost", names(.x)) & !grepl("start", names(.x)) & !grepl("early", names(.x)) & !grepl("practice", names(.x))]),
            non_demo_cols = map(proc, ~names(.x)[!(names(.x) %in% get_valid_demos(.x, is_ace = T))]),
            call_filter_cols_bad = map(filter_cols,  ~map_call2_rel("<", .x, min_trials)),
            call_filter_cols_good = map(filter_cols,  ~map_call2_rel(">=", .x, min_trials)))

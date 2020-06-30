@@ -162,8 +162,13 @@ transform_mid <- function (dat, file, app_type) {
     standardize_ace_ids() %>%
     standardize_ace_values(app_type = app_type)
   
+  if (COL_PRACTICE %in% names(dat) & dat[[COL_MODULE]][1] != ISHIHARA) {
+    dat <- dat %>%
+      summarize_practice()
+  }
+  
   # Should only activate for explorer demos modules
-  if (dat$module[1] != DEMOS) {
+  if (dat[[COL_MODULE]][1] != DEMOS) {
     if (COL_CONDITION %in% names(dat)) {
       dat <- dat %>%
         group_by(!!Q_COL_BID, !!Q_COL_CONDITION) 

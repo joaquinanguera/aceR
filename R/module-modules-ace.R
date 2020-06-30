@@ -105,6 +105,11 @@ module_spatialspan <- function(df) {
   span = proc_by_condition(df, "object_count", FUN = ace_spatial_span)
   rt_block_half = proc_by_condition(df, COL_RT, factors = Q_COL_BLOCK_HALF, include_overall = F)
   analy = list(rt, span, rt_block_half)
+  if (COL_PRACTICE_COUNT %in% names(df)) {
+    prac = proc_by_condition(df, COL_PRACTICE_COUNT, include_overall = FALSE, FUN = ace_practice_count) %>% 
+      rename(!!Q_COL_PRACTICE_COUNT := paste(!!COL_PRACTICE_COUNT, !!COL_PRACTICE_COUNT, sep = "_"))
+    analy = c(analy, list(prac))
+  }
   merged = multi_merge(analy, by = COL_BID)
   # Assume that all subjects who return a span less than 3 are technical failures and scrub
   merged = dplyr::filter(merged, object_count_span.overall >= 3)
@@ -144,6 +149,11 @@ module_backwardsspatialspan <- function(df) {
   span = proc_by_condition(df, "object_count", FUN = ace_spatial_span)
   rt_block_half = proc_by_condition(df, COL_RT, factors = Q_COL_BLOCK_HALF, include_overall = F)
   analy = list(rt, span, rt_block_half)
+  if (COL_PRACTICE_COUNT %in% names(df)) {
+    prac = proc_by_condition(df, COL_PRACTICE_COUNT, include_overall = FALSE, FUN = ace_practice_count) %>% 
+      rename(!!Q_COL_PRACTICE_COUNT := paste(!!COL_PRACTICE_COUNT, !!COL_PRACTICE_COUNT, sep = "_"))
+    analy = c(analy, list(prac))
+  }
   merged = multi_merge(analy, by = COL_BID)
   merged = dplyr::filter(merged, object_count_span.overall >= 3)
   return (merged)
@@ -169,15 +179,22 @@ module_filter <- function(df) {
   acc = proc_by_condition(df, COL_CORRECT_BUTTON, factors = c(Q_COL_CONDITION, sym("cue_rotated")), transform_dir = "long")
   rt = proc_by_condition(df, COL_RT, factors = c(Q_COL_CONDITION, Q_COL_CORRECT_BUTTON), transform_dir = "long")
   rcs = proc_by_condition(df, c(COL_CORRECT_BUTTON, COL_RT), Q_COL_CONDITION, FUN = ace_rcs, transform_dir = "long")
-  merged = reduce(list(acc, rt, rcs), left_join, by = c("bid", "condition")) %>%
+  merged = reduce(list(acc, rt, rcs), left_join, by = c(COL_BID, COL_CONDITION)) %>%
     separate(!!Q_COL_CONDITION, c("targets", "distractors"), sep = 2, remove = FALSE) %>%
     mutate_at(c("targets", "distractors"), funs(as.integer(str_sub(., start = -1L)))) %>%
     # TODO: implement k w/ proc_standard (if possible)
-    mutate(k = ace_wm_k(correct_button_mean.change, 1 - correct_button_mean.no_change, targets)) %>%
+    mutate(k = ace_wm_k(correct_button_mean.change, 1 - correct_button_mean.no_change, targets),
+           dprime = ace_dprime_wide(correct_button_mean.change, 1 - correct_button_mean.no_change,
+                                    correct_button_count.change, correct_button_count.no_change)) %>%
     select(-targets, -distractors) %>%
     pivot_wider(names_from = !!COL_CONDITION,
                 values_from = -c(!!Q_COL_BID, !!Q_COL_CONDITION, contains("overall")),
                 names_sep = ".")
+  if (COL_PRACTICE_COUNT %in% names(df)) {
+    prac = proc_by_condition(df, COL_PRACTICE_COUNT, include_overall = FALSE, FUN = ace_practice_count) %>% 
+      rename(!!Q_COL_PRACTICE_COUNT := paste(!!COL_PRACTICE_COUNT, !!COL_PRACTICE_COUNT, sep = "_"))
+    merged = left_join(merged, prac, by = COL_BID)
+  }
   
   return (select(merged, -contains(".."), -starts_with(PROC_COL_OLD[1]), -starts_with(PROC_COL_OLD[2])))
 }
@@ -200,6 +217,15 @@ module_ishihara <- function(df) {
 module_spatialcueing <- function(df) {
   gen = proc_generic_module(df, col_condition = Q_COL_TRIAL_TYPE)
   rcs = proc_by_condition(df, c(COL_CORRECT_BUTTON, COL_RT), Q_COL_TRIAL_TYPE, FUN = ace_rcs)
-  cost = multi_subtract(gen, "\\.incongruent", "\\.congruent", "\\.cost")
-  return (left_join(gen, rcs, by = COL_BID) %>% dplyr::bind_cols(cost))
+  cost = multi_subtract(gen, "\\.incongruent", "\\.congruent", "\\.inc_con_cost")
+  # This should only trigger for newer versions of ACE Explorer where a "neutral" condition was added
+  if (any(grepl("neutral", names(gen)))) {
+    cost_neutral_incongruent = multi_subtract(gen, "\\.neutral", "\\.incongruent", "\\.neu_inc_cost")
+    cost_neutral_congruent = multi_subtract(gen, "\\.neutral", "\\.congruent", "\\.neu_con_cost")
+    
+    cost_full = dplyr::bind_cols(cost, cost_neutral_incongruent, cost_neutral_congruent)
+  } else {
+    cost_full = cost
+  }
+  return (left_join(gen, rcs, by = COL_BID) %>% dplyr::bind_cols(cost_full))
 }

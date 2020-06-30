@@ -65,8 +65,6 @@ trim_rt_trials <- function(df, sd_cutoff = FALSE,
       }
       
       if (any(sd_cutoff != FALSE)) {
-        this_sd = scale(data[[COL_RT]])
-        
         df$data[[i]] <- df$data[[i]] %>%
           mutate(rt_scaled = na_if(!!Q_COL_RT, -99),
                  rt_scaled = c(scale(rt_scaled)),

@@ -85,10 +85,16 @@ test_that("module proc: ACE BRT works", {
                  regexp = "No handedness data found")
 })
 
-test_that("module proc: ACE Classroom email data bulk processes properly", {
-  expect_gt(nrow(proc_by_module(raw_explorer, app_type = "explorer", output = "long", verbose = F)), 0)
+test_that("module proc: ACE Explorer data bulk processes properly", {
+  long = proc_by_module(raw_explorer, app_type = "explorer", output = "long", verbose = F)
+  wide = proc_by_module(raw_explorer, app_type = "explorer", output = "wide", verbose = F)
+  expect_gt(nrow(long), 0)
+  expect_gt(nrow(wide), 0)
 })
 
-test_that("module proc: ACE Explorer data bulk processes properly", {
-  expect_gt(nrow(proc_by_module(raw_email, app_type = "classroom", output = "long", verbose = F)), 0)
+test_that("module proc: ACE Classroom email data bulk processes properly", {
+  long = proc_by_module(raw_email, app_type = "classroom", output = "long", verbose = F)
+  wide = proc_by_module(raw_email, app_type = "classroom", output = "wide", verbose = F)
+  expect_gt(nrow(long), 0)
+  expect_gt(nrow(wide), 0)
 })
