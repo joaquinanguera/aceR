@@ -329,7 +329,8 @@ standardize_ace_column_types <- function (df) {
 #' @importFrom lubridate parse_date_time
 #' @importFrom magrittr %>% %<>%
 #' @importFrom rlang sym !! :=
-#' @importFrom stringr str_replace
+#' @importFrom stringr str_replace str_trim
+#' @importFrom tidyr separate
 
 standardize_ace_values <- function(df, app_type) {
   # this function handles re-typing of columns
@@ -462,6 +463,20 @@ standardize_ace_values <- function(df, app_type) {
     # they get read in as character, or int if every value is NA
     df %<>%
       mutate_at(vars(matches("tap.*rt")), as.numeric)
+  } else if (TASK_SWITCH %in% df$module & app_type == "explorer") {
+    df %<>%
+      mutate(button_pressed = str_trim(button_pressed, side = "right")) %>%
+      separate(button_pressed, into = c("pressed_color", "pressed_shape"), sep = " ", fill = "right") %>%
+      mutate(pressed_color = na_if(pressed_color, "Unanswered"),
+             !!COL_CORRECT_BUTTON := case_when(
+               cue_displayed == "Color" & pressed_color == stimulus_color ~ "correct",
+               cue_displayed == "Color" & pressed_color != stimulus_color ~ "incorrect",
+               cue_displayed == "Shape" & pressed_shape == stimulus_shape ~ "correct",
+               cue_displayed == "Shape" & pressed_shape != stimulus_shape ~ "incorrect",
+               is.na(pressed_color) & is.na(pressed_shape) ~ "no_response",
+               # missing implies fucked up somehow
+               TRUE ~ NA_character_)
+             )
   }
   
   # needs to be called LAST, after all the other boutique accuracy corrections are complete

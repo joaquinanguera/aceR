@@ -40,6 +40,12 @@ The package, as of March 2020, has transitioned to the [CalVer](https://calver.o
 
 ### Brief release notes
 
+20.2.1:
+
+Minor implementation changes:
+
+- ACE Explorer task switch: accuracy is now manually recoded to check that the color or shape of the pressed button is equal to either the color or shape displayed, depending on the cue
+
 20.2.0: New outputs of `proc_by_module()` added:
 
 - ACE spatial cueing: For newer Explorer data that has a "neutral" condition, outputs costs for neutral - incongruent and neutral - incongruent
