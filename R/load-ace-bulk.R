@@ -54,13 +54,21 @@ load_ace_bulk <- function(path = ".",
   
   out <- out %>%
     filter(map(data, ~nrow(.)) > 0) %>% # if extraction failed, data will have 0 rows and other commands on data will fail
-    mutate(data = map(data, ~nest(as_tibble(.x), data = -c(!!COL_BID, !!COL_MODULE, !!COL_FILE)))) %>%
+    mutate(data = map(data, function(x) {
+      # this will create NA-filled version of condition if it doesn't exist (in some modules)
+      # We need this so that nest()/distinct() will not throw errors when condition is an invalid col
+      if (!(COL_CONDITION %in% names(x))) x[[COL_CONDITION]] = NA
+      x = x %>% 
+        as_tibble() %>% 
+        nest(data = -c(!!COL_BID, !!COL_MODULE, !!COL_CONDITION, !!COL_FILE))
+      return (x)
+    })) %>%
     select(-!!COL_FILE) %>%
     unnest(data) %>%
     # new de-duplication strategy: dplyr::distinct() files by bid & module should work (NOT by file)
     # NOTE: old de-duplication was done only on emailed data,
     # but this should behave properly for both emailed and database data
-    distinct(!!Q_COL_BID, !!Q_COL_MODULE, .keep_all = TRUE) %>%
+    distinct(!!Q_COL_BID, !!Q_COL_MODULE, !!Q_COL_CONDITION, .keep_all = TRUE) %>%
     nest(data = -!!COL_MODULE) %>%
     mutate(data = map(data, ~unnest(.x, data)),
            data = map(data, ~remove_empty_cols(.)),

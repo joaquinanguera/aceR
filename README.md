@@ -40,11 +40,15 @@ The package, as of March 2020, has transitioned to the [CalVer](https://calver.o
 
 ### Brief release notes
 
-20.2.1:
+20.3.0:
 
 Minor implementation changes:
 
 - ACE Explorer task switch: accuracy is now manually recoded to check that the color or shape of the pressed button is equal to either the color or shape displayed, depending on the cue
+
+Bug fixes:
+
+- In June (ish?) 2020, ACE Explorer began collecting and outputting SAAT data as two separate tasks for the impulsive and sustained conditions. Previous versions of `load_ace_bulk()` would accidentally remove data from each player's second SAAT module as "duplicated". The code now considers task condition when de-duplicating raw data. **This is a necessary update for anyone looking to process ACE Explorer SAAT data in the new format.**
 
 20.2.0: New outputs of `proc_by_module()` added:
 
