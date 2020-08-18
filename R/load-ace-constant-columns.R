@@ -406,19 +406,34 @@ standardize_ace_values <- function(df, app_type) {
                                                TRUE ~ NA_character_)) # missing implies fucked up somehow
     
   } else if (FLANKER %in% df$module) {
-    df %<>%
-      mutate(!!COL_CORRECT_BUTTON := case_when(displayed_cue %in% c("A", "B") & first_button == "YES" ~ "correct",
-                                               displayed_cue %in% c("C", "D") & second_button == "YES" ~ "correct",
-                                               first_button == "NO" & second_button == "NO" ~ "no_response",
-                                               TRUE ~ "incorrect"))
+    # Should only trigger for ACE Explorer data from June 2020 and later
+    if (identical(unique(df$displayed_cue), c("A", "B"))) {
+      df %<>%
+        mutate(!!COL_CORRECT_BUTTON := case_when(displayed_cue == "A" & first_button == "YES" ~ "correct",
+                                                 displayed_cue == "B" & second_button == "YES" ~ "correct",
+                                                 first_button == "NO" & second_button == "NO" ~ "no_response",
+                                                 TRUE ~ "incorrect"))
+    } else {
+      df %<>%
+        mutate(!!COL_CORRECT_BUTTON := case_when(displayed_cue %in% c("A", "B") & first_button == "YES" ~ "correct",
+                                                 displayed_cue %in% c("C", "D") & second_button == "YES" ~ "correct",
+                                                 first_button == "NO" & second_button == "NO" ~ "no_response",
+                                                 TRUE ~ "incorrect"))
+    }
+
   } else if (BRT %in% df$module) {
     # retype and clean accuracy
     df %<>%
-      mutate(inter_time_interval = as.numeric(inter_time_interval),
-             !!COL_CORRECT_BUTTON := if_else(!!Q_COL_RT != inter_time_interval,
-                                             "correct",
-                                             !!Q_COL_CORRECT_BUTTON,
-                                             missing = !!Q_COL_CORRECT_BUTTON))
+      mutate(inter_time_interval = as.numeric(inter_time_interval))
+    
+    if (app_type %in% c("email", "pulvinar")) {
+      df %<>%
+        mutate(!!COL_CORRECT_BUTTON := if_else(!!Q_COL_RT != inter_time_interval,
+                                                "correct",
+                                                !!Q_COL_CORRECT_BUTTON,
+                                                missing = !!Q_COL_CORRECT_BUTTON))
+    }
+    
   } else if (TNT %in% df$module) {
     
     df %<>%
