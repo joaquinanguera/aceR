@@ -40,6 +40,26 @@ The package, as of March 2020, has transitioned to the [CalVer](https://calver.o
 
 ### Brief release notes
 
+20.4.0:
+
+Minor implementation changes:
+
+- ACE BRT: Only Classroom BRT is checked for `rt != inter_time_interval`. Explorer BRT is now unmodified in this respect.
+
+Bug fixes:
+
+- In June (ish?) 2020, ACE Explorer began labeling Flanker cues as A vs. B, instead of A/B vs. C/D. Previous versions of `load_ace_bulk()` would thus accidentally mis-code all responses when `displayed_cue == "B"`. The code now splits Flanker cues into A vs. B or A/B vs. C/D depending on whether C/D are present in the data. **This is a necessary update for anyone looking to process ACE Explorer Flanker data in the new format.**
+
+20.3.0:
+
+Minor implementation changes:
+
+- ACE Explorer task switch: accuracy is now manually recoded to check that the color or shape of the pressed button is equal to either the color or shape displayed, depending on the cue
+
+Bug fixes:
+
+- In June (ish?) 2020, ACE Explorer began collecting and outputting SAAT data as two separate tasks for the impulsive and sustained conditions. Previous versions of `load_ace_bulk()` would accidentally remove data from each player's second SAAT module as "duplicated". The code now considers task condition when de-duplicating raw data. **This is a necessary update for anyone looking to process ACE Explorer SAAT data in the new format.**
+
 20.2.0: New outputs of `proc_by_module()` added:
 
 - ACE spatial cueing: For newer Explorer data that has a "neutral" condition, outputs costs for neutral - incongruent and neutral - incongruent

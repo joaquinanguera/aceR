@@ -329,7 +329,8 @@ standardize_ace_column_types <- function (df) {
 #' @importFrom lubridate parse_date_time
 #' @importFrom magrittr %>% %<>%
 #' @importFrom rlang sym !! :=
-#' @importFrom stringr str_replace
+#' @importFrom stringr str_replace str_trim
+#' @importFrom tidyr separate
 
 standardize_ace_values <- function(df, app_type) {
   # this function handles re-typing of columns
@@ -405,19 +406,34 @@ standardize_ace_values <- function(df, app_type) {
                                                TRUE ~ NA_character_)) # missing implies fucked up somehow
     
   } else if (FLANKER %in% df$module) {
-    df %<>%
-      mutate(!!COL_CORRECT_BUTTON := case_when(displayed_cue %in% c("A", "B") & first_button == "YES" ~ "correct",
-                                               displayed_cue %in% c("C", "D") & second_button == "YES" ~ "correct",
-                                               first_button == "NO" & second_button == "NO" ~ "no_response",
-                                               TRUE ~ "incorrect"))
+    # Should only trigger for ACE Explorer data from June 2020 and later
+    if (identical(unique(df$displayed_cue), c("A", "B"))) {
+      df %<>%
+        mutate(!!COL_CORRECT_BUTTON := case_when(displayed_cue == "A" & first_button == "YES" ~ "correct",
+                                                 displayed_cue == "B" & second_button == "YES" ~ "correct",
+                                                 first_button == "NO" & second_button == "NO" ~ "no_response",
+                                                 TRUE ~ "incorrect"))
+    } else {
+      df %<>%
+        mutate(!!COL_CORRECT_BUTTON := case_when(displayed_cue %in% c("A", "B") & first_button == "YES" ~ "correct",
+                                                 displayed_cue %in% c("C", "D") & second_button == "YES" ~ "correct",
+                                                 first_button == "NO" & second_button == "NO" ~ "no_response",
+                                                 TRUE ~ "incorrect"))
+    }
+
   } else if (BRT %in% df$module) {
     # retype and clean accuracy
     df %<>%
-      mutate(inter_time_interval = as.numeric(inter_time_interval),
-             !!COL_CORRECT_BUTTON := if_else(!!Q_COL_RT != inter_time_interval,
-                                             "correct",
-                                             !!Q_COL_CORRECT_BUTTON,
-                                             missing = !!Q_COL_CORRECT_BUTTON))
+      mutate(inter_time_interval = as.numeric(inter_time_interval))
+    
+    if (app_type %in% c("email", "pulvinar")) {
+      df %<>%
+        mutate(!!COL_CORRECT_BUTTON := if_else(!!Q_COL_RT != inter_time_interval,
+                                                "correct",
+                                                !!Q_COL_CORRECT_BUTTON,
+                                                missing = !!Q_COL_CORRECT_BUTTON))
+    }
+    
   } else if (TNT %in% df$module) {
     
     df %<>%
@@ -462,6 +478,20 @@ standardize_ace_values <- function(df, app_type) {
     # they get read in as character, or int if every value is NA
     df %<>%
       mutate_at(vars(matches("tap.*rt")), as.numeric)
+  } else if (TASK_SWITCH %in% df$module & app_type == "explorer") {
+    df %<>%
+      mutate(button_pressed = str_trim(button_pressed, side = "right")) %>%
+      separate(button_pressed, into = c("pressed_color", "pressed_shape"), sep = " ", fill = "right") %>%
+      mutate(pressed_color = na_if(pressed_color, "Unanswered"),
+             !!COL_CORRECT_BUTTON := case_when(
+               cue_displayed == "Color" & pressed_color == stimulus_color ~ "correct",
+               cue_displayed == "Color" & pressed_color != stimulus_color ~ "incorrect",
+               cue_displayed == "Shape" & pressed_shape == stimulus_shape ~ "correct",
+               cue_displayed == "Shape" & pressed_shape != stimulus_shape ~ "incorrect",
+               is.na(pressed_color) & is.na(pressed_shape) ~ "no_response",
+               # missing implies fucked up somehow
+               TRUE ~ NA_character_)
+             )
   }
   
   # needs to be called LAST, after all the other boutique accuracy corrections are complete
