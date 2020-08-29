@@ -492,6 +492,19 @@ standardize_ace_values <- function(df, app_type) {
                # missing implies fucked up somehow
                TRUE ~ NA_character_)
              )
+  } else if (BOXED %in% df$module & app_type == "explorer") {
+    df %<>%
+      mutate(button_pressed = na_if(button_pressed, "Unanswered"),
+             !!COL_CORRECT_BUTTON := case_when(
+               position_is_top == 1 & button_pressed == "Top" ~ "correct",
+               position_is_top == 1 & button_pressed == "Bottom" ~ "incorrect",
+               position_is_top == 0 & button_pressed == "Top" ~ "incorrect",
+               position_is_top == 0 & button_pressed == "Bottom" ~ "correct",
+               is.na(button_pressed) ~ "no_response",
+               # missing should never happen
+               TRUE ~ NA_character_
+             )
+      )
   }
   
   # needs to be called LAST, after all the other boutique accuracy corrections are complete

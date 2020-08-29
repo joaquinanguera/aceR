@@ -40,6 +40,12 @@ The package, as of March 2020, has transitioned to the [CalVer](https://calver.o
 
 ### Brief release notes
 
+20.4.1:
+
+Minor implementation changes:
+
+- ACE Explorer Boxed: Now forcibly recodes accuracy based on `button_pressed` and `position_is_top`
+
 20.4.0:
 
 Minor implementation changes:
