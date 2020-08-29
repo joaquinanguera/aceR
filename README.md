@@ -40,11 +40,12 @@ The package, as of March 2020, has transitioned to the [CalVer](https://calver.o
 
 ### Brief release notes
 
-20.4.1:
+Current:
 
 Minor implementation changes:
 
 - ACE Explorer Boxed: Now forcibly recodes accuracy based on `button_pressed` and `position_is_top`
+- ACE Explorer Filter: Now forcibly recodes accuracy based on `button_pressed` and `cue_rotated`. Retains previous recoding from earlier versions of the task when `button_pressed` was not included.
 
 20.4.0:
 

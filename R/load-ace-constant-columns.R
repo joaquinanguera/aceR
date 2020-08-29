@@ -448,10 +448,26 @@ standardize_ace_values <- function(df, app_type) {
              degree_of_change = as.numeric(degree_of_change),
              cue_rotated = as.integer(cue_rotated))
     
+    if ("button_pressed" %in% names(df)) {
+      df %<>%
+        mutate(button_pressed = na_if(button_pressed, "Unanswered"),
+               !!COL_CORRECT_BUTTON := case_when(
+                 cue_rotated == 1 & button_pressed == "Different" ~ "correct",
+                 cue_rotated == 1 & button_pressed == "Same" ~ "incorrect",
+                 cue_rotated == 0 & button_pressed == "Different" ~ "incorrect",
+                 cue_rotated == 0 & button_pressed == "Same" ~ "correct",
+                 is.na(button_pressed) ~ "no_response",
+                 # missing should never happen
+                 TRUE ~ NA_character_
+               )
+        )
+    }
+    
     # in the past (before 2019?), degree_of_change was the meaningful variable of adaptation
     # hence this re-patching is sometimes necessary
     # I believe only applies to classroom data but may apply to old explorer data
     # So not varying on app_type just in case
+    # I think this will not trigger any changes for newer Explorer data that don't meet the conditionals
     if (any(!is.na(df$degree_of_change))) {
       df %<>%
         mutate(# 180 degree rotation was incorrectly marked as "change" when there's no visual change
