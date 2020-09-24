@@ -24,3 +24,4 @@ scripts/seacrest/*spin
 scripts/*.html
 scratchpad.R
 ~/.boxr-oauth
+ignore/*
