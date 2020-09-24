@@ -1,6 +1,6 @@
 {
   "R": {
-    "Version": "3.6.1",
+    "Version": "4.0.2",
     "Repositories": [
       {
         "Name": "CRAN",
@@ -25,10 +25,10 @@
     },
     "Matrix": {
       "Package": "Matrix",
-      "Version": "1.2-17",
+      "Version": "1.2-18",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "39ea11fb3ad0d759f9f1c053fd442957"
+      "Hash": "08588806cba69f04797dab50627428ed"
     },
     "R6": {
       "Package": "R6",
@@ -51,13 +51,6 @@
       "Repository": "CRAN",
       "Hash": "5ef9c463e30f8aea49c293e4b8d9d7be"
     },
-    "XLConnect": {
-      "Package": "XLConnect",
-      "Version": "1.0.1",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "c3abedd13630e0a6beab7cd2c6cae005"
-    },
     "assertthat": {
       "Package": "assertthat",
       "Version": "0.2.1",
@@ -74,10 +67,10 @@
     },
     "callr": {
       "Package": "callr",
-      "Version": "3.4.3",
+      "Version": "3.4.4",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "643163a00cb536454c624883a10ae0bc"
+      "Hash": "e56fe17ffeddfdcfcef40981e41e1c40"
     },
     "cli": {
       "Package": "cli",
@@ -130,17 +123,17 @@
     },
     "dplyr": {
       "Package": "dplyr",
-      "Version": "0.8.5",
+      "Version": "1.0.2",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "57a42ddf80f429764ff7987128c3fd0a"
+      "Hash": "d0509913b27ea898189ee664b6030dc2"
     },
     "ellipsis": {
       "Package": "ellipsis",
-      "Version": "0.3.0",
+      "Version": "0.3.1",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "7067d90c1c780bfe80c0d497e3d7b49d"
+      "Hash": "fd2844b3a43ae2d27e70ece2df1b4e2a"
     },
     "evaluate": {
       "Package": "evaluate",
@@ -242,10 +235,10 @@
     },
     "mgcv": {
       "Package": "mgcv",
-      "Version": "1.8-29",
+      "Version": "1.8-33",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "580c326446cf8601f33313e3027df211"
+      "Hash": "eb7b6439bc6d812eed2cddba5edc6be3"
     },
     "munsell": {
       "Package": "munsell",
@@ -256,10 +249,10 @@
     },
     "nlme": {
       "Package": "nlme",
-      "Version": "3.1-141",
+      "Version": "3.1-149",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "cebdbe755f3d628b6afd82490b1eb63a"
+      "Hash": "7c24ab3a1e3afe50388eb2d893aab255"
     },
     "pillar": {
       "Package": "pillar",
@@ -270,10 +263,10 @@
     },
     "pkgbuild": {
       "Package": "pkgbuild",
-      "Version": "1.0.8",
+      "Version": "1.1.0",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "8d8b5e29223aabb829246397299f0592"
+      "Hash": "404684bc4e3685007f9720adf13b06c1"
     },
     "pkgconfig": {
       "Package": "pkgconfig",
@@ -284,17 +277,10 @@
     },
     "pkgload": {
       "Package": "pkgload",
-      "Version": "1.0.2",
+      "Version": "1.1.0",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "5e655fb54cceead0f095f22d7be33da3"
-    },
-    "plogr": {
-      "Package": "plogr",
-      "Version": "0.2.0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "09eb987710984fc2905c7129c7d85e65"
+      "Hash": "b6b150cd4709e0c0c9b5d51ac4376282"
     },
     "plyr": {
       "Package": "plyr",
@@ -338,13 +324,6 @@
       "Repository": "CRAN",
       "Hash": "97def703420c8ab10d8f0e6c72101e02"
     },
-    "rJava": {
-      "Package": "rJava",
-      "Version": "0.9-12",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "21b20702f0e8e171a81a5d9d75f2b2fd"
-    },
     "readr": {
       "Package": "readr",
       "Version": "1.3.1",
@@ -354,17 +333,17 @@
     },
     "renv": {
       "Package": "renv",
-      "Version": "0.10.0",
+      "Version": "0.12.0",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "0d3f1c2b63e70b3d918246b4e2ca59b7"
+      "Hash": "7340c71f46a0fd16506cfa804e224e44"
     },
     "rlang": {
       "Package": "rlang",
-      "Version": "0.4.6",
+      "Version": "0.4.7",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "aa263e3ce17b177c49e0daade2ee3cdc"
+      "Hash": "c06d2a6887f4b414f8e927afd9ee976a"
     },
     "rprojroot": {
       "Package": "rprojroot",
@@ -438,10 +417,10 @@
     },
     "vctrs": {
       "Package": "vctrs",
-      "Version": "0.3.0",
+      "Version": "0.3.4",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "fbf7ee297936697ec8404a22859da129"
+      "Hash": "0bc90078aeee42f2520b1d0a33bd6758"
     },
     "viridisLite": {
       "Package": "viridisLite",
