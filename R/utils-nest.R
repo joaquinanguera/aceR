@@ -66,7 +66,7 @@ unnest_ace_raw <- function(df, app_type = c("classroom", "explorer")) {
 #' for processing in other package functions.
 #' 
 #' @export
-#' @importFrom dplyr bind_rows ends_with filter one_of mutate pull rename_at select vars
+#' @importFrom dplyr arrange bind_rows ends_with filter one_of mutate pull rename_at select vars
 #' @importFrom magrittr %>%
 #' @importFrom purrr map map_chr pluck
 #' @importFrom rlang !! type_of
@@ -120,6 +120,7 @@ nest_ace_raw <- function(df, app_type = c("classroom", "explorer")) {
       pluck(1) %>%
       rename_at(vars(one_of(explorer_demos[endsWith(explorer_demos, "_demos")])),
                 str_sub, end = -7L) %>%
+      arrange(!!Q_COL_BID) %>% 
       list() %>%
       tibble(module = DEMOS, data = .)
     
