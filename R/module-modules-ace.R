@@ -20,25 +20,36 @@ module_boxed <- function(df) {
 
 #' @importFrom magrittr %>%
 #' @importFrom rlang sym !!
-#' @importFrom dplyr mutate mutate_at recode select starts_with
+#' @importFrom dplyr case_when mutate mutate_at recode select starts_with
 #' @keywords internal
 #' @name ace_procs
 
 module_brt <- function(df) {
   if (COL_HANDEDNESS %in% names(df)) {
     df <- df %>%
-      mutate_at(COL_HANDEDNESS, tolower) %>%
-      mutate(condition_hand = ifelse(grepl("right", !!Q_COL_HANDEDNESS),
-                                     recode(!!Q_COL_CONDITION,
-                                            right = "dominant",
-                                            left = "nondominant",
-                                            rightthumb="dominant.thumb",
-                                            leftthumb="nondominant.thumb"),
-                                     recode(!!Q_COL_CONDITION,
-                                            left = "dominant",
-                                            right = "nondominant",
-                                            leftthumb="dominant.thumb",
-                                            rightthumb="nondominant.thumb")))
+      mutate_at(COL_HANDEDNESS, tolower)
+    
+    if (!all(df[[COL_HANDEDNESS]] %in% c("right", "left"))) {
+      warning("Nonstandard handedness levels detected.\n",
+              "Handedness levels found in data (coerced to lowercase): ",
+              paste(unique(df[[COL_HANDEDNESS]]), collapse = " "),
+              "\n",
+              "Dominant hand recoding may be unknown for these levels")
+    }
+    
+    df <- df %>%
+      mutate(condition_hand = case_when(
+        grepl("right", !!Q_COL_HANDEDNESS) ~ recode(!!Q_COL_CONDITION,
+                                                    right = "dominant",
+                                                    left = "nondominant",
+                                                    rightthumb="dominant.thumb",
+                                                    leftthumb="nondominant.thumb"),
+        grepl("left", !!Q_COL_HANDEDNESS) ~ recode(!!Q_COL_CONDITION,
+                                                   left = "dominant",
+                                                   right = "nondominant",
+                                                   leftthumb="dominant.thumb",
+                                                   rightthumb="nondominant.thumb"),
+        TRUE ~ !!Q_COL_CONDITION))
     gen = proc_generic_module(df, col_condition = sym("condition_hand"))
   } else {
     warning("No handedness data found. Unable to label BRT data by dominant hand")

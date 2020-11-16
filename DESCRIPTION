@@ -1,13 +1,13 @@
 Package: aceR
 Title: Tools for processing ACE data
 Description: An R package for processing ACE data.
-Version: 20.4.0
+Version: 20.4.1
 Authors@R: as.person(c('Jose Gallegos <josegallegos07@gmail.com> [aut]',
     'Monica Thieu <mthieu@alumni.stanford.edu> [aut, cre]'))
 URL: https://github.com/joaquinanguera/aceR
 BugReports: https://github.com/joaquinanguera/aceR/issues
 Depends:
-    R (>= 3.4.0), R (<= 3.6.3)
+    R (>= 3.4.0)
 Suggests:
     testthat (>= 2.1.0)
 Imports:
@@ -27,5 +27,5 @@ Imports:
     utils,
     zoo
 License: file LICENSE
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Encoding: UTF-8
