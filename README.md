@@ -44,6 +44,7 @@ Current:
 
 Minor implementation changes:
 
+- `load_ace_bulk()`: Internal changes to `replace_nas()` to accommodate changes in how tibble data types behave with base R bracket indexing. **Fixes a breaking error with aceR and newer versions of tidyverse packages. Package now requires dplyr >= 1.0.0.**
 - ACE Explorer Boxed: Now forcibly recodes accuracy based on `button_pressed` and `position_is_top`
 - ACE Explorer Filter: Now forcibly recodes accuracy based on `button_pressed` and `cue_rotated`. Retains previous recoding from earlier versions of the task when `button_pressed` was not included.
 - ACE BRT: Now more strict about checking for handedness in demographics. If handedness does not match `"right"` or `"left"`, `module_brt()` throws warning through `proc_by_module()`.

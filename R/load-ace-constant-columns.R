@@ -260,15 +260,18 @@ standardize_ace_column_types <- function (df) {
   # re-type non-character columns to their intended types
   # All of these should behave the same on classroom and explorer data
   
-  try({
-    df <- df %>%
-      mutate(# !!COL_TIME := str_replace(!!Q_COL_TIME, "T", ""), # the T causes parse_date_time to flip out
-        # parse_date_time appears to be behaving okay with the T in between the date and time... as of apr 27 2019
-        time1 = suppressWarnings(parse_date_time(!!Q_COL_TIME, "ymdHMSz")),
-        time2 = suppressWarnings(parse_date_time(!!Q_COL_TIME, "abdyHMSz")),
-        !!COL_TIME := coalesce(time1, time2)) %>%
-      select(-time1, -time2)
-  }, silent = TRUE)
+  # Only run parse_date_time if time is not already parsed
+  if (!("POSIXct" %in% class(df[[COL_TIME]]))) {
+    try({
+      df <- df %>%
+        mutate(# !!COL_TIME := str_replace(!!Q_COL_TIME, "T", ""), # the T causes parse_date_time to flip out
+          # parse_date_time appears to be behaving okay with the T in between the date and time... as of apr 27 2019
+          time1 = suppressWarnings(parse_date_time(!!Q_COL_TIME, "ymdHMSz")),
+          time2 = suppressWarnings(parse_date_time(!!Q_COL_TIME, "abdyHMSz")),
+          !!COL_TIME := coalesce(time1, time2)) %>%
+        select(-time1, -time2)
+    }, silent = TRUE)
+  }
   
   # No responses in classroom (pulvinar) are coded as "N/A"
   # No responses in explorer are coded as 0
@@ -290,7 +293,7 @@ standardize_ace_column_types <- function (df) {
   # Neither of these should fail on the other case
   try({
     df <- df %>%
-      mutate(!!COL_CORRECT_BUTTON := dplyr::recode(!!Q_COL_CORRECT_BUTTON, `0` = "incorrect", `1` = "correct"),
+      mutate(!!COL_CORRECT_BUTTON := dplyr::recode(!!Q_COL_CORRECT_BUTTON, `0` = "incorrect", `1` = "correct", .default = NA_character_),
              # Noticed this in ACE Explorer as of Jan 2020. Might have changed before then
              !!COL_CORRECT_BUTTON := if_else(is.na(!!Q_COL_RT),
                                              "no_response",
@@ -326,7 +329,6 @@ standardize_ace_column_types <- function (df) {
 
 #' @name ace_header
 #' @import dplyr
-#' @importFrom lubridate parse_date_time
 #' @importFrom magrittr %>% %<>%
 #' @importFrom rlang sym !! :=
 #' @importFrom stringr str_replace str_trim
