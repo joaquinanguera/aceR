@@ -202,8 +202,7 @@ module_filter <- function(df) {
                 values_from = -c(!!Q_COL_BID, !!Q_COL_CONDITION, contains("overall")),
                 names_sep = ".")
   if (COL_PRACTICE_COUNT %in% names(df)) {
-    prac = proc_by_condition(df, COL_PRACTICE_COUNT, include_overall = FALSE, FUN = ace_practice_count) %>% 
-      rename(!!Q_COL_PRACTICE_COUNT := paste(!!COL_PRACTICE_COUNT, !!COL_PRACTICE_COUNT, sep = "_"))
+    prac = proc_by_condition(df, COL_PRACTICE_COUNT, include_overall = FALSE, FUN = ace_practice_count)
     merged = left_join(merged, prac, by = COL_BID)
   }
   

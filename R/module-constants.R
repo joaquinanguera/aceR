@@ -43,8 +43,7 @@ proc_generic_module <- function(df,
   # Should only activate for ACE Explorer data, where this column is passed through
   # Summarizes # practice rounds completed (already should be one unique value per participant)
   if (COL_PRACTICE_COUNT %in% names(df)) {
-    prac = proc_by_condition(df, COL_PRACTICE_COUNT, include_overall = FALSE, FUN = ace_practice_count) %>% 
-      rename(!!Q_COL_PRACTICE_COUNT := paste(!!COL_PRACTICE_COUNT, !!COL_PRACTICE_COUNT, sep = "_"))
+    prac = proc_by_condition(df, COL_PRACTICE_COUNT, include_overall = FALSE, FUN = ace_practice_count)
     analy = c(analy, list(prac))
   }
   
