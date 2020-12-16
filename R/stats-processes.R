@@ -52,7 +52,8 @@ ace_spatial_span <- function(x, col) {
 ace_dprime_dplyr <- function(x, col) {
   dprime_out = summarize(x,
                          across(any_of(col),
-                                list(dprime = ace_dprime)))
+                                list(dprime = ace_dprime),
+                                .names = "{.fn}"))
   return (dprime_out)
 }
 

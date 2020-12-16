@@ -143,11 +143,11 @@ module_taskswitch <- function(df) {
 #' @name ace_procs
 
 module_tnt <- function(df) {
-  df$condition = plyr::mapvalues(df$condition, from = c("tap & trace", "tap only"), to = c("tap_trace", "tap_only"), warn_missing = FALSE)
+  df$condition = dplyr::recode(df$condition, `tap & trace` = "tap_trace", `tap only` = "tap_only")
   gen = proc_generic_module(df)
   cost = multi_subtract(gen, "\\.tap_trace", "\\.tap_only", "\\.cost")
   sdt = proc_by_condition(df, "trial_accuracy", Q_COL_CONDITION, FUN = ace_dprime_dplyr) %>%
-    dplyr::rename_all(dplyr::funs(stringr::str_replace(., "trial_accuracy_", "")))
+    dplyr::rename_with(~stringr::str_replace(., "trial_accuracy_", ""), .cols = dplyr::everything())
   out <- left_join(dplyr::bind_cols(gen, cost), sdt, by = COL_BID)
   return (out)
 }
@@ -202,8 +202,7 @@ module_filter <- function(df) {
                 values_from = -c(!!Q_COL_BID, !!Q_COL_CONDITION, contains("overall")),
                 names_sep = ".")
   if (COL_PRACTICE_COUNT %in% names(df)) {
-    prac = proc_by_condition(df, COL_PRACTICE_COUNT, include_overall = FALSE, FUN = ace_practice_count) %>% 
-      rename(!!Q_COL_PRACTICE_COUNT := paste(!!COL_PRACTICE_COUNT, !!COL_PRACTICE_COUNT, sep = "_"))
+    prac = proc_by_condition(df, COL_PRACTICE_COUNT, include_overall = FALSE, FUN = ace_practice_count)
     merged = left_join(merged, prac, by = COL_BID)
   }
   
