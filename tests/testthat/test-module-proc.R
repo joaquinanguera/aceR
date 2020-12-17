@@ -56,17 +56,22 @@ test_that("nesting: unnesting is long", {
 })
 
 test_that("nesting: re-nesting yields identical", {
-  renest_explore <- raw_explorer %>%
+  renest_explorer <- raw_explorer %>%
     unnest_ace_raw(app_type = "explorer") %>%
     nest_ace_raw(app_type = "explorer") %>% 
     arrange(module)
   
   renest_email <- raw_email %>%
     unnest_ace_raw(app_type = "classroom") %>%
-    nest_ace_raw(app_type = "classroom")
+    nest_ace_raw(app_type = "classroom") %>% 
+    arrange(!!Q_COL_MODULE)
   
   for (i in 1:nrow(raw_explorer)) {
-    expect_mapequal(raw_explorer$data[[raw_explorer$module[i]]], renest_explore$data[[raw_explorer$module[i]]])
+    expect_mapequal(raw_explorer$data[[raw_explorer$module[i]]],
+                    # force rows to be in same order
+                    arrange(renest_explorer$data[[raw_explorer$module[i]]],
+                           !!Q_COL_BID)
+                    )
   }
   
   for (i in 1:nrow(raw_email)) {

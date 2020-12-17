@@ -47,11 +47,36 @@ replace_blanks <- function (x, replacement = NA) {
   return (x)
 }
 
+#' @importFrom dplyr across coalesce if_else mutate
+#' @import tidyselect
+#' @importFrom magrittr %>%
 #' @keywords internal
 
 replace_nas <- function(df, replacement) {
-  df[is.na(df) | df == "N/A" | df == "(null)"] = replacement # "N/A": ACE artifact
-  return (df)
+  
+  if (is.na(replacement)) {
+    replacement_chr <- NA_character_
+  } else {
+    replacement_chr <- replacement
+  }
+  
+  out <- df %>% 
+    mutate(across(where(is.character),
+                  ~if_else(is.na(.x) | .x == "N/A" | .x == "(null)",
+                           replacement_chr,
+                           .x)))
+  
+  if (is.character(replacement)) {
+    out <- out %>%
+      mutate(across(where(~!is.character(.x)),
+                    ~coalesce(as.character(.x), replacement)))
+  } else {
+    out <- out %>%
+      mutate(across(where(~!is.character(.x)),
+                    ~coalesce(.x, replacement)))
+  }
+  
+  return (out)
 }
 
 #' @keywords internal

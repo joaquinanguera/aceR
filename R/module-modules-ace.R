@@ -20,25 +20,36 @@ module_boxed <- function(df) {
 
 #' @importFrom magrittr %>%
 #' @importFrom rlang sym !!
-#' @importFrom dplyr mutate mutate_at recode select starts_with
+#' @importFrom dplyr case_when mutate mutate_at recode select starts_with
 #' @keywords internal
 #' @name ace_procs
 
 module_brt <- function(df) {
   if (COL_HANDEDNESS %in% names(df)) {
     df <- df %>%
-      mutate_at(COL_HANDEDNESS, tolower) %>%
-      mutate(condition_hand = ifelse(grepl("right", !!Q_COL_HANDEDNESS),
-                                     recode(!!Q_COL_CONDITION,
-                                            right = "dominant",
-                                            left = "nondominant",
-                                            rightthumb="dominant.thumb",
-                                            leftthumb="nondominant.thumb"),
-                                     recode(!!Q_COL_CONDITION,
-                                            left = "dominant",
-                                            right = "nondominant",
-                                            leftthumb="dominant.thumb",
-                                            rightthumb="nondominant.thumb")))
+      mutate_at(COL_HANDEDNESS, tolower)
+    
+    if (!all(df[[COL_HANDEDNESS]] %in% c("right", "left"))) {
+      warning("Nonstandard handedness levels detected.\n",
+              "Handedness levels found in data (coerced to lowercase): ",
+              paste(unique(df[[COL_HANDEDNESS]]), collapse = " "),
+              "\n",
+              "Dominant hand recoding may be unknown for these levels")
+    }
+    
+    df <- df %>%
+      mutate(condition_hand = case_when(
+        grepl("right", !!Q_COL_HANDEDNESS) ~ recode(!!Q_COL_CONDITION,
+                                                    right = "dominant",
+                                                    left = "nondominant",
+                                                    rightthumb="dominant.thumb",
+                                                    leftthumb="nondominant.thumb"),
+        grepl("left", !!Q_COL_HANDEDNESS) ~ recode(!!Q_COL_CONDITION,
+                                                   left = "dominant",
+                                                   right = "nondominant",
+                                                   leftthumb="dominant.thumb",
+                                                   rightthumb="nondominant.thumb"),
+        TRUE ~ !!Q_COL_CONDITION))
     gen = proc_generic_module(df, col_condition = sym("condition_hand"))
   } else {
     warning("No handedness data found. Unable to label BRT data by dominant hand")
@@ -132,11 +143,11 @@ module_taskswitch <- function(df) {
 #' @name ace_procs
 
 module_tnt <- function(df) {
-  df$condition = plyr::mapvalues(df$condition, from = c("tap & trace", "tap only"), to = c("tap_trace", "tap_only"), warn_missing = FALSE)
+  df$condition = dplyr::recode(df$condition, `tap & trace` = "tap_trace", `tap only` = "tap_only")
   gen = proc_generic_module(df)
   cost = multi_subtract(gen, "\\.tap_trace", "\\.tap_only", "\\.cost")
   sdt = proc_by_condition(df, "trial_accuracy", Q_COL_CONDITION, FUN = ace_dprime_dplyr) %>%
-    dplyr::rename_all(dplyr::funs(stringr::str_replace(., "trial_accuracy_", "")))
+    dplyr::rename_with(~stringr::str_replace(., "trial_accuracy_", ""), .cols = dplyr::everything())
   out <- left_join(dplyr::bind_cols(gen, cost), sdt, by = COL_BID)
   return (out)
 }
@@ -191,8 +202,7 @@ module_filter <- function(df) {
                 values_from = -c(!!Q_COL_BID, !!Q_COL_CONDITION, contains("overall")),
                 names_sep = ".")
   if (COL_PRACTICE_COUNT %in% names(df)) {
-    prac = proc_by_condition(df, COL_PRACTICE_COUNT, include_overall = FALSE, FUN = ace_practice_count) %>% 
-      rename(!!Q_COL_PRACTICE_COUNT := paste(!!COL_PRACTICE_COUNT, !!COL_PRACTICE_COUNT, sep = "_"))
+    prac = proc_by_condition(df, COL_PRACTICE_COUNT, include_overall = FALSE, FUN = ace_practice_count)
     merged = left_join(merged, prac, by = COL_BID)
   }
   

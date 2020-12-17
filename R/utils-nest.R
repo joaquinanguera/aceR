@@ -5,11 +5,12 @@
 #' into long form.
 #' 
 #' @export
-#' @importFrom dplyr ends_with everything one_of mutate n rename select vars
+#' @importFrom dplyr everything mutate n rename_with select
 #' @importFrom magrittr %>%
 #' @importFrom purrr map2
 #' @importFrom rlang !!
 #' @importFrom tidyr unnest
+#' @importFrom tidyselect any_of ends_with
 #' 
 #' @param df a nested \code{\link{data.frame}} containing formatted
 #' trialwise ACE data. 
@@ -44,16 +45,16 @@ unnest_ace_raw <- function(df, app_type = c("classroom", "explorer")) {
       filter(module != DEMOS) %>%
       mutate(data = map(data, ~reconstruct_pid(.x)),
              demos = map(demos,
-                         ~rename_at(.x,
-                                    vars(one_of(c(COL_BID, COL_TIME, COL_FILE))),
-                                    ~paste0(., "_demos"))),
+                         ~rename_with(.x,
+                                    ~paste0(., "_demos"),
+                                    any_of(c(COL_BID, COL_TIME, COL_FILE)))),
              full = map2(data, demos, dplyr::full_join, by = COL_PID))
   }
   
   out <- out %>%
     select(!!COL_MODULE, full) %>%
     unnest(full) %>%
-    select(!!COL_MODULE, one_of(ALL_POSSIBLE_DEMOS), ends_with("_demos"), everything())
+    select(!!COL_MODULE, any_of(ALL_POSSIBLE_DEMOS), ends_with("_demos"), everything())
   
   return (out)
 }
@@ -66,12 +67,13 @@ unnest_ace_raw <- function(df, app_type = c("classroom", "explorer")) {
 #' for processing in other package functions.
 #' 
 #' @export
-#' @importFrom dplyr arrange bind_rows ends_with filter one_of mutate pull rename_at select vars
+#' @importFrom dplyr bind_rows filter mutate pull rename_with select
 #' @importFrom magrittr %>%
 #' @importFrom purrr map map_chr pluck
 #' @importFrom rlang !! type_of
 #' @importFrom tibble tibble
 #' @importFrom tidyr nest
+#' @importFrom tidyselect any_of ends_with
 #' 
 #' @param df a nested \code{\link{data.frame}} containing formatted
 #' trialwise ACE data.
@@ -110,17 +112,16 @@ nest_ace_raw <- function(df, app_type = c("classroom", "explorer")) {
   out <- df %>%
     nest(data = -!!Q_COL_MODULE) %>%
     mutate(data = map(data, remove_empty_cols),
-           demos = map(data, ~select(.x, one_of(these_demos))),
-           data = map(data, ~select(.x, -one_of(these_non_id_demos), -ends_with("_demos"))),
+           demos = map(data, ~select(.x, any_of(these_demos))),
+           data = map(data, ~select(.x, -any_of(these_non_id_demos), -ends_with("_demos"))),
            demos = map(demos, dplyr::distinct))
   
   if (app_type == "explorer") {
     temp_demos = out %>%
       pull(demos) %>%
       pluck(1) %>%
-      rename_at(vars(one_of(explorer_demos[endsWith(explorer_demos, "_demos")])),
-                str_sub, end = -7L) %>%
-      arrange(!!Q_COL_BID) %>% 
+      rename_with(~str_sub(.x, end = -7L),
+                  any_of(explorer_demos[endsWith(explorer_demos, "_demos")])) %>%
       list() %>%
       tibble(module = DEMOS, data = .)
     

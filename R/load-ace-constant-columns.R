@@ -260,15 +260,18 @@ standardize_ace_column_types <- function (df) {
   # re-type non-character columns to their intended types
   # All of these should behave the same on classroom and explorer data
   
-  try({
-    df <- df %>%
-      mutate(# !!COL_TIME := str_replace(!!Q_COL_TIME, "T", ""), # the T causes parse_date_time to flip out
-        # parse_date_time appears to be behaving okay with the T in between the date and time... as of apr 27 2019
-        time1 = suppressWarnings(parse_date_time(!!Q_COL_TIME, "ymdHMSz")),
-        time2 = suppressWarnings(parse_date_time(!!Q_COL_TIME, "abdyHMSz")),
-        !!COL_TIME := coalesce(time1, time2)) %>%
-      select(-time1, -time2)
-  }, silent = TRUE)
+  # Only run parse_date_time if time is not already parsed
+  if (!("POSIXct" %in% class(df[[COL_TIME]]))) {
+    try({
+      df <- df %>%
+        mutate(# !!COL_TIME := str_replace(!!Q_COL_TIME, "T", ""), # the T causes parse_date_time to flip out
+          # parse_date_time appears to be behaving okay with the T in between the date and time... as of apr 27 2019
+          time1 = suppressWarnings(parse_date_time(!!Q_COL_TIME, "ymdHMSz")),
+          time2 = suppressWarnings(parse_date_time(!!Q_COL_TIME, "abdyHMSz")),
+          !!COL_TIME := coalesce(time1, time2)) %>%
+        select(-time1, -time2)
+    }, silent = TRUE)
+  }
   
   # No responses in classroom (pulvinar) are coded as "N/A"
   # No responses in explorer are coded as 0
@@ -290,7 +293,7 @@ standardize_ace_column_types <- function (df) {
   # Neither of these should fail on the other case
   try({
     df <- df %>%
-      mutate(!!COL_CORRECT_BUTTON := dplyr::recode(!!Q_COL_CORRECT_BUTTON, `0` = "incorrect", `1` = "correct"),
+      mutate(!!COL_CORRECT_BUTTON := dplyr::recode(!!Q_COL_CORRECT_BUTTON, `0` = "incorrect", `1` = "correct", .default = NA_character_),
              # Noticed this in ACE Explorer as of Jan 2020. Might have changed before then
              !!COL_CORRECT_BUTTON := if_else(is.na(!!Q_COL_RT),
                                              "no_response",
@@ -326,7 +329,6 @@ standardize_ace_column_types <- function (df) {
 
 #' @name ace_header
 #' @import dplyr
-#' @importFrom lubridate parse_date_time
 #' @importFrom magrittr %>% %<>%
 #' @importFrom rlang sym !! :=
 #' @importFrom stringr str_replace str_trim
@@ -448,10 +450,26 @@ standardize_ace_values <- function(df, app_type) {
              degree_of_change = as.numeric(degree_of_change),
              cue_rotated = as.integer(cue_rotated))
     
+    if ("button_pressed" %in% names(df)) {
+      df %<>%
+        mutate(button_pressed = na_if(button_pressed, "Unanswered"),
+               !!COL_CORRECT_BUTTON := case_when(
+                 cue_rotated == 1 & button_pressed == "Different" ~ "correct",
+                 cue_rotated == 1 & button_pressed == "Same" ~ "incorrect",
+                 cue_rotated == 0 & button_pressed == "Different" ~ "incorrect",
+                 cue_rotated == 0 & button_pressed == "Same" ~ "correct",
+                 is.na(button_pressed) ~ "no_response",
+                 # missing should never happen
+                 TRUE ~ NA_character_
+               )
+        )
+    }
+    
     # in the past (before 2019?), degree_of_change was the meaningful variable of adaptation
     # hence this re-patching is sometimes necessary
     # I believe only applies to classroom data but may apply to old explorer data
     # So not varying on app_type just in case
+    # I think this will not trigger any changes for newer Explorer data that don't meet the conditionals
     if (any(!is.na(df$degree_of_change))) {
       df %<>%
         mutate(# 180 degree rotation was incorrectly marked as "change" when there's no visual change
@@ -492,6 +510,19 @@ standardize_ace_values <- function(df, app_type) {
                # missing implies fucked up somehow
                TRUE ~ NA_character_)
              )
+  } else if (BOXED %in% df$module & app_type == "explorer") {
+    df %<>%
+      mutate(button_pressed = na_if(button_pressed, "Unanswered"),
+             !!COL_CORRECT_BUTTON := case_when(
+               position_is_top == 1 & button_pressed == "Top" ~ "correct",
+               position_is_top == 1 & button_pressed == "Bottom" ~ "incorrect",
+               position_is_top == 0 & button_pressed == "Top" ~ "incorrect",
+               position_is_top == 0 & button_pressed == "Bottom" ~ "correct",
+               is.na(button_pressed) ~ "no_response",
+               # missing should never happen
+               TRUE ~ NA_character_
+             )
+      )
   }
   
   # needs to be called LAST, after all the other boutique accuracy corrections are complete

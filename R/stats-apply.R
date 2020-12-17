@@ -32,10 +32,6 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
     z = x %>%
       group_by(!!id_var) %>%
       FUN(col) %>%
-      rename_at(-1, funs(paste0(col_out, "_", .))) %>%
-      # only triggers for the boutique columns
-      rename_at(-1, funs(str_replace(., "rcs_", ""))) %>%
-      rename_at(-1, funs(str_replace(., "dprime_", ""))) %>%
       ungroup()
     
   } else {
@@ -46,8 +42,6 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
         z[[1]] = x %>%
           group_by(!!!c(id_var, factors[[1]])) %>%
           FUN(col) %>%
-          # need to add the name prefix here so gather can call the columns easily
-          rename_at(-(1:2), funs(paste0(col_out, "_", .))) %>%
           ungroup() %>%
           pivot_wider(id_cols = !!id_var,
                       names_from = !!factors[[1]],
@@ -58,8 +52,6 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
         z[[2]] = x %>%
           group_by(!!!c(id_var, factors[2])) %>%
           FUN(col) %>%
-          # need to add the name prefix here so gather can call the columns easily
-          rename_at(-(1:2), funs(paste0(col_out, "_", .))) %>%
           ungroup() %>%
           pivot_wider(id_cols = !!id_var,
                       names_from = !!factors[[2]],
@@ -70,7 +62,6 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
         z[[3]] = x %>%
           group_by(!!!c(id_var, factors)) %>%
           FUN(col) %>%
-          rename_at(-(1:3), funs(paste0(col_out, "_", .))) %>%
           ungroup() %>%
           complete(!!!c(id_var, factors)) %>%
           unite(cond, !!!factors[2:1], sep = ".") %>%
@@ -89,13 +80,11 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
         z[[1]] = x %>%
           group_by(!!!c(id_var, factors[[1]])) %>%
           FUN(col) %>%
-          rename_at(-(1:2), funs(paste0(col_out, "_", .))) %>%
           ungroup()
         
         z[[2]] = x %>%
           group_by(!!!c(id_var, factors)) %>%
           FUN(col) %>%
-          rename_at(-(1:3), funs(paste0(col_out, "_", .))) %>%
           ungroup() %>%
           pivot_wider(names_from = !!factors[[2]],
                       values_from = starts_with(!!col_out),
@@ -114,7 +103,6 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
         z = x %>%
           group_by(!!!c(id_var, factors)) %>%
           FUN(col) %>%
-          rename_at(-(1:2), funs(paste0(col_out, "_", .))) %>%
           ungroup() %>%
           pivot_wider(names_from = !!factors,
                       values_from = starts_with(!!col_out),
@@ -124,20 +112,18 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
         z = x %>%
           group_by(!!!c(id_var, factors)) %>%
           FUN(col) %>%
-          rename_at(-(1:2), funs(paste0(col_out, "_", .))) %>%
-          rename_at(-(1:2), funs(str_replace(., "rcs_", ""))) %>%
           ungroup()
       }
     }
   }
   
   if (by_factor) suffix = ""
-  if (suffix != "") z = rename_at(z, -1, funs(paste(., suffix, sep = ".")))
+  if (suffix != "") z = rename_with(z, ~paste(., suffix, sep = "."), -(!!COL_BID))
   
   return(z)
 }
 
-#' @keywords internal
+#' @keywords internal deprecated
 
 ace_apply_by_group <- function(x, y, FUN) {
   group = replace_blanks(y, NA)

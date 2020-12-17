@@ -43,8 +43,7 @@ proc_generic_module <- function(df,
   # Should only activate for ACE Explorer data, where this column is passed through
   # Summarizes # practice rounds completed (already should be one unique value per participant)
   if (COL_PRACTICE_COUNT %in% names(df)) {
-    prac = proc_by_condition(df, COL_PRACTICE_COUNT, include_overall = FALSE, FUN = ace_practice_count) %>% 
-      rename(!!Q_COL_PRACTICE_COUNT := paste(!!COL_PRACTICE_COUNT, !!COL_PRACTICE_COUNT, sep = "_"))
+    prac = proc_by_condition(df, COL_PRACTICE_COUNT, include_overall = FALSE, FUN = ace_practice_count)
     analy = c(analy, list(prac))
   }
   
@@ -94,15 +93,16 @@ proc_by_condition <- function(df, variable, factors, include_overall = TRUE, FUN
   return(proc)
 }
 
-#' @importFrom dplyr contains ends_with funs rename_all select
+#' @importFrom dplyr contains ends_with rename_with select
 #' @importFrom magrittr %>%
+#' @importFrom tidyselect everything
 #' @keywords internal
 
 clean_proc_cols <- function (df) {
   df <- df %>%
-    rename_all(~tolower(.)) %>%
-    rename_all(~str_replace(., COL_CORRECT_BUTTON, "acc")) %>%
-    rename_all(~str_replace(., COL_CORRECT_RESPONSE, "acc")) %>%
+    rename_with(tolower, .cols = everything()) %>%
+    rename_with(~str_replace(., COL_CORRECT_BUTTON, "acc"), .cols = everything()) %>%
+    rename_with(~str_replace(., COL_CORRECT_RESPONSE, "acc"), .cols = everything()) %>%
     select(-contains(".short"), -contains(".no_response"), -contains(".late"),
            -contains("acc_median"), -contains("acc_sd"),
            -contains(".NA"), -contains("prev_na"), -contains("prev_no_response"),

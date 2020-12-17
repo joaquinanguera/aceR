@@ -7,4 +7,4 @@ scripts/
 ^\.travis\.yml$
 CONTRIBUTING.md
 ^~/\.boxr-oauth$
-^ignore$
+^ignore/*
