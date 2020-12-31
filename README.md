@@ -45,6 +45,7 @@ The package, as of March 2020, has transitioned to the [CalVer](https://calver.o
 Minor implementation changes:
 
 - Removing instances of deprecated `dplyr` functions like `funs()` (totally removed?) and the `*_at()`/`*_if()` functions (in progress) to keep up with best practice and silence deprecation errors from `dplyr`
+- Subtle changes under the hood to silence cosmetic warnings that don't signify unexpected failure to process
 
 #### 20.5.0:
 
