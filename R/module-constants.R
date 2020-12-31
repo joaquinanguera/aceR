@@ -53,7 +53,7 @@ proc_generic_module <- function(df,
   return (merged)
 }
 
-#' @importFrom dplyr contains funs rename_all select
+#' @importFrom dplyr left_join
 #' @importFrom magrittr %>%
 #' @keywords internal
 
