@@ -2,7 +2,7 @@
 #' @keywords internal
 #' @import dplyr
 #' @importFrom magrittr %>%
-#' @importFrom rlang sym syms quo_name UQ UQS !! !!!
+#' @importFrom rlang as_string sym syms quo_name UQ UQS !! !!!
 #' @import tidyr
 
 apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transform_dir = "wide", ...) {
@@ -99,9 +99,9 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
                       names_sep = ".")
         
         
-        # using join_all here instead of multi_merge bc easily accepts multiple joining vars
-        # join across all common vars, we are assuming common named vars are in fact the same measurement
-        z = plyr::join_all(z)
+        # using full_join here instead of multi_merge bc easily accepts multiple joining vars
+        # to silence error, hard-join by ID var and first factor (which is kept long)
+        z = purrr::reduce(z, full_join, by = c(as_string(id_var), as_string(factors[[1]])))
       }
     } else {
       if (transform_dir == "wide") {
@@ -134,12 +134,12 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
 
 #' @keywords internal
 #' @importFrom dplyr filter
-#' @importFrom rlang !!
+#' @importFrom rlang !! as_string
 
 filter_invalid_stats_levels <- function (x, this_factor) {
-  this_factor_str <- rlang::as_string(this_factor)
+  this_factor_str <- as_string(this_factor)
   
-  if (this_factor_str %in% c(COL_CORRECT_BUTTON, COL_CORRECT_RESPONSE, COL_LATE_RESPONSE)) {
+  if (this_factor_str %in% c(COL_CORRECT_BUTTON, COL_CORRECT_RESPONSE, COL_LATE_RESPONSE, "cue_rotated")) {
     return (filter(x, !!this_factor != "no_response", !is.na(!!this_factor)))
   } else {
     return (x)
