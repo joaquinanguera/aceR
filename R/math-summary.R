@@ -19,11 +19,23 @@ ace_count <- function(x) {
 #' @keywords internal
 
 ace_max <- function(x) {
-  return (max(to_numeric(x), na.rm = T))
+  x <- to_numeric(x)
+  # max and min throw a warning when all NAs
+  # this averts the warning via the if statement
+  if (all(is.na(x))) {
+    return (NA)
+  } else {
+    return (max(x, na.rm = T))
+  }
 }
 
 #' @keywords internal
 
 ace_min <- function(x) {
-  return (min(to_numeric(x), na.rm = T))
+  x <- to_numeric(x)
+  if (all(is.na(x))) {
+    return (NA)
+  } else {
+    return (min(x, na.rm = T))
+  }
 }
