@@ -284,7 +284,7 @@ standardize_ace_column_types <- function (df) {
   
   try({
     df <- df %>%
-    mutate_at(COL_RW, as.numeric)
+    mutate(!!COL_RW := as.numeric(!!Q_COL_RW))
   }, silent = TRUE)
   
   # code correct_button with words, not 0 and 1
@@ -303,9 +303,9 @@ standardize_ace_column_types <- function (df) {
   # various condition cols that should be numeric
   try(suppressWarnings({
     df <- df %>%
-    mutate_at(vars(one_of(c("position_is_top",
+    mutate(across(any_of(c("position_is_top",
                             "is_valid_cue",
-                            "object_count"))), as.numeric)
+                            "object_count")), as.numeric))
   }), silent = TRUE)
   
   try({
@@ -376,7 +376,7 @@ standardize_ace_values <- function(df, app_type) {
     # TODO: If you want ALL_POSSIBLE_EXPLORE_DEMOS, it goes in here with ALL_POSSIBLE_DEMOS
     # But maybe this functionality should wait until the device stuff is faithfully only in the task data
     df %<>%
-      select(one_of(c(COL_MODULE, ALL_POSSIBLE_DEMOS, COL_TIME))) %>%
+      select(any_of(c(COL_MODULE, ALL_POSSIBLE_DEMOS, COL_TIME))) %>%
       mutate_at(COL_GENDER, as.character)
   }
   
