@@ -21,14 +21,6 @@ detect_stay_switch <- function(x) {
 
 #' @keywords internal
 
-set_names <- function (x, these_names) {
-  stopifnot(length(x) == length(these_names))
-  names(x) <- these_names
-  return (x)
-}
-
-#' @keywords internal
-
 na_if_true <- function (x, condition) {
   x[condition] <- NA
   return (x)

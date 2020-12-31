@@ -79,14 +79,15 @@ ALL_MODULES = c(BOXED,
 identify_module <- function(file) {
   file = gsub(" ", "", toupper(file), fixed = TRUE) # must be matched with NO spaces in the module name
   match = map(ALL_MODULES, ~grepl(., file)) %>%
-    set_names(ALL_MODULES) %>%
+    rlang::set_names(ALL_MODULES) %>%
     as_tibble() %>%
     # separates backwards spatial span bc spatial span also grepl = TRUE
     mutate(SPATIALSPAN = if_else(BACKWARDSSPATIALSPAN, FALSE, SPATIALSPAN),
            unknown = if_else(rowSums(.) == 0, TRUE, FALSE)) %>%
     # each COLUMN now one file, allows easier computation
     t() %>%
-    as_tibble() %>%
+    # Need to give a function for .name_repair to stop auto-messaging
+    as_tibble(.name_repair = ~make.names(., unique = TRUE)) %>%
     summarize(across(everything(), which)) %>%
     as.vector(mode = "integer")
   
