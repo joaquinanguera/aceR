@@ -40,6 +40,7 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
         z = vector("list", 3)
         # if there are two factors, put out THREE: one just by factor 1, one just by factor 2, and one crossed
         z[[1]] = x %>%
+          filter_invalid_stats_levels(factors[[1]]) %>% 
           group_by(!!!c(id_var, factors[[1]])) %>%
           FUN(col) %>%
           ungroup() %>%
@@ -50,6 +51,7 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
                       names_sep = ".")
         
         z[[2]] = x %>%
+          filter_invalid_stats_levels(factors[[2]]) %>% 
           group_by(!!!c(id_var, factors[2])) %>%
           FUN(col) %>%
           ungroup() %>%
@@ -60,6 +62,8 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
                       names_sep = ".")
         
         z[[3]] = x %>%
+          filter_invalid_stats_levels(factors[[1]]) %>% 
+          filter_invalid_stats_levels(factors[[2]]) %>% 
           group_by(!!!c(id_var, factors)) %>%
           FUN(col) %>%
           ungroup() %>%
@@ -78,11 +82,14 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
         z = vector("list", 2)
         # if there are two factors, put out THREE: one just by factor 1, one just by factor 2, and one crossed
         z[[1]] = x %>%
+          filter_invalid_stats_levels(factors[[1]]) %>% 
           group_by(!!!c(id_var, factors[[1]])) %>%
           FUN(col) %>%
           ungroup()
         
         z[[2]] = x %>%
+          filter_invalid_stats_levels(factors[[1]]) %>% 
+          filter_invalid_stats_levels(factors[[2]]) %>% 
           group_by(!!!c(id_var, factors)) %>%
           FUN(col) %>%
           ungroup() %>%
@@ -101,6 +108,7 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
         # if only one factor, only put out 1
         if (is.list(factors)) factors = factors[[1]]
         z = x %>%
+          filter_invalid_stats_levels(factors) %>% 
           group_by(!!!c(id_var, factors)) %>%
           FUN(col) %>%
           ungroup() %>%
@@ -110,6 +118,7 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
                       names_sep = ".")
       } else if (transform_dir == "long") {
         z = x %>%
+          filter_invalid_stats_levels(factors) %>% 
           group_by(!!!c(id_var, factors)) %>%
           FUN(col) %>%
           ungroup()
@@ -123,13 +132,16 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
   return(z)
 }
 
-#' @keywords internal deprecated
+#' @keywords internal
+#' @importFrom dplyr filter
+#' @importFrom rlang !!
 
-ace_apply_by_group <- function(x, y, FUN) {
-  group = replace_blanks(y, NA)
-  agg = aggregate(list(x), list(group), FUN = FUN, simplify = TRUE)
-  out = data.frame(t(agg[2]))
-  names(out) = unlist(agg[1])
-  row.names(out) <- NULL
-  return (out)
+filter_invalid_stats_levels <- function (x, this_factor) {
+  this_factor_str <- rlang::as_string(this_factor)
+  
+  if (this_factor_str %in% c(COL_CORRECT_BUTTON, COL_CORRECT_RESPONSE, COL_LATE_RESPONSE)) {
+    return (filter(x, !!this_factor != "no_response", !is.na(!!this_factor)))
+  } else {
+    return (x)
+  }
 }
