@@ -19,15 +19,15 @@ module_boxed <- function(df) {
 }
 
 #' @importFrom magrittr %>%
-#' @importFrom rlang sym !!
-#' @importFrom dplyr case_when mutate mutate_at recode select starts_with
+#' @importFrom rlang sym !! :=
+#' @importFrom dplyr case_when mutate recode select starts_with
 #' @keywords internal
 #' @name ace_procs
 
 module_brt <- function(df) {
   if (COL_HANDEDNESS %in% names(df)) {
     df <- df %>%
-      mutate_at(COL_HANDEDNESS, tolower)
+      mutate(!!COL_HANDEDNESS := tolower(!!Q_COL_HANDEDNESS))
     
     if (!all(df[[COL_HANDEDNESS]] %in% c("right", "left"))) {
       warning("Nonstandard handedness levels detected.\n",
@@ -121,8 +121,7 @@ module_spatialspan <- function(df) {
   rt_block_half = proc_by_condition(df, COL_RT, factors = Q_COL_BLOCK_HALF, include_overall = F)
   analy = list(rt, span, rt_block_half)
   if (COL_PRACTICE_COUNT %in% names(df)) {
-    prac = proc_by_condition(df, COL_PRACTICE_COUNT, include_overall = FALSE, FUN = ace_practice_count) %>% 
-      rename(!!Q_COL_PRACTICE_COUNT := paste(!!COL_PRACTICE_COUNT, !!COL_PRACTICE_COUNT, sep = "_"))
+    prac = proc_by_condition(df, COL_PRACTICE_COUNT, include_overall = FALSE, FUN = ace_practice_count)
     analy = c(analy, list(prac))
   }
   merged = multi_merge(analy, by = COL_BID)
