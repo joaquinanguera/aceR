@@ -18,18 +18,6 @@ ace_count <- function(x) {
 
 #' @keywords internal
 
-ace_count_by_group <- function(x, y) {
-  return (ace_apply_by_group(x, y, ace_count))
-}
-
-#' @keywords internal
-
-ace_length_by_group <- function(x, y) {
-  return (ace_apply_by_group(x, y, ace_length))
-}
-
-#' @keywords internal
-
 ace_max <- function(x) {
   return (max(to_numeric(x), na.rm = T))
 }
