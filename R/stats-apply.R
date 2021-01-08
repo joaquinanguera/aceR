@@ -139,8 +139,8 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
 filter_invalid_stats_levels <- function (x, this_factor) {
   this_factor_str <- as_string(this_factor)
   
-  if (this_factor_str %in% c(COL_CORRECT_BUTTON, COL_CORRECT_RESPONSE, COL_LATE_RESPONSE, "cue_rotated")) {
-    return (filter(x, !!this_factor != "no_response", !is.na(!!this_factor)))
+  if (this_factor_str %in% c(COL_CORRECT_BUTTON, COL_CORRECT_RESPONSE, COL_LATE_RESPONSE, COL_PREV_CORRECT_BUTTON, "cue_rotated")) {
+    return (filter(x, !endsWith(!!this_factor, "no_response"), !is.na(!!this_factor), !!this_factor != "prev_NA"))
   } else {
     return (x)
   }
