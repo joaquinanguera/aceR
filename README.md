@@ -42,6 +42,9 @@ The package, as of March 2020, has transitioned to the [CalVer](https://calver.o
 
 #### Current:
 
+New outputs:
+- `proc_by_module()` now outputs additional accuracy columns from a recoded version of accuracy, where all late trials are labeled as incorrect irrespective of their original response. (Only appears in data with valid RT/response-window mappings. May not appear for very old ACE Classroom data.)
+
 Minor implementation changes:
 
 - Removing instances of deprecated `dplyr` functions like `funs()` (totally removed?) and the `*_at()`/`*_if()` functions (in progress) to keep up with best practice and silence deprecation errors from `dplyr`
