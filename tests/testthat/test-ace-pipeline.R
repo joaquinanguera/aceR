@@ -159,6 +159,8 @@ test_that("module proc: ACE Explorer data bulk processes properly", {
   wide = proc_by_module(raw_explorer, app_type = "explorer", output = "wide", verbose = F)
   expect_gt(nrow(long), 0)
   expect_gt(nrow(wide), 0)
+  expect_false(any(endsWith(unlist(map(long$proc, names), use.names = F), ".x") | endsWith(unlist(map(long$proc, names), use.names = F), ".y")))
+  expect_false(any(endsWith(names(wide), ".x") | endsWith(names(wide), ".y")))
 })
 
 test_that("module proc: ACE Classroom email data bulk processes properly", {
@@ -166,5 +168,7 @@ test_that("module proc: ACE Classroom email data bulk processes properly", {
   wide = proc_by_module(raw_email, app_type = "classroom", output = "wide", verbose = F)
   expect_gt(nrow(long), 0)
   expect_gt(nrow(wide), 0)
+  expect_false(any(endsWith(unlist(map(long$proc, names), use.names = F), ".x") | endsWith(unlist(map(long$proc, names), use.names = F), ".y")))
+  expect_false(any(endsWith(names(wide), ".x") | endsWith(names(wide), ".y")))
 })
 
