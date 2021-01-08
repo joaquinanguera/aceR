@@ -1,6 +1,7 @@
 
+#' @importFrom dplyr if_else mutate rename_with
 #' @importFrom magrittr %>%
-#' @importFrom rlang quo_name
+#' @importFrom rlang !! := quo_name
 #' @keywords internal
 #' @param df data for one module
 #' @param col_acc column for accuracy, as string
@@ -24,6 +25,15 @@ proc_generic_module <- function(df,
   # if late response is not available for the task, don't factor by it
   if (COL_LATE_RESPONSE %in% names(df)) {
     acc = proc_by_condition(df, quo_name(col_acc), factors = c(col_condition, Q_COL_LATE_RESPONSE), FUN = FUN)
+    acc_late.incorrect = df %>% 
+      mutate(correct_button = if_else(!!Q_COL_LATE_RESPONSE == "late",
+                                             "incorrect",
+                                             !!Q_COL_CORRECT_BUTTON),
+             !!quo_name(col_condition) := paste0("late_incorrect.", !!col_condition)) %>% 
+      proc_by_condition(quo_name(col_acc), factors = col_condition, include_overall = FALSE, FUN = FUN) # %>% 
+      #rename_with(~paste0(., ".late_incorrect"), .cols = -(!!COL_BID))
+    
+    acc = full_join(acc, acc_late.incorrect, by = COL_BID)
   } else {
     acc = proc_by_condition(df, quo_name(col_acc), factors = col_condition, FUN = FUN)
   }
