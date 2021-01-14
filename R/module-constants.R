@@ -113,7 +113,7 @@ clean_proc_cols <- function (df) {
     rename_with(tolower, .cols = everything()) %>%
     rename_with(~str_replace(., COL_CORRECT_BUTTON, "acc"), .cols = everything()) %>%
     rename_with(~str_replace(., COL_CORRECT_RESPONSE, "acc"), .cols = everything()) %>%
-    select(-contains(".short"), -contains(".no_response"), -contains(".late"),
+    select(-contains(".short"), -contains(".no_response"), -(contains(".late") & !contains(".late_incorrect")),
            -contains("acc_median"), -contains("acc_sd"),
            -contains(".NA"), -contains("prev_na"), -contains("prev_no_response"),
            -contains("rw_count"), -contains("rw_length"),
