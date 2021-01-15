@@ -1,7 +1,8 @@
 
-#' @importFrom dplyr if_else mutate rename_with
+#' @importFrom dplyr if_else contains mutate rename_with
 #' @importFrom magrittr %>%
 #' @importFrom rlang !! := quo_name
+#' @importFrom stringr str_replace
 #' @keywords internal
 #' @param df data for one module
 #' @param col_acc column for accuracy, as string
@@ -30,8 +31,8 @@ proc_generic_module <- function(df,
                                              "incorrect",
                                              !!Q_COL_CORRECT_BUTTON),
              !!quo_name(col_condition) := paste0("late_incorrect.", !!col_condition)) %>% 
-      proc_by_condition(quo_name(col_acc), factors = col_condition, include_overall = FALSE, FUN = FUN) # %>% 
-      #rename_with(~paste0(., ".late_incorrect"), .cols = -(!!COL_BID))
+      proc_by_condition(quo_name(col_acc), factors = col_condition, FUN = FUN) %>% 
+      rename_with(~str_replace(., ".overall", ".late_incorrect.overall"), .cols = contains(".overall"))
     
     acc = full_join(acc, acc_late.incorrect, by = COL_BID)
   } else {
