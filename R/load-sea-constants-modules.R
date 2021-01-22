@@ -127,7 +127,21 @@ append_info <- function (dat, module) {
              congruency = case_when(.data[[COL_CONDITION]] == "right" & num_right > num_left ~ "congruent",
                                     .data[[COL_CONDITION]] == "left" & num_left > num_right ~ "congruent",
                                     TRUE ~ "incongruent"),
-             num_distance = abs(frac_left - frac_right))
+             num_distance = abs(frac_left - frac_right),
+             # Fix an issue with how the the pair 2/6 and 3/7 was originally coded for correctness.
+             # 3/7 > 2/6, but the original source code incorrectly coded correctness based on 2/6 > 3/7.
+             condition = case_when(question_text == "fraction2/6vs3/7" ~ "right",
+                                   question_text == "fraction3/7vs2/6" ~ "left",
+                                   TRUE ~ condition),
+             correct_response = case_when(question_text == "fraction2/6vs3/7" ~ "Right side",
+                                          question_text == "fraction3/7vs2/6" ~ "Left side",
+                                          TRUE ~ correct_response),
+             correct_button = case_when(question_text %in% c("fraction2/6vs3/7", "fraction3/7vs2/6") & 
+                                        correct_button == "correct" ~ "incorrect",
+                                        question_text %in% c("fraction2/6vs3/7", "fraction3/7vs2/6") & 
+                                      correct_button == "incorrect" ~ "correct",
+                                    TRUE ~ correct_button))
+    
   } else if (module == MATH_REC) {
     out <- dat %>%
       left_join(append_cols_math_recall %>%
