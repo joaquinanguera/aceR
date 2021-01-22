@@ -142,7 +142,7 @@ post_clean_chance <- function (df, overall = TRUE, cutoff_dprime = 0, cutoff_2ch
 #' @export
 #' @importFrom dplyr bind_rows everything filter mutate mutate_at select
 #' @importFrom magrittr %>% %<>%
-#' @importFrom purrr map map2 reduce
+#' @importFrom purrr map map2 map_if reduce
 #' 
 #' @param df a df, output by \code{\link{proc_by_module}}, containing processed
 #' ACE or SEA data.

@@ -67,9 +67,10 @@ ALL_MODULES = c(BOXED,
 #'
 #' Identifies ACE module from the filename
 #'
-#' @importFrom dplyr as_tibble funs if_else mutate mutate_if select summarize_all
+#' @importFrom dplyr across as_tibble if_else mutate select summarize
 #' @importFrom magrittr %>%
 #' @importFrom purrr map
+#' @importFrom tidyselect everything
 #' 
 #' @keywords internal
 #' @param file a character string containing the module name.
@@ -78,15 +79,16 @@ ALL_MODULES = c(BOXED,
 identify_module <- function(file) {
   file = gsub(" ", "", toupper(file), fixed = TRUE) # must be matched with NO spaces in the module name
   match = map(ALL_MODULES, ~grepl(., file)) %>%
-    set_names(ALL_MODULES) %>%
+    rlang::set_names(ALL_MODULES) %>%
     as_tibble() %>%
     # separates backwards spatial span bc spatial span also grepl = TRUE
     mutate(SPATIALSPAN = if_else(BACKWARDSSPATIALSPAN, FALSE, SPATIALSPAN),
            unknown = if_else(rowSums(.) == 0, TRUE, FALSE)) %>%
     # each COLUMN now one file, allows easier computation
     t() %>%
-    as_tibble() %>%
-    summarize_all(funs(which(.))) %>%
+    # Need to give a function for .name_repair to stop auto-messaging
+    as_tibble(.name_repair = ~make.names(., unique = TRUE)) %>%
+    summarize(across(everything(), which)) %>%
     as.vector(mode = "integer")
   
   return (c(ALL_MODULES, "unknown")[match])

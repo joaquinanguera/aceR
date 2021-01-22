@@ -1,6 +1,8 @@
 
+#' @importFrom dplyr if_else contains mutate rename_with
 #' @importFrom magrittr %>%
-#' @importFrom rlang quo_name
+#' @importFrom rlang !! := quo_name
+#' @importFrom stringr str_replace
 #' @keywords internal
 #' @param df data for one module
 #' @param col_acc column for accuracy, as string
@@ -24,6 +26,15 @@ proc_generic_module <- function(df,
   # if late response is not available for the task, don't factor by it
   if (COL_LATE_RESPONSE %in% names(df)) {
     acc = proc_by_condition(df, quo_name(col_acc), factors = c(col_condition, Q_COL_LATE_RESPONSE), FUN = FUN)
+    acc_late.incorrect = df %>% 
+      mutate(correct_button = if_else(!!Q_COL_LATE_RESPONSE == "late",
+                                             "incorrect",
+                                             !!Q_COL_CORRECT_BUTTON),
+             !!quo_name(col_condition) := paste0("late_incorrect.", !!col_condition)) %>% 
+      proc_by_condition(quo_name(col_acc), factors = col_condition, FUN = FUN) %>% 
+      rename_with(~str_replace(., ".overall", ".late_incorrect.overall"), .cols = contains(".overall"))
+    
+    acc = full_join(acc, acc_late.incorrect, by = COL_BID)
   } else {
     acc = proc_by_condition(df, quo_name(col_acc), factors = col_condition, FUN = FUN)
   }
@@ -53,7 +64,7 @@ proc_generic_module <- function(df,
   return (merged)
 }
 
-#' @importFrom dplyr contains funs rename_all select
+#' @importFrom dplyr left_join
 #' @importFrom magrittr %>%
 #' @keywords internal
 
@@ -103,7 +114,7 @@ clean_proc_cols <- function (df) {
     rename_with(tolower, .cols = everything()) %>%
     rename_with(~str_replace(., COL_CORRECT_BUTTON, "acc"), .cols = everything()) %>%
     rename_with(~str_replace(., COL_CORRECT_RESPONSE, "acc"), .cols = everything()) %>%
-    select(-contains(".short"), -contains(".no_response"), -contains(".late"),
+    select(-contains(".short"), -contains(".no_response"), -(contains(".late") & !contains(".late_incorrect")),
            -contains("acc_median"), -contains("acc_sd"),
            -contains(".NA"), -contains("prev_na"), -contains("prev_no_response"),
            -contains("rw_count"), -contains("rw_length"),

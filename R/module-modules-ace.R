@@ -19,15 +19,15 @@ module_boxed <- function(df) {
 }
 
 #' @importFrom magrittr %>%
-#' @importFrom rlang sym !!
-#' @importFrom dplyr case_when mutate mutate_at recode select starts_with
+#' @importFrom rlang sym !! :=
+#' @importFrom dplyr case_when mutate recode select starts_with
 #' @keywords internal
 #' @name ace_procs
 
 module_brt <- function(df) {
   if (COL_HANDEDNESS %in% names(df)) {
     df <- df %>%
-      mutate_at(COL_HANDEDNESS, tolower)
+      mutate(!!COL_HANDEDNESS := tolower(!!Q_COL_HANDEDNESS))
     
     if (!all(df[[COL_HANDEDNESS]] %in% c("right", "left"))) {
       warning("Nonstandard handedness levels detected.\n",
@@ -79,22 +79,26 @@ module_flanker <- function(df) {
   return (left_join(gen, rcs, by = COL_BID) %>% dplyr::bind_cols(cost))
 }
 
-#' @importFrom dplyr funs left_join mutate na_if rename_all
+#' @importFrom dplyr left_join mutate na_if rename_with
 #' @importFrom magrittr %>%
+#' @importFrom rlang := !!
+#' @importFrom tidyselect everything
 #' @keywords internal
 #' @name ace_procs
 
 module_saat <- function(df) {
   df = replace_empty_values(df, COL_CONDITION, "saattype")
-  df = mutate_at(df, COL_CONDITION, tolower) %>%
-    # non-response trials should have NA rt, not 0 rt, so it will be excluded from mean calculations
-    mutate_at(COL_RT, funs(na_if(., 0)))
+  df = mutate(df,
+              !!COL_CONDITION := tolower(!!Q_COL_CONDITION),
+              # non-response trials should have NA rt, not 0 rt
+              # so it will be excluded from mean calculations
+              !!COL_RT := na_if(!!Q_COL_RT, 0))
   
   gen = proc_generic_module(df)
   # doing this will output true hit and FA rates (accuracy by target/non-target condition) for calculating SDT metrics in later code
   # TODO: fix functions in math-detection.R to calculate SDT metrics inline. this is a bandaid
   sdt = proc_by_condition(df, "trial_accuracy", Q_COL_CONDITION, FUN = ace_dprime_dplyr) %>%
-    rename_all(funs(stringr::str_replace(., "trial_accuracy_", "")))
+    rename_with(~stringr::str_replace(., "trial_accuracy_", ""), .cols = everything())
   return (left_join(gen, sdt, by = COL_BID))
 }
 
@@ -117,8 +121,7 @@ module_spatialspan <- function(df) {
   rt_block_half = proc_by_condition(df, COL_RT, factors = Q_COL_BLOCK_HALF, include_overall = F)
   analy = list(rt, span, rt_block_half)
   if (COL_PRACTICE_COUNT %in% names(df)) {
-    prac = proc_by_condition(df, COL_PRACTICE_COUNT, include_overall = FALSE, FUN = ace_practice_count) %>% 
-      rename(!!Q_COL_PRACTICE_COUNT := paste(!!COL_PRACTICE_COUNT, !!COL_PRACTICE_COUNT, sep = "_"))
+    prac = proc_by_condition(df, COL_PRACTICE_COUNT, include_overall = FALSE, FUN = ace_practice_count)
     analy = c(analy, list(prac))
   }
   merged = multi_merge(analy, by = COL_BID)
@@ -161,8 +164,7 @@ module_backwardsspatialspan <- function(df) {
   rt_block_half = proc_by_condition(df, COL_RT, factors = Q_COL_BLOCK_HALF, include_overall = F)
   analy = list(rt, span, rt_block_half)
   if (COL_PRACTICE_COUNT %in% names(df)) {
-    prac = proc_by_condition(df, COL_PRACTICE_COUNT, include_overall = FALSE, FUN = ace_practice_count) %>% 
-      rename(!!Q_COL_PRACTICE_COUNT := paste(!!COL_PRACTICE_COUNT, !!COL_PRACTICE_COUNT, sep = "_"))
+    prac = proc_by_condition(df, COL_PRACTICE_COUNT, include_overall = FALSE, FUN = ace_practice_count)
     analy = c(analy, list(prac))
   }
   merged = multi_merge(analy, by = COL_BID)
@@ -192,7 +194,7 @@ module_filter <- function(df) {
   rcs = proc_by_condition(df, c(COL_CORRECT_BUTTON, COL_RT), Q_COL_CONDITION, FUN = ace_rcs, transform_dir = "long")
   merged = reduce(list(acc, rt, rcs), left_join, by = c(COL_BID, COL_CONDITION)) %>%
     separate(!!Q_COL_CONDITION, c("targets", "distractors"), sep = 2, remove = FALSE) %>%
-    mutate_at(c("targets", "distractors"), funs(as.integer(str_sub(., start = -1L)))) %>%
+    mutate(across(c("targets", "distractors"), ~as.integer(str_sub(., start = -1L)))) %>%
     # TODO: implement k w/ proc_standard (if possible)
     mutate(k = ace_wm_k(correct_button_mean.change, 1 - correct_button_mean.no_change, targets),
            dprime = ace_dprime_wide(correct_button_mean.change, 1 - correct_button_mean.no_change,

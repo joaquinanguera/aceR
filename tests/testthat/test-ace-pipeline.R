@@ -1,4 +1,4 @@
-context("operations on loaded data")
+context("Whole ACE pipeline from loading to post")
 
 raw_explorer <- load_ace_bulk(aceR_sample_data_path("explorer"), app_type = "explorer", verbose = F)
 
@@ -8,9 +8,15 @@ raw_email <- load_ace_bulk(aceR_sample_data_path("email"),
                            app_type = "email",
                            verbose = F)
 
+test_that("ACE data loads properly", {
+  expect_s3_class(raw_explorer, "tbl_df")
+  expect_s3_class(raw_email, "tbl_df")
+})
+
 range_cutoff <- c(150, 2000)
 
 trimmed_ace_email <- raw_email %>%
+  filter(module != ISHIHARA) %>% 
   mutate(rt_within_pre = map_int(data, ~sum(.x$rt >= range_cutoff[1] & .x$rt <= range_cutoff[2] & !is.na(.x$rt))),
          rt_nogo_pre = map_int(data, ~sum(.x$rt == -99 & !is.na(.x$rt)))) %>%
   trim_rt_trials(range_cutoff = range_cutoff) %>%
@@ -18,7 +24,8 @@ trimmed_ace_email <- raw_email %>%
          rt_without_post = map_int(data, ~sum((.x$rt < range_cutoff[1] | .x$rt > range_cutoff[2]) & !is.na(.x$rt))),
          rt_nogo_post = map_int(data, ~sum(.x$rt == -99 & !is.na(.x$rt))))
 
-trimmed_ace_explore <- raw_explorer %>%
+trimmed_ace_explorer <- raw_explorer %>%
+  filter(!(module %in% c(DEMOS, ISHIHARA))) %>% 
   mutate(rt_within_pre = map_int(data, ~sum(.x$rt >= range_cutoff[1] & .x$rt <= range_cutoff[2] & !is.na(.x$rt))),
          rt_nogo_pre = map_int(data, ~sum(.x$rt == -99 & !is.na(.x$rt)))) %>%
   trim_rt_trials(range_cutoff = range_cutoff) %>%
@@ -29,10 +36,10 @@ trimmed_ace_explore <- raw_explorer %>%
 test_that("trimming: range cutoff behaves", {
   
   expect_equal(trimmed_ace_email$rt_within_pre, trimmed_ace_email$rt_within_post)
-  expect_equal(trimmed_ace_explore$rt_within_pre, trimmed_ace_explore$rt_within_post)
+  expect_equal(trimmed_ace_explorer$rt_within_pre, trimmed_ace_explorer$rt_within_post)
   
   expect_equal(trimmed_ace_email$rt_without_post, trimmed_ace_email$rt_nogo_post)
-  expect_equal(trimmed_ace_explore$rt_without_post, trimmed_ace_explore$rt_nogo_post)
+  expect_equal(trimmed_ace_explorer$rt_without_post, trimmed_ace_explorer$rt_nogo_post)
   
 })
 
@@ -42,7 +49,7 @@ test_that("trimming: sd cutoff behaves", {
 
 test_that("trimming: nogo trials are untouched", {
   expect_equal(trimmed_ace_email$rt_nogo_pre, trimmed_ace_email$rt_nogo_post)
-  expect_equal(trimmed_ace_explore$rt_nogo_pre, trimmed_ace_explore$rt_nogo_post)
+  expect_equal(trimmed_ace_explorer$rt_nogo_pre, trimmed_ace_explorer$rt_nogo_post)
 })
 
 test_that("nesting: unnesting is long", {
@@ -67,11 +74,17 @@ test_that("nesting: re-nesting yields identical", {
     arrange(!!Q_COL_MODULE)
   
   for (i in 1:nrow(raw_explorer)) {
-    expect_mapequal(raw_explorer$data[[raw_explorer$module[i]]],
-                    # force rows to be in same order
-                    arrange(renest_explorer$data[[raw_explorer$module[i]]],
-                           !!Q_COL_BID)
-                    )
+    if (raw_explorer$module[i] == DEMOS) {
+      expect_mapequal(raw_explorer$data[[raw_explorer$module[i]]],
+                      # force rows to be in same order
+                      arrange(renest_explorer$data[[raw_explorer$module[i]]],
+                              !!Q_COL_BID)
+      )
+    } else {
+      expect_mapequal(raw_explorer$data[[raw_explorer$module[i]]],
+                      renest_explorer$data[[raw_explorer$module[i]]]
+      )
+    }
   }
   
   for (i in 1:nrow(raw_email)) {
@@ -86,9 +99,59 @@ test_that("module proc: ACE Ishihara works", {
 })
 
 test_that("module proc: ACE BRT works", {
-  expect_gt(ncol(attempt_module(raw_explorer$data[[BRT]], BRT, verbose = FALSE)), 1)
+  expect_gt(ncol(attempt_module(raw_explorer$data[[BRT]] %>% 
+                                  reconstruct_pid() %>%
+                                  left_join(raw_explorer$data[[DEMOS]] %>%
+                                              select(COL_PID, COL_HANDEDNESS),
+                                            by = COL_PID),
+                                BRT, verbose = FALSE)),
+            1)
   expect_warning(attempt_module(raw_explorer$data[[BRT]], BRT, verbose = FALSE),
                  regexp = "No handedness data found")
+})
+
+test_that("module proc: ACE backwards spatial span works", {
+  expect_gt(nrow(attempt_module(raw_explorer$data[[BACK_SPATIAL_SPAN]], BACK_SPATIAL_SPAN, verbose = FALSE)), 1)
+})
+
+test_that("module proc: ACE forward spatial span works", {
+  expect_gt(nrow(attempt_module(raw_explorer$data[[SPATIAL_SPAN]], SPATIAL_SPAN, verbose = FALSE)), 1)
+})
+
+test_that("module proc: ACE Boxed works", {
+  expect_gt(nrow(attempt_module(raw_explorer$data[[BOXED]], BOXED, verbose = FALSE)), 1)
+})
+
+test_that("module proc: ACE Filter works", {
+  expect_gt(nrow(attempt_module(raw_explorer$data[[FILTER]], FILTER, verbose = FALSE)), 1)
+})
+
+test_that("module proc: ACE Flanker works", {
+  expect_gt(nrow(attempt_module(raw_explorer$data[[FLANKER]], FLANKER, verbose = FALSE)), 1)
+})
+
+test_that("module proc: ACE SAAT works", {
+  expect_gt(nrow(attempt_module(raw_explorer$data[[SAAT]], SAAT, verbose = FALSE)), 1)
+})
+
+test_that("module proc: ACE Flanker works", {
+  expect_gt(nrow(attempt_module(raw_explorer$data[[FLANKER]], FLANKER, verbose = FALSE)), 1)
+})
+
+test_that("module proc: ACE spatial cueing works", {
+  expect_gt(nrow(attempt_module(raw_explorer$data[[SPATIAL_CUE]], SPATIAL_CUE, verbose = FALSE)), 1)
+})
+
+test_that("module proc: ACE Stroop works", {
+  expect_gt(nrow(attempt_module(raw_explorer$data[[STROOP]], STROOP, verbose = FALSE)), 1)
+})
+
+test_that("module proc: ACE task switching works", {
+  expect_gt(nrow(attempt_module(raw_explorer$data[[TASK_SWITCH]], TASK_SWITCH, verbose = FALSE)), 1)
+})
+
+test_that("module proc: ACE tap and trace works", {
+  expect_gt(nrow(attempt_module(raw_explorer$data[[TNT]], TNT, verbose = FALSE)), 1)
 })
 
 test_that("module proc: ACE Explorer data bulk processes properly", {
@@ -96,6 +159,8 @@ test_that("module proc: ACE Explorer data bulk processes properly", {
   wide = proc_by_module(raw_explorer, app_type = "explorer", output = "wide", verbose = F)
   expect_gt(nrow(long), 0)
   expect_gt(nrow(wide), 0)
+  expect_false(any(endsWith(unlist(map(long$proc, names), use.names = F), ".x") | endsWith(unlist(map(long$proc, names), use.names = F), ".y")))
+  expect_false(any(endsWith(names(wide), ".x") | endsWith(names(wide), ".y")))
 })
 
 test_that("module proc: ACE Classroom email data bulk processes properly", {
@@ -103,4 +168,7 @@ test_that("module proc: ACE Classroom email data bulk processes properly", {
   wide = proc_by_module(raw_email, app_type = "classroom", output = "wide", verbose = F)
   expect_gt(nrow(long), 0)
   expect_gt(nrow(wide), 0)
+  expect_false(any(endsWith(unlist(map(long$proc, names), use.names = F), ".x") | endsWith(unlist(map(long$proc, names), use.names = F), ".y")))
+  expect_false(any(endsWith(names(wide), ".x") | endsWith(names(wide), ".y")))
 })
+

@@ -80,10 +80,10 @@ load_ace_bulk <- function(path = ".",
     # in proc_by_module so that will have to expect this col in some cases
     out <- out %>%
       mutate(demos = map(data, ~.x %>%
-                           select(one_of(ALL_POSSIBLE_DEMOS)) %>%
+                           select(any_of(ALL_POSSIBLE_DEMOS)) %>%
                            distinct()),
              data = map(data, ~.x %>%
-                          select(-one_of(ALL_POSSIBLE_DEMOS[!(ALL_POSSIBLE_DEMOS %in% c(COL_BID, COL_BID_SHORT))]))))
+                          select(-any_of(ALL_POSSIBLE_DEMOS[!(ALL_POSSIBLE_DEMOS %in% c(COL_BID, COL_BID_SHORT))]))))
   }
   
   # currently returns a tibble where data is NOT rbind.filled together into one big df

@@ -40,7 +40,17 @@ The package, as of March 2020, has transitioned to the [CalVer](https://calver.o
 
 ### Brief release notes
 
-Current:
+#### 21.0.0 (Current):
+
+New outputs:
+- `proc_by_module()` now outputs additional accuracy columns from a recoded version of accuracy, where all late trials are labeled as incorrect irrespective of their original response. (Only appears in data with valid RT/response-window mappings. May not appear for very old ACE Classroom data.)
+
+Minor implementation changes:
+
+- Removing instances of deprecated `dplyr` functions like `funs()` (totally removed?) and the `*_at()`/`*_if()` functions (in progress) to keep up with best practice and silence deprecation errors from `dplyr`
+- Subtle changes under the hood to silence cosmetic warnings that don't signify unexpected failure to process
+
+#### 20.5.0:
 
 Minor implementation changes:
 
@@ -49,7 +59,7 @@ Minor implementation changes:
 - ACE Explorer Filter: Now forcibly recodes accuracy based on `button_pressed` and `cue_rotated`. Retains previous recoding from earlier versions of the task when `button_pressed` was not included.
 - ACE BRT: Now more strict about checking for handedness in demographics. If handedness does not match `"right"` or `"left"`, `module_brt()` throws warning through `proc_by_module()`.
 
-20.4.0:
+#### 20.4.0:
 
 Minor implementation changes:
 
@@ -59,7 +69,7 @@ Bug fixes:
 
 - In June (ish?) 2020, ACE Explorer began labeling Flanker cues as A vs. B, instead of A/B vs. C/D. Previous versions of `load_ace_bulk()` would thus accidentally mis-code all responses when `displayed_cue == "B"`. The code now splits Flanker cues into A vs. B or A/B vs. C/D depending on whether C/D are present in the data. **This is a necessary update for anyone looking to process ACE Explorer Flanker data in the new format.**
 
-20.3.0:
+#### 20.3.0:
 
 Minor implementation changes:
 
@@ -69,7 +79,9 @@ Bug fixes:
 
 - In June (ish?) 2020, ACE Explorer began collecting and outputting SAAT data as two separate tasks for the impulsive and sustained conditions. Previous versions of `load_ace_bulk()` would accidentally remove data from each player's second SAAT module as "duplicated". The code now considers task condition when de-duplicating raw data. **This is a necessary update for anyone looking to process ACE Explorer SAAT data in the new format.**
 
-20.2.0: New outputs of `proc_by_module()` added:
+#### 20.2.0:
+
+New outputs of `proc_by_module()` added:
 
 - ACE spatial cueing: For newer Explorer data that has a "neutral" condition, outputs costs for neutral - incongruent and neutral - incongruent
 - ACE filter: Outputs Snodgrass-corrected d'. Use with caution when trial counts are low!
@@ -78,15 +90,20 @@ Bug fixes:
     - For ACE Explorer data, now outputs `practice_count`, or the number of practice rounds that subject did for that module. Note that at the max value, 5 rounds, it does _not_ currently differentiate between whether the subject maxed out practice and failed the last round, or passed the last round.
 
 Bug fixes:
+
 - `proc_by_module()` failed when `app_type = "explorer"` and `output = "wide"` because it attempted to drop a column that didn't exist in demographics
 - `load_ace_bulk()` now returns all `tap_.*_rt` columns in forward/backward spatial span data as double instead of character
 - `post_clean_low_trials()` checks for the minimum trial count only in at-all-responded trials within each condition. Previously, was accidentally checking within early-responded trials, which is likely too strict of a response requirement.
 
 Now requires `dplyr >= 0.8.0` as well. Tidyverse updates are generally solid about backwards compatibility, so we boldly go for more sensible features!
 
-20.1.1: Previously, no recoding was done on no-go "RTs" in go/no-go ACE tasks (SAAT and TNT). Now, these no-go RTs are coded as **-99**. This is not included in RT summary statistics, but these trials are counted in `ace_count()`.
+#### 20.1.1:
 
-20.1.0: New functions `nest_ace_raw()` and `unnest_ace_raw()`, to pull loaded ACE data into traditional unnested dataframe form for custom analysis, and to re-package ACE data back into nested form for analysis with `proc_by_module()`.
+Previously, no recoding was done on no-go "RTs" in go/no-go ACE tasks (SAAT and TNT). Now, these no-go RTs are coded as **-99**. This is not included in RT summary statistics, but these trials are counted in `ace_count()`.
+
+#### 20.1.0:
+
+New functions `nest_ace_raw()` and `unnest_ace_raw()`, to pull loaded ACE data into traditional unnested dataframe form for custom analysis, and to re-package ACE data back into nested form for analysis with `proc_by_module()`.
 
 ## Example Scripts
 

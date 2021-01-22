@@ -2,7 +2,7 @@
 #' @keywords internal
 #' @import dplyr
 #' @importFrom magrittr %>%
-#' @importFrom rlang sym syms quo_name UQ UQS !! !!!
+#' @importFrom rlang as_string sym syms quo_name UQ UQS !! !!!
 #' @import tidyr
 
 apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transform_dir = "wide", ...) {
@@ -40,6 +40,7 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
         z = vector("list", 3)
         # if there are two factors, put out THREE: one just by factor 1, one just by factor 2, and one crossed
         z[[1]] = x %>%
+          filter_invalid_stats_levels(factors[[1]]) %>% 
           group_by(!!!c(id_var, factors[[1]])) %>%
           FUN(col) %>%
           ungroup() %>%
@@ -50,6 +51,7 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
                       names_sep = ".")
         
         z[[2]] = x %>%
+          filter_invalid_stats_levels(factors[[2]]) %>% 
           group_by(!!!c(id_var, factors[2])) %>%
           FUN(col) %>%
           ungroup() %>%
@@ -60,6 +62,8 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
                       names_sep = ".")
         
         z[[3]] = x %>%
+          filter_invalid_stats_levels(factors[[1]]) %>% 
+          filter_invalid_stats_levels(factors[[2]]) %>% 
           group_by(!!!c(id_var, factors)) %>%
           FUN(col) %>%
           ungroup() %>%
@@ -78,11 +82,14 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
         z = vector("list", 2)
         # if there are two factors, put out THREE: one just by factor 1, one just by factor 2, and one crossed
         z[[1]] = x %>%
+          filter_invalid_stats_levels(factors[[1]]) %>% 
           group_by(!!!c(id_var, factors[[1]])) %>%
           FUN(col) %>%
           ungroup()
         
         z[[2]] = x %>%
+          filter_invalid_stats_levels(factors[[1]]) %>% 
+          filter_invalid_stats_levels(factors[[2]]) %>% 
           group_by(!!!c(id_var, factors)) %>%
           FUN(col) %>%
           ungroup() %>%
@@ -92,15 +99,16 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
                       names_sep = ".")
         
         
-        # using join_all here instead of multi_merge bc easily accepts multiple joining vars
-        # join across all common vars, we are assuming common named vars are in fact the same measurement
-        z = plyr::join_all(z)
+        # using full_join here instead of multi_merge bc easily accepts multiple joining vars
+        # to silence error, hard-join by ID var and first factor (which is kept long)
+        z = purrr::reduce(z, full_join, by = c(as_string(id_var), as_string(factors[[1]])))
       }
     } else {
       if (transform_dir == "wide") {
         # if only one factor, only put out 1
         if (is.list(factors)) factors = factors[[1]]
         z = x %>%
+          filter_invalid_stats_levels(factors) %>% 
           group_by(!!!c(id_var, factors)) %>%
           FUN(col) %>%
           ungroup() %>%
@@ -110,6 +118,7 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
                       names_sep = ".")
       } else if (transform_dir == "long") {
         z = x %>%
+          filter_invalid_stats_levels(factors) %>% 
           group_by(!!!c(id_var, factors)) %>%
           FUN(col) %>%
           ungroup()
@@ -123,13 +132,16 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
   return(z)
 }
 
-#' @keywords internal deprecated
+#' @keywords internal
+#' @importFrom dplyr filter
+#' @importFrom rlang !! as_string
 
-ace_apply_by_group <- function(x, y, FUN) {
-  group = replace_blanks(y, NA)
-  agg = aggregate(list(x), list(group), FUN = FUN, simplify = TRUE)
-  out = data.frame(t(agg[2]))
-  names(out) = unlist(agg[1])
-  row.names(out) <- NULL
-  return (out)
+filter_invalid_stats_levels <- function (x, this_factor) {
+  this_factor_str <- as_string(this_factor)
+  
+  if (this_factor_str %in% c(COL_CORRECT_BUTTON, COL_CORRECT_RESPONSE, COL_LATE_RESPONSE, COL_PREV_CORRECT_BUTTON, "cue_rotated")) {
+    return (filter(x, !endsWith(!!this_factor, "no_response"), !is.na(!!this_factor), !!this_factor != "prev_NA"))
+  } else {
+    return (x)
+  }
 }

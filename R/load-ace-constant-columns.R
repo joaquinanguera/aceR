@@ -284,7 +284,7 @@ standardize_ace_column_types <- function (df) {
   
   try({
     df <- df %>%
-    mutate_at(COL_RW, as.numeric)
+    mutate(!!COL_RW := as.numeric(!!Q_COL_RW))
   }, silent = TRUE)
   
   # code correct_button with words, not 0 and 1
@@ -303,9 +303,9 @@ standardize_ace_column_types <- function (df) {
   # various condition cols that should be numeric
   try(suppressWarnings({
     df <- df %>%
-    mutate_at(vars(one_of(c("position_is_top",
+    mutate(across(any_of(c("position_is_top",
                             "is_valid_cue",
-                            "object_count"))), as.numeric)
+                            "object_count")), as.numeric))
   }), silent = TRUE)
   
   try({
@@ -376,7 +376,7 @@ standardize_ace_values <- function(df, app_type) {
     # TODO: If you want ALL_POSSIBLE_EXPLORE_DEMOS, it goes in here with ALL_POSSIBLE_DEMOS
     # But maybe this functionality should wait until the device stuff is faithfully only in the task data
     df %<>%
-      select(one_of(c(COL_MODULE, ALL_POSSIBLE_DEMOS, COL_TIME))) %>%
+      select(any_of(c(COL_MODULE, ALL_POSSIBLE_DEMOS, COL_TIME))) %>%
       mutate_at(COL_GENDER, as.character)
   }
   
@@ -537,7 +537,7 @@ standardize_ace_values <- function(df, app_type) {
   return (df)
 }
 
-#' @importFrom dplyr mutate case_when
+#' @importFrom dplyr mutate case_when if_else
 #' @importFrom magrittr %>%
 #' @importFrom rlang sym !! :=
 #' @keywords internal
@@ -549,17 +549,30 @@ standardize_saat_tnt <- function(df, col) {
   # Also recode no-go RTs (eg position not on top) and miss RTs (correct button = 0) as -99 for special treatment
 
   q_col = sym(col)
-  df <- df %>%
-    mutate(trial_accuracy = case_when(!!q_col == 1 & (!is.na(!!Q_COL_RT) & !!Q_COL_RT != 0) ~ "Hit",
-                                      !!q_col == 1 & (is.na(!!Q_COL_RT) | !!Q_COL_RT == 0) ~ "Miss",
-                                      !!q_col == 0 & (is.na(!!Q_COL_RT) | !!Q_COL_RT == 0) ~ "Correct Rejection",
-                                      !!q_col == 0 & (!is.na(!!Q_COL_RT) & !!Q_COL_RT != 0) ~ "False Alarm",
-                                      TRUE ~ NA_character_),
-           !!COL_CORRECT_BUTTON := case_when(trial_accuracy %in% c("Hit", "Correct Rejection") ~ "correct",
+  # As of August? 2020 ACE Explorer now includes a "tap" column
+  # designed to be combined with correct_button to get accuracy without guessing on RT
+  # Keep other code for older data where it must be guessed
+  if ("tap" %in% names(df)) {
+    out <- df %>%
+      mutate(trial_accuracy = case_when(!!q_col == 1 & tap == "Yes" ~ "Hit",
+                                        !!q_col == 1 & tap == "No" ~ "Miss",
+                                        !!q_col == 0 & tap == "No" ~ "Correct Rejection",
+                                        !!q_col == 0 & tap == "Yes" ~ "False Alarm",
+                                        TRUE ~ NA_character_),
+             !!COL_RT := if_else(tap == "No", -99, !!Q_COL_RT))
+  } else {
+    out <- df %>%
+      mutate(trial_accuracy = case_when(!!q_col == 1 & (!is.na(!!Q_COL_RT) & !!Q_COL_RT != 0) ~ "Hit",
+                                        !!q_col == 1 & (is.na(!!Q_COL_RT) | !!Q_COL_RT == 0) ~ "Miss",
+                                        !!q_col == 0 & (is.na(!!Q_COL_RT) | !!Q_COL_RT == 0) ~ "Correct Rejection",
+                                        !!q_col == 0 & (!is.na(!!Q_COL_RT) & !!Q_COL_RT != 0) ~ "False Alarm",
+                                        TRUE ~ NA_character_),
+             !!COL_RT := if_else(!!q_col == 0 | (!!q_col == 1 & !!Q_COL_CORRECT_BUTTON == "incorrect"), -99, !!Q_COL_RT))
+  }
+  out <- out %>%
+    mutate(!!COL_CORRECT_BUTTON := case_when(trial_accuracy %in% c("Hit", "Correct Rejection") ~ "correct",
                                              trial_accuracy %in% c("Miss", "False Alarm") ~ "incorrect",
-                                             TRUE ~ NA_character_),
-           !!COL_RT := if_else(!!q_col == 0 | (!!q_col == 1 & !!Q_COL_CORRECT_BUTTON == "incorrect"), -99, !!Q_COL_RT))
-
+                                             TRUE ~ NA_character_))
   
-  return (df)
+  return (out)
 }

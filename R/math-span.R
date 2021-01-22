@@ -3,6 +3,7 @@
 #' @keywords internal
 
 ace_span <- function(x) {
+  if (all(is.na(x))) return (NA)
   max = 0
   vals = to_numeric(x)
   num = length(vals) - 1
