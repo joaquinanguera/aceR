@@ -40,7 +40,12 @@ The package, as of March 2020, has transitioned to the [CalVer](https://calver.o
 
 ### Brief release notes
 
-#### 21.0.0 (Current):
+#### 21.0.1 (Current):
+
+Bug fixes:
+- `ace_dprime()` (called under the hood to process summaries for SAAT and TNT, among others) now explicitly calculates hit and FA counts with `na.rm = FALSE`, so should stop returning NA for participants with trials NA'd out by cleaning functions like `trim_rt_trials()`.
+
+#### 21.0.0:
 
 New outputs:
 - `proc_by_module()` now outputs additional accuracy columns from a recoded version of accuracy, where all late trials are labeled as incorrect irrespective of their original response. (Only appears in data with valid RT/response-window mappings. May not appear for very old ACE Classroom data.)
