@@ -49,8 +49,8 @@ ace_detection <- function(x, y) {
 #' @keywords internal
 
 ace_dprime <- function(acc_col, snodgrass = TRUE) {
-  hits = sum(acc_col == "Hit")
-  fas = sum(acc_col == "False Alarm")
+  hits = sum(acc_col == "Hit", na.rm = T)
+  fas = sum(acc_col == "False Alarm", na.rm = T)
   if (snodgrass) {
     hit_rate = snodgrass_correction_count(hits, length(acc_col))
     fa_rate = snodgrass_correction_count(fas, length(acc_col))
