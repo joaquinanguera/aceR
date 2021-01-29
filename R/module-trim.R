@@ -44,7 +44,7 @@ trim_rt_trials <- function(df, sd_cutoff = FALSE,
   # Quasiquoting does not seem to behave as planned inside of map()
   for (i in 1:nrow(df)) {
     
-    if (!(df$module[i] %in% c(DEMOS, ISHIHARA))) {
+    if (!(df$module[i] %in% c(DEMOS, ISHIHARA, SPATIAL_SPAN, BACK_SPATIAL_SPAN))) {
       
       df$data[[i]] <- df$data[[i]] %>%
         group_by(!!Q_COL_BID) %>%
