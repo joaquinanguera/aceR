@@ -40,19 +40,26 @@ The package, as of March 2020, has transitioned to the [CalVer](https://calver.o
 
 ### Brief release notes
 
-#### Current:
+#### 21.1.0 (Current):
 
-Feature changes:
+New outputs:
+
+- `load_ace_bulk()` now creates the `trial_number` column if it's not found in the raw data, counting from 0 for each participant/module/condition (so, like in the Boxed task, counting will start over from 0 for the next condition by the same participant). Should only activate for data from very old versions of ACE, where trial number was not automatically written out by the app.
+
+Minor implementation changes:
+
 - Slowly, app output messages are being rendered in color with the [`crayon`](https://github.com/r-lib/crayon) package. Successful processing messages should be rendered in green, non-fatal warnings rendered in yellow, and errors rendered in red.
 
 #### 21.0.1:
 
 Bug fixes:
+
 - `ace_dprime()` (called under the hood to process summaries for SAAT and TNT, among others) now explicitly calculates hit and FA counts with `na.rm = TRUE`, so should stop returning NA for participants with trials NA'd out by cleaning functions like `trim_rt_trials()`.
 
 #### 21.0.0:
 
 New outputs:
+
 - `proc_by_module()` now outputs additional accuracy columns from a recoded version of accuracy, where all late trials are labeled as incorrect irrespective of their original response. (Only appears in data with valid RT/response-window mappings. May not appear for very old ACE Classroom data.)
 
 Minor implementation changes:

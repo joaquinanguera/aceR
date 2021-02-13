@@ -156,6 +156,12 @@ COL_TRIAL_TYPE = "trial_type"
 Q_COL_TRIAL_TYPE = rlang::sym(COL_TRIAL_TYPE)
 
 #' @name ace_header
+COL_TRIAL_NUM = "trial_number"
+
+#' @name ace_header
+Q_COL_TRIAL_NUM = rlang::sym(COL_TRIAL_NUM)
+
+#' @name ace_header
 COL_BLOCK_HALF = "half"
 
 #' @name ace_header
