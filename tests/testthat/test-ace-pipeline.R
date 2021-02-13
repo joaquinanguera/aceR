@@ -16,7 +16,7 @@ test_that("ACE data loads properly", {
 range_cutoff <- c(150, 2000)
 
 trimmed_ace_email <- raw_email %>%
-  filter(module != ISHIHARA) %>% 
+  filter(!(module %in% c(SPATIAL_SPAN, BACK_SPATIAL_SPAN, ISHIHARA)) ) %>% 
   mutate(rt_within_pre = map_int(data, ~sum(.x$rt >= range_cutoff[1] & .x$rt <= range_cutoff[2] & !is.na(.x$rt))),
          rt_nogo_pre = map_int(data, ~sum(.x$rt == -99 & !is.na(.x$rt)))) %>%
   trim_rt_trials(range_cutoff = range_cutoff) %>%
@@ -25,7 +25,7 @@ trimmed_ace_email <- raw_email %>%
          rt_nogo_post = map_int(data, ~sum(.x$rt == -99 & !is.na(.x$rt))))
 
 trimmed_ace_explorer <- raw_explorer %>%
-  filter(!(module %in% c(DEMOS, ISHIHARA))) %>% 
+  filter(!(module %in% c(DEMOS, SPATIAL_SPAN, BACK_SPATIAL_SPAN, ISHIHARA))) %>% 
   mutate(rt_within_pre = map_int(data, ~sum(.x$rt >= range_cutoff[1] & .x$rt <= range_cutoff[2] & !is.na(.x$rt))),
          rt_nogo_pre = map_int(data, ~sum(.x$rt == -99 & !is.na(.x$rt)))) %>%
   trim_rt_trials(range_cutoff = range_cutoff) %>%
