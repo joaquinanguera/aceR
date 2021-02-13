@@ -11,6 +11,7 @@ Depends:
 Suggests:
     testthat (>= 2.1.0)
 Imports:
+    crayon,
     data.table,
     dplyr (>= 1.0.0),
     ggplot2,

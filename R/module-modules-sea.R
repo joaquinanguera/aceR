@@ -8,10 +8,10 @@ attempt_module <- function(df, module, verbose) {
     df <- do.call(paste0("module_", tolower(module)), list(df = df)) %>%
       tibble::as_tibble() %>%
       clean_proc_cols()
-    if (verbose) cat("Processed ", module, "\n")
+    if (verbose) cat(crayon::green("Processed", module), sep = "\n")
     return(df)
   }, error = function (e) {
-    warning("Unable to process ", module)
+    warning(crayon::red("Unable to process", module), sep = "\n")
     return (data.frame())
   })
 }
