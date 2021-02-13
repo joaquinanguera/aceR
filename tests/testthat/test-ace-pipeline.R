@@ -33,6 +33,11 @@ trimmed_ace_explorer <- raw_explorer %>%
          rt_without_post = map_int(data, ~sum((.x$rt < range_cutoff[1] | .x$rt > range_cutoff[2]) & !is.na(.x$rt))),
          rt_nogo_post = map_int(data, ~sum(.x$rt == -99 & !is.na(.x$rt))))
 
+test_that("trimming: throws warning when range min < 150 ms", {
+  expect_warning(trim_rt_trials(raw_explorer, range_cutoff = c(100, NA)),
+                 "Minimum allowable RT specified less than 150 ms")
+})
+
 test_that("trimming: range cutoff behaves", {
   
   expect_equal(trimmed_ace_email$rt_within_pre, trimmed_ace_email$rt_within_post)

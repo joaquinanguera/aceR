@@ -41,6 +41,11 @@ NULL
 trim_rt_trials <- function(df, sd_cutoff = FALSE,
                            range_cutoff = FALSE, verbose = TRUE) {
   
+  if (length(range_cutoff) == 2 & !is.na(range_cutoff[1]) & range_cutoff[1] < 150) {
+    warning(crayon::yellow("Minimum allowable RT specified less than 150 ms.",
+                           "Trials with RT < 150 ms have already been discarded!"))
+  }
+  
   # Quasiquoting does not seem to behave as planned inside of map()
   for (i in 1:nrow(df)) {
     
@@ -53,10 +58,6 @@ trim_rt_trials <- function(df, sd_cutoff = FALSE,
       # ordered so that removing acc first doesn't alter RT for the RT calculation
       if (any(range_cutoff != FALSE)) {
         if (!is.na(range_cutoff[1])) {
-          if (range_cutoff[1] < 150) {
-            warning(crayon::yellow("Minimum allowable RT specified less than 150 ms.",
-                                   "Trials with RT < 150 ms have already been discarded!"))
-          }
           
           df$data[[i]] <- df$data[[i]] %>%
             mutate(!!COL_CORRECT_BUTTON := na_if_true(!!Q_COL_CORRECT_BUTTON, !!Q_COL_RT < range_cutoff[1] & !!Q_COL_RT != -99),
