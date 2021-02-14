@@ -46,8 +46,13 @@ New outputs:
 
 - `load_ace_bulk()` now creates the `trial_number` column if it's not found in the raw data, counting from 0 for each participant/module/condition (so, like in the Boxed task, counting will start over from 0 for the next condition by the same participant). Should only activate for data from very old versions of ACE, where trial number was not automatically written out by the app.
 
+Major implementation changes:
+- `load_ace_bulk()` now NAs out all RTs less than 150 ms as "no response".
+- `trim_rt_trials()` previously did both range-based and SD-based scrubbing, always doing any SD scrubbing _after_ range scrubbing. These features have now been split into two functions, `trim_rt_trials_range()` and `trim_rt_trials_sd()`, to allow for greater customization of the behavior of either function. Both functions now allow certain modules to be un-scrubbed with the `exclude` argument. `trim_rt_trials_range()` now takes two length-1 arguments for the minimum and maximum range cutoffs, as opposed to the old functionality where both cutoffs were specified in a length-2 vector.
+
 Minor implementation changes:
 
+- `post_clean_chance()` now takes an `app_type` argument with either `"classroom"` or `"explorer"` as values, to account for differing numbers of choices (and differing chance-level accuracy values) in the Task Switch task between ACE Classroom and Explorer.
 - Slowly, app output messages are being rendered in color with the [`crayon`](https://github.com/r-lib/crayon) package. Successful processing messages should be rendered in green, non-fatal warnings rendered in yellow, and errors rendered in red.
 
 #### 21.0.1:
