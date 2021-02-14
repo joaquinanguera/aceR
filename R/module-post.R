@@ -43,7 +43,8 @@ post_reduce_cols <- function (df,
 #' Scrub processed data with below-chance accuracy
 #' 
 #' User-friendly wrapper to replace below-chance records with \code{NA}
-#' in ACE/SEA data processed with \code{\link{proc_by_module}}.
+#' in ACE data processed with \code{\link{proc_by_module}}. Currently only
+#' compatible with ACE (SEA not yet implemented),
 #' 
 #' @export
 #' @importFrom dplyr case_when everything filter left_join mutate select tibble
@@ -53,6 +54,8 @@ post_reduce_cols <- function (df,
 #' 
 #' @param df a df, output by \code{\link{proc_by_module}}, containing processed
 #' ACE or SEA data.
+#' @param app_type character. What app type produced this data? One of
+#' \code{c("classroom", "explorer")}. Must be specified.
 #' @param overall Also scrub ".overall" data? Defaults to \code{TRUE}.
 #' @param cutoff_dprime Minimum value of d' to allow, for relevant tasks
 #' (Tap and Trace, SAAT, Filter). Defaults to 0.
@@ -63,7 +66,14 @@ post_reduce_cols <- function (df,
 #' @return a df, similar in structure to \code{proc}, but with below-cutoff values in
 #' certain columns converted to \code{NA}.
 
-post_clean_chance <- function (df, overall = TRUE, cutoff_dprime = 0, cutoff_2choice = 0.5, cutoff_4choice = 0.25) {
+post_clean_chance <- function (df,
+                               app_type = c("classroom", "explorer"),
+                               overall = TRUE,
+                               cutoff_dprime = 0,
+                               cutoff_2choice = 0.5,
+                               cutoff_4choice = 0.25) {
+  
+  stopifnot(length(app_type) == 1)
   
   metric_cols <- tibble(module = c(TNT,
                                    STROOP,
@@ -72,6 +82,14 @@ post_clean_chance <- function (df, overall = TRUE, cutoff_dprime = 0, cutoff_2ch
                                    BOXED,
                                    SAAT,
                                    FILTER))
+  
+  # Number of responses went from 4 in Classroom to 2 in Explorer
+  if (app_type == "classroom") {
+    cutoff_taskswitch <- cutoff_4choice
+  } else if (app_type == "explorer") {
+    cutoff_taskswitch <- cutoff_2choice
+  }
+  
   if (overall) {
     metric_cols %<>%
       mutate(metric = list(c("dprime.overall"),
@@ -95,8 +113,9 @@ post_clean_chance <- function (df, overall = TRUE, cutoff_dprime = 0, cutoff_2ch
   metric_cols %<>%
     mutate(full = map2(module, metric, ~paste(.x, .y, sep = ".")),
            cutoff = case_when(module %in% c(TNT, SAAT, FILTER) ~ cutoff_dprime,
-                              module %in% c(STROOP, TASK_SWITCH) ~ cutoff_4choice,
+                              module == STROOP ~ cutoff_4choice,
                               module %in% c(FLANKER, BOXED) ~ cutoff_2choice,
+                              module == TASK_SWITCH ~ cutoff_taskswitch,
                               TRUE ~ NA_real_)) %>%
     filter(module %in% get_valid_modules(df))
   

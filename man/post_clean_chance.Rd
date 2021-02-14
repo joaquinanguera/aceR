@@ -6,6 +6,7 @@
 \usage{
 post_clean_chance(
   df,
+  app_type = c("classroom", "explorer"),
   overall = TRUE,
   cutoff_dprime = 0,
   cutoff_2choice = 0.5,
@@ -15,6 +16,9 @@ post_clean_chance(
 \arguments{
 \item{df}{a df, output by \code{\link{proc_by_module}}, containing processed
 ACE or SEA data.}
+
+\item{app_type}{character. What app type produced this data? One of
+\code{c("classroom", "explorer")}. Must be specified.}
 
 \item{overall}{Also scrub ".overall" data? Defaults to \code{TRUE}.}
 
@@ -33,5 +37,6 @@ certain columns converted to \code{NA}.
 }
 \description{
 User-friendly wrapper to replace below-chance records with \code{NA}
-in ACE/SEA data processed with \code{\link{proc_by_module}}.
+in ACE data processed with \code{\link{proc_by_module}}. Currently only
+compatible with ACE (SEA not yet implemented),
 }
