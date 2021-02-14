@@ -53,8 +53,7 @@ proc_by_module <- function(df,
   
   # select some modules to process out of all present, if specified
   if (any(modules != "all")) {
-    if (any(!(modules %in% c(ALL_MODULES, ALL_SEA_MODULES)))) {
-      warning(crayon::red("Modules improperly specified! Check spelling?"))
+    if (check_module_misspelling(modules)) {
       return (data.frame())
     }
     df <- df %>%
@@ -208,6 +207,17 @@ proc_by_module <- function(df,
              proc = rlang::set_names(proc, module)) %>%
       select(-demos)
     return (out)
+  }
+}
+
+#' @keywords internal
+
+check_module_misspelling = function(modules) {
+  if (any(!(modules %in% c(ALL_MODULES, ALL_SEA_MODULES)))) {
+    warning(crayon::red("Modules improperly specified! Check spelling?"))
+    return (TRUE)
+  } else {
+    return (FALSE)
   }
 }
 
