@@ -53,6 +53,8 @@
 \alias{Q_COL_PRACTICE_COUNT}
 \alias{COL_TRIAL_TYPE}
 \alias{Q_COL_TRIAL_TYPE}
+\alias{COL_TRIAL_NUM}
+\alias{Q_COL_TRIAL_NUM}
 \alias{COL_BLOCK_HALF}
 \alias{Q_COL_BLOCK_HALF}
 \alias{ALL_POSSIBLE_DEMOS}
@@ -64,6 +66,10 @@
 \alias{standardize_ace_values}
 \title{ACE column name constants}
 \format{
+An object of class \code{character} of length 1.
+
+An object of class \code{name} of length 1.
+
 An object of class \code{character} of length 1.
 
 An object of class \code{name} of length 1.
@@ -276,6 +282,10 @@ Q_COL_PRACTICE_COUNT
 COL_TRIAL_TYPE
 
 Q_COL_TRIAL_TYPE
+
+COL_TRIAL_NUM
+
+Q_COL_TRIAL_NUM
 
 COL_BLOCK_HALF
 

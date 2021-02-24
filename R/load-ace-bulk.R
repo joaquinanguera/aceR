@@ -39,7 +39,7 @@ load_ace_bulk <- function(path = ".",
   
   files = filter_vec(files, pattern)
   
-  if (length(files) == 0) stop("no matching files", call. = TRUE)
+  if (length(files) == 0) stop(crayon::red("no matching files"), call. = TRUE)
   
   if (path != ".") files = paste(path, files, sep = "/")
   
@@ -48,7 +48,7 @@ load_ace_bulk <- function(path = ".",
   # Use purrr::map to vectorize the load_ace_file call :3
   out = tibble(file = files) %>%
     mutate(data = map(files, function (x) {
-      if (verbose) print(x)
+      if (verbose) cat(crayon::blue("Starting ", x, "\n"), sep = "")
       return (load_ace_file(x, app_type = app_type))
     }))
   
@@ -88,5 +88,6 @@ load_ace_bulk <- function(path = ".",
   
   # currently returns a tibble where data is NOT rbind.filled together into one big df
   # but kept separate by module
+  cat(crayon::green("Finished! See possible warnings below."), sep = "\n")
   return(out)
 }

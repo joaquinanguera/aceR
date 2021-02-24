@@ -156,6 +156,12 @@ COL_TRIAL_TYPE = "trial_type"
 Q_COL_TRIAL_TYPE = rlang::sym(COL_TRIAL_TYPE)
 
 #' @name ace_header
+COL_TRIAL_NUM = "trial_number"
+
+#' @name ace_header
+Q_COL_TRIAL_NUM = rlang::sym(COL_TRIAL_NUM)
+
+#' @name ace_header
 COL_BLOCK_HALF = "half"
 
 #' @name ace_header
@@ -350,11 +356,17 @@ standardize_ace_values <- function(df, app_type) {
     }, silent = TRUE)
   }
   
+  # Important: This will scrub RTs below 150 ms for all ACE tasks by default!!!
+  try({
+    df %<>%
+      mutate(!!COL_RT := if_else(!!Q_COL_RT >= 0 & !!Q_COL_RT < 150, NA_real_, !!Q_COL_RT))
+  }, silent = TRUE)
+  
   # Should fail silently on classroom data with no practice trials and no practice column
   try({
     df %<>%
       # Noticed this in ACE Explorer as of Jan 2020. Might have changed before then
-      mutate(!!COL_CORRECT_BUTTON := if_else(!!Q_COL_RT == 0, "no_response", !!Q_COL_CORRECT_BUTTON))
+      mutate(!!COL_CORRECT_BUTTON := if_else(!!Q_COL_RT == 0 | is.na(!!Q_COL_RT), "no_response", !!Q_COL_CORRECT_BUTTON))
   }, silent = TRUE)
   
   if (COL_LATE_RESPONSE %in% cols) {

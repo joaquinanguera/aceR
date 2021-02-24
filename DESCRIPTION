@@ -1,7 +1,7 @@
 Package: aceR
 Title: Tools for processing ACE data
 Description: An R package for processing ACE data.
-Version: 21.0.1
+Version: 21.1.0
 Authors@R: as.person(c('Jose Gallegos <josegallegos07@gmail.com> [aut]',
     'Monica Thieu <mthieu@alumni.stanford.edu> [aut, cre]'))
 URL: https://github.com/joaquinanguera/aceR
@@ -11,6 +11,7 @@ Depends:
 Suggests:
     testthat (>= 2.1.0)
 Imports:
+    crayon,
     data.table,
     dplyr (>= 1.0.0),
     ggplot2,

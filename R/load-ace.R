@@ -176,6 +176,15 @@ transform_mid <- function (dat, file, app_type) {
       dat <- dat %>%
         group_by(!!Q_COL_BID)
     }
+    
+    # for backward compatibility
+    # should only activate for occasional ACE Classroom files
+    # that don't include trial number automatically
+    if (!(COL_TRIAL_NUM %in% names(dat))) {
+      dat <- dat %>%
+        mutate(!!COL_TRIAL_NUM := 0:(n()-1))
+    }
+    
     dat <- dat %>%
       mutate(!!COL_BLOCK_HALF := plyr::mapvalues(make_half_seq(n()), from = c(1, 2), to = c("first_half", "second_half"))) %>%
       ungroup()
