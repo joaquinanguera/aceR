@@ -230,3 +230,17 @@ test_that("module post-processing: cleaning below-chance trials works", {
   expect_identical(is.na(test_flanker_long$acc_mean.overall.y), test_flanker_long$below_cutoff)
   expect_identical(is.na(test_flanker_wide$FLANKER.acc_mean.overall.y), test_flanker_wide$below_cutoff)
 })
+
+test_that("module post-processing: cleaning below-chance trials handles extra demos", {
+  long = post_clean_chance(proc_explorer_long %>% 
+                             mutate(proc = map(proc, ~mutate(.x, extrademo = rnorm(nrow(.))))),
+                           app_type = "explorer",
+                           extra_demos = "extrademo")
+  wide = post_clean_chance(proc_explorer_wide %>% 
+                             mutate(extrademo = rnorm(n())),
+                           app_type = "explorer",
+                           extra_demos = "extrademo")
+  
+  expect_true(all(map_lgl(long$proc, ~"extrademo" %in% names(.x))))
+  expect_true("extrademo" %in% names(wide))
+})

@@ -10,7 +10,8 @@ post_clean_chance(
   overall = TRUE,
   cutoff_dprime = 0,
   cutoff_2choice = 0.5,
-  cutoff_4choice = 0.25
+  cutoff_4choice = 0.25,
+  extra_demos = NULL
 )
 }
 \arguments{
@@ -30,6 +31,9 @@ ACE or SEA data.}
 
 \item{cutoff_4choice}{Minimum value of accuracy to allow, for 4-response tasks
 (Stroop, Task Switch). Defaults to 0.25.}
+
+\item{extra_demos}{Character vector specifying any custom-added demographics
+columns (beyond app defaults) to pass through the function. Defaults to \{code{NULL}.}
 }
 \value{
 a df, similar in structure to \code{proc}, but with below-cutoff values in
