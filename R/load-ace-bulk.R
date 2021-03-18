@@ -15,7 +15,7 @@
 #' @param recursive logical. Load files in subfolders also? Defaults to \code{TRUE}
 #' @param exclude a list of patterns to exclude
 #' @param which_modules Specify modules to process. Defaults to all modules.
-#' @param app_type character What app data export type produced this data? One of
+#' @param data_type character What app data export type produced this data? One of
 #' \code{c("explorer", "email", "pulvinar")}. Must be specified.
 #' @return Returns a data.frame containing the content of every file in the
 #'  specified \code{path}.
@@ -26,8 +26,8 @@ load_ace_bulk <- function(path = ".",
                           exclude = c(),
                           pattern = "",
                           which_modules = "",
-                          app_type = c("explorer", "email", "pulvinar")) {
-  stopifnot(length(app_type) == 1)
+                          data_type = c("explorer", "email", "pulvinar")) {
+  stopifnot(length(data_type) == 1)
   
   csv = list.files(path = path, pattern = ".csv", recursive = recursive)
   xls = list.files(path = path, pattern = ".xls", recursive = recursive)
@@ -49,7 +49,7 @@ load_ace_bulk <- function(path = ".",
   out = tibble(file = files) %>%
     mutate(data = map(files, function (x) {
       if (verbose) cat(crayon::blue("Starting ", x, "\n"), sep = "")
-      return (load_ace_file(x, app_type = app_type))
+      return (load_ace_file(x, app_type = data_type))
     }))
   
   out <- out %>%
@@ -74,7 +74,7 @@ load_ace_bulk <- function(path = ".",
            data = map(data, ~remove_empty_cols(.)),
            data = rlang::set_names(data, !!Q_COL_MODULE))
   
-  if (app_type == "email") {
+  if (data_type == "email") {
     # Set demos to the side to simulate ACE Explorer
     # Not one separate demos module, but this is how the data get put
     # in proc_by_module so that will have to expect this col in some cases

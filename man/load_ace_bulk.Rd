@@ -11,7 +11,7 @@ load_ace_bulk(
   exclude = c(),
   pattern = "",
   which_modules = "",
-  app_type = c("explorer", "email", "pulvinar")
+  data_type = c("explorer", "email", "pulvinar")
 )
 }
 \arguments{
@@ -33,7 +33,7 @@ load_ace_bulk(
 
 \item{which_modules}{Specify modules to process. Defaults to all modules.}
 
-\item{app_type}{character What app data export type produced this data? One of
+\item{data_type}{character What app data export type produced this data? One of
 \code{c("explorer", "email", "pulvinar")}. Must be specified.}
 }
 \value{

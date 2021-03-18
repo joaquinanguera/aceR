@@ -1,11 +1,11 @@
 context("Whole ACE pipeline from loading to post")
 
-raw_explorer <- load_ace_bulk(aceR_sample_data_path("explorer"), app_type = "explorer", verbose = F)
+raw_explorer <- load_ace_bulk(aceR_sample_data_path("explorer"), data_type = "explorer", verbose = F)
 
 raw_email <- load_ace_bulk(aceR_sample_data_path("email"),
                            exclude = "bad-data",
                            pattern = ".csv",
-                           app_type = "email",
+                           data_type = "email",
                            verbose = F)
 
 test_that("ACE data loads properly", {
