@@ -40,7 +40,14 @@ The package, as of March 2020, has transitioned to the [CalVer](https://calver.o
 
 ### Brief release notes
 
-#### 21.1.0 (Current):
+#### 21.1.1  (Current):
+
+Minor implementation changes:
+
+- `load_ace_bulk(app_type = "email")`/`load_ace_bulk(app_type = "pulvinar")` now recodes all valid (>0) BRT RTs as "correct" before adjusting for other app behavior. This should adjust for older versions of the app marking late BRT RTs as "incorrect", which is technically invalid because it's impossible to give an incorrect BRT response.
+- Both `post_clean_*()` functions now take a new argument, `extra_demos`, to allow users to pass in a character vector of custom demographic columns to pass through to the cleaned processed data. In the event that users hand-code processed data from `proc_by_module()` with new demographic identifiers, they can now manually specify those columns to be handled with app-default demographics.
+
+#### 21.1.0:
 
 New outputs:
 
