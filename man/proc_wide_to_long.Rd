@@ -6,7 +6,7 @@
 This will be called under the hood to coerce wide data to long-ish
 Because it seems that users prefer the wide data}
 \usage{
-proc_wide_to_long(df)
+proc_wide_to_long(df, extra_demos)
 }
 \description{
 Most module-post functions work much better with long proc data.

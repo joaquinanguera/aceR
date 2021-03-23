@@ -1,11 +1,11 @@
 context("Whole ACE pipeline from loading to post")
 
-raw_explorer <- load_ace_bulk(aceR_sample_data_path("explorer"), app_type = "explorer", verbose = F)
+raw_explorer <- load_ace_bulk(aceR_sample_data_path("explorer"), data_type = "explorer", verbose = F)
 
 raw_email <- load_ace_bulk(aceR_sample_data_path("email"),
                            exclude = "bad-data",
                            pattern = ".csv",
-                           app_type = "email",
+                           data_type = "email",
                            verbose = F)
 
 test_that("ACE data loads properly", {
@@ -229,4 +229,24 @@ test_that("module post-processing: cleaning below-chance trials works", {
   
   expect_identical(is.na(test_flanker_long$acc_mean.overall.y), test_flanker_long$below_cutoff)
   expect_identical(is.na(test_flanker_wide$FLANKER.acc_mean.overall.y), test_flanker_wide$below_cutoff)
+})
+
+test_that("module post-processing: cleaning below-chance trials handles extra demos", {
+  long = post_clean_chance(proc_explorer_long %>% 
+                             mutate(proc = map(proc, ~mutate(.x, extrademo = rnorm(nrow(.))))),
+                           app_type = "explorer",
+                           extra_demos = "extrademo")
+  wide = post_clean_chance(proc_explorer_wide %>% 
+                             mutate(extrademo = rnorm(n())),
+                           app_type = "explorer",
+                           extra_demos = "extrademo")
+  
+  expect_true(all(map_lgl(long$proc, ~"extrademo" %in% names(.x))))
+  expect_true("extrademo" %in% names(wide))
+  
+  # Doesn't work for long because not easy to readily check which cols are task
+  expect_warning(post_clean_chance(proc_explorer_wide %>% 
+                                     mutate(extrademo = rnorm(n())),
+                                   app_type = "explorer"),
+                 "Possible extra demo cols detected")
 })

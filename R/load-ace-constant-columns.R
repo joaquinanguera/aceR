@@ -438,7 +438,10 @@ standardize_ace_values <- function(df, app_type) {
   } else if (BRT %in% df$module) {
     # retype and clean accuracy
     df %<>%
-      mutate(inter_time_interval = as.numeric(inter_time_interval))
+      mutate(inter_time_interval = as.numeric(inter_time_interval),
+             # Set all valid RTs as "correct" before correcting for other weirdness
+             # To fix late-incorrect marking in older versions of app
+             !!COL_CORRECT_BUTTON := if_else(!!Q_COL_RT > 0, "correct", !!Q_COL_CORRECT_BUTTON))
     
     if (app_type %in% c("email", "pulvinar")) {
       df %<>%
