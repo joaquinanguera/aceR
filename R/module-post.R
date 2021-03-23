@@ -125,22 +125,14 @@ post_clean_chance <- function (df,
   if (!(all(c("module", "proc") %in% names(df)))) {
     # if "wide" form, coerce to "long-ish" first
     wide <- TRUE
-    if (!is.null(extra_demos)) {
-      if (!all(extra_demos %in% (names(df)))) {
-        stop(crayon::red("Extra demo cols not found! Check spelling?"))
-      }
-    }
+    check_extra_demos(df, wide, extra_demos)
     valid_demos <- get_valid_demos(df, is_ace = TRUE)
     filter_col <- sym("full")
     df <- proc_wide_to_long(df, extra_demos)
   } else {
     wide <- FALSE
     filter_col <- sym("metric")
-    if (!is.null(extra_demos)) {
-      if (!any(map_lgl(df$proc, ~all(extra_demos %in% names(.x))))) {
-        stop(crayon::red("Extra demo cols not found! Check spelling?"))
-      }
-    }
+    check_extra_demos(df, wide, extra_demos)
     valid_demos <- get_valid_demos(df$proc[[1]], is_ace = T)
   }
   
@@ -195,20 +187,14 @@ post_clean_low_trials <- function (df, min_trials = 5, extra_demos = NULL) {
   if (!(all(c("module", "proc") %in% names(df)))) {
     # if "wide" form, coerce to "long-ish" first
     wide <- TRUE
-    if (!is.null(extra_demos)) {
-      if (!all(extra_demos %in% (names(df)))) {
-        stop(crayon::red("Extra demo cols not found! Check spelling?"))
-      }
-    }
+    check_extra_demos(df, wide, extra_demos)
     valid_demos <- get_valid_demos(df, is_ace = TRUE)
     df <- proc_wide_to_long(df, extra_demos)
   } else {
     wide <- FALSE
     # as long as the demos are present somewhere this should be ok
     # since these aren't join cols later it doesn't have to be a perfect match
-    if (!is.null(extra_demos) & !any(map_lgl(df$proc, ~all(extra_demos %in% names(.x))))) {
-      stop(crayon::red("Extra demo cols not found! Check spelling?"))
-    }
+    check_extra_demos(df, wide, extra_demos)
     valid_demos <- get_valid_demos(df$proc[[1]], is_ace = T)
   }
   
@@ -270,6 +256,29 @@ proc_na_all_by_some_cols <- function (df) {
     bind_rows(df_no_scrub)
   
   return (df_scrubbed)
+}
+
+#' @keywords internal
+check_extra_demos <- function (df, is_wide, extra_demos) {
+  if (is_wide) {
+    # if "wide" form, coerce to "long-ish" first
+    if (!is.null(extra_demos)) {
+      if (!all(extra_demos %in% (names(df)))) {
+        stop(crayon::red("Extra demo cols not found! Check spelling?"))
+      }
+    } else {
+      if (!all(names(df)[!grepl(paste0("^", ALL_MODULES[ALL_MODULES != DEMOS], collapse = "|"), names(df))] %in% ALL_POSSIBLE_DEMOS)) {
+        warning(crayon::yellow("Possible extra demo cols detected but argument not specified, ignoring."))
+      }
+    }
+  } else {
+    if (!is.null(extra_demos)) {
+      if (!any(map_lgl(df$proc, ~all(extra_demos %in% names(.x))))) {
+        stop(crayon::red("Extra demo cols not found! Check spelling?"))
+      }
+    }
+  }
+  return (NULL)
 }
 
 #' Most module-post functions work much better with long proc data.

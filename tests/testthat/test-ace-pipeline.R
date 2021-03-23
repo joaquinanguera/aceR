@@ -243,4 +243,10 @@ test_that("module post-processing: cleaning below-chance trials handles extra de
   
   expect_true(all(map_lgl(long$proc, ~"extrademo" %in% names(.x))))
   expect_true("extrademo" %in% names(wide))
+  
+  # Doesn't work for long because not easy to readily check which cols are task
+  expect_warning(post_clean_chance(proc_explorer_wide %>% 
+                                     mutate(extrademo = rnorm(n())),
+                                   app_type = "explorer"),
+                 "Possible extra demo cols detected")
 })
