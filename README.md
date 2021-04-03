@@ -40,7 +40,13 @@ The package, as of March 2020, has transitioned to the [CalVer](https://calver.o
 
 ### Brief release notes
 
-#### 21.1.1  (Current):
+#### 21.2.0 (Current):
+
+**Major** implementation changes that may break current pipelines:
+
+- The ACE SAAT task is now treated as two separate modules, `SAATSUSTAINED` and `SAATIMPULSIVE`. **`load_ace_bulk()` takes raw SAAT as per usual, but now outputs the trialwise data as two separate modules.** This should work for all ACE data types, no matter whether both SAAT conditions are included in the same log file (ACE Classroom) or exported as distinct log files (ACE Explorer). `proc_by_module()` and the `post_clean_*()` processing functions all now expect SAAT data to be broken up into two submodules, as output by the updated `load_ace_bulk()`. Now, SAAT processed output columns will take the form `SAATIMPULSIVE.XYZ.overall` instead of, say, `SAAT.XYZ.impulsive`. Overall SAAT metrics across both task conditions will no longer be output, as the conditions are cognitively distinct enough that they should not be analyzed together.
+
+#### 21.1.1:
 
 Minor implementation changes:
 

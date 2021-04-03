@@ -87,17 +87,17 @@ module_flanker <- function(df) {
 #' @name ace_procs
 
 module_saat <- function(df) {
-  df = replace_empty_values(df, COL_CONDITION, "saattype")
+  # df = replace_empty_values(df, COL_CONDITION, "saattype")
   df = mutate(df,
-              !!COL_CONDITION := tolower(!!Q_COL_CONDITION),
+              # !!COL_CONDITION := tolower(!!Q_COL_CONDITION),
               # non-response trials should have NA rt, not 0 rt
               # so it will be excluded from mean calculations
               !!COL_RT := na_if(!!Q_COL_RT, 0))
   
-  gen = proc_generic_module(df)
+  gen = proc_generic_module(df, col_condition = NULL)
   # doing this will output true hit and FA rates (accuracy by target/non-target condition) for calculating SDT metrics in later code
   # TODO: fix functions in math-detection.R to calculate SDT metrics inline. this is a bandaid
-  sdt = proc_by_condition(df, "trial_accuracy", Q_COL_CONDITION, FUN = ace_dprime_dplyr) %>%
+  sdt = proc_by_condition(df, "trial_accuracy", FUN = ace_dprime_dplyr) %>%
     rename_with(~stringr::str_replace(., "trial_accuracy_", ""), .cols = everything())
   return (left_join(gen, sdt, by = COL_BID))
 }

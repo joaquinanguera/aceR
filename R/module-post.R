@@ -83,7 +83,8 @@ post_clean_chance <- function (df,
                                    FLANKER,
                                    TASK_SWITCH,
                                    BOXED,
-                                   SAAT,
+                                   SAAT_SUS,
+                                   SAAT_IMP,
                                    FILTER))
   
   # Number of responses went from 4 in Classroom to 2 in Explorer
@@ -100,7 +101,8 @@ post_clean_chance <- function (df,
                            c("acc_mean.overall"),
                            c("acc_mean.overall"),
                            c("acc_mean.overall"),
-                           c("dprime.sustained", "dprime.impulsive"),
+                           c("dprime.overall"),
+                           c("dprime.overall"),
                            c("k.r2b0", "k.r4b0")))
   } else {
     metric_cols %<>%
@@ -109,7 +111,8 @@ post_clean_chance <- function (df,
                            c("acc_mean.congruent"),
                            c("acc_mean.stay"),
                            c("acc_mean.feature_4"),
-                           c("dprime.sustained", "dprime.impulsive"),
+                           c("dprime.overall"),
+                           c("dprime.overall"),
                            c("k.r2b0", "k.r4b0")))
   }
   

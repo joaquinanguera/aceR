@@ -4,8 +4,13 @@
 #' @importFrom magrittr %>%
 
 attempt_module <- function(df, module, verbose) {
+  if (module %in% c(SAAT_SUS, SAAT_IMP)) {
+    module_function <- SAAT
+  } else {
+    module_function <- module
+  }
   out <- tryCatch({
-    df <- do.call(paste0("module_", tolower(module)), list(df = df)) %>%
+    df <- do.call(paste0("module_", tolower(module_function)), list(df = df)) %>%
       tibble::as_tibble() %>%
       clean_proc_cols()
     if (verbose) cat(crayon::green("Processed", module), sep = "\n")

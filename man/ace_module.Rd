@@ -8,6 +8,8 @@
 \alias{DISCRIMINATION}
 \alias{FLANKER}
 \alias{SAAT}
+\alias{SAAT_SUS}
+\alias{SAAT_IMP}
 \alias{SPATIAL_SPAN}
 \alias{STROOP}
 \alias{TASK_SWITCH}
@@ -48,6 +50,10 @@ An object of class \code{character} of length 1.
 
 An object of class \code{character} of length 1.
 
+An object of class \code{character} of length 1.
+
+An object of class \code{character} of length 1.
+
 An object of class \code{character} of length 14.
 }
 \usage{
@@ -60,6 +66,10 @@ DISCRIMINATION
 FLANKER
 
 SAAT
+
+SAAT_SUS
+
+SAAT_IMP
 
 SPATIAL_SPAN
 

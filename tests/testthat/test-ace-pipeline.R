@@ -154,8 +154,12 @@ test_that("module proc: ACE Flanker works", {
   expect_gt(nrow(attempt_module(raw_explorer$data[[FLANKER]], FLANKER, verbose = FALSE)), 1)
 })
 
-test_that("module proc: ACE SAAT works", {
-  expect_gt(nrow(attempt_module(raw_explorer$data[[SAAT]], SAAT, verbose = FALSE)), 1)
+test_that("module proc: ACE SAAT sustained works", {
+  expect_gt(nrow(attempt_module(raw_explorer$data[[SAAT_SUS]], SAAT_SUS, verbose = FALSE)), 1)
+})
+
+test_that("module proc: ACE SAAT impulsive works", {
+  expect_gt(nrow(attempt_module(raw_explorer$data[[SAAT_IMP]], SAAT_IMP, verbose = FALSE)), 1)
 })
 
 test_that("module proc: ACE Flanker works", {

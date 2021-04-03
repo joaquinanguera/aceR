@@ -21,6 +21,12 @@ FLANKER <- "FLANKER"
 SAAT <- "SAAT"
 
 #' @name ace_module
+SAAT_SUS <- "SAATSUSTAINED"
+
+#' @name ace_module
+SAAT_IMP <- "SAATIMPULSIVE"
+
+#' @name ace_module
 SPATIAL_SPAN <- "SPATIALSPAN"
 
 #' @name ace_module
@@ -62,6 +68,17 @@ ALL_MODULES = c(BOXED,
                 ISHIHARA,
                 SPATIAL_CUE,
                 DEMOS)
+
+#' @importFrom dplyr mutate
+#' @importFrom magrittr %>%
+#' @keywords internal
+
+module_split_saat <- function (df) {
+  if (SAAT %in% df$module) {
+    df$module <- paste0(df$module, toupper(df[[COL_CONDITION]]))
+  }
+  return (df)
+}
 
 #' Identify ACE module from filename
 #'
