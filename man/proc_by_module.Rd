@@ -39,8 +39,8 @@ where one dataframe is output containing cols with data from all modules, or \co
 }
 \value{
 Returns summary statistics for every unique module included in the 
- data as a list. Throws warnings for modules with undefined methods. 
- See \code{\link{ace_procs}} for a list of supported modules.
+data as a list. Throws warnings for modules with undefined methods. 
+See \code{\link{ace_procs}} for a list of supported modules.
 }
 \description{
 Applies corresponding \code{\link{ace_procs}} to every unique module.
