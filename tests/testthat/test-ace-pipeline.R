@@ -18,7 +18,7 @@ range_cutoff <- c(150, 2000)
 sd_cutoff <- 2
 
 trimmed_range_ace_email <- raw_email %>%
-  filter(!(module %in% c(SPATIAL_SPAN, BACK_SPATIAL_SPAN, ISHIHARA)) ) %>% 
+  filter(!(module %in% c(SPATIAL_SPAN, BACK_SPATIAL_SPAN, ISHIHARA))) %>% 
   mutate(rt_within_pre = map_int(data, ~sum(.x$rt >= range_cutoff[1] & .x$rt <= range_cutoff[2] & !is.na(.x$rt))),
          rt_nogo_pre = map_int(data, ~sum(.x$rt == -99 & !is.na(.x$rt)))) %>%
   trim_rt_trials_range(cutoff_min = range_cutoff[1], cutoff_max = range_cutoff[2]) %>%
@@ -253,4 +253,21 @@ test_that("module post-processing: cleaning below-chance trials handles extra de
                                      mutate(extrademo = rnorm(n())),
                                    app_type = "explorer"),
                  "Possible extra demo cols detected")
+})
+
+test_that("mega wrapper works", {
+  # Without writing anything out
+  expect_s3_class(proc_ace_complete(path_in = aceR_sample_data_path("explorer"),
+                                    path_out = NULL,
+                                    data_type = "explorer",
+                                    verbose = F),
+                  "tbl_df")
+  # With writing stuff out
+  proc <- proc_ace_complete(path_in = aceR_sample_data_path("explorer"),
+                            data_type = "explorer",
+                            verbose = F)
+  
+  expect_true(paste0("ace_averaged_data_", Sys.Date(), ".csv") %in% list.files(paste0(aceR_sample_data_path("explorer"), "/..")))
+  
+  file.remove(paste0(aceR_sample_data_path("explorer"), "/../", "ace_averaged_data_", Sys.Date(), ".csv"))
 })

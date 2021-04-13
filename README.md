@@ -40,7 +40,22 @@ The package, as of March 2020, has transitioned to the [CalVer](https://calver.o
 
 ### Brief release notes
 
-#### 21.2.0 (Current):
+#### 21.3.0 (Current):
+
+New functions:
+
+- `proc_ace_complete()` is a new wrapper function that allows users who do not wish to modify any arguments to run ACE data through, start to finish. This function calls the following workhorse functions, in order. **Use with care!** The wrapper function effectively hard-codes argument settings for the component data processing functions. Users who wish to tinker with arguments and mid-processing choices should continue to use the functions for individual data processing steps.
+ - `load_ace_bulk()`
+ - `trim_rt_trials_range(cutoff_min = 200)`
+ - `proc_by_module(output = "wide")`
+ - `post_clean_low_trials(.min_trials = 5)`
+ - `post_clean_chance(overall = TRUE, cutoff_dprime = 1, cutoff_2choice = 0.5, cutoff_4choice = 0.25)`
+ - `post_reduce_cols()` with a specific subset of output columns
+ - and writes processed data to CSV with `write_csv()`
+
+
+
+#### 21.2.0:
 
 **Major** implementation changes that may break current pipelines:
 
