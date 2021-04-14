@@ -118,7 +118,7 @@ post_clean_chance <- function (df,
   
   metric_cols %<>%
     mutate(full = map2(module, metric, ~paste(.x, .y, sep = ".")),
-           cutoff = case_when(module %in% c(TNT, SAAT, FILTER) ~ cutoff_dprime,
+           cutoff = case_when(module %in% c(TNT, SAAT_SUS, SAAT_IMP, FILTER) ~ cutoff_dprime,
                               module == STROOP ~ cutoff_4choice,
                               module %in% c(FLANKER, BOXED) ~ cutoff_2choice,
                               module == TASK_SWITCH ~ cutoff_taskswitch,

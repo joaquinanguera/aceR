@@ -53,7 +53,9 @@ New functions:
  - `post_reduce_cols()` with a specific subset of output columns
  - and writes processed data to CSV with `write_csv()`
 
+Bug fixes:
 
+- `post_clean_chance()` was not fully updated to expect the two split SAAT modules. It should be now!
 
 #### 21.2.0:
 
