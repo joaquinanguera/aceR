@@ -69,7 +69,7 @@ proc_ace_complete <- function (path_in,
   
   out %<>%
     trim_rt_trials_range(cutoff_min = rt_cutoff_min, verbose = verbose)
-  if (verbose) message(crayon::blue("Trials with RT < 200 ms NA'd out"))
+  if (verbose) message(crayon::blue("Trials with RT <", rt_cutoff_min, "ms NA'd out"))
   
   out %<>%
     proc_by_module(app_type = app_type,
@@ -79,7 +79,7 @@ proc_ace_complete <- function (path_in,
   
   out %<>%
     post_clean_low_trials(min_trials = post_min_trials)
-  if (verbose) message(crayon::blue("Records with <5 trials NA'd out"))
+  if (verbose) message(crayon::blue("Records with <", post_min_trials, " trials NA'd out"))
   
   if (post_chance_level != "none") {
     if (post_chance_level == "overall") {
@@ -93,7 +93,7 @@ proc_ace_complete <- function (path_in,
                         cutoff_dprime = 0,
                         cutoff_2choice = 0.5,
                         cutoff_4choice = 0.25)
-    if (verbose) message(crayon::blue("Records with below-chance performance NA'd out"))
+    if (verbose) message(crayon::blue("Records with below-chance performance NA'd out using setting:", post_chance_level))
   } else {
     if (verbose) message(crayon::blue("SKIPPED trimming of records with below-chance performance"))
   }
@@ -108,7 +108,7 @@ proc_ace_complete <- function (path_in,
   
   if (!is.null(path_out)) {
     out_name <- paste0(path_out, "/ace_averaged_data_", Sys.Date(), ".csv")
-    if (verbose) message(crayon::green(paste("Writing out data to", out_name)))
+    if (verbose) message(crayon::green("Writing out data to", out_name))
     write_csv(out, file = out_name)
   } else {
     if (verbose) message(crayon::green("NOT writing processed data to CSV, returning tibble only"))
