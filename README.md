@@ -49,7 +49,7 @@ New functions:
  - `trim_rt_trials_range(cutoff_min = 200)`
  - `proc_by_module(output = "wide")`
  - `post_clean_low_trials(.min_trials = 5)`
- - `post_clean_chance(overall = TRUE, cutoff_dprime = 1, cutoff_2choice = 0.5, cutoff_4choice = 0.25)`
+ - optionally, `post_clean_chance(cutoff_dprime = 0, cutoff_2choice = 0.5, cutoff_4choice = 0.25)` with `overall` set based on user preference
  - `post_reduce_cols()` with a specific subset of output columns
  - and writes processed data to CSV with `write_csv()`
 

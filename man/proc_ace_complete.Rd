@@ -9,6 +9,9 @@ proc_ace_complete(
   path_out = paste(path_in, "..", sep = "/"),
   verbose = TRUE,
   data_type = c("explorer", "email", "pulvinar"),
+  rt_cutoff_min = 200,
+  post_min_trials = 5,
+  post_chance_level = "overall",
   post_metric_names = c("BRT.rt_mean.correct", "SAAT.rt_mean.correct",
     "TNT.rt_mean.correct", "object_count_span.overall", "FILTER.k", "rcs.overall")
 )
@@ -30,9 +33,32 @@ but you can specify the output path to whatever you choose
 \item{data_type}{character What app data export type produced this data? One of
 \code{c("explorer", "email", "pulvinar")}. Must be specified.}
 
+\item{rt_cutoff_min}{numeric. Remove within-subject RTs \emph{below} (but not equal to)
+this specified value (in ms)? Defaults to \code{200}. Can be set to \code{NA},
+where no too-low values will be scrubbed.
+Note that \code{\link{load_ace_bulk}} already removes RTs below 150 ms for all modules,
+so those can never be included even if this minimum cutoff is set to a value below 150 ms.
+Passed through to \code{\link{trim_rt_trials_range}}.}
+
+\item{post_min_trials}{Minimum number of trials to require in most restrictive condition.
+Defaults to 5. This condition is checked against the \code{*_count} summary columns,
+that count all trials with a valid response time (and all no-go trials, if a response
+was not expected.) Passed through to \code{\link{post_clean_low_trials}}.}
+
+\item{post_chance_level}{character. How strictly to retain records containing
+above-threshold performance? One of:
+\itemize{
+  \item \code{"overall"}: Trim based on \emph{whole-module} accuracy. Minimum of: d' > 0,
+  2-choice task accuracy > 0.5, 4-choice task accuracy > 0.25. \strong{Default.}
+  \item \code{"easy"}: Trim based on \emph{within-condition} accuracy. Minimum of: d' > 0,
+  2-choice task accuracy > 0.5, 4-choice task accuracy > 0.25.
+  \item \code{"none"}: Do not trim any records by performance threshold.
+}
+Passed through to \code{\link{post_clean_chance}}.}
+
 \item{post_metric_names}{a character vector containing \emph{partial} names of
 metric columns to include in the processed output. All column names containing
-any of the inputs will be included in output.}
+any of the inputs will be included in output. Passed through to \code{\link{post_reduce_cols}}.}
 }
 \value{
 Returns a \code{\link[tibble]{tibble}} containing a cleaned selection of
