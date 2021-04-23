@@ -101,7 +101,9 @@ identify_module <- function(file) {
     rlang::set_names(ALL_MODULES) %>%
     as_tibble() %>%
     # separates backwards spatial span bc spatial span also grepl = TRUE
+    # same with saat and the submodules
     mutate(SPATIALSPAN = if_else(BACKWARDSSPATIALSPAN, FALSE, SPATIALSPAN),
+           SAAT = if_else(SAATSUSTAINED | SAATIMPULSIVE, FALSE, SAAT),
            unknown = if_else(rowSums(.) == 0, TRUE, FALSE)) %>%
     # each COLUMN now one file, allows easier computation
     t() %>%
