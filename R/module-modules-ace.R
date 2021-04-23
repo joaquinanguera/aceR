@@ -82,7 +82,7 @@ module_flanker <- function(df) {
 #' @importFrom dplyr left_join mutate na_if rename_with
 #' @importFrom magrittr %>%
 #' @importFrom rlang := !!
-#' @importFrom tidyselect everything
+#' @importFrom tidyselect any_of
 #' @keywords internal
 #' @name ace_procs
 
@@ -97,8 +97,12 @@ module_saat <- function(df) {
   gen = proc_generic_module(df, col_condition = NULL)
   # doing this will output true hit and FA rates (accuracy by target/non-target condition) for calculating SDT metrics in later code
   # TODO: fix functions in math-detection.R to calculate SDT metrics inline. this is a bandaid
-  sdt = proc_by_condition(df, "trial_accuracy", FUN = ace_dprime_dplyr) %>%
-    rename_with(~stringr::str_replace(., "trial_accuracy_", ""), .cols = everything())
+  sdt = proc_by_condition(df, "trial_accuracy", FUN = ace_dprime_dplyr)
+  # Remove duplicate d' column created by condition-wise processing if it's a single SAAT submodule
+  if (length(unique(df[[COL_CONDITION]])) == 1) {
+    sdt <- sdt %>% 
+      select(-any_of("dprime"))
+  }
   return (left_join(gen, sdt, by = COL_BID))
 }
 
@@ -149,8 +153,7 @@ module_tnt <- function(df) {
   df$condition = dplyr::recode(df$condition, `tap & trace` = "tap_trace", `tap only` = "tap_only")
   gen = proc_generic_module(df)
   cost = multi_subtract(gen, "\\.tap_trace", "\\.tap_only", "\\.cost")
-  sdt = proc_by_condition(df, "trial_accuracy", Q_COL_CONDITION, FUN = ace_dprime_dplyr) %>%
-    dplyr::rename_with(~stringr::str_replace(., "trial_accuracy_", ""), .cols = dplyr::everything())
+  sdt = proc_by_condition(df, "trial_accuracy", Q_COL_CONDITION, FUN = ace_dprime_dplyr)
   out <- left_join(dplyr::bind_cols(gen, cost), sdt, by = COL_BID)
   return (out)
 }

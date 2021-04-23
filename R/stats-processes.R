@@ -48,13 +48,6 @@ ace_dprime_dplyr <- function(x, col) {
   return (dprime_out)
 }
 
-#' @keywords internal
-
-ace_detection_rate <- function(x, y) {
-  rate = c(rate = ace_detection(x, y))
-  return (c(rate))
-}
-
 #' @importFrom dplyr across summarize
 #' @importFrom tidyselect any_of
 #' @keywords internal 

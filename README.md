@@ -42,6 +42,8 @@ The package, as of March 2020, has transitioned to the [CalVer](https://calver.o
 
 #### 21.3.0 (Current):
 
+**Contains critical change to data calculations, please update ASAP.**
+
 New functions:
 
 - `proc_ace_complete()` is a new wrapper function that allows users who do not wish to modify any arguments to run ACE data through, start to finish. This function calls the following workhorse functions, in order. **Use with care!** The wrapper function effectively hard-codes argument settings for the component data processing functions. Users who wish to tinker with arguments and mid-processing choices should continue to use the functions for individual data processing steps.
@@ -55,6 +57,7 @@ New functions:
 
 Bug fixes:
 
+- **Calculation has been changed, please re-run your stuff!** Thank you [@mattminder](https://github.com/joaquinanguera/aceR/issues/32) for identifying that `ace_dprime()` was incorrectly calculating the denominator of hit and false alarm rate across _all_ trials, instead of _only_ across hit/miss and CR/FA trials respectively. This impacts d' metrics for SAAT and TNT data, not Filter data. (Importantly, the incorrect calculation changed d' values, tending to make them _lower_, but should not have affected rank-order relationships between participants' d' scores.)
 - `post_clean_chance()` was not fully updated to expect the two split SAAT modules. It should be now!
 
 #### 21.2.0:
