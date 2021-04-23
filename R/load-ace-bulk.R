@@ -88,6 +88,6 @@ load_ace_bulk <- function(path = ".",
   
   # currently returns a tibble where data is NOT rbind.filled together into one big df
   # but kept separate by module
-  cat(crayon::green("Finished! See possible warnings below."), sep = "\n")
+  if (verbose) cat(crayon::green("Finished! See possible warnings below."), sep = "\n")
   return(out)
 }

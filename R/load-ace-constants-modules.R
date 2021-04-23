@@ -21,6 +21,12 @@ FLANKER <- "FLANKER"
 SAAT <- "SAAT"
 
 #' @name ace_module
+SAAT_SUS <- "SAATSUSTAINED"
+
+#' @name ace_module
+SAAT_IMP <- "SAATIMPULSIVE"
+
+#' @name ace_module
 SPATIAL_SPAN <- "SPATIALSPAN"
 
 #' @name ace_module
@@ -53,6 +59,8 @@ ALL_MODULES = c(BOXED,
                 DISCRIMINATION,
                 FLANKER,
                 SAAT,
+                SAAT_SUS,
+                SAAT_IMP,
                 SPATIAL_SPAN,
                 STROOP,
                 TASK_SWITCH,
@@ -62,6 +70,17 @@ ALL_MODULES = c(BOXED,
                 ISHIHARA,
                 SPATIAL_CUE,
                 DEMOS)
+
+#' @importFrom dplyr mutate
+#' @importFrom magrittr %>%
+#' @keywords internal
+
+module_split_saat <- function (df) {
+  if (SAAT %in% df$module) {
+    df$module <- paste0(df$module, toupper(df[[COL_CONDITION]]))
+  }
+  return (df)
+}
 
 #' Identify ACE module from filename
 #'
@@ -82,7 +101,9 @@ identify_module <- function(file) {
     rlang::set_names(ALL_MODULES) %>%
     as_tibble() %>%
     # separates backwards spatial span bc spatial span also grepl = TRUE
+    # same with saat and the submodules
     mutate(SPATIALSPAN = if_else(BACKWARDSSPATIALSPAN, FALSE, SPATIALSPAN),
+           SAAT = if_else(SAATSUSTAINED | SAATIMPULSIVE, FALSE, SAAT),
            unknown = if_else(rowSums(.) == 0, TRUE, FALSE)) %>%
     # each COLUMN now one file, allows easier computation
     t() %>%

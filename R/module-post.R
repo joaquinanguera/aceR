@@ -83,7 +83,8 @@ post_clean_chance <- function (df,
                                    FLANKER,
                                    TASK_SWITCH,
                                    BOXED,
-                                   SAAT,
+                                   SAAT_SUS,
+                                   SAAT_IMP,
                                    FILTER))
   
   # Number of responses went from 4 in Classroom to 2 in Explorer
@@ -100,7 +101,8 @@ post_clean_chance <- function (df,
                            c("acc_mean.overall"),
                            c("acc_mean.overall"),
                            c("acc_mean.overall"),
-                           c("dprime.sustained", "dprime.impulsive"),
+                           c("dprime.overall"),
+                           c("dprime.overall"),
                            c("k.r2b0", "k.r4b0")))
   } else {
     metric_cols %<>%
@@ -109,13 +111,14 @@ post_clean_chance <- function (df,
                            c("acc_mean.congruent"),
                            c("acc_mean.stay"),
                            c("acc_mean.feature_4"),
-                           c("dprime.sustained", "dprime.impulsive"),
+                           c("dprime.overall"),
+                           c("dprime.overall"),
                            c("k.r2b0", "k.r4b0")))
   }
   
   metric_cols %<>%
     mutate(full = map2(module, metric, ~paste(.x, .y, sep = ".")),
-           cutoff = case_when(module %in% c(TNT, SAAT, FILTER) ~ cutoff_dprime,
+           cutoff = case_when(module %in% c(TNT, SAAT_SUS, SAAT_IMP, FILTER) ~ cutoff_dprime,
                               module == STROOP ~ cutoff_4choice,
                               module %in% c(FLANKER, BOXED) ~ cutoff_2choice,
                               module == TASK_SWITCH ~ cutoff_taskswitch,
@@ -309,9 +312,12 @@ proc_wide_to_long <- function (df, extra_demos) {
 get_valid_modules <- function (df) {
   if (all(c("module", "proc") %in% names(df))) {
     # if was processed with output = "long"
-    return (ALL_MODULES[map_lgl(ALL_MODULES, ~.x %in% df[[COL_MODULE]])])
+    modules <- ALL_MODULES[map_lgl(ALL_MODULES, ~.x %in% df[[COL_MODULE]])]
   } else {
     # else if was processed with output = "wide"
-    return (ALL_MODULES[map_lgl(ALL_MODULES, ~any(grepl(.x, names(df))))])
+    modules <- ALL_MODULES[map_lgl(ALL_MODULES, ~any(grepl(.x, names(df))))]
   }
+  if (SAAT_SUS %in% modules | SAAT_IMP %in% modules) modules <- modules[modules != SAAT]
+  
+  return (modules)
 }

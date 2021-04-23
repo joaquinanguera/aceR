@@ -4,7 +4,12 @@
 \alias{trim_rt_trials_sd}
 \title{Trim trials from ACE/SEA data by response time within N SDs of the mean}
 \usage{
-trim_rt_trials_sd(df, cutoff = 3, exclude = c("SAAT"), verbose = TRUE)
+trim_rt_trials_sd(
+  df,
+  cutoff = 3,
+  exclude = c("SAAT", "SAATIMPULSIVE", "SAATSUSTAINED"),
+  verbose = TRUE
+)
 }
 \arguments{
 \item{df}{a \code{\link{data.frame}} containing formatted trialwise ACE data. 
@@ -19,7 +24,7 @@ This includes data loaded with the following methods:
 within-subject mean RT? Enter as one number. Defaults to 3.}
 
 \item{exclude}{character vector. Specify the names of modules (proper naming convention!)
-that should be \emph{ignored}. Defaults to \code{"SAAT"}, but can be specified as an empty
+that should be \emph{ignored}. Defaults to all \code{"SAAT"} data, but can be specified as an empty
 character vector (in which case the SAAT module's RTs would be subject to SD scrubbing).}
 
 \item{verbose}{logical. Print details? Defaults to \code{TRUE}.}

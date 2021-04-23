@@ -40,8 +40,8 @@ NULL
 #' (e.g. pre & post), specify their labels here. Case insensitive.
 #' @param verbose logical. Print details? Defaults to \code{FALSE}.
 #' @return Returns summary statistics for every unique module included in the 
-#'  data as a list. Throws warnings for modules with undefined methods. 
-#'  See \code{\link{ace_procs}} for a list of supported modules.
+#' data as a list. Throws warnings for modules with undefined methods. 
+#' See \code{\link{ace_procs}} for a list of supported modules.
 
 proc_by_module <- function(df,
                            app_type = c("classroom", "explorer", "sea"),

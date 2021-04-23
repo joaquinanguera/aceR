@@ -18,7 +18,7 @@ range_cutoff <- c(150, 2000)
 sd_cutoff <- 2
 
 trimmed_range_ace_email <- raw_email %>%
-  filter(!(module %in% c(SPATIAL_SPAN, BACK_SPATIAL_SPAN, ISHIHARA)) ) %>% 
+  filter(!(module %in% c(SPATIAL_SPAN, BACK_SPATIAL_SPAN, ISHIHARA))) %>% 
   mutate(rt_within_pre = map_int(data, ~sum(.x$rt >= range_cutoff[1] & .x$rt <= range_cutoff[2] & !is.na(.x$rt))),
          rt_nogo_pre = map_int(data, ~sum(.x$rt == -99 & !is.na(.x$rt)))) %>%
   trim_rt_trials_range(cutoff_min = range_cutoff[1], cutoff_max = range_cutoff[2]) %>%
@@ -36,7 +36,7 @@ trimmed_range_ace_explorer <- raw_explorer %>%
          rt_nogo_post = map_int(data, ~sum(.x$rt == -99 & !is.na(.x$rt))))
 
 trimmed_sd_ace_explorer <- raw_explorer %>%
-  filter(!(module %in% c(DEMOS, SPATIAL_SPAN, BACK_SPATIAL_SPAN, ISHIHARA, SAAT))) %>% 
+  filter(!(module %in% c(DEMOS, SPATIAL_SPAN, BACK_SPATIAL_SPAN, ISHIHARA, SAAT, SAAT_IMP, SAAT_SUS))) %>% 
   mutate(data = map(data, ~.x %>% 
                       group_by(!!Q_COL_BID) %>% 
                       mutate(rt_scaled_test = na_if(!!Q_COL_RT, -99),
@@ -154,8 +154,12 @@ test_that("module proc: ACE Flanker works", {
   expect_gt(nrow(attempt_module(raw_explorer$data[[FLANKER]], FLANKER, verbose = FALSE)), 1)
 })
 
-test_that("module proc: ACE SAAT works", {
-  expect_gt(nrow(attempt_module(raw_explorer$data[[SAAT]], SAAT, verbose = FALSE)), 1)
+test_that("module proc: ACE SAAT sustained works", {
+  expect_gt(nrow(attempt_module(raw_explorer$data[[SAAT_SUS]], SAAT_SUS, verbose = FALSE)), 1)
+})
+
+test_that("module proc: ACE SAAT impulsive works", {
+  expect_gt(nrow(attempt_module(raw_explorer$data[[SAAT_IMP]], SAAT_IMP, verbose = FALSE)), 1)
 })
 
 test_that("module proc: ACE Flanker works", {
@@ -249,4 +253,21 @@ test_that("module post-processing: cleaning below-chance trials handles extra de
                                      mutate(extrademo = rnorm(n())),
                                    app_type = "explorer"),
                  "Possible extra demo cols detected")
+})
+
+test_that("mega wrapper works", {
+  # Without writing anything out
+  expect_s3_class(proc_ace_complete(path_in = aceR_sample_data_path("explorer"),
+                                    path_out = NULL,
+                                    data_type = "explorer",
+                                    verbose = F),
+                  "tbl_df")
+  # With writing stuff out
+  proc <- proc_ace_complete(path_in = aceR_sample_data_path("explorer"),
+                            data_type = "explorer",
+                            verbose = F)
+  
+  expect_true(paste0("ace_averaged_data_", Sys.Date(), ".csv") %in% list.files(paste0(aceR_sample_data_path("explorer"), "/..")))
+  
+  file.remove(paste0(aceR_sample_data_path("explorer"), "/../", "ace_averaged_data_", Sys.Date(), ".csv"))
 })

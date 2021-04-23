@@ -40,7 +40,33 @@ The package, as of March 2020, has transitioned to the [CalVer](https://calver.o
 
 ### Brief release notes
 
-#### 21.1.1  (Current):
+#### 21.3.0 (Current):
+
+**Contains critical change to data calculations, please update ASAP.**
+
+New functions:
+
+- `proc_ace_complete()` is a new wrapper function that allows users who do not wish to modify any arguments to run ACE data through, start to finish. This function calls the following workhorse functions, in order. **Use with care!** The wrapper function effectively hard-codes argument settings for the component data processing functions. Users who wish to tinker with arguments and mid-processing choices should continue to use the functions for individual data processing steps.
+ - `load_ace_bulk()`
+ - `trim_rt_trials_range(cutoff_min = 200)`
+ - `proc_by_module(output = "wide")`
+ - `post_clean_low_trials(.min_trials = 5)`
+ - optionally, `post_clean_chance(cutoff_dprime = 0, cutoff_2choice = 0.5, cutoff_4choice = 0.25)` with `overall` set based on user preference
+ - `post_reduce_cols()` with a specific subset of output columns
+ - and writes processed data to CSV with `write_csv()`
+
+Bug fixes:
+
+- **Calculation has been changed, please re-run your stuff!** Thank you [@mattminder](https://github.com/joaquinanguera/aceR/issues/32) for identifying that `ace_dprime()` was incorrectly calculating the denominator of hit and false alarm rate across _all_ trials, instead of _only_ across hit/miss and CR/FA trials respectively. This impacts d' metrics for SAAT and TNT data, not Filter data. (Importantly, the incorrect calculation changed d' values, tending to make them _lower_, but should not have affected rank-order relationships between participants' d' scores.)
+- `post_clean_chance()` was not fully updated to expect the two split SAAT modules. It should be now!
+
+#### 21.2.0:
+
+**Major** implementation changes that may break current pipelines:
+
+- The ACE SAAT task is now treated as two separate modules, `SAATSUSTAINED` and `SAATIMPULSIVE`. **`load_ace_bulk()` takes raw SAAT as per usual, but now outputs the trialwise data as two separate modules.** This should work for all ACE data types, no matter whether both SAAT conditions are included in the same log file (ACE Classroom) or exported as distinct log files (ACE Explorer). `proc_by_module()` and the `post_clean_*()` processing functions all now expect SAAT data to be broken up into two submodules, as output by the updated `load_ace_bulk()`. Now, SAAT processed output columns will take the form `SAATIMPULSIVE.XYZ.overall` instead of, say, `SAAT.XYZ.impulsive`. Overall SAAT metrics across both task conditions will no longer be output, as the conditions are cognitively distinct enough that they should not be analyzed together.
+
+#### 21.1.1:
 
 Minor implementation changes:
 
