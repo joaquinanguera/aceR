@@ -12,8 +12,9 @@ proc_ace_complete(
   rt_cutoff_min = 200,
   post_min_trials = 5,
   post_chance_level = "overall",
-  post_metric_names = c("BRT.rt_mean.correct", "SAAT.rt_mean.correct",
-    "TNT.rt_mean.correct", "object_count_span.overall", "FILTER.k", "rcs.overall")
+  post_metric_names = c("BRT.rt_mean.correct", "SAATIMPULSIVE.rt_mean.correct",
+    "SAATSUSTAINED.rt_mean.correct", "TNT.rt_mean.correct", "object_count_span.overall",
+    "FILTER.k", "rcs.overall")
 )
 }
 \arguments{
