@@ -54,7 +54,7 @@ An object of class \code{character} of length 1.
 
 An object of class \code{character} of length 1.
 
-An object of class \code{character} of length 14.
+An object of class \code{character} of length 16.
 }
 \usage{
 BOXED
