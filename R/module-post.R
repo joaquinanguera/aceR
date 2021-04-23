@@ -312,9 +312,12 @@ proc_wide_to_long <- function (df, extra_demos) {
 get_valid_modules <- function (df) {
   if (all(c("module", "proc") %in% names(df))) {
     # if was processed with output = "long"
-    return (ALL_MODULES[map_lgl(ALL_MODULES, ~.x %in% df[[COL_MODULE]])])
+    modules <- ALL_MODULES[map_lgl(ALL_MODULES, ~.x %in% df[[COL_MODULE]])]
   } else {
     # else if was processed with output = "wide"
-    return (ALL_MODULES[map_lgl(ALL_MODULES, ~any(grepl(.x, names(df))))])
+    modules <- ALL_MODULES[map_lgl(ALL_MODULES, ~any(grepl(.x, names(df))))]
   }
+  if (SAAT_SUS %in% modules | SAAT_IMP %in% modules) modules <- modules[modules != SAAT]
+  
+  return (modules)
 }
