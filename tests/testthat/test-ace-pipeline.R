@@ -36,7 +36,7 @@ trimmed_range_ace_explorer <- raw_explorer %>%
          rt_nogo_post = map_int(data, ~sum(.x$rt == -99 & !is.na(.x$rt))))
 
 trimmed_sd_ace_explorer <- raw_explorer %>%
-  filter(!(module %in% c(DEMOS, SPATIAL_SPAN, BACK_SPATIAL_SPAN, ISHIHARA, SAAT))) %>% 
+  filter(!(module %in% c(DEMOS, SPATIAL_SPAN, BACK_SPATIAL_SPAN, ISHIHARA, SAAT, SAAT_IMP, SAAT_SUS))) %>% 
   mutate(data = map(data, ~.x %>% 
                       group_by(!!Q_COL_BID) %>% 
                       mutate(rt_scaled_test = na_if(!!Q_COL_RT, -99),
