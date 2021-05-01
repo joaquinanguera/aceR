@@ -81,7 +81,8 @@ label_sea_module_conditions <- function (dat) {
 }
 
 #' @keywords internal
-#' @importFrom dplyr case_when if_else left_join mutate recode select %>%
+#' @importFrom dplyr across case_when if_else left_join mutate recode select
+#' @importFrom magrittr %>%
 #' @importFrom purrr map2_dbl
 #' @importFrom rlang !! := .data
 #' @importFrom stringr str_match_all str_split
@@ -182,8 +183,9 @@ append_info <- function (dat, module) {
       left_join(append_cols_arithmetic_verification %>%
                   select("question_text", "false_type"),
                 by = "question_text") %>%
-      mutate(operation_type = get_math_operation(.data[[COL_QUESTION_TEXT]]),
-             !!COL_CONDITION := if_else(block_type == "Mixed",
+      mutate(across(c("block_type", "false_type"), tolower),
+             operation_type = get_math_operation(.data[[COL_QUESTION_TEXT]]),
+             !!COL_CONDITION := if_else(block_type == "mixed",
                                  detect_stay_switch(operation_type),
                                  NA_character_),
              switch_by_operation_type = paste0(!!Q_COL_CONDITION, "_", dplyr::lag(operation_type)),
