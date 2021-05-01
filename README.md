@@ -40,7 +40,13 @@ The package, as of March 2020, has transitioned to the [CalVer](https://calver.o
 
 ### Brief release notes
 
-#### 21.3.0 (Current):
+#### 21.3.1 (Current):
+
+New features:
+
+- `post_reduce_cols()` now takes an additional argument `metric_names_exclude` to _drop_ all column names matching a particular string stem
+
+#### 21.3.0:
 
 **Contains critical change to data calculations, please update ASAP.**
 

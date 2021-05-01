@@ -203,6 +203,54 @@ test_that("module proc: ACE Classroom email data bulk processes properly", {
   expect_false(any(endsWith(names(wide), ".x") | endsWith(names(wide), ".y")))
 })
 
+test_that("module post-processing: reducing cols works", {
+  
+  long = post_reduce_cols(proc_explorer_long,
+                          demo_names = c("age", "gender", "handedness"),
+                          metric_names = c("rt_", "dprime", "object_count_span"),
+                          metric_names_exclude = "length")
+  wide = post_reduce_cols(proc_explorer_wide,
+                          demo_names = c("age", "gender", "handedness"),
+                          metric_names = c("rt_", "dprime", "object_count_span"),
+                          metric_names_exclude = "length")
+  
+  # test that works when metric_names_exclude is empty
+  expect_error(post_reduce_cols(proc_explorer_long,
+                                demo_names = c("age", "gender", "handedness"),
+                                metric_names = c("rt_", "dprime", "object_count_span")), 
+               regexp = NA)
+  expect_error(post_reduce_cols(proc_explorer_wide,
+                                demo_names = c("age", "gender", "handedness"),
+                                metric_names = c("rt_", "dprime", "object_count_span")), 
+               regexp = NA)
+  
+  # test that metric_names works
+  expect_true(long %>%
+                pull(proc) %>%
+                map(names) %>%
+                map(~grepl("age|gender|handedness|rt_|dprime|object_count_span", .)) %>%
+                map_lgl(all) %>%
+                all())
+  
+  expect_true(wide %>%
+                names() %>%
+                grepl("age|gender|handedness|rt_|dprime|object_count_span", .) %>%
+                all())
+  
+  # test that metric_names_exclude works
+  expect_false(long %>%
+                pull(proc) %>%
+                map(names) %>%
+                map(~grepl("length", .)) %>%
+                map_lgl(any) %>%
+                any())
+  
+  expect_false(wide %>%
+                names() %>%
+                grepl("length", .) %>%
+                any())
+})
+
 test_that("module post-processing: cleaning below-chance trials works", {
   # In the testing data currently loaded with the package,
   # There are 3 participants with Flanker acc_mean.overall below 0.6

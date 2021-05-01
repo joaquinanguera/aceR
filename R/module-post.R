@@ -15,25 +15,44 @@
 #' @param demo_names a character vector containing the names of demographic columns
 #' to include in the output. Column names will be matched exactly.
 #' @param metric_names a character vector containing partial names of metric columns
-#' to include in the output. All column names containing any of the inputs will be
-#' included in output.
+#' to \emph{include} in the output. All column names containing any of the inputs
+#' will be included in output.
+#' @param metric_names_exclude a character vector containing partial names of metric
+#' columns to \emph{exclude} from the output. All column names containing any of the
+#' inputs will be excluded from output. This argument supersedes the prior, so any
+#' columns matching both a partial name from \code{metric_names} and a partial name
+#' from \code{metric_names_exclude} will be excluded.
 #' @return a df, similar in structure to \code{proc}, but containing only the
 #' subsetted columns.
 
 post_reduce_cols <- function (df,
                               demo_names = c("pid", "age", "grade", "gender"),
-                              metric_names = c()) {
+                              metric_names = c(),
+                              metric_names_exclude = c()) {
   
   call_metric_names <- paste0(metric_names, collapse = "|")
+  call_metric_names_exclude <- paste0(metric_names_exclude, collapse = "|")
   
   if (all(c("module", "proc") %in% names(df))) {
     # if was processed with output = "long"
     df_reduced <- df %>%
       mutate(proc = map(proc, ~.x %>%
                           select(!!!syms(demo_names), matches(call_metric_names))))
+    
+    if (length(metric_names_exclude) > 0) {
+      df_reduced %<>%
+        mutate(proc = map(proc, ~.x %>%
+                            select(-matches(call_metric_names_exclude))))
+    }
+    
   } else {
     # if was processed with output = "wide"
-    df_reduced <- df %>% select(!!!syms(demo_names), matches(call_metric_names))
+    df_reduced <- df %>%
+      select(!!!syms(demo_names), matches(call_metric_names))
+    
+    if (length(metric_names_exclude) > 0) {
+      df_reduced %<>% select(-matches(call_metric_names_exclude))
+    }
   }
   
   return(df_reduced)
