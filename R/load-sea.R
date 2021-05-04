@@ -9,7 +9,7 @@
 #' @importFrom purrr map2 possibly
 #' @importFrom stringr str_replace_all str_trim
 #' @importFrom tidyr nest unite unnest
-#' @importFrom tidyselect where
+#' @import tidyselect
 #' @importFrom rlang !! parse_expr sym
 #' @param file The name of the file which the data is to be read from.
 #' @param verbose Print file name (as progress checker)? Defaults to \code{FALSE}.
