@@ -57,6 +57,7 @@ standardize_sea_column_names <- function(df) {
 #' @keywords internal
 #' @importFrom dplyr across if_else mutate
 #' @importFrom magrittr %>%
+#' @importFrom tidyselect any_of
 
 standardize_sea_values <- function(df) {
   # all columns are necessarily read in as character bc multiple modules appear in one raw file
@@ -65,7 +66,8 @@ standardize_sea_values <- function(df) {
                                 "no_response",
                                 df[[COL_RESPONSE]])
   
+  # if (!("math_recall_orientation" %in% names(df))) df[["math_recall_orientation"]] <- ""
   df <- df %>%
-    mutate(across(c("math_recall_orientation"), tolower))
+    mutate(across(any_of(c("math_recall_orientation")), tolower))
   return (df)
 }
