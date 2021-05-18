@@ -45,11 +45,13 @@ The package, as of March 2020, has transitioned to the [CalVer](https://calver.o
 New features:
 
 - `post_reduce_cols()` now takes an additional argument `metric_names_exclude` to _drop_ all column names matching a particular string stem
+- `load_sea_bulk()` now identifies practice trials in newer versions of SEA data and groups them with the data for their respective modules. These trials are left in the loaded trialwise data, but ignored when calculating metrics with `proc_by_module()`.
 
 Bug fixes:
 
 - Typo fixed so that SEA reading comprehension and reading fluency both process through `proc_by_module()`
 - Processed SEA arithmetic verification cost columns renamed to de-duplicate different cost types
+- Fixes bug introduced in v21.0.0 that caused some older SEA files not to load in via `load_sea_bulk()` when they are missing the `math_recall_orientation` column. Again, we do not impute any values for that column (so metrics can't be calculated by Math Recall orientation if it's not there) but the rest of the modules in the file will load in as normal again.
 
 Minor implementation changes:
 
