@@ -53,7 +53,7 @@ ALL_SEA_MODULES = c(MATH_FLU,
 
 #' @keywords internal
 #' @importFrom dplyr mutate recode
-#' @importFrom stringr str_sub
+#' @importFrom stringr str_remove str_sub
 
 standardize_sea_module_names <- function (df) {
   df = mutate(df,
@@ -61,6 +61,7 @@ standardize_sea_module_names <- function (df) {
               condition = if_else(grepl("RELATIONAL_MATCHING", module),
                                   paste0("block_", tolower(str_sub(module, start = -3L))),
                                   condition),
+              module = str_remove(module, "_PRACTICE"),
               module = recode(module,
                               RELATIONAL_MATCHING_ONE = "RELATIONAL_MATCHING",
                               RELATIONAL_MATCHING_TWO = "RELATIONAL_MATCHING"))
