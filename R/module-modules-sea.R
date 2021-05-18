@@ -2,12 +2,20 @@
 #' @keywords internal
 #' @name sea_procs
 #' @importFrom magrittr %>%
+#' @importFrom dplyr filter
 
 attempt_module <- function(df, module, verbose) {
   if (module %in% c(SAAT_SUS, SAAT_IMP)) {
     module_function <- SAAT
   } else {
     module_function <- module
+  }
+  if ("practice" %in% names(df)) {
+    if (is.character(df[["practice"]])) {
+      df <- filter(df, practice != "True")
+    } else if (is.logical(df[["practice"]])) {
+      df <- filter(df, !practice | is.na(practice)) 
+      }
   }
   out <- tryCatch({
     df <- do.call(paste0("module_", tolower(module_function)), list(df = df)) %>%
@@ -156,17 +164,17 @@ module_fractions_lvl_3 <- function(df) {
 module_arithmetic_verification <- function(df) {
   
   gen = proc_generic_module(df, col_condition = sym("block_type"), FUN = sea_descriptive_statistics)
-  gen_mixed = proc_generic_module(filter(df, block_type == "Mixed"), FUN = sea_descriptive_statistics) %>%
+  gen_mixed = proc_generic_module(filter(df, block_type == "mixed"), FUN = sea_descriptive_statistics) %>%
     select(-ends_with(".overall"), -ends_with("_half"), -ends_with("correct"))
-  gen_mixed_full = proc_generic_module(filter(df, block_type == "Mixed"), col_condition = sym("switch_by_operation_type"), FUN = sea_descriptive_statistics) %>%
+  gen_mixed_full = proc_generic_module(filter(df, block_type == "mixed"), col_condition = sym("switch_by_operation_type"), FUN = sea_descriptive_statistics) %>%
     select(-ends_with(".overall"), -ends_with("_half"), -ends_with("correct"))
   
   gens_mixed = full_join(gen_mixed, gen_mixed_full, by = "bid")
   
-  cost = multi_subtract(gen, "\\.mixed", "\\.fixed", "\\.cost")
-  cost_mixed = multi_subtract(gen_mixed,"\\.switch", "\\.stay", "\\.cost")
-  cost_mixed_multiplication = multi_subtract(gen_mixed_full, "\\.switch_multiplication", "\\.stay_multiplication", "\\.cost_multiplication")
-  cost_mixed_addition = multi_subtract(gen_mixed_full, "\\.switch_addition", "\\.stay_addition", "\\.cost_addition")
+  cost = multi_subtract(gen, "\\.mixed", "\\.fixed", "\\._block_type_cost")
+  cost_mixed = multi_subtract(gen_mixed,"\\.switch", "\\.stay", "\\.switch_cost")
+  cost_mixed_multiplication = multi_subtract(gen_mixed_full, "\\.switch_multiplication", "\\.stay_multiplication", "\\.multiplication_switch_cost")
+  cost_mixed_addition = multi_subtract(gen_mixed_full, "\\.switch_addition", "\\.stay_addition", "\\.addition_switch_cost")
   
   out = bind_cols(gen, cost)
   out_mixed = bind_cols(list(gens_mixed,

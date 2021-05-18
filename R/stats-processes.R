@@ -112,14 +112,14 @@ sea_descriptive_statistics <- function(x, col) {
 #' @keywords internal 
 
 sea_reading_descriptive_statistics <- function(x, col) {
-  out = summarize_at(x,
-                     across(any_of(col),
-                            list(mean = ace_mean,
-                                 sum = ace_sum,
-                                 score = sea_sum_adj,
-                                 count = ace_count,
-                                 length = ace_length,
-                                 sd = ace_sd)))
+  out = summarize(x,
+                  across(any_of(col),
+                         list(mean = ace_mean,
+                              sum = ace_sum,
+                              score = sea_sum_adj,
+                              count = ace_count,
+                              length = ace_length,
+                              sd = ace_sd)))
   return (out)
 }
 

@@ -40,7 +40,23 @@ The package, as of March 2020, has transitioned to the [CalVer](https://calver.o
 
 ### Brief release notes
 
-#### 21.3.0 (Current):
+#### 21.4.0 (Current):
+
+New features:
+
+- `post_reduce_cols()` now takes an additional argument `metric_names_exclude` to _drop_ all column names matching a particular string stem
+
+Bug fixes:
+
+- Typo fixed so that SEA reading comprehension and reading fluency both process through `proc_by_module()`
+- Processed SEA arithmetic verification cost columns renamed to de-duplicate different cost types
+
+Minor implementation changes:
+
+- Couple more columns in SEA data are coerced to lowercase to smoothen subsequent module processing
+- More tests written to check that SEA processing returns no errors, etc.
+
+#### 21.3.0:
 
 **Contains critical change to data calculations, please update ASAP.**
 

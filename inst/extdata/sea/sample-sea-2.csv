@@ -1,0 +1,138 @@
+ID,Session ID,User ID,Question ID,Question Text,Question Type,User Answer,Correct Answer,Response Time,Button Response 1,Button Response 2,Button Response 3,Button Response 4,Button Response Submit,Trial Onset,Feedback Onset,Current Date,Current Year,Current Time,Current Time MS,Semester,Grade,Age,Handedness,Gender,SEA Group,iPad Number,Math Recall Array,Math Verification Array,Math Recall Orientation,Practice
+0,test,eng-cha4000-mid,0,5-2,Math Fluency Practice,3,3,22820,1935,None,None,None,2649,0,2849,Mar 31,2021,01:03:27 PM,73980,-,0,0,-,-,-,0,-,-,-,True
+1,test,eng-cha4000-mid,1,0+4,Math Fluency Practice,4,4,3465,6032,None,None,None,6747,3282,6963,Mar 31,2021,01:03:31 PM,77980,-,0,0,-,-,-,0,-,-,-,True
+2,test,eng-cha4000-mid,2,3+3,Math Fluency Practice,6,6,2316,8897,None,None,None,9681,7365,9895,Mar 31,2021,01:03:34 PM,80980,-,0,0,-,-,-,0,-,-,-,True
+3,test,eng-cha4000-mid,3,1+0,Math Fluency Practice,1,1,2042,11612,None,None,None,12353,10311,12560,Mar 31,2021,01:03:37 PM,83980,-,0,0,-,-,-,0,-,-,-,True
+4,test,eng-cha4000-mid,4,2-1,Math Fluency Practice,1,1,2216,14345,None,None,None,15193,12978,15410,Mar 31,2021,01:03:40 PM,86980,-,0,0,-,-,-,0,-,-,-,True
+5,test,eng-cha4000-mid,0,1+7=,Math Fluency,8,8,3881,1953,None,None,None,2765,0,2965,Mar 31,2021,01:03:44 PM,90980,-,0,0,-,-,-,0,-,-,-,False
+6,test,eng-cha4000-mid,1,5-2=,Math Fluency,3,3,2038,4830,None,None,None,5435,3398,5647,Mar 31,2021,01:03:47 PM,93980,-,0,0,-,-,-,0,-,-,-,False
+7,test,eng-cha4000-mid,2,8+1=,Math Fluency,9,9,2416,7714,None,None,None,8479,6063,8682,Mar 31,2021,01:03:50 PM,96980,-,0,0,-,-,-,0,-,-,-,False
+8,test,eng-cha4000-mid,3,5-0=,Math Fluency,5,5,2517,10827,None,None,None,11629,9112,11844,Mar 31,2021,01:03:53 PM,99980,-,0,0,-,-,-,0,-,-,-,False
+9,test,eng-cha4000-mid,4,2+7=,Math Fluency,9,9,3090,14334,None,None,None,15353,12263,15560,Mar 31,2021,01:03:57 PM,103980,-,0,0,-,-,-,0,-,-,-,False
+10,test,eng-cha4000-mid,5,1+5=,Math Fluency,6,6,2281,17442,None,None,None,18257,15976,18461,Mar 31,2021,01:04:00 PM,47040,-,0,0,-,-,-,0,-,-,-,False
+11,test,eng-cha4000-mid,6,1-1=,Math Fluency,0,0,3567,20840,None,None,None,22459,18891,22672,Mar 31,2021,01:04:04 PM,51040,-,0,0,-,-,-,0,-,-,-,False
+12,test,eng-cha4000-mid,7,1+4=,Math Fluency,5,5,2486,24788,None,None,None,25575,23089,25787,Mar 31,2021,01:04:07 PM,54040,-,0,0,-,-,-,0,-,-,-,False
+13,test,eng-cha4000-mid,8,2-2=,Math Fluency,0,0,3115,27923,None,None,None,29335,26221,29536,Mar 31,2021,01:04:11 PM,58040,-,0,0,-,-,-,0,-,-,-,False
+14,test,eng-cha4000-mid,9,3-1=,Math Fluency,2,2,2065,31335,None,None,None,32018,29954,32235,Mar 31,2021,01:04:14 PM,61040,-,0,0,-,-,-,0,-,-,-,False
+15,test,eng-cha4000-mid,10,4-3=,Math Fluency,1,1,1949,33866,None,None,None,34617,32667,34833,Mar 31,2021,01:04:16 PM,63040,-,0,0,-,-,-,0,-,-,-,False
+16,test,eng-cha4000-mid,11,1+1=,Math Fluency,2,2,2466,36685,None,None,None,37716,35250,37918,Mar 31,2021,01:04:19 PM,66040,-,0,0,-,-,-,0,-,-,-,False
+17,test,eng-cha4000-mid,12,6-3=,Math Fluency,3,3,2098,39700,None,None,None,40446,38348,40647,Mar 31,2021,01:04:22 PM,69040,-,0,0,-,-,-,0,-,-,-,False
+18,test,eng-cha4000-mid,13,3+0=,Math Fluency,3,3,1917,42299,None,None,None,42981,41063,43196,Mar 31,2021,01:04:25 PM,72040,-,0,0,-,-,-,0,-,-,-,False
+19,test,eng-cha4000-mid,14,3-2=,Math Fluency,1,1,2417,45265,None,None,None,46030,43613,46230,Mar 31,2021,01:04:28 PM,75040,-,0,0,-,-,-,0,-,-,-,False
+20,test,eng-cha4000-mid,15,4-4=,Math Fluency,0,0,2484,48179,None,None,None,49129,46645,49344,Mar 31,2021,01:04:31 PM,78040,-,0,0,-,-,-,0,-,-,-,False
+21,test,eng-cha4000-mid,16,1+2=,Math Fluency,3,3,1812,50958,None,None,None,51575,49762,51792,Mar 31,2021,01:04:33 PM,80040,-,0,0,-,-,-,0,-,-,-,False
+22,test,eng-cha4000-mid,17,6-1=,Math Fluency,5,5,2950,54377,None,None,None,55160,52210,55374,Mar 31,2021,01:04:37 PM,84040,-,0,0,-,-,-,0,-,-,-,False
+23,test,eng-cha4000-mid,18,0+0=,Math Fluency,0,0,2086,57122,None,None,None,57893,55806,58105,Mar 31,2021,01:04:40 PM,87040,-,0,0,-,-,-,0,-,-,-,False
+24,test,eng-cha4000-mid,19,4+2=,Math Fluency,6,6,2685,60254,None,None,None,61206,58521,61421,Mar 31,2021,01:04:43 PM,90040,-,0,0,-,-,-,0,-,-,-,False
+25,test,eng-cha4000-mid,20,3-3=,Math Fluency,0,0,2251,63086,None,None,None,64103,61853,64320,Mar 31,2021,01:04:46 PM,93040,-,0,0,-,-,-,0,-,-,-,False
+26,test,eng-cha4000-mid,21,6+1=,Math Fluency,7,7,2183,66156,None,None,None,66904,64721,67117,Mar 31,2021,01:04:49 PM,96040,-,0,0,-,-,-,0,-,-,-,False
+27,test,eng-cha4000-mid,22,5+3=,Math Fluency,8,8,3013,69790,None,None,None,70566,67553,70768,Mar 31,2021,01:04:52 PM,99040,-,0,0,-,-,-,0,-,-,-,False
+28,test,eng-cha4000-mid,23,3-0=,Math Fluency,3,3,2347,72818,None,None,None,73531,71184,73731,Mar 31,2021,01:04:55 PM,102040,-,0,0,-,-,-,0,-,-,-,False
+29,test,eng-cha4000-mid,24,4-2=,Math Fluency,2,2,2567,76015,None,None,None,76716,74149,76929,Mar 31,2021,01:04:58 PM,105040,-,0,0,-,-,-,0,-,-,-,False
+30,test,eng-cha4000-mid,25,4+3=,Math Fluency,7,7,2617,79078,None,None,None,79947,77330,80161,Mar 31,2021,01:05:02 PM,49100,-,0,0,-,-,-,0,-,-,-,False
+31,test,eng-cha4000-mid,26,2-1=,Math Fluency,1,1,2398,82160,None,None,None,82960,80562,83176,Mar 31,2021,01:05:05 PM,52100,-,0,0,-,-,-,0,-,-,-,False
+32,test,eng-cha4000-mid,27,2+2=,Math Fluency,4,4,2235,85110,None,None,None,85845,83610,86058,Mar 31,2021,01:05:07 PM,54100,-,0,0,-,-,-,0,-,-,-,False
+33,test,eng-cha4000-mid,28,4-1=,Math Fluency,3,3,2297,88077,None,None,None,88774,86477,88990,Mar 31,2021,01:05:10 PM,57100,-,0,0,-,-,-,0,-,-,-,False
+34,test,eng-cha4000-mid,29,0+5=,Math Fluency,5,5,2432,90994,None,None,None,91824,89391,92039,Mar 31,2021,01:05:13 PM,60100,-,0,0,-,-,-,0,-,-,-,False
+35,test,eng-cha4000-mid,30,9-3=,Math Fluency,6,6,4095,95654,None,None,None,96537,92442,96753,Mar 31,2021,01:05:18 PM,65100,-,0,0,-,-,-,0,-,-,-,False
+36,test,eng-cha4000-mid,31,7+7=,Math Fluency,14,14,4015,99435,100468,None,None,101168,97153,101384,Mar 31,2021,01:05:23 PM,70100,-,0,0,-,-,-,0,-,-,-,False
+37,test,eng-cha4000-mid,32,10-6=,Math Fluency,4,4,3598,104649,None,None,None,105399,101801,105599,Mar 31,2021,01:05:27 PM,74100,-,0,0,-,-,-,0,-,-,-,False
+38,test,eng-cha4000-mid,33,3+9=,Math Fluency,12,12,3187,107816,108401,None,None,109204,106016,109415,Mar 31,2021,01:05:31 PM,78100,-,0,0,-,-,-,0,-,-,-,False
+39,test,eng-cha4000-mid,34,6+2=,Math Fluency,8,8,2582,111431,None,None,None,112429,109847,112630,Mar 31,2021,01:05:34 PM,81100,-,0,0,-,-,-,0,-,-,-,False
+40,test,eng-cha4000-mid,35,7-4=,Math Fluency,3,3,2600,114998,None,None,None,115646,113045,115861,Mar 31,2021,01:05:37 PM,84100,-,0,0,-,-,-,0,-,-,-,False
+41,test,eng-cha4000-mid,36,5+5=,Math Fluency,10,10,3134,117809,118595,None,None,119412,116278,119626,Mar 31,2021,01:05:41 PM,88100,-,0,0,-,-,-,0,-,-,-,False
+42,test,eng-cha4000-mid,37,8-3=,Math Fluency,5,5,2950,122208,None,None,None,122992,120042,123194,Mar 31,2021,01:05:45 PM,92100,-,0,0,-,-,-,0,-,-,-,False
+43,test,eng-cha4000-mid,38,0+8=,Math Fluency,8,8,2048,125033,None,None,None,125673,123626,125890,Mar 31,2021,01:05:47 PM,94100,-,0,0,-,-,-,0,-,-,-,False
+44,test,eng-cha4000-mid,39,5-1=,Math Fluency,4,4,2632,127905,None,None,None,128938,126306,129139,Mar 31,2021,01:05:51 PM,98100,-,0,0,-,-,-,0,-,-,-,False
+45,test,eng-cha4000-mid,40,8+6=,Math Fluency,14,14,4815,132502,133536,None,None,134369,129554,134586,Mar 31,2021,01:05:56 PM,103100,-,0,0,-,-,-,0,-,-,-,False
+46,test,eng-cha4000-mid,41,9-4=,Math Fluency,5,5,10747,140003,144796,None,None,145766,135019,145980,Mar 31,2021,01:06:07 PM,54160,-,0,0,-,-,-,0,-,-,-,False
+47,test,eng-cha4000-mid,42,8+2=,Math Fluency,10,10,3449,148214,148878,None,None,149829,146380,150045,Mar 31,2021,01:06:11 PM,58160,-,0,0,-,-,-,0,-,-,-,False
+48,test,eng-cha4000-mid,43,7-2=,Math Fluency,5,5,3399,152926,None,None,None,153863,150464,154076,Mar 31,2021,01:06:16 PM,63160,-,0,0,-,-,-,0,-,-,-,False
+49,test,eng-cha4000-mid,44,10-2=,Math Fluency,8,8,2934,156514,None,None,None,157444,154510,157659,Mar 31,2021,01:06:19 PM,66160,-,0,0,-,-,-,0,-,-,-,False
+50,test,eng-cha4000-mid,45,4+4=,Math Fluency,8,8,2223,159578,None,None,None,160314,158091,160524,Mar 31,2021,01:06:22 PM,69160,-,0,0,-,-,-,0,-,-,-,False
+51,test,eng-cha4000-mid,46,5-3=,Math Fluency,2,2,2684,162839,None,None,None,163625,160941,163838,Mar 31,2021,01:06:25 PM,72160,-,0,0,-,-,-,0,-,-,-,False
+52,test,eng-cha4000-mid,47,4+8=,Math Fluency,12,12,3151,165973,166670,None,None,167424,164273,167636,Mar 31,2021,01:06:29 PM,76160,-,0,0,-,-,-,0,-,-,-,False
+53,test,eng-cha4000-mid,48,8-1=,Math Fluency,7,7,3701,171034,None,None,None,171738,168037,171952,Mar 31,2021,01:06:33 PM,80160,-,0,0,-,-,-,0,-,-,-,False
+54,test,eng-cha4000-mid,49,6+6=,Math Fluency,12,12,3112,174167,174800,None,None,175498,172387,175700,Mar 31,2021,01:06:37 PM,84160,-,0,0,-,-,-,0,-,-,-,False
+55,test,eng-cha4000-mid,50,1+3=,Math Fluency,4,4,2932,178316,None,None,None,179033,176101,179247,Mar 31,2021,01:06:41 PM,88160,-,0,0,-,-,-,0,-,-,-,False
+56,test,eng-cha4000-mid,0,an apple is blue,Reading Fluency Practice,NO,NO,10497,None,None,None,None,None,0,1901,Mar 31,2021,01:09:45 PM,92340,-,0,0,-,-,-,0,-,-,-,True
+57,test,eng-cha4000-mid,1,the moon is in the sky,Reading Fluency Practice,YES,YES,2231,None,None,None,None,None,2317,4765,Mar 31,2021,01:09:48 PM,95340,-,0,0,-,-,-,0,-,-,-,True
+58,test,eng-cha4000-mid,2,a man has two legs,Reading Fluency Practice,YES,YES,1032,None,None,None,None,None,5166,6415,Mar 31,2021,01:09:50 PM,97340,-,0,0,-,-,-,0,-,-,-,True
+59,test,eng-cha4000-mid,3,ice is hot,Reading Fluency Practice,NO,NO,981,None,None,None,None,None,6848,8032,Mar 31,2021,01:09:52 PM,99340,-,0,0,-,-,-,0,-,-,-,True
+60,test,eng-cha4000-mid,0,You can eat an apple………,Reading Fluency Block 0,NO,YES,3054,None,None,None,None,None,0,1667,Mar 31,2021,01:09:55 PM,102340,-,0,0,-,-,-,0,-,-,-,False
+61,test,eng-cha4000-mid,1,A mouse can fly………,Reading Fluency Block 0,NO,NO,1431,None,None,None,None,None,2084,3715,Mar 31,2021,01:09:57 PM,104340,-,0,0,-,-,-,0,-,-,-,False
+62,test,eng-cha4000-mid,2,Dogs have five legs………,Reading Fluency Block 0,NO,NO,1061,None,None,None,None,None,4135,5398,Mar 31,2021,01:09:59 PM,106340,-,0,0,-,-,-,0,-,-,-,False
+63,test,eng-cha4000-mid,3,A hat goes on your head………,Reading Fluency Block 0,YES,YES,1289,None,None,None,None,None,5815,7313,Mar 31,2021,01:10:01 PM,48400,-,0,0,-,-,-,0,-,-,-,False
+64,test,eng-cha4000-mid,4,A book has pages………,Reading Fluency Block 0,YES,YES,1049,None,None,None,None,None,7730,8979,Mar 31,2021,01:10:03 PM,50400,-,0,0,-,-,-,0,-,-,-,False
+65,test,eng-cha4000-mid,5,A fish has two arms and legs………,Reading Fluency Block 0,NO,NO,1732,None,None,None,None,None,9397,11345,Mar 31,2021,01:10:05 PM,52400,-,0,0,-,-,-,0,-,-,-,False
+66,test,eng-cha4000-mid,6,The letter B is a number………,Reading Fluency Block 0,NO,NO,1565,None,None,None,None,None,11761,13527,Mar 31,2021,01:10:07 PM,54400,-,0,0,-,-,-,0,-,-,-,False
+67,test,eng-cha4000-mid,7,A ring is round………,Reading Fluency Block 0,YES,YES,2748,None,None,None,None,None,13960,16925,Mar 31,2021,01:10:11 PM,58400,-,0,0,-,-,-,0,-,-,-,False
+68,test,eng-cha4000-mid,8,A hen can lay an egg………,Reading Fluency Block 0,YES,YES,1333,None,None,None,None,None,17375,18925,Mar 31,2021,01:10:13 PM,60400,-,0,0,-,-,-,0,-,-,-,False
+69,test,eng-cha4000-mid,9,People see with their eyes………,Reading Fluency Block 0,YES,YES,1116,None,None,None,None,None,19340,20657,Mar 31,2021,01:10:14 PM,61400,-,0,0,-,-,-,0,-,-,-,False
+70,test,eng-cha4000-mid,10,A car flies in the sky………,Reading Fluency Block 0,NO,NO,1452,None,None,None,None,None,21070,22724,Mar 31,2021,01:10:16 PM,63400,-,0,0,-,-,-,0,-,-,-,False
+71,test,eng-cha4000-mid,11,Many people like to play games………,Reading Fluency Block 0,YES,YES,1083,None,None,None,None,None,23140,24424,Mar 31,2021,01:10:18 PM,65400,-,0,0,-,-,-,0,-,-,-,False
+72,test,eng-cha4000-mid,12,There are some days when the sun is green………,Reading Fluency Block 0,NO,NO,1733,None,None,None,None,None,24854,26808,Mar 31,2021,01:10:21 PM,68400,-,0,0,-,-,-,0,-,-,-,False
+73,test,eng-cha4000-mid,13,Ants are small………,Reading Fluency Block 0,YES,YES,788,None,None,None,None,None,27236,28236,Mar 31,2021,01:10:22 PM,69400,-,0,0,-,-,-,0,-,-,-,False
+74,test,eng-cha4000-mid,14,Some farmers can grow corn………,Reading Fluency Block 0,YES,YES,1399,None,None,None,None,None,28669,30268,Mar 31,2021,01:10:24 PM,71400,-,0,0,-,-,-,0,-,-,-,False
+75,test,eng-cha4000-mid,15,A puppy grows into a cat………,Reading Fluency Block 0,NO,NO,1365,None,None,None,None,None,30702,32268,Mar 31,2021,01:10:26 PM,73400,-,0,0,-,-,-,0,-,-,-,False
+76,test,eng-cha4000-mid,16,A phone book has many numbers………,Reading Fluency Block 0,YES,YES,1598,None,None,None,None,None,32685,34483,Mar 31,2021,01:10:28 PM,75400,-,0,0,-,-,-,0,-,-,-,False
+77,test,eng-cha4000-mid,17,The letter C is the last letter of the alphabet………,Reading Fluency Block 0,NO,NO,2067,None,None,None,None,None,34884,37165,Mar 31,2021,01:10:31 PM,78400,-,0,0,-,-,-,0,-,-,-,False
+78,test,eng-cha4000-mid,18,The moon is in the sky………,Reading Fluency Block 0,YES,YES,950,None,None,None,None,None,37598,38765,Mar 31,2021,01:10:32 PM,79400,-,0,0,-,-,-,0,-,-,-,False
+79,test,eng-cha4000-mid,19,A spoon can be used for hearing………,Reading Fluency Block 0,NO,NO,1250,None,None,None,None,None,39197,40648,Mar 31,2021,01:10:34 PM,81400,-,0,0,-,-,-,0,-,-,-,False
+80,test,eng-cha4000-mid,20,People may listen to music on a radio………,Reading Fluency Block 0,YES,YES,1482,None,None,None,None,None,41080,42764,Mar 31,2021,01:10:36 PM,83400,-,0,0,-,-,-,0,-,-,-,False
+81,test,eng-cha4000-mid,21,A roof is at the top of a house………,Reading Fluency Block 0,YES,YES,1232,None,None,None,None,None,43196,44629,Mar 31,2021,01:10:38 PM,85400,-,0,0,-,-,-,0,-,-,-,False
+82,test,eng-cha4000-mid,22,Elephants are small animals………,Reading Fluency Block 0,NO,NO,983,None,None,None,None,None,45045,46244,Mar 31,2021,01:10:40 PM,87400,-,0,0,-,-,-,0,-,-,-,False
+83,test,eng-cha4000-mid,23,A jackrabbit has two ears………,Reading Fluency Block 0,YES,YES,1257,None,None,None,None,None,46671,48144,Mar 31,2021,01:10:42 PM,89400,-,0,0,-,-,-,0,-,-,-,False
+84,test,eng-cha4000-mid,24,A boy may wear a shirt………,Reading Fluency Block 0,YES,YES,1182,None,None,None,None,None,48560,49942,Mar 31,2021,01:10:44 PM,91400,-,0,0,-,-,-,0,-,-,-,False
+85,test,eng-cha4000-mid,25,Many plants have green leaves………,Reading Fluency Block 0,YES,YES,1548,None,None,None,None,None,50376,52126,Mar 31,2021,01:10:46 PM,93400,-,0,0,-,-,-,0,-,-,-,False
+86,test,eng-cha4000-mid,26,People like to eat rice with a pen………,Reading Fluency Block 0,NO,NO,1315,None,None,None,None,None,52542,54075,Mar 31,2021,01:10:48 PM,95400,-,0,0,-,-,-,0,-,-,-,False
+87,test,eng-cha4000-mid,27,Games can be played with a deck of cards………,Reading Fluency Block 0,YES,YES,1632,None,None,None,None,None,54507,56340,Mar 31,2021,01:10:50 PM,97400,-,0,0,-,-,-,0,-,-,-,False
+88,test,eng-cha4000-mid,28,June is the month after March………,Reading Fluency Block 0,NO,NO,3930,None,None,None,None,None,56756,60889,Mar 31,2021,01:10:55 PM,102400,-,0,0,-,-,-,0,-,-,-,False
+89,test,eng-cha4000-mid,29,A key may open the lock on a door………,Reading Fluency Block 0,YES,YES,1334,None,None,None,None,None,61304,62841,Mar 31,2021,01:10:57 PM,104400,-,0,0,-,-,-,0,-,-,-,False
+90,test,eng-cha4000-mid,30,People can light a candle with a match………,Reading Fluency Block 0,YES,YES,1432,None,None,None,None,None,63270,64902,Mar 31,2021,01:10:59 PM,106400,-,0,0,-,-,-,0,-,-,-,False
+91,test,eng-cha4000-mid,31,Some bikes have two wheels………,Reading Fluency Block 0,YES,YES,1967,None,None,None,None,None,65319,67488,Mar 31,2021,01:11:01 PM,48460,-,0,0,-,-,-,0,-,-,-,False
+92,test,eng-cha4000-mid,32,An airplane has wings………,Reading Fluency Block 0,YES,YES,1165,None,None,None,None,None,67901,69269,Mar 31,2021,01:11:03 PM,50460,-,0,0,-,-,-,0,-,-,-,False
+93,test,eng-cha4000-mid,33,Swimming pools are always filled with balloons………,Reading Fluency Block 0,NO,NO,1633,None,None,None,None,None,69699,71532,Mar 31,2021,01:11:05 PM,52460,-,0,0,-,-,-,0,-,-,-,False
+94,test,eng-cha4000-mid,34,A cup may be full………,Reading Fluency Block 0,YES,YES,948,None,None,None,None,None,71934,73084,Mar 31,2021,01:11:07 PM,54460,-,0,0,-,-,-,0,-,-,-,False
+95,test,eng-cha4000-mid,35,People place stamps on letters before they mail them………,Reading Fluency Block 0,NO,YES,5696,None,None,None,None,None,73499,79411,Mar 31,2021,01:11:13 PM,60460,-,0,0,-,-,-,0,-,-,-,False
+96,test,eng-cha4000-mid,36,W is a letter of the alphabet………,Reading Fluency Block 0,YES,YES,1432,None,None,None,None,None,79829,81477,Mar 31,2021,01:11:15 PM,62460,-,0,0,-,-,-,0,-,-,-,False
+97,test,eng-cha4000-mid,37,A glass may break if it is dropped on the floor………,Reading Fluency Block 0,YES,YES,3277,None,None,None,None,None,81915,85392,Mar 31,2021,01:11:19 PM,66460,-,0,0,-,-,-,0,-,-,-,False
+98,test,eng-cha4000-mid,38,The weather in summer is always snowy………,Reading Fluency Block 0,NO,NO,3882,None,None,None,None,None,85808,89907,Mar 31,2021,01:11:24 PM,71460,-,0,0,-,-,-,0,-,-,-,False
+99,test,eng-cha4000-mid,39,A box may be made of wood………,Reading Fluency Block 0,YES,YES,1348,None,None,None,None,None,90324,91873,Mar 31,2021,01:11:26 PM,73460,-,0,0,-,-,-,0,-,-,-,False
+100,test,eng-cha4000-mid,40,A baby may want a bottle………,Reading Fluency Block 0,YES,YES,1099,None,None,None,None,None,92289,93589,Mar 31,2021,01:11:27 PM,74460,-,0,0,-,-,-,0,-,-,-,False
+101,test,eng-cha4000-mid,41,A child may hide inside a cup………,Reading Fluency Block 0,NO,NO,1898,None,None,None,None,None,94006,96104,Mar 31,2021,01:11:30 PM,77460,-,0,0,-,-,-,0,-,-,-,False
+102,test,eng-cha4000-mid,42,A cow makes honey from flowers………,Reading Fluency Block 0,NO,NO,1500,None,None,None,None,None,96520,98220,Mar 31,2021,01:11:32 PM,79460,-,0,0,-,-,-,0,-,-,-,False
+103,test,eng-cha4000-mid,43,It may be hot inside an oven………,Reading Fluency Block 0,YES,YES,1800,None,None,None,None,None,98620,100635,Mar 31,2021,01:11:34 PM,81460,-,0,0,-,-,-,0,-,-,-,False
+104,test,eng-cha4000-mid,44,April is the first day of the week………,Reading Fluency Block 0,NO,NO,2331,None,None,None,None,None,101052,103601,Mar 31,2021,01:11:37 PM,84460,-,0,0,-,-,-,0,-,-,-,False
+105,test,eng-cha4000-mid,45,All spiders have only two legs………,Reading Fluency Block 0,NO,NO,1180,None,None,None,None,None,104019,105399,Mar 31,2021,01:11:39 PM,86460,-,0,0,-,-,-,0,-,-,-,False
+106,test,eng-cha4000-mid,46,Many cats and dogs wear long pants………,Reading Fluency Block 0,NO,NO,1328,None,None,None,None,None,105821,107365,Mar 31,2021,01:11:41 PM,88460,-,0,0,-,-,-,0,-,-,-,False
+107,test,eng-cha4000-mid,47,Oranges can be used to make juice for breakfast………,Reading Fluency Block 0,YES,YES,2046,None,None,None,None,None,107784,110031,Mar 31,2021,01:11:44 PM,91460,-,0,0,-,-,-,0,-,-,-,False
+108,test,eng-cha4000-mid,48,A picture can be hung on a wall………,Reading Fluency Block 0,YES,YES,1449,None,None,None,None,None,110447,112113,Mar 31,2021,01:11:46 PM,93460,-,0,0,-,-,-,0,-,-,-,False
+109,test,eng-cha4000-mid,49,Most people smile when they are sad………,Reading Fluency Block 0,NO,NO,1348,None,None,None,None,None,112530,114079,Mar 31,2021,01:11:48 PM,95460,-,0,0,-,-,-,0,-,-,-,False
+110,test,eng-cha4000-mid,50,An ocean has plenty of water………,Reading Fluency Block 0,YES,YES,1849,None,None,None,None,None,114511,116561,Mar 31,2021,01:11:50 PM,97460,-,0,0,-,-,-,0,-,-,-,False
+111,test,eng-cha4000-mid,51,Cattle often go to school in a bus………,Reading Fluency Block 0,NO,NO,1966,None,None,None,None,None,116977,119159,Mar 31,2021,01:11:53 PM,100460,-,0,0,-,-,-,0,-,-,-,False
+112,test,eng-cha4000-mid,52,Some students write stories when they are in school………,Reading Fluency Block 0,YES,YES,2099,None,None,None,None,None,119576,121875,Mar 31,2021,01:11:56 PM,103460,-,0,0,-,-,-,0,-,-,-,False
+113,test,eng-cha4000-mid,53,Many plants grow in gardens………,Reading Fluency Block 0,YES,YES,917,None,None,None,None,None,122308,123441,Mar 31,2021,01:11:57 PM,104460,-,0,0,-,-,-,0,-,-,-,False
+114,test,eng-cha4000-mid,54,A sink can hold water………,Reading Fluency Block 0,YES,YES,881,None,None,None,None,None,123859,124940,Mar 31,2021,01:11:59 PM,106460,-,0,0,-,-,-,0,-,-,-,False
+115,test,eng-cha4000-mid,55,Horses tend to live under water………,Reading Fluency Block 0,NO,NO,1880,None,None,None,None,None,125375,127457,Mar 31,2021,01:12:01 PM,48520,-,0,0,-,-,-,0,-,-,-,False
+116,test,eng-cha4000-mid,56,All girls have blue eyes and brown hair………,Reading Fluency Block 0,NO,NO,2432,None,None,None,None,None,127889,130540,Mar 31,2021,01:12:04 PM,51520,-,0,0,-,-,-,0,-,-,-,False
+117,test,eng-cha4000-mid,57,Some people wear coats in winter………,Reading Fluency Block 0,YES,YES,1164,None,None,None,None,None,130973,132353,Mar 31,2021,01:12:06 PM,53520,-,0,0,-,-,-,0,-,-,-,False
+118,test,eng-cha4000-mid,58,A dictionary has may words………,Reading Fluency Block 0,YES,YES,1098,None,None,None,None,None,132754,134053,Mar 31,2021,01:12:08 PM,55520,-,0,0,-,-,-,0,-,-,-,False
+119,test,eng-cha4000-mid,59,Children are all different ages………,Reading Fluency Block 0,YES,YES,2082,None,None,None,None,None,134471,136769,Mar 31,2021,01:12:10 PM,57520,-,0,0,-,-,-,0,-,-,-,False
+120,test,eng-cha4000-mid,60,Most people fill their pillows with rocks before sleeping………,Reading Fluency Block 0,NO,NO,1916,None,None,None,None,None,137185,139316,Mar 31,2021,01:12:13 PM,60520,-,0,0,-,-,-,0,-,-,-,False
+121,test,eng-cha4000-mid,61,Most snakes fly through trees………,Reading Fluency Block 0,NO,NO,1632,None,None,None,None,None,139733,141582,Mar 31,2021,01:12:15 PM,62520,-,0,0,-,-,-,0,-,-,-,False
+122,test,eng-cha4000-mid,62,A rake is needed to make your bed………,Reading Fluency Block 0,NO,NO,1630,None,None,None,None,None,142001,143849,Mar 31,2021,01:12:18 PM,65520,-,0,0,-,-,-,0,-,-,-,False
+123,test,eng-cha4000-mid,63,A car is usually much bigger than a bus………,Reading Fluency Block 0,NO,NO,2797,None,None,None,None,None,144265,147263,Mar 31,2021,01:12:21 PM,68520,-,0,0,-,-,-,0,-,-,-,False
+124,test,eng-cha4000-mid,64,Different types of animals can be found at a city zoo………,Reading Fluency Block 0,YES,YES,2514,None,None,None,None,None,147680,150413,Mar 31,2021,01:12:24 PM,71520,-,0,0,-,-,-,0,-,-,-,False
+125,test,eng-cha4000-mid,65,Some people like to fish on lakes………,Reading Fluency Block 0,YES,YES,1915,None,None,None,None,None,150845,152960,Mar 31,2021,01:12:27 PM,74520,-,0,0,-,-,-,0,-,-,-,False
+126,test,eng-cha4000-mid,66,The letter A is the last letter of the alphabet………,Reading Fluency Block 0,NO,NO,2269,None,None,None,None,None,153377,155860,Mar 31,2021,01:12:30 PM,77520,-,0,0,-,-,-,0,-,-,-,False
+127,test,eng-cha4000-mid,67,An alarm clock may wake you up in the morning………,Reading Fluency Block 0,YES,YES,1467,None,None,None,None,None,156291,157958,Mar 31,2021,01:12:32 PM,79520,-,0,0,-,-,-,0,-,-,-,False
+128,test,eng-cha4000-mid,68,A bag filled with bricks would be very light………,Reading Fluency Block 0,NO,NO,1817,None,None,None,None,None,158375,160406,Mar 31,2021,01:12:34 PM,81520,-,0,0,-,-,-,0,-,-,-,False
+129,test,eng-cha4000-mid,69,People can earn money by working………,Reading Fluency Block 0,YES,YES,2216,None,None,None,None,None,160839,163255,Mar 31,2021,01:12:37 PM,84520,-,0,0,-,-,-,0,-,-,-,False
+130,test,eng-cha4000-mid,70,A broken pen may leak ink………,Reading Fluency Block 0,YES,YES,1451,None,None,None,None,None,163672,165337,Mar 31,2021,01:12:39 PM,86520,-,0,0,-,-,-,0,-,-,-,False
+131,test,eng-cha4000-mid,71,A lion usually eats paper when he is hungry………,Reading Fluency Block 0,NO,NO,1216,None,None,None,None,None,165754,167186,Mar 31,2021,01:12:41 PM,88520,-,0,0,-,-,-,0,-,-,-,False
+132,test,eng-cha4000-mid,72,People park their cars on top of their chimneys………,Reading Fluency Block 0,NO,NO,2266,None,None,None,None,None,167603,170068,Mar 31,2021,01:12:44 PM,91520,-,0,0,-,-,-,0,-,-,-,False
+133,test,eng-cha4000-mid,73,Flies are bigger than horses………,Reading Fluency Block 0,NO,NO,1747,None,None,None,None,None,170487,172450,Mar 31,2021,01:12:46 PM,93520,-,0,0,-,-,-,0,-,-,-,False
+134,test,eng-cha4000-mid,74,Children and adults are all the same height and weight………,Reading Fluency Block 0,NO,NO,1782,None,None,None,None,None,172867,174851,Mar 31,2021,01:12:49 PM,96520,-,0,0,-,-,-,0,-,-,-,False
+135,test,eng-cha4000-mid,75,Both coffee and tea can be served in the morning………,Reading Fluency Block 0,YES,YES,2514,None,None,None,None,None,175267,177982,Mar 31,2021,01:12:52 PM,99520,-,0,0,-,-,-,0,-,-,-,False
+

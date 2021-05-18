@@ -42,6 +42,9 @@
 #' @param post_metric_names a character vector containing \emph{partial} names of
 #' metric columns to include in the processed output. All column names containing
 #' any of the inputs will be included in output. Passed through to \code{\link{post_reduce_cols}}.
+#' @param post_metric_names_exclude a character vector containing \emph{partial} names of
+#' metric columns to exclude from  the processed output. All column names containing
+#' any of the inputs will be excluded from output. Passed through to \code{\link{post_reduce_cols}}.
 #' @return Returns a \code{\link[tibble]{tibble}} containing a cleaned selection of
 #' summary statistics from every module in the data.
 
@@ -58,7 +61,9 @@ proc_ace_complete <- function (path_in,
                                                      "TNT.rt_mean.correct",
                                                      "object_count_span.overall",
                                                      "FILTER.k",
-                                                     "rcs.overall")) {
+                                                     "rcs.overall"),
+                               post_metric_names_exclude = c("FILTER.rcs",
+                                                             "TNT.rt_mean.correct.")) {
   if(data_type == "explorer") {
     app_type <- "explorer"
   } else {
@@ -104,7 +109,8 @@ proc_ace_complete <- function (path_in,
                                     "age",
                                     "handedness",
                                     "bid"),
-                     metric_names =  post_metric_names)
+                     metric_names = post_metric_names,
+                     metric_names_exclude = post_metric_names_exclude)
   if (verbose) message(crayon::blue("Output columns trimmed down to key metrics"))
   
   if (!is.null(path_out)) {

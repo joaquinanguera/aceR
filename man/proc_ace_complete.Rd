@@ -14,7 +14,8 @@ proc_ace_complete(
   post_chance_level = "overall",
   post_metric_names = c("BRT.rt_mean.correct", "SAATIMPULSIVE.rt_mean.correct",
     "SAATSUSTAINED.rt_mean.correct", "TNT.rt_mean.correct", "object_count_span.overall",
-    "FILTER.k", "rcs.overall")
+    "FILTER.k", "rcs.overall"),
+  post_metric_names_exclude = c("FILTER.rcs", "TNT.rt_mean.correct.")
 )
 }
 \arguments{
@@ -60,6 +61,10 @@ Passed through to \code{\link{post_clean_chance}}.}
 \item{post_metric_names}{a character vector containing \emph{partial} names of
 metric columns to include in the processed output. All column names containing
 any of the inputs will be included in output. Passed through to \code{\link{post_reduce_cols}}.}
+
+\item{post_metric_names_exclude}{a character vector containing \emph{partial} names of
+metric columns to exclude from  the processed output. All column names containing
+any of the inputs will be excluded from output. Passed through to \code{\link{post_reduce_cols}}.}
 }
 \value{
 Returns a \code{\link[tibble]{tibble}} containing a cleaned selection of

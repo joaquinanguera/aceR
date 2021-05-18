@@ -4,10 +4,12 @@
 #' Reads, parses, and converts an SEA csv into an R \code{\link{data.frame}}.
 #'
 #' @export
-#' @importFrom dplyr case_when group_by if_else lag mutate mutate_if ungroup %>%
+#' @importFrom dplyr across case_when group_by if_else lag mutate ungroup
+#' @importFrom magrittr %>%
 #' @importFrom purrr map2 possibly
 #' @importFrom stringr str_replace_all str_trim
 #' @importFrom tidyr nest unite unnest
+#' @import tidyselect
 #' @importFrom rlang !! parse_expr sym
 #' @param file The name of the file which the data is to be read from.
 #' @param verbose Print file name (as progress checker)? Defaults to \code{FALSE}.
@@ -35,7 +37,7 @@ load_sea_file <- function (file, verbose = FALSE) {
   }
   
   dat <- dat %>%
-    mutate_if(is.character, stringr::str_trim) %>%
+    mutate(across(where(is.character), stringr::str_trim)) %>%
     standardize_sea_column_names() %>%
     label_sea_module_conditions() %>%
     standardize_sea_module_names() %>%
