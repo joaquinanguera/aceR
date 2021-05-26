@@ -40,7 +40,13 @@ The package, as of March 2020, has transitioned to the [CalVer](https://calver.o
 
 ### Brief release notes
 
-#### 21.4.0 (Current):
+#### 21.4.1 (Current):
+
+Bug fixes:
+
+- Now throws an error when `load_ace_bulk()` is called with `data_type = "classroom"`, as this argument value has been deprecated since [v21.1.1](#21-1-1) in favor of the more specific options of `"email"` and `"pulvinar"`
+
+#### 21.4.0:
 
 New features:
 

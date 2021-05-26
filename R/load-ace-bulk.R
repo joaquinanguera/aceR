@@ -28,6 +28,8 @@ load_ace_bulk <- function(path = ".",
                           which_modules = "",
                           data_type = c("explorer", "email", "pulvinar")) {
   stopifnot(length(data_type) == 1)
+  if (data_type == "classroom") stop(crayon::red("'classroom' is not an allowed setting of data_type!" ,
+                                                 "Did you mean 'email' or 'pulvinar'?"))
   
   csv = list.files(path = path, pattern = ".csv", recursive = recursive)
   xls = list.files(path = path, pattern = ".xls", recursive = recursive)

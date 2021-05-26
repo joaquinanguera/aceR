@@ -13,6 +13,17 @@ test_that("ACE data loads properly", {
   expect_s3_class(raw_email, "tbl_df")
 })
 
+test_that("ACE loading errors when expected", {
+  # when data_type not specified
+  expect_error(load_ace_bulk(aceR_sample_data_path("explorer"), verbose = F))
+  expect_error(load_ace_bulk(aceR_sample_data_path("email"),
+                             exclude = "bad-data",
+                             pattern = ".csv",
+                             data_type = "classroom",
+                             verbose = F),
+               "not an allowed setting of data_type")
+})
+
 range_cutoff <- c(150, 2000)
 
 sd_cutoff <- 2
