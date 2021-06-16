@@ -133,6 +133,10 @@ test_that("module proc: ACE Ishihara works", {
                expected = c(COL_BID, "colorblind"))
 })
 
+test_that("module proc: ACE ADP works", {
+  expect_gt(nrow(attempt_module(raw_explorer$data[[ADP]], ADP, verbose = FALSE)), 1)
+})
+
 test_that("module proc: ACE BRT works", {
   expect_gt(ncol(attempt_module(raw_explorer$data[[BRT]] %>% 
                                   reconstruct_pid() %>%
@@ -155,6 +159,10 @@ test_that("module proc: ACE forward spatial span works", {
 
 test_that("module proc: ACE Boxed works", {
   expect_gt(nrow(attempt_module(raw_explorer$data[[BOXED]], BOXED, verbose = FALSE)), 1)
+})
+
+test_that("module proc: ACE Color Selection works", {
+  expect_gt(nrow(attempt_module(raw_explorer$data[[COLOR_SELECT]], COLOR_SELECT, verbose = FALSE)), 1)
 })
 
 test_that("module proc: ACE Filter works", {
