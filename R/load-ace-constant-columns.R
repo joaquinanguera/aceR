@@ -307,28 +307,20 @@ standardize_ace_column_types <- function (df) {
   }, silent = TRUE)
   
   # various condition cols that should be numeric
-  try(suppressWarnings({
+  suppressWarnings({
     df <- df %>%
-    mutate(across(any_of(c("position_is_top",
-                            "is_valid_cue",
-                            "object_count")), as.numeric))
-  }), silent = TRUE)
+      mutate(across(any_of(c("position_is_top",
+                             "is_valid_cue",
+                             "object_count",
+                             COL_AGE)), as.numeric))
+  })
   
-  try({
-    df <- df %>%
-      mutate_at(COL_AGE, as.numeric)
-  }, silent = TRUE)
-  
-  try({
-    df <- df %>%
-      mutate_at(COL_CONDITION, tolower)
-  }, silent = TRUE)
-  
-  
-  try({
-    df <- df %>%
-      mutate_at(COL_TRIAL_TYPE, tolower)
-  }, silent = TRUE)
+  df <- df %>%
+    mutate(across(any_of(c(COL_CONDITION,
+                           COL_TRIAL_TYPE,
+                           "cue_side",
+                           "right_expression",
+                           "left_expression")), tolower))
   
   return (df)
 }
@@ -337,7 +329,8 @@ standardize_ace_column_types <- function (df) {
 #' @import dplyr
 #' @importFrom magrittr %>% %<>%
 #' @importFrom rlang sym !! :=
-#' @importFrom stringr str_replace str_trim
+#' @importFrom stringr str_replace str_replace_all str_split str_trim
+#' @importFrom purrr map map_chr map2_lgl
 #' @importFrom tidyr separate
 
 standardize_ace_values <- function(df, app_type) {
@@ -538,6 +531,31 @@ standardize_ace_values <- function(df, app_type) {
                TRUE ~ NA_character_
              )
       )
+  } else if (ADP %in% df$module & app_type == "explorer") {
+    df %<>%
+      mutate(expression = if_else(left_expression == "neutral",
+                                  right_expression,
+                                  left_expression),
+             cue_expression = if_else(cue_side == "left",
+                                      left_expression,
+                                      right_expression),
+             condition = paste(expression, cue_expression, sep = "_"))
+  } else if (COLOR_SELECT %in% df$module & app_type == "explorer") {
+    df %<>%
+      mutate(colors_used = map(colors_used, ~.x %>% 
+                                 # so the commas within rgba specs won't split
+                                 str_replace_all("\\)\\,", "\\)\\;")),
+             colors_used = str_split(colors_used, ";")) %>%
+      mutate(correct_button_loose = if_else(map2_lgl(actual_answer,
+                                                     colors_used,
+                                             ~.x %in% .y),
+                                            "correct",
+                                            "incorrect"),
+             correct_button_loose = if_else(is.na(!!Q_COL_RT),
+                                            "no_response",
+                                            correct_button_loose),
+             # to get it to stop being list because so many other functions expect no list-cols
+             colors_used = map_chr(colors_used, paste, collapse = ";"))
   }
   
   # needs to be called LAST, after all the other boutique accuracy corrections are complete

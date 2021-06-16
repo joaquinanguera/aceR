@@ -3,8 +3,10 @@
 \docType{data}
 \name{ace_module}
 \alias{ace_module}
+\alias{ADP}
 \alias{BOXED}
 \alias{BRT}
+\alias{COLOR_SELECT}
 \alias{DISCRIMINATION}
 \alias{FLANKER}
 \alias{SAAT}
@@ -54,12 +56,20 @@ An object of class \code{character} of length 1.
 
 An object of class \code{character} of length 1.
 
-An object of class \code{character} of length 16.
+An object of class \code{character} of length 1.
+
+An object of class \code{character} of length 1.
+
+An object of class \code{character} of length 18.
 }
 \usage{
+ADP
+
 BOXED
 
 BRT
+
+COLOR_SELECT
 
 DISCRIMINATION
 
