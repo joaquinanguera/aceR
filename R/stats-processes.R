@@ -40,6 +40,18 @@ ace_spatial_span <- function(x, col) {
 #' @importFrom tidyselect any_of
 #' @keywords internal 
 
+ace_max_delay <- function(x, col) {
+  max_delay = summarize(x,
+                        across(any_of(col),
+                               list(max_delay_time = ace_max),
+                               .names = "{.fn}"))
+  return (max_delay)
+}
+
+#' @importFrom dplyr across summarize
+#' @importFrom tidyselect any_of
+#' @keywords internal 
+
 ace_dprime_dplyr <- function(x, col) {
   dprime_out = summarize(x,
                          across(any_of(col),

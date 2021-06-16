@@ -1,5 +1,23 @@
 
 #' @importFrom magrittr %>%
+#' @importFrom dplyr bind_cols mutate if_else left_join
+#' @importFrom rlang !!
+#' @keywords internal
+#' @name ace_procs
+
+module_adp <- function(df) {
+  df <- mutate(df, expression_nonneutral = if_else(cue_expression != "neutral", "nonneutral", cue_expression))
+  gen = proc_generic_module(df)
+  rcs = proc_by_condition(df, c(COL_CORRECT_BUTTON, COL_RT), Q_COL_CONDITION, FUN = ace_rcs)
+  gen = left_join(gen, rcs, by = COL_BID)
+  happy_cost = multi_subtract(gen, "\\.happy_happy", "\\.happy_neutral", "\\.happy_cost")
+  sad_cost = multi_subtract(gen, "\\.sad_sad", "\\.sad_neutral", "\\.sad_cost")
+  gen_nonneutral = proc_generic_module(df, col_condition = rlang::sym("expression_nonneutral"))
+  nonneutral_cost = multi_subtract(gen_nonneutral, "\\.nonneutral", "\\.neutral", "\\.nonneutral_cost")
+  return (bind_cols(gen, happy_cost, sad_cost, nonneutral_cost))
+}
+
+#' @importFrom magrittr %>%
 #' @importFrom rlang !!
 #' @keywords internal
 #' @name ace_procs
@@ -57,6 +75,26 @@ module_brt <- function(df) {
   }
   gen = select(gen, -starts_with(PROC_COL_OLD[1]), -starts_with(PROC_COL_OLD[2]))
   return (gen)
+}
+
+
+#' @keywords internal
+#' @name ace_procs
+#' @importFrom magrittr %>%
+#' @importFrom dplyr full_join select
+#' @importFrom tidyselect ends_with
+
+module_colorselection <- function(df) {
+  gen = proc_generic_module(df, col_condition = NULL)
+  max_delay = proc_by_condition(df, "test_delay_window", Q_COL_CORRECT_BUTTON, include_overall = F, FUN = ace_max_delay) %>% 
+    select(-ends_with("incorrect"))
+  analy = full_join(gen, max_delay, by = COL_BID)
+  if (COL_PRACTICE_COUNT %in% names(df)) {
+    prac = proc_by_condition(df, COL_PRACTICE_COUNT, include_overall = FALSE, FUN = ace_practice_count)
+    return (full_join(analy, prac, by = c(COL_BID, COL_PRACTICE_COUNT)))
+  } else {
+    return (analy)
+  }
 }
 
 #' @keywords internal

@@ -22,6 +22,9 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
     # this should catch the dprime calculator
     col_out = "dprime"
     col_prefix = "dprime."
+  } else if (col == "test_delay_window") {
+    col_out = "max_delay_time"
+    col_prefix = "max_delay_time."
   } else {
     col_out = col
     col_prefix = ""
