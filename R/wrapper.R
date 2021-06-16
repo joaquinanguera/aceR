@@ -61,9 +61,11 @@ proc_ace_complete <- function (path_in,
                                                      "TNT.rt_mean.correct",
                                                      "object_count_span.overall",
                                                      "FILTER.k",
+                                                     "COLORSELECTION.max_delay_time",
                                                      "rcs.overall"),
                                post_metric_names_exclude = c("FILTER.rcs",
-                                                             "TNT.rt_mean.correct.")) {
+                                                             "TNT.rt_mean.correct.",
+                                                             "ADP.rcs")) {
   if(data_type == "explorer") {
     app_type <- "explorer"
   } else {
@@ -84,7 +86,7 @@ proc_ace_complete <- function (path_in,
   if (verbose) message(crayon::blue("Summary metrics processed in wide format"))
   
   out %<>%
-    post_clean_low_trials(min_trials = post_min_trials)
+    post_clean_low_trials(min_trials = post_min_trials, app_type = app_type)
   if (verbose) message(crayon::blue("Records with <", post_min_trials, " trials NA'd out"))
   
   if (post_chance_level != "none") {
@@ -98,7 +100,8 @@ proc_ace_complete <- function (path_in,
                         overall = post_clean_chance_overall,
                         cutoff_dprime = 0,
                         cutoff_2choice = 0.5,
-                        cutoff_4choice = 0.25)
+                        cutoff_4choice = 0.25,
+                        cutoff_5choice = 0.2)
     if (verbose) message(crayon::blue("Records with below-chance performance NA'd out using setting:", post_chance_level))
   } else {
     if (verbose) message(crayon::blue("SKIPPED trimming of records with below-chance performance"))
