@@ -40,7 +40,11 @@ The package, as of March 2020, has transitioned to the [CalVer](https://calver.o
 
 ### Brief release notes
 
-#### 21.4.1 (Current):
+#### 21.5.0 (Current):
+
+New features:
+
+- Now handles ACE Explorer modules: ADP (face switch) and Color Selection
 
 Bug fixes:
 
