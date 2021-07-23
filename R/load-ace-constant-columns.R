@@ -567,6 +567,14 @@ standardize_ace_values <- function(df, app_type) {
       ungroup()
   }
   
+  if ("correct_button_loose" %in% names(df)) {
+    df %<>%
+      # needs to be grouped to prevent previous_correct_button from bleeding over between records
+      group_by(!!Q_COL_BID) %>%
+      mutate(previous_correct_button_loose = make_lagged_col(correct_button_loose)) %>%
+      ungroup()
+  }
+  
   return (df)
 }
 

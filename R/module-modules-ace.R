@@ -82,13 +82,26 @@ module_brt <- function(df) {
 #' @name ace_procs
 #' @importFrom magrittr %>%
 #' @importFrom dplyr full_join select
+#' @importFrom rlang sym
 #' @importFrom tidyselect ends_with
 
 module_colorselection <- function(df) {
-  gen = proc_generic_module(df, col_condition = NULL)
+  gen_strict = proc_generic_module(df, col_condition = NULL)
+  gen_loose = proc_generic_module(df,
+                                  col_acc = sym("correct_button_loose"),
+                                  col_condition = NULL,
+                                  col_prev_acc = sym("previous_correct_button_loose"))
+  if (COL_PRACTICE_COUNT %in% names(df)) {
+    gen_join_by = c(COL_BID, COL_PRACTICE_COUNT)
+  } else {
+    gen_join_by = COL_BID
+  }
+  gen = dplyr::full_join(gen_strict, gen_loose, by = gen_join_by, suffix = c(".strict", ".loose"))
+  
   max_delay = proc_by_condition(df, "test_delay_window", Q_COL_CORRECT_BUTTON, include_overall = F, FUN = ace_max_delay) %>% 
     select(-ends_with("incorrect"))
   analy = full_join(gen, max_delay, by = COL_BID)
+  
   if (COL_PRACTICE_COUNT %in% names(df)) {
     prac = proc_by_condition(df, COL_PRACTICE_COUNT, include_overall = FALSE, FUN = ace_practice_count)
     return (full_join(analy, prac, by = c(COL_BID, COL_PRACTICE_COUNT)))
