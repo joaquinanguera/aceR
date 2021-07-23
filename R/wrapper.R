@@ -64,8 +64,7 @@ proc_ace_complete <- function (path_in,
                                                      "COLORSELECTION.max_delay_time",
                                                      "rcs.overall"),
                                post_metric_names_exclude = c("FILTER.rcs",
-                                                             "TNT.rt_mean.correct.",
-                                                             "ADP.rcs")) {
+                                                             "TNT.rt_mean.correct.")) {
   if(data_type == "explorer") {
     app_type <- "explorer"
   } else {
