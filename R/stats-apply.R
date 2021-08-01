@@ -19,9 +19,9 @@ apply_stats <- function(x, id_var, col, FUN, factors = NULL, suffix = "", transf
     col_out = "rcs"
     col_prefix = "rcs."
   } else if (col == "trial_accuracy") {
-    # this should catch the dprime calculator
-    col_out = "dprime"
-    col_prefix = "dprime."
+    # this should catch the dprime & trial counts calculator
+    col_out = "sdt"
+    col_prefix = ""
   } else if (col == "test_delay_window") {
     col_out = "max_delay_time"
     col_prefix = "max_delay_time."

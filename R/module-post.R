@@ -129,25 +129,25 @@ post_clean_chance <- function (df,
   
   if (overall) {
     metric_cols %<>%
-      mutate(metric = list(c("dprime.overall"),
+      mutate(metric = list(c("sdt_dprime.overall"),
                            c("acc_mean.overall"),
                            c("acc_mean.overall"),
                            c("acc_mean.overall"),
                            c("acc_mean.overall"),
-                           c("dprime.overall"),
-                           c("dprime.overall"),
+                           c("sdt_dprime.overall"),
+                           c("sdt_dprime.overall"),
                            c("k.r2b0", "k.r4b0"),
                            c("acc_mean.overall"),
                            c("acc_mean.overall.strict")))
   } else {
     metric_cols %<>%
-      mutate(metric = list(c("dprime.tap_only"),
+      mutate(metric = list(c("sdt_dprime.tap_only"),
                            c("acc_mean.congruent"),
                            c("acc_mean.congruent"),
                            c("acc_mean.stay"),
                            c("acc_mean.feature_4"),
-                           c("dprime.overall"),
-                           c("dprime.overall"),
+                           c("sdt_dprime.overall"),
+                           c("sdt_dprime.overall"),
                            c("k.r2b0", "k.r4b0"),
                            c("acc_mean.overall"),
                            c("acc_mean.overall.strict")))

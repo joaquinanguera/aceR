@@ -167,7 +167,7 @@ module_saat <- function(df) {
   # Remove duplicate d' column created by condition-wise processing if it's a single SAAT submodule
   if (length(unique(df[[COL_CONDITION]])) == 1) {
     sdt <- sdt %>% 
-      select(-any_of("dprime"))
+      select(-!c(!!COL_BID, ends_with("overall")))
   }
   return (left_join(gen, sdt, by = COL_BID))
 }

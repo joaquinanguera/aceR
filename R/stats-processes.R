@@ -55,8 +55,12 @@ ace_max_delay <- function(x, col) {
 ace_dprime_dplyr <- function(x, col) {
   dprime_out = summarize(x,
                          across(any_of(col),
-                                list(dprime = ace_dprime),
-                                .names = "{.fn}"))
+                                list(dprime = ~ace_dprime(.),
+                                     count_hit = ~ace_count_if(., "Hit"),
+                                     count_miss = ~ace_count_if(., "Miss"),
+                                     count_cr = ~ace_count_if(., "Correct Rejection"),
+                                     count_fa = ~ace_count_if(., "False Alarm")),
+                                .names = "sdt_{.fn}"))
   return (dprime_out)
 }
 
