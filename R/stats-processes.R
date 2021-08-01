@@ -64,6 +64,19 @@ ace_dprime_dplyr <- function(x, col) {
   return (dprime_out)
 }
 
+
+#' @importFrom dplyr across summarize
+#' @importFrom tidyselect any_of
+#' @keywords internal 
+
+ace_wm_prek_dplyr <- function(x, col) {
+  out = summarize(x,
+                  across(any_of(col),
+                         list(k = ace_wm_prek),
+                         .names = "{.fn}"))
+  return (out)
+}
+
 #' @importFrom dplyr across summarize
 #' @importFrom tidyselect any_of
 #' @keywords internal 

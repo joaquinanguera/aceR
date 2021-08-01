@@ -243,35 +243,33 @@ module_backwardsspatialspan <- function(df) {
 
 #' @import dplyr
 #' @importFrom rlang sym !!
-#' @importFrom stats reshape
 #' @importFrom stringr str_sub
-#' @importFrom tidyr pivot_wider separate
+#' @importFrom tidyr pivot_wider
 #' @keywords internal
 #' @name ace_procs
 
 module_filter <- function(df) {
-  # MT: implementing long format for filter only because it appears only appropriate for this module.
-  # open to changing if later modules benefit from this
   
   df <- df %>%
     mutate(cue_rotated = dplyr::recode(cue_rotated,
                                        `0` = "no_change",
                                        `1` = "change"))
   
-  acc = proc_by_condition(df, COL_CORRECT_BUTTON, factors = c(Q_COL_CONDITION, sym("cue_rotated")), transform_dir = "long")
-  rt = proc_by_condition(df, COL_RT, factors = c(Q_COL_CONDITION, Q_COL_CORRECT_BUTTON), transform_dir = "long")
-  rcs = proc_by_condition(df, c(COL_CORRECT_BUTTON, COL_RT), Q_COL_CONDITION, FUN = ace_rcs, transform_dir = "long")
-  merged = reduce(list(acc, rt, rcs), left_join, by = c(COL_BID, COL_CONDITION)) %>%
-    separate(!!Q_COL_CONDITION, c("targets", "distractors"), sep = 2, remove = FALSE) %>%
-    mutate(across(c("targets", "distractors"), ~as.integer(str_sub(., start = -1L)))) %>%
-    # TODO: implement k w/ proc_standard (if possible)
-    mutate(k = ace_wm_k(correct_button_mean.change, 1 - correct_button_mean.no_change, targets),
-           dprime = ace_dprime_wide(correct_button_mean.change, 1 - correct_button_mean.no_change,
-                                    correct_button_count.change, correct_button_count.no_change)) %>%
-    select(-targets, -distractors) %>%
-    pivot_wider(names_from = !!COL_CONDITION,
-                values_from = -c(!!Q_COL_BID, !!Q_COL_CONDITION, contains("overall")),
-                names_sep = ".")
+  rt = proc_by_condition(df, COL_RT, factors = c(Q_COL_CONDITION, Q_COL_CORRECT_BUTTON))
+  rcs = proc_by_condition(df, c(COL_CORRECT_BUTTON, COL_RT), Q_COL_CONDITION, FUN = ace_rcs)
+  dprime = proc_by_condition(df, "trial_accuracy", Q_COL_CONDITION, FUN = ace_dprime_dplyr)
+  k = proc_by_condition(df,
+                        "trial_accuracy",
+                        Q_COL_CONDITION,
+                        include_overall = FALSE,
+                        FUN = ace_wm_prek_dplyr,
+                        transform_dir = "long") %>%
+    mutate(targets = as.integer(str_sub(!!Q_COL_CONDITION, start = 2L, end = 2L)),
+           k = k * targets) %>% 
+    select(-targets) %>% 
+    pivot_wider(names_from = !!Q_COL_CONDITION, values_from = k, names_prefix = "k.")
+    
+  merged = reduce(list(rt, rcs, dprime, k), left_join, by = COL_BID)
   if (COL_PRACTICE_COUNT %in% names(df)) {
     prac = proc_by_condition(df, COL_PRACTICE_COUNT, include_overall = FALSE, FUN = ace_practice_count)
     merged = left_join(merged, prac, by = COL_BID)
