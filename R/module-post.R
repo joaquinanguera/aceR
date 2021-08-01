@@ -138,7 +138,7 @@ post_clean_chance <- function (df,
                            c("dprime.overall"),
                            c("k.r2b0", "k.r4b0"),
                            c("acc_mean.overall"),
-                           c("acc_mean.overall")))
+                           c("acc_mean.overall.strict")))
   } else {
     metric_cols %<>%
       mutate(metric = list(c("dprime.tap_only"),
@@ -150,7 +150,7 @@ post_clean_chance <- function (df,
                            c("dprime.overall"),
                            c("k.r2b0", "k.r4b0"),
                            c("acc_mean.overall"),
-                           c("acc_mean.overall")))
+                           c("acc_mean.overall.strict")))
   }
   
   metric_cols %<>%

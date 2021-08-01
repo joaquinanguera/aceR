@@ -61,7 +61,7 @@ proc_ace_complete <- function (path_in,
                                                      "TNT.rt_mean.correct",
                                                      "object_count_span.overall",
                                                      "FILTER.k",
-                                                     "COLORSELECTION.max_delay_time",
+                                                     "COLORSELECTION.max_delay_time.correct.strict",
                                                      "rcs.overall"),
                                post_metric_names_exclude = c("FILTER.rcs",
                                                              "TNT.rt_mean.correct.")) {
