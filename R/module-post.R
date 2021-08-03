@@ -268,6 +268,10 @@ post_clean_low_trials <- function (df,
                                                 !grepl("cost", names(.x)) & 
                                                 !grepl("start", names(.x)) & 
                                                 !grepl("early", names(.x)) & 
+                                                !grepl("hit", names(.x)) & 
+                                                !grepl("miss", names(.x)) & 
+                                                !grepl("cr", names(.x)) & 
+                                                !grepl("fa", names(.x)) & 
                                                 !grepl("practice", names(.x))]),
            filter_cols = map_if(filter_cols, module == "SAAT", ~.x[!grepl("overall", .x)], .else = ~.x),
            non_demo_cols = map(proc, ~names(.x)[!(names(.x) %in% valid_demos)]),
