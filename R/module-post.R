@@ -72,16 +72,18 @@ post_reduce_cols <- function (df,
 #' @importFrom rlang sym !!
 #' 
 #' @param df a df, output by \code{\link{proc_by_module}}, containing processed
-#' ACE or SEA data.
+#' ACE data.
 #' @param app_type character. What app type produced this data? One of
 #' \code{c("classroom", "explorer")}. Must be specified.
 #' @param overall Also scrub ".overall" data? Defaults to \code{TRUE}.
 #' @param cutoff_dprime Minimum value of d' to allow, for relevant tasks
-#' (Tap and Trace, SAAT, Filter). Defaults to 0.
+#' (ACE Tap and Trace, SAAT, Filter). Defaults to 0.
 #' @param cutoff_2choice Minimum value of accuracy to allow, for 2-response tasks
-#' (Flanker, Boxed). Defaults to 0.5.
+#' (ACE Flanker, Boxed). Defaults to 0.5.
 #' @param cutoff_4choice Minimum value of accuracy to allow, for 4-response tasks
-#' (Stroop, Task Switch). Defaults to 0.25.
+#' (ACE Stroop, Task Switch). Defaults to 0.25.
+#' @param cutoff_5choice Minimum value of accuracy to allow, for 5-response tasks
+#' (ACE Color Selection). Defaults to 0.25.
 #' @param extra_demos Character vector specifying any custom-added demographics
 #' columns (beyond app defaults) to pass through the function. Defaults to \{code{NULL}.
 #' @return a df, similar in structure to \code{proc}, but with below-cutoff values in
@@ -93,9 +95,11 @@ post_clean_chance <- function (df,
                                cutoff_dprime = 0,
                                cutoff_2choice = 0.5,
                                cutoff_4choice = 0.25,
+                               cutoff_5choice = 0.2,
                                extra_demos = NULL) {
   
   stopifnot(length(app_type) == 1)
+  stopifnot(app_type != "sea")
   
   metric_cols <- tibble(module = c(TNT,
                                    STROOP,
@@ -104,58 +108,77 @@ post_clean_chance <- function (df,
                                    BOXED,
                                    SAAT_SUS,
                                    SAAT_IMP,
-                                   FILTER))
+                                   FILTER,
+                                   ADP,
+                                   COLOR_SELECT))
+  # If SEA modules were getting included they would get concatenated right above here
+  # and in the analogous metric_cols bits below
+  
+  stopifnot(length(app_type) == 1)
+  
+  is_ace = app_type != "sea"
   
   # Number of responses went from 4 in Classroom to 2 in Explorer
   if (app_type == "classroom") {
     cutoff_taskswitch <- cutoff_4choice
   } else if (app_type == "explorer") {
     cutoff_taskswitch <- cutoff_2choice
+  } else {
+    cutoff_taskswitch <- NA_real_
   }
   
   if (overall) {
     metric_cols %<>%
-      mutate(metric = list(c("dprime.overall"),
+      mutate(metric = list(c("sdt_dprime.overall"),
                            c("acc_mean.overall"),
                            c("acc_mean.overall"),
                            c("acc_mean.overall"),
                            c("acc_mean.overall"),
-                           c("dprime.overall"),
-                           c("dprime.overall"),
-                           c("k.r2b0", "k.r4b0")))
+                           c("sdt_dprime.overall"),
+                           c("sdt_dprime.overall"),
+                           c("k.r2b0", "k.r4b0"),
+                           c("acc_mean.overall"),
+                           c("acc_mean.overall.strict")))
   } else {
     metric_cols %<>%
-      mutate(metric = list(c("dprime.tap_only"),
+      mutate(metric = list(c("sdt_dprime.tap_only"),
                            c("acc_mean.congruent"),
                            c("acc_mean.congruent"),
                            c("acc_mean.stay"),
                            c("acc_mean.feature_4"),
-                           c("dprime.overall"),
-                           c("dprime.overall"),
-                           c("k.r2b0", "k.r4b0")))
+                           c("sdt_dprime.overall"),
+                           c("sdt_dprime.overall"),
+                           c("k.r2b0", "k.r4b0"),
+                           c("acc_mean.overall"),
+                           c("acc_mean.overall.strict")))
   }
   
   metric_cols %<>%
     mutate(full = map2(module, metric, ~paste(.x, .y, sep = ".")),
            cutoff = case_when(module %in% c(TNT, SAAT_SUS, SAAT_IMP, FILTER) ~ cutoff_dprime,
                               module == STROOP ~ cutoff_4choice,
-                              module %in% c(FLANKER, BOXED) ~ cutoff_2choice,
+                              module %in% c(FLANKER,
+                                            BOXED,
+                                            ADP) ~ cutoff_2choice,
                               module == TASK_SWITCH ~ cutoff_taskswitch,
+                              module == COLOR_SELECT ~ cutoff_5choice,
                               TRUE ~ NA_real_)) %>%
-    filter(module %in% get_valid_modules(df))
+    # this step should implicitly take of making metric_cols ace only or sea only
+    # depending on the input data
+    filter(module %in% get_valid_modules(df, is_ace = is_ace))
   
   if (!(all(c("module", "proc") %in% names(df)))) {
     # if "wide" form, coerce to "long-ish" first
     wide <- TRUE
-    check_extra_demos(df, wide, extra_demos)
-    valid_demos <- get_valid_demos(df, is_ace = TRUE)
+    check_extra_demos(df, wide, extra_demos, is_ace = is_ace)
+    valid_demos <- get_valid_demos(df, is_ace = is_ace)
     filter_col <- sym("full")
-    df <- proc_wide_to_long(df, extra_demos)
+    df <- proc_wide_to_long(df, extra_demos, is_ace = is_ace)
   } else {
     wide <- FALSE
     filter_col <- sym("metric")
-    check_extra_demos(df, wide, extra_demos)
-    valid_demos <- get_valid_demos(df$proc[[1]], is_ace = T)
+    check_extra_demos(df, wide, extra_demos, is_ace = is_ace)
+    valid_demos <- get_valid_demos(df$proc[[1]], is_ace = is_ace)
   }
   
   valid_demos <- c(valid_demos, extra_demos)
@@ -186,7 +209,7 @@ post_clean_chance <- function (df,
 #' Scrub processed data with too few trials
 #' 
 #' User-friendly wrapper to replace records with too many no-responses with \code{NA}
-#' in ACE/SEA data processed with \code{\link{proc_by_module}}.
+#' in ACE data processed with \code{\link{proc_by_module}}.
 #' 
 #' @export
 #' @importFrom dplyr bind_rows everything filter mutate mutate_at select
@@ -195,6 +218,8 @@ post_clean_chance <- function (df,
 #' 
 #' @param df a df, output by \code{\link{proc_by_module}}, containing processed
 #' ACE or SEA data.
+#' @param app_type character. What app type produced this data? One of
+#' \code{c("classroom", "explorer")}. Must be specified.
 #' @param min_trials Minimum number of trials to require in most restrictive condition.
 #' Defaults to 5. This condition is checked against the \code{*_count} summary columns,
 #' that count all trials with a valid response time (and all no-go trials, if a response
@@ -204,20 +229,27 @@ post_clean_chance <- function (df,
 #' @return a df, similar in structure to \code{proc}, but with records with too few trials
 #' converted to \code{NA}.
 
-post_clean_low_trials <- function (df, min_trials = 5, extra_demos = NULL) {
+post_clean_low_trials <- function (df,
+                                   app_type = c("classroom", "explorer"),
+                                   min_trials = 5,
+                                   extra_demos = NULL) {
+  stopifnot(length(app_type) == 1)
+  stopifnot(app_type != "sea")
+  
+  is_ace = app_type != "sea"
   
   if (!(all(c("module", "proc") %in% names(df)))) {
     # if "wide" form, coerce to "long-ish" first
     wide <- TRUE
-    check_extra_demos(df, wide, extra_demos)
-    valid_demos <- get_valid_demos(df, is_ace = TRUE)
-    df <- proc_wide_to_long(df, extra_demos)
+    check_extra_demos(df, wide, extra_demos, is_ace = is_ace)
+    valid_demos <- get_valid_demos(df, is_ace = is_ace)
+    df <- proc_wide_to_long(df, extra_demos, is_ace = is_ace)
   } else {
     wide <- FALSE
     # as long as the demos are present somewhere this should be ok
     # since these aren't join cols later it doesn't have to be a perfect match
-    check_extra_demos(df, wide, extra_demos)
-    valid_demos <- get_valid_demos(df$proc[[1]], is_ace = T)
+    check_extra_demos(df, wide, extra_demos, is_ace = is_ace)
+    valid_demos <- get_valid_demos(df$proc[[1]], is_ace = is_ace)
   }
   
   valid_demos <- c(valid_demos, extra_demos)
@@ -230,7 +262,17 @@ post_clean_low_trials <- function (df, min_trials = 5, extra_demos = NULL) {
   # will then populate all the non-demo cols with NA
   
   df %<>%
-    mutate(filter_cols = map(proc, ~names(.x)[grepl("count", names(.x)) & !grepl("half", names(.x)) & !grepl("correct", names(.x)) & !grepl("cost", names(.x)) & !grepl("start", names(.x)) & !grepl("early", names(.x)) & !grepl("practice", names(.x))]),
+    mutate(filter_cols = map(proc, ~names(.x)[grepl("count", names(.x)) & 
+                                                !grepl("half", names(.x)) & 
+                                                !grepl("correct", names(.x)) & 
+                                                !grepl("cost", names(.x)) & 
+                                                !grepl("start", names(.x)) & 
+                                                !grepl("early", names(.x)) & 
+                                                !grepl("hit", names(.x)) & 
+                                                !grepl("miss", names(.x)) & 
+                                                !grepl("cr", names(.x)) & 
+                                                !grepl("fa", names(.x)) & 
+                                                !grepl("practice", names(.x))]),
            filter_cols = map_if(filter_cols, module == "SAAT", ~.x[!grepl("overall", .x)], .else = ~.x),
            non_demo_cols = map(proc, ~names(.x)[!(names(.x) %in% valid_demos)]),
            call_filter_cols_bad = map(filter_cols,  ~map_call2_rel("<", .x, min_trials)),
@@ -281,7 +323,15 @@ proc_na_all_by_some_cols <- function (df) {
 }
 
 #' @keywords internal
-check_extra_demos <- function (df, is_wide, extra_demos) {
+check_extra_demos <- function (df, is_wide, extra_demos, is_ace) {
+  if (is_ace) {
+    all_possible_demos <- ALL_POSSIBLE_DEMOS
+    all_modules <- ALL_MODULES
+  } else {
+    all_possible_demos <- ALL_POSSIBLE_SEA_DEMOS
+    all_modules <- ALL_SEA_MODULES
+  }
+  
   if (is_wide) {
     # if "wide" form, coerce to "long-ish" first
     if (!is.null(extra_demos)) {
@@ -289,7 +339,7 @@ check_extra_demos <- function (df, is_wide, extra_demos) {
         stop(crayon::red("Extra demo cols not found! Check spelling?"))
       }
     } else {
-      if (!all(names(df)[!grepl(paste0("^", ALL_MODULES[ALL_MODULES != DEMOS], collapse = "|"), names(df))] %in% ALL_POSSIBLE_DEMOS)) {
+      if (!all(names(df)[!grepl(paste0("^", all_modules[all_modules != DEMOS], collapse = "|"), names(df))] %in% all_possible_demos)) {
         warning(crayon::yellow("Possible extra demo cols detected but argument not specified, ignoring."))
       }
     }
@@ -312,9 +362,9 @@ check_extra_demos <- function (df, is_wide, extra_demos) {
 #' @importFrom tibble tibble
 #' @keywords internal
 
-proc_wide_to_long <- function (df, extra_demos) {
-  valid_modules <- get_valid_modules(df)
-  valid_demos <- get_valid_demos(df, is_ace = TRUE)
+proc_wide_to_long <- function (df, extra_demos, is_ace) {
+  valid_modules <- get_valid_modules(df, is_ace = is_ace)
+  valid_demos <- get_valid_demos(df, is_ace = is_ace)
   valid_demos <- c(valid_demos, extra_demos)
   out <- tibble(module = valid_modules,
                 proc = vector("list", length(valid_modules))) %>%
@@ -328,13 +378,19 @@ proc_wide_to_long <- function (df, extra_demos) {
 #' @importFrom purrr map_lgl
 #' @keywords internal
 
-get_valid_modules <- function (df) {
+get_valid_modules <- function (df, is_ace) {
+  if (is_ace) {
+    all_modules <- ALL_MODULES
+  } else {
+    all_modules <- ALL_SEA_MODULES
+  }
+  
   if (all(c("module", "proc") %in% names(df))) {
     # if was processed with output = "long"
-    modules <- ALL_MODULES[map_lgl(ALL_MODULES, ~.x %in% df[[COL_MODULE]])]
+    modules <- all_modules[map_lgl(all_modules, ~.x %in% df[[COL_MODULE]])]
   } else {
     # else if was processed with output = "wide"
-    modules <- ALL_MODULES[map_lgl(ALL_MODULES, ~any(grepl(.x, names(df))))]
+    modules <- all_modules[map_lgl(all_modules, ~any(grepl(.x, names(df))))]
   }
   if (SAAT_SUS %in% modules | SAAT_IMP %in% modules) modules <- modules[modules != SAAT]
   

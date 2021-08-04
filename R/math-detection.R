@@ -26,8 +26,24 @@ ace_dprime_wide <- function(hit, fa, count_hit, count_fa) {
 }
 
 #' @keywords internal
+#' Does not multiply by target so it conforms with single-arg function setup
 
-ace_wm_k <- function(hit, fa, targets) {
+ace_wm_prek <- function(acc_col) {
+  hits = sum(acc_col == "Hit", na.rm = T)
+  targets = sum(acc_col %in% c("Hit", "Miss"), na.rm = T)
+  fas = sum(acc_col == "False Alarm", na.rm = T)
+  nontargets = sum(acc_col %in% c("False Alarm", "Correct Rejection"), na.rm = T)
+  
+  hit_rate = hits / targets
+  fa_rate = fas / nontargets
+  
+  return ((hit_rate - fa_rate))
+  
+}
+
+#' @keywords internal
+
+ace_wm_k_wide <- function(hit, fa, targets) {
   return (targets * (hit - fa))
 }
 

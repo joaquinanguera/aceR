@@ -6,10 +6,16 @@
 NULL
 
 #' @name ace_module
+ADP <- "ADP"
+
+#' @name ace_module
 BOXED <- "BOXED"
 
 #' @name ace_module
 BRT <- "BRT"
+
+#' @name ace_module
+COLOR_SELECT <- "COLORSELECTION"
 
 #' @name ace_module
 DISCRIMINATION <- "DISCRIMINATION"
@@ -54,8 +60,10 @@ SPATIAL_CUE <- "SPATIALCUEING"
 DEMOS <- "DEMOGRAPHICS"
 
 #' @name ace_module
-ALL_MODULES = c(BOXED,
+ALL_MODULES = c(ADP,
+                BOXED,
                 BRT,
+                COLOR_SELECT,
                 DISCRIMINATION,
                 FLANKER,
                 SAAT,

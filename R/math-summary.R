@@ -18,6 +18,12 @@ ace_count <- function(x) {
 
 #' @keywords internal
 
+ace_count_if <- function(x, value) {
+  return (sum(x == value))
+}
+
+#' @keywords internal
+
 ace_max <- function(x) {
   x <- to_numeric(x)
   # max and min throw a warning when all NAs

@@ -1,5 +1,23 @@
 
 #' @importFrom magrittr %>%
+#' @importFrom dplyr bind_cols mutate if_else left_join
+#' @importFrom rlang !!
+#' @keywords internal
+#' @name ace_procs
+
+module_adp <- function(df) {
+  df <- mutate(df, expression_nonneutral = if_else(cue_expression != "neutral", "nonneutral", cue_expression))
+  gen = proc_generic_module(df)
+  rcs = proc_by_condition(df, c(COL_CORRECT_BUTTON, COL_RT), Q_COL_CONDITION, FUN = ace_rcs)
+  gen = left_join(gen, rcs, by = COL_BID)
+  happy_cost = multi_subtract(gen, "\\.happy_happy", "\\.happy_neutral", "\\.happy_cost")
+  sad_cost = multi_subtract(gen, "\\.sad_sad", "\\.sad_neutral", "\\.sad_cost")
+  gen_nonneutral = proc_generic_module(df, col_condition = rlang::sym("expression_nonneutral"))
+  nonneutral_cost = multi_subtract(gen_nonneutral, "\\.nonneutral", "\\.neutral", "\\.nonneutral_cost")
+  return (bind_cols(gen, happy_cost, sad_cost, nonneutral_cost))
+}
+
+#' @importFrom magrittr %>%
 #' @importFrom rlang !!
 #' @keywords internal
 #' @name ace_procs
@@ -59,6 +77,54 @@ module_brt <- function(df) {
   return (gen)
 }
 
+
+#' @keywords internal
+#' @name ace_procs
+#' @importFrom magrittr %>%
+#' @importFrom dplyr full_join select
+#' @importFrom rlang !! := sym
+#' @importFrom tidyselect ends_with
+
+module_colorselection <- function(df) {
+  gen_strict = proc_generic_module(df, col_condition = NULL)
+  gen_loose = df %>% 
+    select(-(!!COL_CORRECT_BUTTON), -(!!COL_PREV_CORRECT_BUTTON)) %>% 
+    rename(!!COL_CORRECT_BUTTON := !!paste0(COL_CORRECT_BUTTON, "_loose"),
+           !!COL_PREV_CORRECT_BUTTON := !!paste0(COL_PREV_CORRECT_BUTTON, "_loose")) %>% 
+    proc_generic_module(col_condition = NULL)
+  
+  if (COL_PRACTICE_COUNT %in% names(df)) {
+    gen_join_by = c(COL_BID, COL_PRACTICE_COUNT)
+  } else {
+    gen_join_by = COL_BID
+  }
+  gen = full_join(gen_strict, gen_loose, by = gen_join_by, suffix = c(".strict", ".loose"))
+  
+  max_delay_strict = proc_by_condition(df,
+                                       "test_delay_window",
+                                       Q_COL_CORRECT_BUTTON,
+                                       include_overall = F,
+                                       FUN = ace_max_delay) %>% 
+    select(-ends_with("incorrect"), -ends_with("no_response"))
+  max_delay_loose = proc_by_condition(df,
+                                      "test_delay_window",
+                                      sym("correct_button_loose"),
+                                      include_overall = F,
+                                      FUN = ace_max_delay) %>% 
+    select(-ends_with("incorrect"), -ends_with("no_response"))
+  
+  max_delay = full_join(max_delay_strict, max_delay_loose, by = COL_BID, suffix = c(".strict", ".loose"))
+  
+  analy = full_join(gen, max_delay, by = COL_BID)
+  
+  if (COL_PRACTICE_COUNT %in% names(df)) {
+    prac = proc_by_condition(df, COL_PRACTICE_COUNT, include_overall = FALSE, FUN = ace_practice_count)
+    return (full_join(analy, prac, by = c(COL_BID, COL_PRACTICE_COUNT)))
+  } else {
+    return (analy)
+  }
+}
+
 #' @keywords internal
 #' @name ace_procs
 
@@ -101,7 +167,7 @@ module_saat <- function(df) {
   # Remove duplicate d' column created by condition-wise processing if it's a single SAAT submodule
   if (length(unique(df[[COL_CONDITION]])) == 1) {
     sdt <- sdt %>% 
-      select(-any_of("dprime"))
+      select(-!c(!!COL_BID, ends_with("overall")))
   }
   return (left_join(gen, sdt, by = COL_BID))
 }
@@ -177,35 +243,33 @@ module_backwardsspatialspan <- function(df) {
 
 #' @import dplyr
 #' @importFrom rlang sym !!
-#' @importFrom stats reshape
 #' @importFrom stringr str_sub
-#' @importFrom tidyr pivot_wider separate
+#' @importFrom tidyr pivot_wider
 #' @keywords internal
 #' @name ace_procs
 
 module_filter <- function(df) {
-  # MT: implementing long format for filter only because it appears only appropriate for this module.
-  # open to changing if later modules benefit from this
   
   df <- df %>%
     mutate(cue_rotated = dplyr::recode(cue_rotated,
                                        `0` = "no_change",
                                        `1` = "change"))
   
-  acc = proc_by_condition(df, COL_CORRECT_BUTTON, factors = c(Q_COL_CONDITION, sym("cue_rotated")), transform_dir = "long")
-  rt = proc_by_condition(df, COL_RT, factors = c(Q_COL_CONDITION, Q_COL_CORRECT_BUTTON), transform_dir = "long")
-  rcs = proc_by_condition(df, c(COL_CORRECT_BUTTON, COL_RT), Q_COL_CONDITION, FUN = ace_rcs, transform_dir = "long")
-  merged = reduce(list(acc, rt, rcs), left_join, by = c(COL_BID, COL_CONDITION)) %>%
-    separate(!!Q_COL_CONDITION, c("targets", "distractors"), sep = 2, remove = FALSE) %>%
-    mutate(across(c("targets", "distractors"), ~as.integer(str_sub(., start = -1L)))) %>%
-    # TODO: implement k w/ proc_standard (if possible)
-    mutate(k = ace_wm_k(correct_button_mean.change, 1 - correct_button_mean.no_change, targets),
-           dprime = ace_dprime_wide(correct_button_mean.change, 1 - correct_button_mean.no_change,
-                                    correct_button_count.change, correct_button_count.no_change)) %>%
-    select(-targets, -distractors) %>%
-    pivot_wider(names_from = !!COL_CONDITION,
-                values_from = -c(!!Q_COL_BID, !!Q_COL_CONDITION, contains("overall")),
-                names_sep = ".")
+  rt = proc_by_condition(df, COL_RT, factors = c(Q_COL_CONDITION, Q_COL_CORRECT_BUTTON))
+  rcs = proc_by_condition(df, c(COL_CORRECT_BUTTON, COL_RT), Q_COL_CONDITION, FUN = ace_rcs)
+  dprime = proc_by_condition(df, "trial_accuracy", Q_COL_CONDITION, FUN = ace_dprime_dplyr)
+  k = proc_by_condition(df,
+                        "trial_accuracy",
+                        Q_COL_CONDITION,
+                        include_overall = FALSE,
+                        FUN = ace_wm_prek_dplyr,
+                        transform_dir = "long") %>%
+    mutate(targets = as.integer(str_sub(!!Q_COL_CONDITION, start = 2L, end = 2L)),
+           k = k * targets) %>% 
+    select(-targets) %>% 
+    pivot_wider(names_from = !!Q_COL_CONDITION, values_from = k, names_prefix = "k.")
+    
+  merged = reduce(list(rt, rcs, dprime, k), left_join, by = COL_BID)
   if (COL_PRACTICE_COUNT %in% names(df)) {
     prac = proc_by_condition(df, COL_PRACTICE_COUNT, include_overall = FALSE, FUN = ace_practice_count)
     merged = left_join(merged, prac, by = COL_BID)

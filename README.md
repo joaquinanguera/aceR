@@ -40,7 +40,22 @@ The package, as of March 2020, has transitioned to the [CalVer](https://calver.o
 
 ### Brief release notes
 
-#### 21.4.0 (Current):
+#### 21.5.0 (Current):
+
+New features:
+
+- Now handles ACE Explorer modules: ADP (face switch) and Color Selection
+- Now outputs hit, miss, correct rejection, and false alarm counts for modules where d' is calculated (SAAT, TNT, Filter)
+
+Bug fixes:
+
+- Now throws an error when `load_ace_bulk()` is called with `data_type = "classroom"`, as this argument value has been deprecated since [v21.1.1](#21-1-1) in favor of the more specific options of `"email"` and `"pulvinar"`
+
+Minor implementation changes:
+
+- Filter now uses `proc_by_condition()` under the hood for d' and k, consistent with other modules that calculate d'
+
+#### 21.4.0:
 
 New features:
 

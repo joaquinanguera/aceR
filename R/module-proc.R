@@ -67,7 +67,7 @@ proc_by_module <- function(df,
   }
   
   # need this for proper specification of which demos and such to pull
-  is_ace = if_else(app_type != "sea", TRUE, FALSE)
+  is_ace = app_type != "sea"
   
   if (app_type == "classroom") {
     all_these_demos = ALL_POSSIBLE_DEMOS

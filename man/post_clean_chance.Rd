@@ -11,12 +11,13 @@ post_clean_chance(
   cutoff_dprime = 0,
   cutoff_2choice = 0.5,
   cutoff_4choice = 0.25,
+  cutoff_5choice = 0.2,
   extra_demos = NULL
 )
 }
 \arguments{
 \item{df}{a df, output by \code{\link{proc_by_module}}, containing processed
-ACE or SEA data.}
+ACE data.}
 
 \item{app_type}{character. What app type produced this data? One of
 \code{c("classroom", "explorer")}. Must be specified.}
@@ -24,13 +25,16 @@ ACE or SEA data.}
 \item{overall}{Also scrub ".overall" data? Defaults to \code{TRUE}.}
 
 \item{cutoff_dprime}{Minimum value of d' to allow, for relevant tasks
-(Tap and Trace, SAAT, Filter). Defaults to 0.}
+(ACE Tap and Trace, SAAT, Filter). Defaults to 0.}
 
 \item{cutoff_2choice}{Minimum value of accuracy to allow, for 2-response tasks
-(Flanker, Boxed). Defaults to 0.5.}
+(ACE Flanker, Boxed). Defaults to 0.5.}
 
 \item{cutoff_4choice}{Minimum value of accuracy to allow, for 4-response tasks
-(Stroop, Task Switch). Defaults to 0.25.}
+(ACE Stroop, Task Switch). Defaults to 0.25.}
+
+\item{cutoff_5choice}{Minimum value of accuracy to allow, for 5-response tasks
+(ACE Color Selection). Defaults to 0.25.}
 
 \item{extra_demos}{Character vector specifying any custom-added demographics
 columns (beyond app defaults) to pass through the function. Defaults to \{code{NULL}.}

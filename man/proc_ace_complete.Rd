@@ -14,7 +14,7 @@ proc_ace_complete(
   post_chance_level = "overall",
   post_metric_names = c("BRT.rt_mean.correct", "SAATIMPULSIVE.rt_mean.correct",
     "SAATSUSTAINED.rt_mean.correct", "TNT.rt_mean.correct", "object_count_span.overall",
-    "FILTER.k", "rcs.overall"),
+    "FILTER.k", "COLORSELECTION.max_delay_time.correct.strict", "rcs.overall"),
   post_metric_names_exclude = c("FILTER.rcs", "TNT.rt_mean.correct.")
 )
 }

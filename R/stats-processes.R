@@ -40,12 +40,41 @@ ace_spatial_span <- function(x, col) {
 #' @importFrom tidyselect any_of
 #' @keywords internal 
 
+ace_max_delay <- function(x, col) {
+  max_delay = summarize(x,
+                        across(any_of(col),
+                               list(max_delay_time = ace_max),
+                               .names = "{.fn}"))
+  return (max_delay)
+}
+
+#' @importFrom dplyr across summarize
+#' @importFrom tidyselect any_of
+#' @keywords internal 
+
 ace_dprime_dplyr <- function(x, col) {
   dprime_out = summarize(x,
                          across(any_of(col),
-                                list(dprime = ace_dprime),
-                                .names = "{.fn}"))
+                                list(dprime = ~ace_dprime(.),
+                                     count_hit = ~ace_count_if(., "Hit"),
+                                     count_miss = ~ace_count_if(., "Miss"),
+                                     count_cr = ~ace_count_if(., "Correct Rejection"),
+                                     count_fa = ~ace_count_if(., "False Alarm")),
+                                .names = "sdt_{.fn}"))
   return (dprime_out)
+}
+
+
+#' @importFrom dplyr across summarize
+#' @importFrom tidyselect any_of
+#' @keywords internal 
+
+ace_wm_prek_dplyr <- function(x, col) {
+  out = summarize(x,
+                  across(any_of(col),
+                         list(k = ace_wm_prek),
+                         .names = "{.fn}"))
+  return (out)
 }
 
 #' @importFrom dplyr across summarize

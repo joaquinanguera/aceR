@@ -4,11 +4,19 @@
 \alias{post_clean_low_trials}
 \title{Scrub processed data with too few trials}
 \usage{
-post_clean_low_trials(df, min_trials = 5, extra_demos = NULL)
+post_clean_low_trials(
+  df,
+  app_type = c("classroom", "explorer"),
+  min_trials = 5,
+  extra_demos = NULL
+)
 }
 \arguments{
 \item{df}{a df, output by \code{\link{proc_by_module}}, containing processed
 ACE or SEA data.}
+
+\item{app_type}{character. What app type produced this data? One of
+\code{c("classroom", "explorer")}. Must be specified.}
 
 \item{min_trials}{Minimum number of trials to require in most restrictive condition.
 Defaults to 5. This condition is checked against the \code{*_count} summary columns,
@@ -24,5 +32,5 @@ converted to \code{NA}.
 }
 \description{
 User-friendly wrapper to replace records with too many no-responses with \code{NA}
-in ACE/SEA data processed with \code{\link{proc_by_module}}.
+in ACE data processed with \code{\link{proc_by_module}}.
 }
