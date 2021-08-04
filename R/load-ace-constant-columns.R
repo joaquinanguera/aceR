@@ -546,7 +546,7 @@ standardize_ace_values <- function(df, app_type) {
                                  # so the commas within rgba specs won't split
                                  str_replace_all("\\)\\,", "\\)\\;")),
              colors_used = str_split(colors_used, ";")) %>%
-      mutate(correct_button_loose = if_else(map2_lgl(actual_answer,
+      mutate(correct_button_loose = if_else(map2_lgl(user_answer,
                                                      colors_used,
                                              ~.x %in% .y),
                                             "correct",
