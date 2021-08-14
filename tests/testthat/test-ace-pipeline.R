@@ -204,6 +204,8 @@ test_that("module proc: ACE tap and trace works", {
 proc_explorer_long = proc_by_module(raw_explorer, app_type = "explorer", output = "long", verbose = F)
 proc_explorer_wide = proc_by_module(raw_explorer, app_type = "explorer", output = "wide", verbose = F)
 
+proc_email_wide = proc_by_module(raw_email, app_type = "classroom", output = "wide", verbose = F)
+
 test_that("module proc: ACE Explorer data bulk processes properly", {
   # Data exists
   expect_gt(nrow(proc_explorer_long), 0)
@@ -232,6 +234,12 @@ test_that("module post-processing: reducing cols works", {
                           demo_names = c("age", "gender", "handedness"),
                           metric_names = c("rt_", "dprime", "object_count_span"),
                           metric_names_exclude = "length")
+  
+  # test that it works with emailed data
+  expect_error(post_reduce_cols(proc_email_wide,
+                                demo_names = c("pid", "age", "gender", "handedness"),
+                                metric_names = c("bid", "rt_", "dprime", "object_count_span")), 
+               regexp = NA)
   
   # test that works when metric_names_exclude is empty
   expect_error(post_reduce_cols(proc_explorer_long,
@@ -300,6 +308,11 @@ test_that("module post-processing: cleaning below-chance trials works", {
   
   expect_identical(is.na(test_flanker_long$acc_mean.overall.y), test_flanker_long$below_cutoff)
   expect_identical(is.na(test_flanker_wide$FLANKER.acc_mean.overall.y), test_flanker_wide$below_cutoff)
+  
+  # Just to test ACE Classroom not bonking
+  expect_error(post_clean_chance(proc_email_wide,
+                                 app_type = "classroom"),
+               regexp = NA)
 })
 
 test_that("module post-processing: cleaning below-chance trials handles extra demos", {
@@ -329,6 +342,12 @@ test_that("mega wrapper works", {
                                     data_type = "explorer",
                                     verbose = F),
                   "tbl_df")
+  expect_s3_class(proc_ace_complete(path_in = paste0(aceR_sample_data_path("email"), "/t3"),
+                                    path_out = NULL,
+                                    data_type = "email",
+                                    verbose = F),
+                  "tbl_df")
+  
   # With writing stuff out
   proc <- proc_ace_complete(path_in = aceR_sample_data_path("explorer"),
                             data_type = "explorer",

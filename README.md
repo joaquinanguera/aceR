@@ -40,7 +40,14 @@ The package, as of March 2020, has transitioned to the [CalVer](https://calver.o
 
 ### Brief release notes
 
-#### 21.5.0 (Current):
+#### 21.5.1 (Current):
+
+Bug fixes:
+
+- `post_clean_*()` now handle wide-processed ACE Classroom data properly (module-specific BID and time columns)
+- `proc_ace_complete()` incorporates these fixes, now handles ACE Classroom data properly as well
+
+#### 21.5.0:
 
 New features:
 

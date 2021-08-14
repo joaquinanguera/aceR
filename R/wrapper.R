@@ -67,8 +67,16 @@ proc_ace_complete <- function (path_in,
                                                              "TNT.rt_mean.correct.")) {
   if(data_type == "explorer") {
     app_type <- "explorer"
+    post_reduce_cols_demos <- c("pid",
+                                "age",
+                                "handedness",
+                                "bid")
   } else {
     app_type <- "classroom"
+    post_reduce_cols_demos <- c("pid",
+                                "age",
+                                "handedness")
+    post_metric_names <- c(post_metric_names, ".bid", ".time")
   }
   
   out <- load_ace_bulk(path_in, verbose = verbose, data_type = data_type)
@@ -107,10 +115,7 @@ proc_ace_complete <- function (path_in,
   }
   
   out %<>%
-    post_reduce_cols(demo_names = c("pid",
-                                    "age",
-                                    "handedness",
-                                    "bid"),
+    post_reduce_cols(demo_names = post_reduce_cols_demos,
                      metric_names = post_metric_names,
                      metric_names_exclude = post_metric_names_exclude)
   if (verbose) message(crayon::blue("Output columns trimmed down to key metrics"))
