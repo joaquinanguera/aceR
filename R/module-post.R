@@ -172,6 +172,8 @@ post_clean_chance <- function (df,
     wide <- TRUE
     check_extra_demos(df, wide, extra_demos, is_ace = is_ace)
     valid_demos <- get_valid_demos(df, is_ace = is_ace)
+    # because for ACE Classroom, the "safe" demos extend beyond the shared bindable demos
+    valid_demos_rejoin <- valid_demos
     filter_col <- sym("full")
     df <- proc_wide_to_long(df, extra_demos, is_ace = is_ace)
   } else {
@@ -182,6 +184,9 @@ post_clean_chance <- function (df,
   }
   
   valid_demos <- c(valid_demos, extra_demos)
+  
+  # so the unbindable non-shared ACE Classroom demos don't get coerced to logical in the "bad" data
+  if (app_type == "classroom") valid_demos <- c(valid_demos, get_ace_classroom_wide_bids(df))
   
   df %<>%
     left_join(metric_cols %>%
@@ -198,7 +203,7 @@ post_clean_chance <- function (df,
   # If "wide" form:
   if (wide) {
     df_scrubbed$proc %>%
-      reduce(dplyr::full_join, by = valid_demos) %>%
+      reduce(dplyr::full_join, by = valid_demos_rejoin) %>%
       select(valid_demos, everything()) %>%
       return()
   } else {
@@ -243,6 +248,7 @@ post_clean_low_trials <- function (df,
     wide <- TRUE
     check_extra_demos(df, wide, extra_demos, is_ace = is_ace)
     valid_demos <- get_valid_demos(df, is_ace = is_ace)
+    valid_demos_rejoin <- valid_demos
     df <- proc_wide_to_long(df, extra_demos, is_ace = is_ace)
   } else {
     wide <- FALSE
@@ -253,6 +259,8 @@ post_clean_low_trials <- function (df,
   }
   
   valid_demos <- c(valid_demos, extra_demos)
+  
+  if (app_type == "classroom") valid_demos <- c(valid_demos, get_ace_classroom_wide_bids(df))
   
   # The easiest way to do it will be to work inside a df that only contains one module's data
   # aka "long" form
@@ -283,7 +291,7 @@ post_clean_low_trials <- function (df,
   # If "wide" form:
   if (wide) {
     df_scrubbed$proc %>%
-      reduce(dplyr::full_join, by = valid_demos) %>%
+      reduce(dplyr::full_join, by = valid_demos_rejoin) %>%
       select(valid_demos, everything()) %>%
       return()
   } else {
@@ -395,4 +403,11 @@ get_valid_modules <- function (df, is_ace) {
   if (SAAT_SUS %in% modules | SAAT_IMP %in% modules) modules <- modules[modules != SAAT]
   
   return (modules)
+}
+
+#' @keywords internal
+
+get_ace_classroom_wide_bids <- function (df) {
+  valid_modules <- get_valid_modules(df, is_ace = TRUE)
+  return (c(paste0(valid_modules, ".bid"), paste0(valid_modules, ".time")))
 }
