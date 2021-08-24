@@ -40,7 +40,10 @@ The package, as of March 2020, has transitioned to the [CalVer](https://calver.o
 
 ### Brief release notes
 
-#### 21.5.1 (Current):
+#### 21.6.0 (Current):
+
+New features:
+- `trim_initial_trials()` allows discarding the first N trials or the first N% of trials from each participant's raw trialwise data loaded in with `load_*_bulk()`
 
 Bug fixes:
 

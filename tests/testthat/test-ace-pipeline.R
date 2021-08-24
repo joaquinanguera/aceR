@@ -87,6 +87,64 @@ test_that("trimming: nogo trials are untouched", {
   expect_equal(trimmed_range_ace_explorer$rt_nogo_pre, trimmed_range_ace_explorer$rt_nogo_post)
 })
 
+test_that("trimming: first ns behave", {
+  
+  for (i in 1:nrow(raw_email)) {
+    if (!(raw_email$module[i] %in% c(DEMOS, ISHIHARA, SPATIAL_SPAN, BACK_SPATIAL_SPAN))) {
+      expect_equal(raw_email$data[[i]] %>% 
+                     group_by(!!Q_COL_BID) %>% 
+                     mutate(trial_number_temp = 1:n()) %>% 
+                     filter(trial_number_temp > 10) %>% 
+                     nrow(),
+                   raw_email %>% 
+                     trim_initial_trials(n = 10, verbose = F) %>% 
+                     pull(data) %>% 
+                     pluck(raw_email$module[i]) %>% 
+                     nrow())
+      
+      expect_equal(raw_email$data[[i]] %>% 
+                     group_by(!!Q_COL_BID) %>% 
+                     mutate(trial_number_temp = 1:n()) %>% 
+                     filter(trial_number_temp > .1*max(trial_number_temp)) %>% 
+                     nrow(),
+                   raw_email %>% 
+                     trim_initial_trials(n = .1, verbose = F) %>% 
+                     pull(data) %>% 
+                     pluck(raw_email$module[i]) %>% 
+                     nrow())
+    }
+  }
+  
+  for (i in 1:nrow(raw_explorer)) {
+    if (!(raw_explorer$module[i] %in% c(DEMOS, ISHIHARA, SPATIAL_SPAN, BACK_SPATIAL_SPAN))) {
+      expect_equal(raw_explorer$data[[i]] %>% 
+                     group_by(!!Q_COL_BID) %>% 
+                     mutate(trial_number_temp = 1:n()) %>% 
+                     filter(trial_number_temp > 10) %>% 
+                     nrow(),
+                   raw_explorer %>% 
+                     trim_initial_trials(n = 10, verbose = F) %>% 
+                     pull(data) %>% 
+                     pluck(raw_explorer$module[i]) %>% 
+                     nrow())
+      
+      expect_equal(raw_explorer$data[[i]] %>% 
+                     group_by(!!Q_COL_BID) %>% 
+                     mutate(trial_number_temp = 1:n()) %>% 
+                     filter(trial_number_temp > .1*max(trial_number_temp)) %>% 
+                     nrow(),
+                   raw_explorer %>% 
+                     trim_initial_trials(n = .1, verbose = F) %>% 
+                     pull(data) %>% 
+                     pluck(raw_explorer$module[i]) %>% 
+                     nrow())
+    }
+  }
+
+  # expect error if n > 1 and not integer
+  expect_error(trim_initial_trials(raw_email, n = 1.1))
+})
+
 test_that("nesting: unnesting is long", {
   expect_false("list" %in% (raw_email %>%
                               unnest_ace_raw(app_type = "classroom") %>%
