@@ -32,7 +32,8 @@ Defaults to \code{FALSE}.}
 
 \item{exclude}{character vector. Specify the names of modules (proper naming convention!)
 that should be \emph{ignored}. Defaults to \code{c()}, where all modules are subject to
-range scrubbing.}
+range scrubbing. Note that this function always excludes spatial span tasks, as those are 
+much shorter than other modules.}
 
 \item{verbose}{logical. Print details? Defaults to \code{TRUE}.}
 }
