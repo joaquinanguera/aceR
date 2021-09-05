@@ -16,10 +16,10 @@ This includes data loaded with the following methods:
 }}
 
 \item{n}{numeric. How many trials to remove from each participant's data? Defaults to 5.
-When set as an \emph{integer}, removes the first N trials from each record. When set as a \emph{decimal}
-betwen 0 and 1, removes the first (N*100) percent of trials from each record (more trials 
-removed from longer tasks). This is completely chronological, so it will not remove the first 
-N trials from each condition, only from the condition occurring first in the task.}
+When set as an \emph{integer}, removes the first N trials from each condition.
+When set as a \emph{decimal} between 0 and 1, removes the first (N*100) percent of trials 
+from each condition (more trials removed from longer tasks). Either way, this function
+will remove the first N trials from each \emph{condition} completed by each participant.}
 
 \item{exclude}{character vector. Specify the names of modules (proper naming convention!)
 that should be \emph{ignored}. Defaults to an empty character vector, so that all modules

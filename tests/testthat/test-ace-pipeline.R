@@ -93,8 +93,7 @@ test_that("trimming: first ns behave", {
     if (!(raw_email$module[i] %in% c(DEMOS, ISHIHARA, SPATIAL_SPAN, BACK_SPATIAL_SPAN))) {
       expect_equal(raw_email$data[[i]] %>% 
                      group_by(!!Q_COL_BID) %>% 
-                     mutate(trial_number_temp = 1:n()) %>% 
-                     filter(trial_number_temp > 10) %>% 
+                     filter(trial_number >= 10) %>% 
                      nrow(),
                    raw_email %>% 
                      trim_initial_trials(n = 10, verbose = F) %>% 
@@ -104,8 +103,7 @@ test_that("trimming: first ns behave", {
       
       expect_equal(raw_email$data[[i]] %>% 
                      group_by(!!Q_COL_BID) %>% 
-                     mutate(trial_number_temp = 1:n()) %>% 
-                     filter(trial_number_temp > .1*max(trial_number_temp)) %>% 
+                     filter(trial_number > .1*max(trial_number)) %>% 
                      nrow(),
                    raw_email %>% 
                      trim_initial_trials(n = .1, verbose = F) %>% 
@@ -116,11 +114,34 @@ test_that("trimming: first ns behave", {
   }
   
   for (i in 1:nrow(raw_explorer)) {
-    if (!(raw_explorer$module[i] %in% c(DEMOS, ISHIHARA, SPATIAL_SPAN, BACK_SPATIAL_SPAN))) {
+    if (raw_explorer$module[i] == ADP) {
+      expect_equal(raw_explorer$data[[i]] %>% 
+                     arrange(!!Q_COL_BID, trial_number) %>% 
+                     group_by(!!Q_COL_BID, expression) %>% 
+                     mutate(trial_number_temp = 0:(n()-1)) %>% 
+                     filter(trial_number_temp >= 10) %>% 
+                     nrow(),
+                   raw_explorer %>% 
+                     trim_initial_trials(n = 10, verbose = F) %>% 
+                     pull(data) %>% 
+                     pluck(raw_explorer$module[i]) %>% 
+                     nrow())
+      
+      expect_equal(raw_explorer$data[[i]] %>% 
+                     arrange(!!Q_COL_BID, trial_number) %>% 
+                     group_by(!!Q_COL_BID, expression) %>% 
+                     mutate(trial_number_temp = 0:(n()-1)) %>% 
+                     filter(trial_number_temp > .1*max(trial_number_temp)) %>% 
+                     nrow(),
+                   raw_explorer %>% 
+                     trim_initial_trials(n = .1, verbose = F) %>% 
+                     pull(data) %>% 
+                     pluck(raw_explorer$module[i]) %>% 
+                     nrow())
+    } else if (!(raw_explorer$module[i] %in% c(DEMOS, ISHIHARA, SPATIAL_SPAN, BACK_SPATIAL_SPAN))) {
       expect_equal(raw_explorer$data[[i]] %>% 
                      group_by(!!Q_COL_BID) %>% 
-                     mutate(trial_number_temp = 1:n()) %>% 
-                     filter(trial_number_temp > 10) %>% 
+                     filter(trial_number >= 10) %>% 
                      nrow(),
                    raw_explorer %>% 
                      trim_initial_trials(n = 10, verbose = F) %>% 
@@ -130,8 +151,7 @@ test_that("trimming: first ns behave", {
       
       expect_equal(raw_explorer$data[[i]] %>% 
                      group_by(!!Q_COL_BID) %>% 
-                     mutate(trial_number_temp = 1:n()) %>% 
-                     filter(trial_number_temp > .1*max(trial_number_temp)) %>% 
+                     filter(trial_number > .1*max(trial_number)) %>% 
                      nrow(),
                    raw_explorer %>% 
                      trim_initial_trials(n = .1, verbose = F) %>% 

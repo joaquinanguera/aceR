@@ -193,10 +193,10 @@ trim_rt_trials_sd <- function(df, cutoff = 3,
 #' }
 #' 
 #' @param n numeric. How many trials to remove from each participant's data? Defaults to 5.
-#' When set as an \emph{integer}, removes the first N trials from each record. When set as a \emph{decimal}
-#' betwen 0 and 1, removes the first (N*100) percent of trials from each record (more trials 
-#' removed from longer tasks). This is completely chronological, so it will not remove the first 
-#' N trials from each condition, only from the condition occurring first in the task.
+#' When set as an \emph{integer}, removes the first N trials from each condition.
+#' When set as a \emph{decimal} between 0 and 1, removes the first (N*100) percent of trials 
+#' from each condition (more trials removed from longer tasks). Either way, this function
+#' will remove the first N trials from each \emph{condition} completed by each participant.
 #' @param exclude character vector. Specify the names of modules (proper naming convention!)
 #' that should be \emph{ignored}. Defaults to an empty character vector, so that all modules
 #' are scrubbed. Note that this function always excludes spatial span tasks, as those are
@@ -222,17 +222,27 @@ trim_initial_trials <- function(df, n = 5,
     
     if (!(df$module[i] %in% c(DEMOS, ISHIHARA, SPATIAL_SPAN, BACK_SPATIAL_SPAN, exclude))) {
       
-      df$data[[i]] <- df$data[[i]] %>%
-        group_by(!!Q_COL_BID) %>% 
-        # Need temp column because trial_number restarts between condition within participant
-        mutate(trial_number_temp = 1:n())
+      if (df$module[i] == ADP) {
+        # ADP appears to be the only module where trial_number doesn't restart with condition
+        # and is out of order in the raw data
+        df$data[[i]] <- df$data[[i]] %>%
+          arrange(!!Q_COL_BID, trial_number) %>% 
+          group_by(!!Q_COL_BID, expression) %>% 
+          # so it counts from 0 like trial_number
+          mutate(trial_number_temp = 0:(n()-1))
+      } else {
+        df$data[[i]] <- df$data[[i]] %>%
+          group_by(!!Q_COL_BID) %>% 
+          # Use included trial_number col because it restarts per condition, what we want
+          mutate(trial_number_temp = trial_number)
+      }
       
       if (n < 1) {
         df$data[[i]] <- df$data[[i]] %>%
           filter(trial_number_temp > n * max(trial_number_temp))
       } else {
         df$data[[i]] <- df$data[[i]] %>%
-          filter(trial_number_temp > n)
+          filter(trial_number_temp >= n)
       }
       
       df$data[[i]] <- df$data[[i]] %>%
