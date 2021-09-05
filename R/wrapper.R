@@ -28,7 +28,8 @@
 #' @param post_min_trials Minimum number of trials to require in most restrictive condition.
 #' Defaults to 5. This condition is checked against the \code{*_count} summary columns,
 #' that count all trials with a valid response time (and all no-go trials, if a response
-#' was not expected.) Passed through to \code{\link{post_clean_low_trials}}.
+#' was not expected.) Passed through to \code{\link{post_clean_low_trials}}. Set this argument
+#' to \code{NA} to leave all trials in and skip this step.
 #' @param post_chance_level character. How strictly to retain records containing
 #' above-threshold performance? One of:
 #' \itemize{
@@ -92,9 +93,11 @@ proc_ace_complete <- function (path_in,
                    verbose = verbose)
   if (verbose) message(crayon::blue("Summary metrics processed in wide format"))
   
-  out %<>%
-    post_clean_low_trials(min_trials = post_min_trials, app_type = app_type)
-  if (verbose) message(crayon::blue("Records with <", post_min_trials, " trials NA'd out"))
+  if (!is.na(post_min_trials)) {
+    out %<>%
+      post_clean_low_trials(min_trials = post_min_trials, app_type = app_type)
+    if (verbose) message(crayon::blue("Records with <", post_min_trials, " trials NA'd out"))
+  }
   
   if (post_chance_level != "none") {
     if (post_chance_level == "overall") {
