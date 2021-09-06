@@ -5,7 +5,7 @@
 \title{Currently only produces a set of relational statements
 such as those that might be !!!-spliced into a filter call.}
 \usage{
-map_call2_rel(.fn, a, b, .ns = NULL)
+map_call2_rel(.fn, a, b, include_nas = FALSE)
 }
 \description{
 Currently only produces a set of relational statements

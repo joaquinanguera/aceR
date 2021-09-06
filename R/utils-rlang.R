@@ -5,9 +5,17 @@
 #' @importFrom purrr map
 #' @keywords internal
 
-map_call2_rel <- function (.fn, a, b, .ns = NULL) {
+map_call2_rel <- function (.fn, a, b, include_nas = FALSE) {
   stopifnot(length(b) == 1)
-  out <- map(a, ~call2(.fn, expr(!!sym(.x)), b))
+  if (include_nas) {
+    out <- map(a, ~call2("|",
+                         call2(.fn, expr(!!sym(.x)), b),
+                         expr(is.na(!!sym(.x)))
+                         )
+               )
+  } else {
+    out <- map(a, ~call2(.fn, expr(!!sym(.x)), b))
+  }
   return (out)
 }
 
