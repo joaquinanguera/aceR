@@ -45,7 +45,8 @@ Passed through to \code{\link{trim_rt_trials_range}}.}
 \item{post_min_trials}{Minimum number of trials to require in most restrictive condition.
 Defaults to 5. This condition is checked against the \code{*_count} summary columns,
 that count all trials with a valid response time (and all no-go trials, if a response
-was not expected.) Passed through to \code{\link{post_clean_low_trials}}.}
+was not expected.) Passed through to \code{\link{post_clean_low_trials}}. Set this argument
+to \code{NA} to leave all trials in and skip this step.}
 
 \item{post_chance_level}{character. How strictly to retain records containing
 above-threshold performance? One of:

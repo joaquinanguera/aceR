@@ -43,10 +43,17 @@ The package, as of March 2020, has transitioned to the [CalVer](https://calver.o
 #### 21.6.0 (Current):
 
 New features:
+
 - `trim_initial_trials()` allows discarding the first N trials or the first N% of trials from each participant's raw trialwise data loaded in with `load_*_bulk()`
+- `proc_by_module()` now returns attention span measures (time between mistakes) for ACE Explorer SAAT data
+
+Minor implementation changes:
+
+- `post_clean_low_trials()` now passes through data from subjects with `NA` in any of their relevant trial count columns. Notable for ACE Explorer BRT data, where some versions of data do not have thumb-press conditions, but data remain valid as the participant could not have possibly responded to those trials.
 
 Bug fixes:
 
+- Bug likely introduced in v21.2.0: `load_ace_bulk()` was not correctly applying post-hoc just-in-case cleaning of trial accuracy and RT columns to SAAT data since it was split into submodules for `SAATSUSTAINED` and `SAATIMPULSIVE`
 - `post_clean_*()` now handle wide-processed ACE Classroom data properly (module-specific BID and time columns)
 - `proc_ace_complete()` incorporates these fixes, now handles ACE Classroom data properly as well
 

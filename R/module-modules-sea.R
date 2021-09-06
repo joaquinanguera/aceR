@@ -1,10 +1,10 @@
 
 #' @keywords internal
 #' @name sea_procs
-#' @importFrom magrittr %>%
+#' @importFrom magrittr %>% %<>%
 #' @importFrom dplyr filter
 
-attempt_module <- function(df, module, verbose) {
+attempt_module <- function(df, module, app_type, verbose) {
   if (module %in% c(SAAT_SUS, SAAT_IMP)) {
     module_function <- SAAT
   } else {
@@ -18,7 +18,14 @@ attempt_module <- function(df, module, verbose) {
       }
   }
   out <- tryCatch({
-    df <- do.call(paste0("module_", tolower(module_function)), list(df = df)) %>%
+    
+    if (module_function == SAAT) {
+      df <- do.call(paste0("module_", tolower(module_function)), list(df = df, app_type = app_type)) 
+    } else {
+      df <- do.call(paste0("module_", tolower(module_function)), list(df = df)) 
+    }
+    
+    df %<>%
       tibble::as_tibble() %>%
       clean_proc_cols()
     if (verbose) cat(crayon::green("Processed", module), sep = "\n")

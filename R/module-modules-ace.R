@@ -145,14 +145,16 @@ module_flanker <- function(df) {
   return (left_join(gen, rcs, by = COL_BID) %>% dplyr::bind_cols(cost))
 }
 
-#' @importFrom dplyr left_join mutate na_if rename_with
+#' @import dplyr
 #' @importFrom magrittr %>%
 #' @importFrom rlang := !!
 #' @importFrom tidyselect any_of
 #' @keywords internal
 #' @name ace_procs
 
-module_saat <- function(df) {
+module_saat <- function(df, app_type) {
+  stopifnot(app_type %in% c("classroom", "explorer")) # Failsafe
+  
   # df = replace_empty_values(df, COL_CONDITION, "saattype")
   df = mutate(df,
               # !!COL_CONDITION := tolower(!!Q_COL_CONDITION),
@@ -161,15 +163,41 @@ module_saat <- function(df) {
               !!COL_RT := na_if(!!Q_COL_RT, 0))
   
   gen = proc_generic_module(df, col_condition = NULL)
-  # doing this will output true hit and FA rates (accuracy by target/non-target condition) for calculating SDT metrics in later code
-  # TODO: fix functions in math-detection.R to calculate SDT metrics inline. this is a bandaid
   sdt = proc_by_condition(df, "trial_accuracy", FUN = ace_dprime_dplyr)
+  
   # Remove duplicate d' column created by condition-wise processing if it's a single SAAT submodule
   if (length(unique(df[[COL_CONDITION]])) == 1) {
     sdt <- sdt %>% 
       select(-!c(!!COL_BID, ends_with("overall")))
   }
-  return (left_join(gen, sdt, by = COL_BID))
+  
+  # Calc this attention span metric thing
+  if (app_type == "explorer") {
+    attention <- df %>% 
+      group_by(!!Q_COL_BID) %>% 
+      # The meat and bones of the attention span logic are here
+      mutate(mistake = as.integer(trial_accuracy %in% c("Miss", "False Alarm") | 
+                                    is.na(!!Q_COL_RT) | 
+                                    (!!Q_COL_RT != -99 & (!!Q_COL_RT - ace_mean(!!Q_COL_RT)) / ace_sd(!!Q_COL_RT) > 1)),
+             cum_mistake = cumsum(mistake)) %>%
+      group_by(bid, cum_mistake) %>%
+      summarize(trial_start = min(trial_number),
+                trial_end = max(trial_number),
+                rt_end = rt[trial_number == max(trial_number)],
+                rw_end = rw[trial_number == max(trial_number)]) %>%
+      mutate(rt_end = if_else(rt_end == -99, rw_end, rt_end),
+             duration = 2200 * (trial_end - trial_start - 1) + rt_end) %>%
+      group_by(!!Q_COL_BID) %>%
+      summarize(attention_span_max.overall = max(duration),
+                attention_span_mean.overall = mean(duration))
+    
+    out <- left_join(gen, sdt, by = COL_BID) %>% 
+      left_join(attention, by = COL_BID)
+  } else {
+    out <- left_join(gen, sdt, by = COL_BID)
+  }
+  
+  return (out)
 }
 
 #' @keywords internal
