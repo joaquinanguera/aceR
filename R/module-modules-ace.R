@@ -17,23 +17,41 @@ module_adp <- function(df) {
   return (bind_cols(gen, happy_cost, sad_cost, nonneutral_cost))
 }
 
+#' @import dplyr
 #' @importFrom magrittr %>%
 #' @importFrom rlang !!
 #' @keywords internal
 #' @name ace_procs
 
 module_boxed <- function(df) {
+  conditions = df %>% 
+    distinct(!!Q_COL_BID, !!Q_COL_CONDITION) %>% 
+    count(!!Q_COL_BID) %>% 
+    rename(n_conditions = n)
+  
   gen = proc_generic_module(df)
   gen$score = (((gen$rt_mean.conjunction_12 - gen$rt_mean.conjunction_4) / gen$rt_mean.conjunction_4) * 100) + 100
   rcs = proc_by_condition(df, c(COL_CORRECT_BUTTON, COL_RT), Q_COL_CONDITION, FUN = ace_rcs)
-  gen = dplyr::left_join(gen, rcs, by = COL_BID)
+  gen = left_join(gen, rcs, by = COL_BID)
   proc_cost_median = multi_fun(gen, "\\.conjunction_4", "\\.conjunction_12", "\\.proc_cost_median", ace_median) - multi_fun(gen, "\\.feature_4", "\\.feature_12", "\\.proc_cost_median", ace_median)
   proc_cost_mean = multi_fun(gen, "\\.conjunction_4", "\\.conjunction_12", "\\.proc_cost_mean", ace_mean) - multi_fun(gen, "\\.feature_4", "\\.feature_12", "\\.proc_cost_mean", ace_mean)
   dist_cost_median = multi_fun(gen, "\\.conjunction_4", "\\.feature_4", "\\.dist_cost_median", ace_median) - multi_fun(gen, "\\.conjunction_12", "\\.feature_12", "\\.dist_cost_median", ace_median)
   dist_cost_mean = multi_fun(gen, "\\.conjunction_4", "\\.feature_4", "\\.dist_cost_mean", ace_mean) - multi_fun(gen, "\\.conjunction_12", "\\.feature_12", "\\.dist_cost_mean", ace_mean)
   conj_cost = multi_subtract(gen, "\\.conjunction_12", "\\.conjunction_4", "\\.conj_cost")
   feat_cost = multi_subtract(gen, "\\.feature_12", "\\.feature_4", "\\.feat_cost")
-  return (dplyr::bind_cols(gen, proc_cost_median, proc_cost_mean, dist_cost_median, dist_cost_mean, conj_cost, feat_cost))
+  
+  out = bind_cols(gen,
+                  proc_cost_median,
+                  proc_cost_mean,
+                  dist_cost_median,
+                  dist_cost_mean,
+                  conj_cost,
+                  feat_cost) %>% 
+    left_join(conditions, by = COL_BID) %>% 
+    mutate(across(contains("overall"), ~na_if_true(.x, n_conditions < 4))) %>% 
+    select(-n_conditions)
+  
+  return (out)
 }
 
 #' @importFrom magrittr %>%
@@ -239,6 +257,7 @@ module_taskswitch <- function(df) {
   return (left_join(gen, rcs, by = COL_BID) %>% dplyr::bind_cols(cost))
 }
 
+#' @import dplyr
 #' @importFrom magrittr %>%
 #' @keywords internal
 #' @name ace_procs
@@ -246,9 +265,19 @@ module_taskswitch <- function(df) {
 module_tnt <- function(df) {
   df$condition = dplyr::recode(df$condition, `tap & trace` = "tap_trace", `tap only` = "tap_only")
   gen = proc_generic_module(df)
+  
+  conditions = df %>% 
+    distinct(!!Q_COL_BID, !!Q_COL_CONDITION) %>% 
+    count(!!Q_COL_BID) %>% 
+    rename(n_conditions = n)
+  
   cost = multi_subtract(gen, "\\.tap_trace", "\\.tap_only", "\\.cost")
   sdt = proc_by_condition(df, "trial_accuracy", Q_COL_CONDITION, FUN = ace_dprime_dplyr)
-  out <- left_join(dplyr::bind_cols(gen, cost), sdt, by = COL_BID)
+  out <- bind_cols(gen, cost) %>% 
+    left_join(sdt, by = COL_BID) %>% 
+    left_join(conditions, by = COL_BID) %>% 
+    mutate(across(contains("overall"), ~na_if_true(.x, n_conditions < 4))) %>% 
+    select(-n_conditions)
   return (out)
 }
 

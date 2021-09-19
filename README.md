@@ -50,6 +50,7 @@ New features:
 Minor implementation changes:
 
 - `post_clean_low_trials()` now passes through data from subjects with `NA` in any of their relevant trial count columns. Notable for ACE Explorer BRT data, where some versions of data do not have thumb-press conditions, but data remain valid as the participant could not have possibly responded to those trials.
+- `proc_by_module()` now returns `NA` in all overall metric columns for Boxed and TNT task data from subjects who failed to complete every condition (on the basis that they did not actually complete the full task)
 
 Bug fixes:
 
