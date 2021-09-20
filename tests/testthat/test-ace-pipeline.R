@@ -90,7 +90,40 @@ test_that("trimming: nogo trials are untouched", {
 test_that("trimming: first ns behave", {
   
   for (i in 1:nrow(raw_email)) {
-    if (!(raw_email$module[i] %in% c(DEMOS, ISHIHARA, SPATIAL_SPAN, BACK_SPATIAL_SPAN))) {
+    if (raw_email$module[i] %in% c(FLANKER, STROOP, TASK_SWITCH)) {
+      # these are modules where condition isn't blocked
+      # thus trial_number doesn't restart with condition
+      # and incidentally is stored in another column name
+      # make dummy trial number col that is condition-specific
+      if (raw_email$module[i] == TASK_SWITCH) {
+        cond_col = sym("taskswitch_state")
+      } else {
+        cond_col = Q_COL_TRIAL_TYPE
+      }
+      expect_equal(raw_email$data[[i]] %>% 
+                     arrange(!!Q_COL_BID, trial_number) %>% 
+                     group_by(!!Q_COL_BID, !!cond_col) %>% 
+                     mutate(trial_number_temp = 0:(n()-1)) %>% 
+                     filter(trial_number_temp >= 10) %>% 
+                     nrow(),
+                   raw_email %>% 
+                     trim_initial_trials(n = 10, verbose = F) %>% 
+                     pull(data) %>% 
+                     pluck(raw_email$module[i]) %>% 
+                     nrow())
+      
+      expect_equal(raw_email$data[[i]] %>% 
+                     arrange(!!Q_COL_BID, trial_number) %>% 
+                     group_by(!!Q_COL_BID, !!cond_col) %>% 
+                     mutate(trial_number_temp = 0:(n()-1)) %>% 
+                     filter(trial_number_temp > .1*max(trial_number_temp)) %>% 
+                     nrow(),
+                   raw_email %>% 
+                     trim_initial_trials(n = .1, verbose = F) %>% 
+                     pull(data) %>% 
+                     pluck(raw_email$module[i]) %>% 
+                     nrow())
+    } else if (!(raw_email$module[i] %in% c(DEMOS, ISHIHARA, SPATIAL_SPAN, BACK_SPATIAL_SPAN))) {
       expect_equal(raw_email$data[[i]] %>% 
                      group_by(!!Q_COL_BID) %>% 
                      filter(trial_number >= 10) %>% 
@@ -114,10 +147,21 @@ test_that("trimming: first ns behave", {
   }
   
   for (i in 1:nrow(raw_explorer)) {
-    if (raw_explorer$module[i] == ADP) {
+    if (raw_explorer$module[i] %in% c(ADP, FLANKER, STROOP, SPATIAL_CUE, TASK_SWITCH)) {
+      # these are modules where condition isn't blocked
+      # thus trial_number doesn't restart with condition
+      # and incidentally is stored in another column name
+      # make dummy trial number col that is condition-specific
+      if (raw_explorer$module[i] == TASK_SWITCH) {
+        cond_col = sym("taskswitch_state")
+      } else if (raw_explorer$module[i] == ADP) {
+        cond_col = sym("expression")
+      } else {
+        cond_col = Q_COL_TRIAL_TYPE
+      }
       expect_equal(raw_explorer$data[[i]] %>% 
                      arrange(!!Q_COL_BID, trial_number) %>% 
-                     group_by(!!Q_COL_BID, expression) %>% 
+                     group_by(!!Q_COL_BID, !!cond_col) %>% 
                      mutate(trial_number_temp = 0:(n()-1)) %>% 
                      filter(trial_number_temp >= 10) %>% 
                      nrow(),
@@ -129,7 +173,7 @@ test_that("trimming: first ns behave", {
       
       expect_equal(raw_explorer$data[[i]] %>% 
                      arrange(!!Q_COL_BID, trial_number) %>% 
-                     group_by(!!Q_COL_BID, expression) %>% 
+                     group_by(!!Q_COL_BID, !!cond_col) %>% 
                      mutate(trial_number_temp = 0:(n()-1)) %>% 
                      filter(trial_number_temp > .1*max(trial_number_temp)) %>% 
                      nrow(),

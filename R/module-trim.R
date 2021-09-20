@@ -183,7 +183,7 @@ trim_rt_trials_sd <- function(df, cutoff = 3,
 #'
 #' @export
 #' @import dplyr
-#' @importFrom rlang !!
+#' @importFrom rlang !! sym
 #' @param df a \code{\link{data.frame}} containing formatted trialwise ACE data. 
 #'
 #' This includes data loaded with the following methods: 
@@ -222,12 +222,21 @@ trim_initial_trials <- function(df, n = 5,
     
     if (!(df$module[i] %in% c(DEMOS, ISHIHARA, SPATIAL_SPAN, BACK_SPATIAL_SPAN, exclude))) {
       
-      if (df$module[i] == ADP) {
-        # ADP appears to be the only module where trial_number doesn't restart with condition
-        # and is out of order in the raw data
+      if (df$module[i] %in% c(ADP, FLANKER, STROOP, SPATIAL_CUE, TASK_SWITCH)) {
+        # these are modules where condition isn't blocked
+        # thus trial_number doesn't restart with condition
+        # and incidentally is stored in another column name
+        # make dummy trial number col that is condition-specific
+        if (df$module[i] == TASK_SWITCH) {
+          cond_col = sym("taskswitch_state")
+        } else if (df$module[i] == ADP) {
+          cond_col = sym("expression")
+        } else {
+          cond_col = Q_COL_TRIAL_TYPE
+        }
         df$data[[i]] <- df$data[[i]] %>%
           arrange(!!Q_COL_BID, trial_number) %>% 
-          group_by(!!Q_COL_BID, expression) %>% 
+          group_by(!!Q_COL_BID, !!cond_col) %>% 
           # so it counts from 0 like trial_number
           mutate(trial_number_temp = 0:(n()-1))
       } else {
