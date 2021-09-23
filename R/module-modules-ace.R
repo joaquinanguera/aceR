@@ -276,7 +276,7 @@ module_tnt <- function(df) {
   out <- bind_cols(gen, cost) %>% 
     left_join(sdt, by = COL_BID) %>% 
     left_join(conditions, by = COL_BID) %>% 
-    mutate(across(contains("overall"), ~na_if_true(.x, n_conditions < 4))) %>% 
+    mutate(across(contains("overall"), ~na_if_true(.x, n_conditions < 2))) %>% 
     select(-n_conditions)
   return (out)
 }
