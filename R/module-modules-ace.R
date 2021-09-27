@@ -194,7 +194,7 @@ module_saat <- function(df, app_type) {
     attention <- df %>% 
       group_by(!!Q_COL_BID) %>% 
       # The meat and bones of the attention span logic are here
-      mutate(!!Q_COL_RW = !!Q_COL_RW+100,
+      mutate(!!Q_COL_RW := !!Q_COL_RW+100,
         mistake = as.integer(trial_accuracy %in% c("Miss", "False Alarm") | 
                                     is.na(!!Q_COL_RT) | 
                                     (!!Q_COL_RT != -99 & (!!Q_COL_RT - ace_mean(!!Q_COL_RT)) / ace_sd(!!Q_COL_RT) > 1)),
