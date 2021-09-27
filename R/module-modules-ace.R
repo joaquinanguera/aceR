@@ -194,7 +194,8 @@ module_saat <- function(df, app_type) {
     attention <- df %>% 
       group_by(!!Q_COL_BID) %>% 
       # The meat and bones of the attention span logic are here
-      mutate(mistake = as.integer(trial_accuracy %in% c("Miss", "False Alarm") | 
+      mutate(!!Q_COL_RW = !!Q_COL_RW+100,
+        mistake = as.integer(trial_accuracy %in% c("Miss", "False Alarm") | 
                                     is.na(!!Q_COL_RT) | 
                                     (!!Q_COL_RT != -99 & (!!Q_COL_RT - ace_mean(!!Q_COL_RT)) / ace_sd(!!Q_COL_RT) > 1)),
              cum_mistake = cumsum(mistake)) %>%
@@ -205,6 +206,7 @@ module_saat <- function(df, app_type) {
                 rw_end = rw[trial_number == max(trial_number)]) %>%
       mutate(rt_end = if_else(rt_end == -99, rw_end, rt_end),
              duration = 2200 * (trial_end - trial_start - 1) + rt_end) %>%
+    filter(duration>2200)%>%
       group_by(!!Q_COL_BID) %>%
       summarize(attention_span_max.overall = max(duration),
                 attention_span_mean.overall = mean(duration))
