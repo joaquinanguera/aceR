@@ -205,7 +205,7 @@ module_saat <- function(df, app_type) {
                 rt_end = rt[trial_number == max(trial_number)],
                 rw_end = rw[trial_number == max(trial_number)]) %>%
       mutate(rt_end = if_else(rt_end == -99, rw_end, rt_end),
-             duration = 2200 * (trial_end - trial_start - 1) + rt_end) %>%
+             duration = 2200 * (trial_end - trial_start) + rt_end) %>%
     filter(duration>2200)%>%
       group_by(!!Q_COL_BID) %>%
       summarize(attention_span_max.overall = max(duration),
