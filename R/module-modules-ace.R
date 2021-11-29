@@ -198,7 +198,7 @@ module_saat <- function(df, app_type) {
         mistake = as.integer(trial_accuracy %in% c("Miss", "False Alarm") | 
                                     is.na(!!Q_COL_RT) | 
                                     (!!Q_COL_RT != -99 & (!!Q_COL_RT - ace_mean(!!Q_COL_RT)) / ace_sd(!!Q_COL_RT) > 1)),
-             cum_mistake = cumsum(mistake)) %>%
+             cum_mistake = cumsum(lag(mistake, default = 0)))%>%
       group_by(bid, cum_mistake) %>%
       summarize(trial_start = min(trial_number),
                 trial_end = max(trial_number),
