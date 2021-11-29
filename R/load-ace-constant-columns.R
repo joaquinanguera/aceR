@@ -388,7 +388,7 @@ standardize_ace_values <- function(df, app_type) {
   # Forcible recoding of accuracy and other things for various modules below
   # Most of this is an attempt to reconstruct accuracy as orthogonal to response lateness
   
-  if (SAAT %in% df$module) {
+  if (all(startsWith(df$module, SAAT))) {
     if (app_type %in% c("email", "pulvinar")) {
       # This fixes a condition naming error in the raw log files
       # present in classroom but fixed in explorer data

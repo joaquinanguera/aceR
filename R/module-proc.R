@@ -123,7 +123,7 @@ proc_by_module <- function(df,
            # remove any demo cols that appear to contain no info
            demos = map(demos, ~remove_empty_cols(.x)),
            proc = pmap(list(data, module, verbose), function(a, b, c) {
-             attempt_module(a, b, verbose = c)
+             attempt_module(a, b, app_type = app_type, verbose = c)
            })) %>%
     # removing any modules that failed to process to allow the remaining ones to bind properly
     filter(map_int(proc, ~nrow(.)) > 0)

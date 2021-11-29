@@ -87,6 +87,128 @@ test_that("trimming: nogo trials are untouched", {
   expect_equal(trimmed_range_ace_explorer$rt_nogo_pre, trimmed_range_ace_explorer$rt_nogo_post)
 })
 
+test_that("trimming: first ns behave", {
+  
+  for (i in 1:nrow(raw_email)) {
+    if (raw_email$module[i] %in% c(FLANKER, STROOP, TASK_SWITCH)) {
+      # these are modules where condition isn't blocked
+      # thus trial_number doesn't restart with condition
+      # and incidentally is stored in another column name
+      # make dummy trial number col that is condition-specific
+      if (raw_email$module[i] == TASK_SWITCH) {
+        cond_col = sym("taskswitch_state")
+      } else {
+        cond_col = Q_COL_TRIAL_TYPE
+      }
+      expect_equal(raw_email$data[[i]] %>% 
+                     arrange(!!Q_COL_BID, trial_number) %>% 
+                     group_by(!!Q_COL_BID, !!cond_col) %>% 
+                     mutate(trial_number_temp = 0:(n()-1)) %>% 
+                     filter(trial_number_temp >= 10) %>% 
+                     nrow(),
+                   raw_email %>% 
+                     trim_initial_trials(n = 10, verbose = F) %>% 
+                     pull(data) %>% 
+                     pluck(raw_email$module[i]) %>% 
+                     nrow())
+      
+      expect_equal(raw_email$data[[i]] %>% 
+                     arrange(!!Q_COL_BID, trial_number) %>% 
+                     group_by(!!Q_COL_BID, !!cond_col) %>% 
+                     mutate(trial_number_temp = 0:(n()-1)) %>% 
+                     filter(trial_number_temp > .1*max(trial_number_temp)) %>% 
+                     nrow(),
+                   raw_email %>% 
+                     trim_initial_trials(n = .1, verbose = F) %>% 
+                     pull(data) %>% 
+                     pluck(raw_email$module[i]) %>% 
+                     nrow())
+    } else if (!(raw_email$module[i] %in% c(DEMOS, ISHIHARA, SPATIAL_SPAN, BACK_SPATIAL_SPAN))) {
+      expect_equal(raw_email$data[[i]] %>% 
+                     group_by(!!Q_COL_BID) %>% 
+                     filter(trial_number >= 10) %>% 
+                     nrow(),
+                   raw_email %>% 
+                     trim_initial_trials(n = 10, verbose = F) %>% 
+                     pull(data) %>% 
+                     pluck(raw_email$module[i]) %>% 
+                     nrow())
+      
+      expect_equal(raw_email$data[[i]] %>% 
+                     group_by(!!Q_COL_BID) %>% 
+                     filter(trial_number > .1*max(trial_number)) %>% 
+                     nrow(),
+                   raw_email %>% 
+                     trim_initial_trials(n = .1, verbose = F) %>% 
+                     pull(data) %>% 
+                     pluck(raw_email$module[i]) %>% 
+                     nrow())
+    }
+  }
+  
+  for (i in 1:nrow(raw_explorer)) {
+    if (raw_explorer$module[i] %in% c(ADP, FLANKER, STROOP, SPATIAL_CUE, TASK_SWITCH)) {
+      # these are modules where condition isn't blocked
+      # thus trial_number doesn't restart with condition
+      # and incidentally is stored in another column name
+      # make dummy trial number col that is condition-specific
+      if (raw_explorer$module[i] == TASK_SWITCH) {
+        cond_col = sym("taskswitch_state")
+      } else if (raw_explorer$module[i] == ADP) {
+        cond_col = sym("expression")
+      } else {
+        cond_col = Q_COL_TRIAL_TYPE
+      }
+      expect_equal(raw_explorer$data[[i]] %>% 
+                     arrange(!!Q_COL_BID, trial_number) %>% 
+                     group_by(!!Q_COL_BID, !!cond_col) %>% 
+                     mutate(trial_number_temp = 0:(n()-1)) %>% 
+                     filter(trial_number_temp >= 10) %>% 
+                     nrow(),
+                   raw_explorer %>% 
+                     trim_initial_trials(n = 10, verbose = F) %>% 
+                     pull(data) %>% 
+                     pluck(raw_explorer$module[i]) %>% 
+                     nrow())
+      
+      expect_equal(raw_explorer$data[[i]] %>% 
+                     arrange(!!Q_COL_BID, trial_number) %>% 
+                     group_by(!!Q_COL_BID, !!cond_col) %>% 
+                     mutate(trial_number_temp = 0:(n()-1)) %>% 
+                     filter(trial_number_temp > .1*max(trial_number_temp)) %>% 
+                     nrow(),
+                   raw_explorer %>% 
+                     trim_initial_trials(n = .1, verbose = F) %>% 
+                     pull(data) %>% 
+                     pluck(raw_explorer$module[i]) %>% 
+                     nrow())
+    } else if (!(raw_explorer$module[i] %in% c(DEMOS, ISHIHARA, SPATIAL_SPAN, BACK_SPATIAL_SPAN))) {
+      expect_equal(raw_explorer$data[[i]] %>% 
+                     group_by(!!Q_COL_BID) %>% 
+                     filter(trial_number >= 10) %>% 
+                     nrow(),
+                   raw_explorer %>% 
+                     trim_initial_trials(n = 10, verbose = F) %>% 
+                     pull(data) %>% 
+                     pluck(raw_explorer$module[i]) %>% 
+                     nrow())
+      
+      expect_equal(raw_explorer$data[[i]] %>% 
+                     group_by(!!Q_COL_BID) %>% 
+                     filter(trial_number > .1*max(trial_number)) %>% 
+                     nrow(),
+                   raw_explorer %>% 
+                     trim_initial_trials(n = .1, verbose = F) %>% 
+                     pull(data) %>% 
+                     pluck(raw_explorer$module[i]) %>% 
+                     nrow())
+    }
+  }
+
+  # expect error if n > 1 and not integer
+  expect_error(trim_initial_trials(raw_email, n = 1.1))
+})
+
 test_that("nesting: unnesting is long", {
   expect_false("list" %in% (raw_email %>%
                               unnest_ace_raw(app_type = "classroom") %>%
@@ -174,11 +296,11 @@ test_that("module proc: ACE Flanker works", {
 })
 
 test_that("module proc: ACE SAAT sustained works", {
-  expect_gt(nrow(attempt_module(raw_explorer$data[[SAAT_SUS]], SAAT_SUS, verbose = FALSE)), 1)
+  expect_gt(nrow(attempt_module(raw_explorer$data[[SAAT_SUS]], SAAT_SUS, app_type = "explorer", verbose = FALSE)), 1)
 })
 
 test_that("module proc: ACE SAAT impulsive works", {
-  expect_gt(nrow(attempt_module(raw_explorer$data[[SAAT_IMP]], SAAT_IMP, verbose = FALSE)), 1)
+  expect_gt(nrow(attempt_module(raw_explorer$data[[SAAT_IMP]], SAAT_IMP, app_type = "explorer", verbose = FALSE)), 1)
 })
 
 test_that("module proc: ACE Flanker works", {

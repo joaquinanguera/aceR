@@ -284,7 +284,7 @@ post_clean_low_trials <- function (df,
            filter_cols = map_if(filter_cols, module == "SAAT", ~.x[!grepl("overall", .x)], .else = ~.x),
            non_demo_cols = map(proc, ~names(.x)[!(names(.x) %in% valid_demos)]),
            call_filter_cols_bad = map(filter_cols,  ~map_call2_rel("<", .x, min_trials)),
-           call_filter_cols_good = map(filter_cols,  ~map_call2_rel(">=", .x, min_trials)))
+           call_filter_cols_good = map(filter_cols,  ~map_call2_rel(">=", .x, min_trials, include_nas = TRUE)))
   
   df_scrubbed <- proc_na_all_by_some_cols(df)
   
