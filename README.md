@@ -45,6 +45,7 @@ The package, as of March 2020, has transitioned to the [CalVer](https://calver.o
 New features:
 
 - `proc_by_module()` on (forwards and backwards) spatial span now returns a modified spatial span, (`span_overall` / `length_overall`) + `span_correct`, in addition to the original `span_overall` metric
+- clarified some argument descriptions in the `post_clean_chance()` help page
 
 #### 21.6.0:
 
