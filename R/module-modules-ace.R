@@ -230,12 +230,15 @@ module_stroop <- function(df) {
   return (left_join(gen, rcs, by = COL_BID) %>% dplyr::bind_cols(cost))
 }
 
+#' @importFrom magrittr %>%
 #' @keywords internal
 #' @name ace_procs
 
 module_spatialspan <- function(df) {
   rt = proc_by_condition(df, COL_RT, Q_COL_CORRECT_BUTTON)
-  span = proc_by_condition(df, "object_count", FUN = ace_spatial_span)
+  span = proc_by_condition(df, "object_count", Q_COL_CORRECT_BUTTON, FUN = ace_spatial_span) %>% 
+    mutate(object_count_span_modified.overall = (object_count_span.overall / object_count_length.overall) + object_count_span.correct) %>% 
+    select(!!Q_COL_BID, starts_with("object_count_span") & ends_with("overall"))
   rt_block_half = proc_by_condition(df, COL_RT, factors = Q_COL_BLOCK_HALF, include_overall = F)
   analy = list(rt, span, rt_block_half)
   if (COL_PRACTICE_COUNT %in% names(df)) {
@@ -283,12 +286,15 @@ module_tnt <- function(df) {
   return (out)
 }
 
+#' @importFrom magrittr %>%
 #' @keywords internal
 #' @name ace_procs
 
 module_backwardsspatialspan <- function(df) {
   rt = proc_by_condition(df, COL_RT, Q_COL_CORRECT_BUTTON)
-  span = proc_by_condition(df, "object_count", FUN = ace_spatial_span)
+  span = proc_by_condition(df, "object_count", Q_COL_CORRECT_BUTTON, FUN = ace_spatial_span) %>% 
+    mutate(object_count_span_modified.overall = (object_count_span.overall / object_count_length.overall) + object_count_span.correct) %>% 
+    select(!!Q_COL_BID, starts_with("object_count_span") & ends_with("overall"))
   rt_block_half = proc_by_condition(df, COL_RT, factors = Q_COL_BLOCK_HALF, include_overall = F)
   analy = list(rt, span, rt_block_half)
   if (COL_PRACTICE_COUNT %in% names(df)) {

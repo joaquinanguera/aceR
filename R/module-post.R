@@ -76,14 +76,17 @@ post_reduce_cols <- function (df,
 #' @param app_type character. What app type produced this data? One of
 #' \code{c("classroom", "explorer")}. Must be specified.
 #' @param overall Also scrub ".overall" data? Defaults to \code{TRUE}.
-#' @param cutoff_dprime Minimum value of d' to allow, for relevant tasks
-#' (ACE Tap and Trace, SAAT, Filter). Defaults to 0.
-#' @param cutoff_2choice Minimum value of accuracy to allow, for 2-response tasks
-#' (ACE Flanker, Boxed). Defaults to 0.5.
-#' @param cutoff_4choice Minimum value of accuracy to allow, for 4-response tasks
-#' (ACE Stroop, Task Switch). Defaults to 0.25.
-#' @param cutoff_5choice Minimum value of accuracy to allow, for 5-response tasks
-#' (ACE Color Selection). Defaults to 0.25.
+#' @param cutoff_dprime Maximum value of d' to replace with \code{NA}, for
+#' relevant tasks (ACE Tap and Trace, SAAT). Defaults to 0.
+#' @param cutoff_2choice Maximum value of accuracy to replace with \code{NA}, 
+#' for 2-response tasks (ACE Flanker, Boxed). Defaults to 0.5.
+#' @param cutoff_4choice Maximum value of accuracy to replace with \code{NA},
+#' for 4-response tasks (ACE Stroop, Task Switch). Defaults to 0.25.
+#' @param cutoff_5choice Maximum value of accuracy to replace with \code{NA},
+#' for 5-response tasks (ACE Color Selection). Defaults to 0.2.
+#' @param cutoff_k Maximum \emph{relative} value of Filter k to replace with 
+#' \code{NA}. Defaults to 1, which corresponds to 1 target item in both
+#' 2-target conditions and 4-target conditions.
 #' @param extra_demos Character vector specifying any custom-added demographics
 #' columns (beyond app defaults) to pass through the function. Defaults to \{code{NULL}.
 #' @return a df, similar in structure to \code{proc}, but with below-cutoff values in
@@ -96,6 +99,7 @@ post_clean_chance <- function (df,
                                cutoff_2choice = 0.5,
                                cutoff_4choice = 0.25,
                                cutoff_5choice = 0.2,
+                               cutoff_k = 1,
                                extra_demos = NULL) {
   
   stopifnot(length(app_type) == 1)
@@ -136,7 +140,8 @@ post_clean_chance <- function (df,
                            c("acc_mean.overall"),
                            c("sdt_dprime.overall"),
                            c("sdt_dprime.overall"),
-                           c("k.r2b0", "k.r4b0"),
+                           # all of these won't be used together! to be used separately later
+                           c("k.r2b0", "k.r2b2", "k.r2b4", "k.r4b0", "k.r4b2"),
                            c("acc_mean.overall"),
                            c("acc_mean.overall.strict")))
   } else {
@@ -148,18 +153,19 @@ post_clean_chance <- function (df,
                            c("acc_mean.feature_4"),
                            c("sdt_dprime.overall"),
                            c("sdt_dprime.overall"),
-                           c("k.r2b0", "k.r4b0"),
+                           c("k.r2b0", "k.r2b2", "k.r2b4", "k.r4b0", "k.r4b2"),
                            c("acc_mean.overall"),
                            c("acc_mean.overall.strict")))
   }
   
   metric_cols %<>%
     mutate(full = map2(module, metric, ~paste(.x, .y, sep = ".")),
-           cutoff = case_when(module %in% c(TNT, SAAT_SUS, SAAT_IMP, FILTER) ~ cutoff_dprime,
+           cutoff = case_when(module %in% c(TNT, SAAT_SUS, SAAT_IMP) ~ cutoff_dprime,
                               module == STROOP ~ cutoff_4choice,
                               module %in% c(FLANKER,
                                             BOXED,
                                             ADP) ~ cutoff_2choice,
+                              module == FILTER ~ cutoff_k,
                               module == TASK_SWITCH ~ cutoff_taskswitch,
                               module == COLOR_SELECT ~ cutoff_5choice,
                               TRUE ~ NA_real_)) %>%
@@ -198,7 +204,40 @@ post_clean_chance <- function (df,
            call_filter_cols_bad = map2(filter_cols, cutoff,  ~map_call2_rel("<=", .x, .y)),
            call_filter_cols_good = map2(filter_cols, cutoff,  ~map_call2_rel(">", .x, .y)))
   
-  df_scrubbed <- proc_na_all_by_some_cols(df)
+  df_scrubbed <- df %>% 
+    filter(module != FILTER) %>%
+    proc_na_all_by_some_cols()
+  
+  if (FILTER %in% df$module) {
+    # divide this up to do it separately for r2b0, r2b2, r2b4, r4b0, r4b2
+    filter_conditions <- c("r2b0", "r2b2", "r2b4", "r4b0", "r4b2")
+    filter_toscrub <- df %>% 
+      filter(module == FILTER)
+    # isolate the demo cols first because they need to get bound on to the individual ks later
+    # because the ks have to be scrubbed separately colwise
+    filter_scrubbed <- filter_toscrub$proc[[1]] %>% 
+      select(-filter_toscrub$non_demo_cols[[1]][grepl("r.b.$", filter_toscrub$non_demo_cols[[1]])])
+    
+    for (i in 1:length(filter_conditions)) {
+      this_filter_scrub_cols <- filter_toscrub$non_demo_cols[[1]][endsWith(filter_toscrub$non_demo_cols[[1]], filter_conditions[i])]
+      this_filter_proc <- filter_toscrub$proc[[1]] %>% 
+        select(!!Q_COL_PID, !!Q_COL_BID, this_filter_scrub_cols)
+      
+      this_filter_scrubbed <- na_all_by_some_cols(this_filter_proc, 
+                                                  filter_toscrub$call_filter_cols_bad[[1]][i],
+                                                  filter_toscrub$call_filter_cols_good[[1]][i],
+                                                  this_filter_scrub_cols)
+      
+      filter_scrubbed <- left_join(filter_scrubbed, this_filter_scrubbed,
+                                   by = c(COL_PID, COL_BID))
+    }
+    filter_scrubbed <- tibble(module = FILTER,
+                              proc = list(FILTER = filter_scrubbed))
+    
+    df_scrubbed %<>%
+      bind_rows(filter_scrubbed)
+  }
+
   
   # If "wide" form:
   if (wide) {
@@ -312,22 +351,34 @@ post_clean_low_trials <- function (df,
 proc_na_all_by_some_cols <- function (df) {
   
   df_no_scrub <- df %>%
-    filter(lengths(filter_cols) == 0) %>%
+    filter(lengths(call_filter_cols_bad) == 0) %>%
     select(module, proc)
   
   df_scrubbed <- df %>%
-    filter(lengths(filter_cols) > 0)
-  
-  df_scrubbed$proc_bad <- map2(df_scrubbed$proc, df_scrubbed$call_filter_cols_bad, ~filter(.x, !!!.y))
-  df_scrubbed$proc_good <- map2(df_scrubbed$proc, df_scrubbed$call_filter_cols_good, ~filter(.x, !!!.y))
-  
-  df_scrubbed %<>%
-    mutate(proc_bad = map2(proc_bad, non_demo_cols, ~mutate_at(.x, .y, to_na)),
-           proc_scrubbed = map2(proc_bad, proc_good, ~bind_rows(.y, .x))) %>%
+    filter(lengths(call_filter_cols_bad) > 0) %>% 
+    mutate(proc_scrubbed = pmap(list(proc, call_filter_cols_bad, call_filter_cols_good, non_demo_cols),
+                                na_all_by_some_cols)) %>%
     select(module, proc = proc_scrubbed) %>%
     bind_rows(df_no_scrub)
   
   return (df_scrubbed)
+}
+
+#' @importFrom dplyr across bind_rows filter mutate
+#' @importFrom magrittr %>%
+#' @importFrom rlang !!!
+#' @keywords internal
+
+na_all_by_some_cols <- function (proc, filter_cols_bad, filter_cols_good, scrub_cols) {
+  
+  proc_bad <- filter(proc, !!!filter_cols_bad) %>% 
+    mutate(across(scrub_cols, to_na))
+  proc_good <- filter(proc, !!!filter_cols_good)
+  
+  proc_scrubbed <- bind_rows(proc_good, proc_bad)
+  
+  return (proc_scrubbed)
+  
 }
 
 #' @keywords internal

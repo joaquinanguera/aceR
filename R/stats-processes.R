@@ -32,7 +32,8 @@ ace_average_turns <- function (x, y) {
 ace_spatial_span <- function(x, col) {
   sustained_span = summarize(x,
                              across(any_of(col),
-                                    list(span = ace_span)))
+                                    list(span = ace_span,
+                                         length = ace_length)))
   return (sustained_span)
 }
 

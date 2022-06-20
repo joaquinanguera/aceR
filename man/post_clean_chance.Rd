@@ -12,6 +12,7 @@ post_clean_chance(
   cutoff_2choice = 0.5,
   cutoff_4choice = 0.25,
   cutoff_5choice = 0.2,
+  cutoff_k = 1,
   extra_demos = NULL
 )
 }
@@ -24,17 +25,21 @@ ACE data.}
 
 \item{overall}{Also scrub ".overall" data? Defaults to \code{TRUE}.}
 
-\item{cutoff_dprime}{Minimum value of d' to allow, for relevant tasks
-(ACE Tap and Trace, SAAT, Filter). Defaults to 0.}
+\item{cutoff_dprime}{Maximum value of d' to replace with \code{NA}, for
+relevant tasks (ACE Tap and Trace, SAAT). Defaults to 0.}
 
-\item{cutoff_2choice}{Minimum value of accuracy to allow, for 2-response tasks
-(ACE Flanker, Boxed). Defaults to 0.5.}
+\item{cutoff_2choice}{Maximum value of accuracy to replace with \code{NA}, 
+for 2-response tasks (ACE Flanker, Boxed). Defaults to 0.5.}
 
-\item{cutoff_4choice}{Minimum value of accuracy to allow, for 4-response tasks
-(ACE Stroop, Task Switch). Defaults to 0.25.}
+\item{cutoff_4choice}{Maximum value of accuracy to replace with \code{NA},
+for 4-response tasks (ACE Stroop, Task Switch). Defaults to 0.25.}
 
-\item{cutoff_5choice}{Minimum value of accuracy to allow, for 5-response tasks
-(ACE Color Selection). Defaults to 0.25.}
+\item{cutoff_5choice}{Maximum value of accuracy to replace with \code{NA},
+for 5-response tasks (ACE Color Selection). Defaults to 0.2.}
+
+\item{cutoff_k}{Maximum \emph{relative} value of Filter k to replace with 
+\code{NA}. Defaults to 1, which corresponds to 1 target item in both
+2-target conditions and 4-target conditions.}
 
 \item{extra_demos}{Character vector specifying any custom-added demographics
 columns (beyond app defaults) to pass through the function. Defaults to \{code{NULL}.}

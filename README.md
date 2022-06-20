@@ -40,7 +40,15 @@ The package, as of March 2020, has transitioned to the [CalVer](https://calver.o
 
 ### Brief release notes
 
-#### 21.6.0 (Current):
+### 21.7.0 (Current):
+
+New features:
+
+- `proc_by_module()` on (forwards and backwards) spatial span now returns a modified spatial span, (`span_overall` / `length_overall`) + `span_correct`, in addition to the original `span_overall` metric
+- `post_clean_chance()` now cleans Filter responses _independently_ by k for each of the 5 target/distractor number conditions. Subthreshold performance on one k condition will leave metrics intact for the other conditions.
+- clarified some argument descriptions in the `post_clean_chance()` help page
+
+#### 21.6.0:
 
 New features:
 
