@@ -26,7 +26,7 @@ load_ace_bulk <- function(path = ".",
                           exclude = c(),
                           pattern = "",
                           which_modules = "",
-                          data_type = c("explorer", "email", "pulvinar")) {
+                          data_type = c("nexus", "explorer", "email", "pulvinar")) {
   stopifnot(length(data_type) == 1)
   if (data_type == "classroom") stop(crayon::red("'classroom' is not an allowed setting of data_type!" ,
                                                  "Did you mean 'email' or 'pulvinar'?"))

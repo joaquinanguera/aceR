@@ -1,14 +1,24 @@
 
+#' @importFrom magrittr %>%
 #' @keywords internal
 
-standardize_names <- function (df, email = FALSE) {
+standardize_names <- function (df, data_type = "explorer") {
   new_names = names(df)
-  new_names = tolower(new_names)
-  if (!email) {
+  # for backwards compatibility, force nexus from camel case to pothole case
+  if (data_type == "nexus") {
+    new_names <- new_names %>% 
+      # just this one needs to be coerced to behave later
+      stringr::str_replace("iPad", "ipad") %>% 
+      # split at each camel case change
+      gsub("([a-z])([A-Z])", "\\1 \\2", .) %>% 
+      # also split where capital letters lead into camel case, but only the last one
+      gsub("([A-Z])([A-Z][a-z])", "\\1 \\2", .)
+  } else if (data_type == "explorer") {
     new_names = remove_special_characters(new_names, replacement = "_")
-  } else {
+  } else if (data_type == "email") {
     new_names = remove_special_characters(new_names)
   }
+  new_names = tolower(new_names)
   new_names = replace_spaces(new_names, "_")
   names(df) = new_names
   return (df)

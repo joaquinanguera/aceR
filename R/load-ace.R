@@ -139,9 +139,9 @@ transform_mid <- function (dat, file, app_type) {
   if (nrow(dat) == 0) return (data.frame())
   # This chunk same between email and pulvinar
   # standardize output
-  
+  if (app_type == "pulvinar") data_type <- "explorer" else data_type <- app_type
   dat <- dat %>%
-    standardize_names(email = (app_type == "email")) %>%
+    standardize_names(data_type = data_type) %>%
     mutate(file = file,
            # for faster performance bc each pulvinar file should only contain one module
            module = identify_module(file[1])) %>%
