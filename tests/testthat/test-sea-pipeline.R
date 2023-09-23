@@ -1,11 +1,11 @@
 context("SEA pipeline from loading to proc")
 
 test_that("SEA data loads properly", {
-  expect_error(load_sea_bulk(aceR_sample_data_path("sea"), verbose = F), NA)
-  expect_is(load_sea_bulk(aceR_sample_data_path("sea"), verbose = F), "data.frame")
+  expect_error(load_sea_bulk(aceR_sample_data_path("sea"), verbose = F, data_type = "pulvinar"), NA)
+  expect_is(load_sea_bulk(aceR_sample_data_path("sea"), verbose = F, data_type = "pulvinar"), "data.frame")
 })
 
-raw_sea <- load_sea_bulk(aceR_sample_data_path("sea"), verbose = F)
+raw_sea <- load_sea_bulk(aceR_sample_data_path("sea"), verbose = F, data_type = "pulvinar")
 
 test_that("module proc: SEA arithmetic verification works", {
   expect_gt(nrow(attempt_module(raw_sea$data[[ARITHM_VER]], ARITHM_VER, verbose = FALSE)), 1)

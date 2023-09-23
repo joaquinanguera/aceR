@@ -14,6 +14,8 @@
 #' @param recursive logical. Load files in subfolders also? Defaults to \code{TRUE}
 #' @param exclude a list of patterns to exclude
 #' @param which_modules Specify modules to process. Defaults to all modules.
+#' @param data_type character What app data export type produced this data? One of
+#' \code{c("nexus", "pulvinar")}. Must be specified.
 #' @return Returns a data.frame containing the content of every file in the
 #'  specified \code{path}.
 
@@ -22,7 +24,10 @@ load_sea_bulk <- function(path = ".",
                           recursive = TRUE,
                           exclude = c(),
                           pattern = "",
-                          which_modules = "") {
+                          which_modules = "",
+                          data_type = c("nexus", "pulvinar")) {
+  stopifnot(length(data_type) == 1)
+  
   csv = list.files(path = path, pattern = ".csv", recursive = recursive)
   files = sort(csv)
   
@@ -39,7 +44,7 @@ load_sea_bulk <- function(path = ".",
   
   # If this can be vectorized, why not? I live for speed
   out <- tibble(file = files) %>%
-    mutate(data = map(file, possibly(~load_sea_file(.x, verbose = verbose), dplyr::tibble())),
+    mutate(data = map(file, possibly(~load_sea_file(.x, verbose = verbose, data_type = data_type), dplyr::tibble())),
            file = walk2(file, data, function(x, y) {
              if (nrow(y) == 0) warning(paste(x, "failed to load!"))
            })) %>%

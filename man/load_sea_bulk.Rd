@@ -10,7 +10,8 @@ load_sea_bulk(
   recursive = TRUE,
   exclude = c(),
   pattern = "",
-  which_modules = ""
+  which_modules = "",
+  data_type = c("nexus", "pulvinar")
 )
 }
 \arguments{
@@ -31,6 +32,9 @@ load_sea_bulk(
     which match the regular expression will be returned.}
 
 \item{which_modules}{Specify modules to process. Defaults to all modules.}
+
+\item{data_type}{character What app data export type produced this data? One of
+\code{c("nexus", "pulvinar")}. Must be specified.}
 }
 \value{
 Returns a data.frame containing the content of every file in the

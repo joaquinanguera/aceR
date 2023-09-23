@@ -4,12 +4,15 @@
 \alias{load_sea_file}
 \title{Reads raw SEA data from a file.}
 \usage{
-load_sea_file(file, verbose = FALSE)
+load_sea_file(file, verbose = FALSE, data_type = c("nexus", "pulvinar"))
 }
 \arguments{
 \item{file}{The name of the file which the data is to be read from.}
 
 \item{verbose}{Print file name (as progress checker)? Defaults to \code{FALSE}.}
+
+\item{data_type}{character What app data export type produced this data? One of
+\code{c("nexus", "pulvinar")}. Must be specified.}
 }
 \value{
 Returns the file's content as an R \code{\link{data.frame}}.
