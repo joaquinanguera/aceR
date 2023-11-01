@@ -297,10 +297,10 @@ parse_subsections <- function(dat) {
 
 summarize_practice <- function (dat) {
   practice <- dat %>%
-    # the finish_status column is hard-coded atm
-    filter(!!Q_COL_PRACTICE == "StartingWindow", finish_status == "Successful") %>%
+    # the module_finish_status column is hard-coded atm
+    filter(!!Q_COL_PRACTICE == "StartingWindow", module_finish_status %in% c("Successful", "Complete")) %>%
     group_by(!!Q_COL_PID) %>%
-    mutate(!!COL_PRACTICE_RD := count_practice_rounds(trial_number)) %>%
+    mutate(!!COL_PRACTICE_RD := count_practice_rounds(!!Q_COL_TRIAL_NUM)) %>%
     summarize(!!COL_PRACTICE_COUNT := max(!!Q_COL_PRACTICE_RD))
   
   dat %>%

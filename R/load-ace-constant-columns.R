@@ -30,13 +30,13 @@ COL_RT = "rt"
 Q_COL_RT = rlang::sym(COL_RT)
 
 #' @name ace_header
-COL_CORRECT_BUTTON = "correct_button"
+COL_CORRECT_BUTTON = "was_answer_correct"
 
 #' @name ace_header
 Q_COL_CORRECT_BUTTON = rlang::sym(COL_CORRECT_BUTTON)
 
 #' @name ace_header
-COL_PREV_CORRECT_BUTTON = "previous_correct_button"
+COL_PREV_CORRECT_BUTTON = "was_previous_answer_correct"
 
 #' @name ace_header
 Q_COL_PREV_CORRECT_BUTTON = rlang::sym(COL_PREV_CORRECT_BUTTON)
@@ -66,7 +66,7 @@ COL_PREV_LATE_RESPONSE = "previous_late_response"
 Q_COL_PREV_LATE_RESPONSE = rlang::sym(COL_PREV_LATE_RESPONSE)
 
 #' @name ace_header
-COL_CONDITION = "condition"
+COL_CONDITION = "trial_condition"
 
 #' @name ace_header
 Q_COL_CONDITION = rlang::sym(COL_CONDITION)
@@ -185,12 +185,17 @@ ALL_POSSIBLE_EXPLORE_DEMOS = c("updated_at", "o_s_version", "app_id", "build", "
 #' @name ace_header
 Q_ALL_POSSIBLE_EXPLORE_DEMOS = rlang::syms(ALL_POSSIBLE_EXPLORE_DEMOS)
 
-#' @importFrom dplyr case_when
+#' @importFrom dplyr case_when rename
+#' @importFrom magrittr %>%
+#' @importFrom rlang !! :=
 #' @name ace_header
 
-standardize_ace_column_names <- function(df) {
+standardize_ace_column_names <- function(df, data_type) {
+  # First, columns that can be renamed without fighting with existing column names
   new = names(df)
-  new = case_when(new == "response_time" ~ COL_RT,
+  new = case_when(new == "module_name" ~ COL_MODULE,
+                  new == "correct_button" ~ COL_CORRECT_BUTTON,
+                  new == "response_time" ~ COL_RT,
                   new == "response_window" ~ COL_RW,
                   new %in% c("participant_id", "user_id") ~ COL_PID,
                   new == "user_name" ~ COL_NAME,
@@ -198,14 +203,29 @@ standardize_ace_column_names <- function(df) {
                   new == "user_grade" ~ COL_GRADE,
                   new %in% c("user_gender", "age1", "user_age1") ~ COL_GENDER,
                   new == "user_handedness" ~ COL_HANDEDNESS,
-                  # created_at seems to be ACE Explore specific. beware versioning issues
-                  new %in% c("time_gameplayed_utc", "created_at") ~ COL_TIME,
+                  # created_at seems to be ACE Explorer specific. beware versioning issues
+                  # module_data_sent_time is from ACE Nexus
+                  new %in% c("time_gameplayed_utc", "created_at", "module_data_sent_time") ~ COL_TIME,
                   new == "time_sent_utc" ~ "timesent_utc",
                   new == "id" ~ COL_SUB_ID,
-                  new == "details" ~ COL_CONDITION,
+                  # Now changes Explorer-style "condition" to Nexus-style "trial_condition"
+                  new %in% c("details", "condition") ~ COL_CONDITION,
                   new == "task_switch_state" ~ "taskswitch_state",
+                  new == "session_stage" ~ COL_PRACTICE,
+                  new == "finish_status" ~ "module_finish_status",
                   TRUE ~ new) # for cross compatibility b/w emailed and pulvinar)
   names(df) = new
+  
+  # Next, renaming columns that will overwrite existing columns
+  # Should only need to be done to pre-Nexus data
+  if (COL_TRIAL_TYPE %in% names(df)) {
+    df <- rename_overwrite(df, COL_TRIAL_TYPE, COL_CONDITION)
+  } else if ("taskswitch_state" %in% names(df)) {
+    df <- rename_overwrite(df, "taskswitch_state", COL_CONDITION)
+  } else if ("object_count" %in% names(df)) {
+    df <- rename_overwrite(df, "object_count", COL_CONDITION)
+  }
+  
   return (df)
 }
 
@@ -280,7 +300,7 @@ standardize_ace_column_types <- function (df) {
   }
   
   # No responses in classroom (pulvinar) are coded as "N/A"
-  # No responses in explorer are coded as 0
+  # No responses in explorer and nexus are coded as 0
   # Neither of these should fail on the other case
   try({
     df <- df %>%
@@ -296,6 +316,7 @@ standardize_ace_column_types <- function (df) {
   # code correct_button with words, not 0 and 1
   # No responses in classroom (pulvinar) are coded as "N/A" in the RT column
   # No responses in explorer are coded as 0 in the RT column
+  # No responses in nexus are coded as "False" in the was_response_recorded column and 0 in the RT column
   # Neither of these should fail on the other case
   try({
     df <- df %>%
@@ -319,6 +340,7 @@ standardize_ace_column_types <- function (df) {
     mutate(across(any_of(c(COL_CONDITION,
                            COL_TRIAL_TYPE,
                            "cue_side",
+                           "cue_displayed",
                            "right_expression",
                            "left_expression")), tolower))
   
@@ -329,7 +351,7 @@ standardize_ace_column_types <- function (df) {
 #' @import dplyr
 #' @importFrom magrittr %>% %<>%
 #' @importFrom rlang sym !! :=
-#' @importFrom stringr str_replace str_replace_all str_split str_trim
+#' @importFrom stringr str_remove_all str_replace str_replace_all str_split str_trim
 #' @importFrom purrr map map_chr map2_lgl
 #' @importFrom tidyr separate
 
@@ -339,6 +361,24 @@ standardize_ace_values <- function(df, app_type) {
   # we SHOULD hard-code expected type of columns by module
   
   cols = names(df)
+  
+  if (app_type == "nexus") {
+    
+    df %<>%
+      mutate(!!COL_MODULE := str_remove_all(!!Q_COL_MODULE, " "))
+    
+    # Nexus should only need the ADP construction to match what was originally requested for Explorer
+    if (ADP %in% df[[COL_MODULE]]) {
+      df %<>%
+        mutate(cue_expression = if_else(stimulus_displayed == "LEFT",
+                                        unlist(str_split(cue_displayed, "-"))[1],
+                                        unlist(str_split(cue_displayed, "-"))[2]),
+               !!COL_CONDITION := paste(!!COL_CONDITION, cue_expression, sep = "_"))
+      return (df)
+    } else {
+      return (df)
+    }
+  }
   
   if (app_type %in% c("email", "pulvinar")) {
     # Extra shit for classroom type data bc the RT no response coding was often effed up
@@ -376,19 +416,19 @@ standardize_ace_values <- function(df, app_type) {
       ungroup()
   }
   
-  if (DEMOS %in% df$module) {
+  if (DEMOS %in% df[[COL_MODULE]]) {
     # Only triggers for Explorer data
     # TODO: If you want ALL_POSSIBLE_EXPLORE_DEMOS, it goes in here with ALL_POSSIBLE_DEMOS
     # But maybe this functionality should wait until the device stuff is faithfully only in the task data
     df %<>%
       select(any_of(c(COL_MODULE, ALL_POSSIBLE_DEMOS, COL_TIME))) %>%
-      mutate_at(COL_GENDER, as.character)
+      mutate(across(any_of(COL_GENDER), as.character))
   }
   
   # Forcible recoding of accuracy and other things for various modules below
   # Most of this is an attempt to reconstruct accuracy as orthogonal to response lateness
   
-  if (all(startsWith(df$module, SAAT))) {
+  if (all(startsWith(df[[COL_MODULE]], SAAT))) {
     if (app_type %in% c("email", "pulvinar")) {
       # This fixes a condition naming error in the raw log files
       # present in classroom but fixed in explorer data
@@ -401,7 +441,7 @@ standardize_ace_values <- function(df, app_type) {
     df %<>%
       standardize_saat_tnt(col = "position_is_top")
     
-  } else if (STROOP %in% df$module) {
+  } else if (STROOP %in% df[[COL_MODULE]]) {
     # This one technically varies it on classroom vs explorer,
     # but I think color_ink_shown/color_word_shown are a mid-explorer update
     # so don't assume this varies on app_type
@@ -412,7 +452,7 @@ standardize_ace_values <- function(df, app_type) {
                                                color_pressed != !!stroop_correct_col ~ "incorrect",
                                                TRUE ~ NA_character_)) # missing implies fucked up somehow
     
-  } else if (FLANKER %in% df$module) {
+  } else if (FLANKER %in% df[[COL_MODULE]]) {
     # Should only trigger for ACE Explorer data from June 2020 and later
     if (identical(unique(df$displayed_cue), c("A", "B"))) {
       df %<>%
@@ -428,7 +468,7 @@ standardize_ace_values <- function(df, app_type) {
                                                  TRUE ~ "incorrect"))
     }
 
-  } else if (BRT %in% df$module) {
+  } else if (BRT %in% df[[COL_MODULE]]) {
     # retype and clean accuracy
     df %<>%
       mutate(inter_time_interval = as.numeric(inter_time_interval),
@@ -444,12 +484,12 @@ standardize_ace_values <- function(df, app_type) {
                                                 missing = !!Q_COL_CORRECT_BUTTON))
     }
     
-  } else if (TNT %in% df$module) {
+  } else if (TNT %in% df[[COL_MODULE]]) {
     
     df %<>%
       standardize_saat_tnt(col = "is_valid_cue")
     
-  } else if (FILTER %in% df$module) {
+  } else if (FILTER %in% df[[COL_MODULE]]) {
     
     # special column re-typing for filter only
     
@@ -500,11 +540,11 @@ standardize_ace_values <- function(df, app_type) {
                                         is.na(rt) ~ "no_response",
                                         TRUE ~ NA_character_))
     
-  } else if (SPATIAL_SPAN %in% df$module | BACK_SPATIAL_SPAN %in% df$module) {
+  } else if (SPATIAL_SPAN %in% df[[COL_MODULE]] | BACK_SPATIAL_SPAN %in% df[[COL_MODULE]]) {
     # they get read in as character, or int if every value is NA
     df %<>%
       mutate_at(vars(matches("tap.*rt")), as.numeric)
-  } else if (TASK_SWITCH %in% df$module & app_type == "explorer") {
+  } else if (TASK_SWITCH %in% df[[COL_MODULE]] & app_type == "explorer") {
     df %<>%
       mutate(button_pressed = str_trim(button_pressed, side = "right")) %>%
       separate(button_pressed, into = c("pressed_color", "pressed_shape"), sep = " ", fill = "right") %>%
@@ -518,7 +558,7 @@ standardize_ace_values <- function(df, app_type) {
                # missing implies fucked up somehow
                TRUE ~ NA_character_)
              )
-  } else if (BOXED %in% df$module & app_type == "explorer") {
+  } else if (BOXED %in% df[[COL_MODULE]] & app_type == "explorer") {
     df %<>%
       mutate(button_pressed = na_if(button_pressed, "Unanswered"),
              !!COL_CORRECT_BUTTON := case_when(
@@ -531,34 +571,34 @@ standardize_ace_values <- function(df, app_type) {
                TRUE ~ NA_character_
              )
       )
-  } else if (ADP %in% df$module & app_type == "explorer") {
-    df %<>%
-      mutate(expression = if_else(left_expression == "neutral",
-                                  right_expression,
-                                  left_expression),
-             cue_expression = if_else(cue_side == "left",
-                                      left_expression,
-                                      right_expression),
-             condition = paste(expression, cue_expression, sep = "_"))
-  } else if (COLOR_SELECT %in% df$module & app_type == "explorer") {
+  } else if (ADP %in% df[[COL_MODULE]] & app_type == "explorer") {
+      df %<>%
+        mutate(expression = if_else(left_expression == "neutral",
+                                    right_expression,
+                                    left_expression),
+               cue_expression = if_else(cue_side == "left",
+                                        left_expression,
+                                        right_expression),
+               !!COL_CONDITION := paste(expression, cue_expression, sep = "_"))
+  } else if (COLOR_SELECT %in% df[[COL_MODULE]] & app_type == "explorer") {
     df %<>%
       mutate(colors_used = map(colors_used, ~.x %>% 
                                  # so the commas within rgba specs won't split
                                  str_replace_all("\\)\\,", "\\)\\;")),
              colors_used = str_split(colors_used, ";")) %>%
-        mutate(correct_button = if_else(map2_lgl(user_answer,
+        mutate(!!COL_CONDITION := if_else(map2_lgl(user_answer,
                                                      actual_answer,
                                              ~.x %in% .y),
                                             "correct",
                                             "incorrect"))%>%
-        mutate(correct_button_loose = if_else(map2_lgl(user_answer,
+        mutate(was_answer_correct_loose = if_else(map2_lgl(user_answer,
                                                      colors_used,
                                              ~.x %in% .y),
                                             "correct",
                                             "incorrect"),
-             correct_button_loose = if_else(is.na(!!Q_COL_RT),
+               was_answer_correct_loose = if_else(is.na(!!Q_COL_RT),
                                             "no_response",
-                                            correct_button_loose),
+                                            was_answer_correct_loose),
              # to get it to stop being list because so many other functions expect no list-cols
              colors_used = map_chr(colors_used, paste, collapse = ";"))
   }
@@ -572,11 +612,11 @@ standardize_ace_values <- function(df, app_type) {
       ungroup()
   }
   
-  if ("correct_button_loose" %in% names(df)) {
+  if ("was_answer_correct_loose" %in% names(df)) {
     df %<>%
       # needs to be grouped to prevent previous_correct_button from bleeding over between records
       group_by(!!Q_COL_BID) %>%
-      mutate(previous_correct_button_loose = make_lagged_col(correct_button_loose)) %>%
+      mutate(was_previous_answer_correct_loose = make_lagged_col(was_answer_correct_loose)) %>%
       ungroup()
   }
   

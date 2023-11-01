@@ -299,7 +299,7 @@ ALL_POSSIBLE_EXPLORE_DEMOS
 
 Q_ALL_POSSIBLE_EXPLORE_DEMOS
 
-standardize_ace_column_names(df)
+standardize_ace_column_names(df, data_type)
 
 standardize_ace_column_types(df)
 

@@ -142,10 +142,18 @@ transform_mid <- function (dat, file, app_type) {
   if (app_type == "pulvinar") data_type <- "explorer" else data_type <- app_type
   dat <- dat %>%
     standardize_names(data_type = data_type) %>%
-    mutate(file = file,
-           # for faster performance bc each pulvinar file should only contain one module
-           module = identify_module(file[1])) %>%
+    mutate(file = file)
+  
+  dat <- dat %>%
     standardize_ace_column_names()
+  
+  # module is now already in nexus data... EXCEPT demographics files
+  # so this needs to run for that, and for legacy explorer data
+  if (!(COL_MODULE %in% names(dat))) {
+    # assumes each pulvinar file should only contain one module
+    dat <- dat %>% 
+      mutate(!!COL_MODULE := identify_module(file[1]))
+  }
   
   if (!(COL_TIME %in% names(dat))) {
     # make "time" column from subid & filename if file doesn't contain time
@@ -159,13 +167,14 @@ transform_mid <- function (dat, file, app_type) {
     replace_nas(NA) %>%
     standardize_ace_column_types() %>%
     # clean, standardize, possibly construct PID, BID, short BID
-    standardize_ace_ids() %>%
+    standardize_ace_ids() %>% 
     standardize_ace_values(app_type = app_type) %>% 
     # appends condition to module name for SAAT only
     # should not modify other modules
     # must be done after standardize_ace_values
     # because that one fixes SAAT flipped condition labels
     module_split_saat()
+
   
   if (COL_PRACTICE %in% names(dat) & dat[[COL_MODULE]][1] != ISHIHARA) {
     dat <- dat %>%

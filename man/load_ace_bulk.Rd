@@ -11,7 +11,7 @@ load_ace_bulk(
   exclude = c(),
   pattern = "",
   which_modules = "",
-  data_type = c("explorer", "email", "pulvinar")
+  data_type = c("nexus", "explorer", "email", "pulvinar")
 )
 }
 \arguments{
