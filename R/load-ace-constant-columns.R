@@ -194,7 +194,7 @@ standardize_ace_column_names <- function(df, data_type) {
   # First, columns that can be renamed without fighting with existing column names
   new = names(df)
   new = case_when(new == "module_name" ~ COL_MODULE,
-                  new == "correct_button" ~ COL_CORRECT_BUTTON,
+                  new %in% c("correct_button", "trial_correct") ~ COL_CORRECT_BUTTON,
                   new == "response_time" ~ COL_RT,
                   new == "response_window" ~ COL_RW,
                   new %in% c("participant_id", "user_id") ~ COL_PID,
@@ -219,11 +219,11 @@ standardize_ace_column_names <- function(df, data_type) {
   # Next, renaming columns that will overwrite existing columns
   # Should only need to be done to pre-Nexus data
   if (COL_TRIAL_TYPE %in% names(df)) {
-    df <- rename_overwrite(df, COL_TRIAL_TYPE, COL_CONDITION)
+    df <- rename_overwrite(df, COL_TRIAL_TYPE, !!COL_CONDITION)
   } else if ("taskswitch_state" %in% names(df)) {
-    df <- rename_overwrite(df, "taskswitch_state", COL_CONDITION)
+    df <- rename_overwrite(df, "taskswitch_state", !!COL_CONDITION)
   } else if ("object_count" %in% names(df)) {
-    df <- rename_overwrite(df, "object_count", COL_CONDITION)
+    df <- rename_overwrite(df, "object_count", !!COL_CONDITION)
   }
   
   return (df)
@@ -320,9 +320,15 @@ standardize_ace_column_types <- function (df) {
   # Neither of these should fail on the other case
   try({
     df <- df %>%
-      mutate(!!COL_CORRECT_BUTTON := dplyr::recode(!!Q_COL_CORRECT_BUTTON, `0` = "incorrect", `1` = "correct", .default = NA_character_),
-             # Noticed this in ACE Explorer as of Jan 2020. Might have changed before then
-             !!COL_CORRECT_BUTTON := if_else(is.na(!!Q_COL_RT),
+      mutate(!!COL_CORRECT_BUTTON := dplyr::recode(!!Q_COL_CORRECT_BUTTON, `0` = "incorrect", `1` = "correct", .default = NA_character_))
+  }, silent = TRUE)
+
+  # Noticed this in ACE Explorer as of Jan 2020. Might have changed before then
+  # Needs to be in a separate try statement because Ishihara will fail this for not having RT
+  # but we still want it recoded per above
+  try({
+    df <- df %>%
+      mutate(!!COL_CORRECT_BUTTON := if_else(is.na(!!Q_COL_RT),
                                              "no_response",
                                              !!Q_COL_CORRECT_BUTTON))
   }, silent = TRUE)
@@ -351,7 +357,7 @@ standardize_ace_column_types <- function (df) {
 #' @import dplyr
 #' @importFrom magrittr %>% %<>%
 #' @importFrom rlang sym !! :=
-#' @importFrom stringr str_remove_all str_replace str_replace_all str_split str_trim
+#' @importFrom stringr str_remove str_remove_all str_replace str_replace_all str_split str_trim
 #' @importFrom purrr map map_chr map2_lgl
 #' @importFrom tidyr separate
 
@@ -365,7 +371,12 @@ standardize_ace_values <- function(df, app_type) {
   if (app_type == "nexus") {
     
     df %<>%
-      mutate(!!COL_MODULE := str_remove_all(!!Q_COL_MODULE, " "))
+      mutate(!!COL_MODULE := str_remove_all(!!Q_COL_MODULE, " "),
+             # so task switch v2 gets the same module name as task switch v1. I presume that's fine?
+             !!COL_MODULE := str_remove(!!Q_COL_MODULE, "V2")) %>% 
+      # Ishihara numbers get read in as numeric but all other modules are char
+      # which prevents unnest_ace_raw later, for those who want to use it
+      mutate(across(any_of(c("stimulus_displayed", "correct_answer", "participant_answer")), as.character))
     
     # Nexus should only need the ADP construction to match what was originally requested for Explorer
     if (ADP %in% df[[COL_MODULE]]) {
@@ -524,8 +535,8 @@ standardize_ace_values <- function(df, app_type) {
                cue_rotated = if_else(abs(round(degree_of_change, 2)) == 3.14,
                                      0L,
                                      cue_rotated),
-               !!COL_CORRECT_BUTTON := case_when(abs(round(degree_of_change, 2)) == 3.14 & correct_button == "correct" ~ "incorrect",
-                                                 abs(round(degree_of_change, 2)) == 3.14 & correct_button == "incorrect" ~ "correct",
+               !!COL_CORRECT_BUTTON := case_when(abs(round(degree_of_change, 2)) == 3.14 & !!Q_COL_CORRECT_BUTTON == "correct" ~ "incorrect",
+                                                 abs(round(degree_of_change, 2)) == 3.14 & !!Q_COL_CORRECT_BUTTON == "incorrect" ~ "correct",
                                                  TRUE ~ !!Q_COL_CORRECT_BUTTON))
     }
     
