@@ -4,7 +4,7 @@
 load_csv <- function(file, app_type = "explorer") {
   if (app_type != "email") {
     # Not gonna risk it and change it to readr::read_csv. Too much weird shit
-    df = dplyr::as_tibble(data.table::fread(file, header = T, na.strings = c("NA", "N/A", "")))
+    df = dplyr::as_tibble(data.table::fread(file, header = T, na.strings = c("NA", "N/A", "", "Unanswered")))
   } else {
     # Need to use the old school read.csv bc of the fill argument, and probably other stuff
     # The emailed files are so funny shaped
