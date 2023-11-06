@@ -361,14 +361,14 @@ standardize_ace_column_types <- function (df) {
 #' @importFrom purrr map map_chr map2_lgl
 #' @importFrom tidyr separate
 
-standardize_ace_values <- function(df, app_type) {
+standardize_ace_values <- function(df, data_type) {
   # this function handles re-typing of columns
   # especially in emailed data, all columns are necessarily read in as character
   # we SHOULD hard-code expected type of columns by module
   
   cols = names(df)
   
-  if (app_type == "nexus") {
+  if (data_type == "nexus") {
     
     df %<>%
       mutate(!!COL_MODULE := str_remove_all(!!Q_COL_MODULE, " "),
@@ -391,22 +391,13 @@ standardize_ace_values <- function(df, app_type) {
     }
   }
   
-  if (app_type %in% c("email", "pulvinar")) {
-    # Extra shit for classroom type data bc the RT no response coding was often effed up
-    try({
-      df %<>%
-        mutate(!!COL_RT := na_if_true(!!Q_COL_RT, !!Q_COL_RT == !!Q_COL_RW),
-               !!COL_RT := na_if_true(!!Q_COL_RT, !!Q_COL_RT %% 10 == 0))
-    }, silent = TRUE)
-  }
-  
   # Important: This will scrub RTs below 150 ms for all ACE tasks by default!!!
   try({
     df %<>%
       mutate(!!COL_RT := if_else(!!Q_COL_RT >= 0 & !!Q_COL_RT < 150, NA_real_, !!Q_COL_RT))
   }, silent = TRUE)
   
-  # Should fail silently on classroom data with no practice trials and no practice column
+  # Should fail silently on data with no RT column
   try({
     df %<>%
       # Noticed this in ACE Explorer as of Jan 2020. Might have changed before then
@@ -440,14 +431,6 @@ standardize_ace_values <- function(df, app_type) {
   # Most of this is an attempt to reconstruct accuracy as orthogonal to response lateness
   
   if (all(startsWith(df[[COL_MODULE]], SAAT))) {
-    if (app_type %in% c("email", "pulvinar")) {
-      # This fixes a condition naming error in the raw log files
-      # present in classroom but fixed in explorer data
-      df[[COL_CONDITION]] = plyr::mapvalues(toupper(df[[COL_CONDITION]]),
-                                            from = c("IMPULSIVE", "SUSTAINED"),
-                                            to = c("sustained", "impulsive"),
-                                            warn_missing = FALSE)
-    }
     
     df %<>%
       standardize_saat_tnt(col = "position_is_top")
@@ -455,7 +438,7 @@ standardize_ace_values <- function(df, app_type) {
   } else if (STROOP %in% df[[COL_MODULE]]) {
     # This one technically varies it on classroom vs explorer,
     # but I think color_ink_shown/color_word_shown are a mid-explorer update
-    # so don't assume this varies on app_type
+    # so don't assume this varies on data_type
     stroop_correct_col = sym(ifelse("color_ink_shown" %in% cols, "color_ink_shown", "color_shown"))
     df %<>%
       mutate(!!COL_CORRECT_BUTTON := case_when(!!Q_COL_CORRECT_BUTTON == "no_response" ~ "no_response",
@@ -486,14 +469,6 @@ standardize_ace_values <- function(df, app_type) {
              # Set all valid RTs as "correct" before correcting for other weirdness
              # To fix late-incorrect marking in older versions of app
              !!COL_CORRECT_BUTTON := if_else(!!Q_COL_RT > 0, "correct", !!Q_COL_CORRECT_BUTTON))
-    
-    if (app_type %in% c("email", "pulvinar")) {
-      df %<>%
-        mutate(!!COL_CORRECT_BUTTON := if_else(!!Q_COL_RT != inter_time_interval,
-                                                "correct",
-                                                !!Q_COL_CORRECT_BUTTON,
-                                                missing = !!Q_COL_CORRECT_BUTTON))
-    }
     
   } else if (TNT %in% df[[COL_MODULE]]) {
     
@@ -527,7 +502,7 @@ standardize_ace_values <- function(df, app_type) {
     # in the past (before 2019?), degree_of_change was the meaningful variable of adaptation
     # hence this re-patching is sometimes necessary
     # I believe only applies to classroom data but may apply to old explorer data
-    # So not varying on app_type just in case
+    # So not varying on data_type just in case
     # I think this will not trigger any changes for newer Explorer data that don't meet the conditionals
     if (any(!is.na(df$degree_of_change))) {
       df %<>%
@@ -555,7 +530,7 @@ standardize_ace_values <- function(df, app_type) {
     # they get read in as character, or int if every value is NA
     df %<>%
       mutate_at(vars(matches("tap.*rt")), as.numeric)
-  } else if (TASK_SWITCH %in% df[[COL_MODULE]] & app_type == "explorer") {
+  } else if (TASK_SWITCH %in% df[[COL_MODULE]] & data_type == "explorer") {
     df %<>%
       mutate(button_pressed = str_trim(button_pressed, side = "right")) %>%
       separate(button_pressed, into = c("pressed_color", "pressed_shape"), sep = " ", fill = "right") %>%
@@ -569,7 +544,7 @@ standardize_ace_values <- function(df, app_type) {
                # missing implies fucked up somehow
                TRUE ~ NA_character_)
              )
-  } else if (BOXED %in% df[[COL_MODULE]] & app_type == "explorer") {
+  } else if (BOXED %in% df[[COL_MODULE]] & data_type == "explorer") {
     df %<>%
       mutate(button_pressed = na_if(button_pressed, "Unanswered"),
              !!COL_CORRECT_BUTTON := case_when(
@@ -582,7 +557,7 @@ standardize_ace_values <- function(df, app_type) {
                TRUE ~ NA_character_
              )
       )
-  } else if (ADP %in% df[[COL_MODULE]] & app_type == "explorer") {
+  } else if (ADP %in% df[[COL_MODULE]] & data_type == "explorer") {
       df %<>%
         mutate(expression = if_else(left_expression == "neutral",
                                     right_expression,
@@ -591,7 +566,7 @@ standardize_ace_values <- function(df, app_type) {
                                         left_expression,
                                         right_expression),
                !!COL_CONDITION := paste(expression, cue_expression, sep = "_"))
-  } else if (COLOR_SELECT %in% df[[COL_MODULE]] & app_type == "explorer") {
+  } else if (COLOR_SELECT %in% df[[COL_MODULE]] & data_type == "explorer") {
     df %<>%
       mutate(colors_used = map(colors_used, ~.x %>% 
                                  # so the commas within rgba specs won't split

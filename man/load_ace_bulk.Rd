@@ -11,7 +11,7 @@ load_ace_bulk(
   exclude = c(),
   pattern = "",
   which_modules = "",
-  data_type = c("nexus", "explorer", "email", "pulvinar")
+  data_type = c("nexus", "explorer")
 )
 }
 \arguments{
@@ -34,7 +34,7 @@ load_ace_bulk(
 \item{which_modules}{Specify modules to process. Defaults to all modules.}
 
 \item{data_type}{character What app data export type produced this data? One of
-\code{c("explorer", "email", "pulvinar")}. Must be specified.}
+\code{c("nexus", "explorer")}. Must be specified.}
 }
 \value{
 Returns a data.frame containing the content of every file in the

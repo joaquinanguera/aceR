@@ -4,13 +4,13 @@
 \alias{load_ace_file}
 \title{Reads raw ACE data from a file.}
 \usage{
-load_ace_file(file, app_type)
+load_ace_file(file, data_type)
 }
 \arguments{
 \item{file}{The name of the file which the data is to be read from.}
 
-\item{app_type}{character What app data export type produced this data? One of
-\code{c("explorer", "email", "pulvinar")}.}
+\item{data_type}{character What app data export type produced this data? One of
+\code{c("nexus", "explorer")}. Must be specified.}
 }
 \value{
 Returns the file's content as an R \code{\link{data.frame}}.

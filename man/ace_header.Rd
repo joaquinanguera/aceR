@@ -303,7 +303,7 @@ standardize_ace_column_names(df, data_type)
 
 standardize_ace_column_types(df)
 
-standardize_ace_values(df, app_type)
+standardize_ace_values(df, data_type)
 }
 \description{
 ACE column name constants

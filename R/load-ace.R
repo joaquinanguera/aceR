@@ -8,126 +8,19 @@
 #' @importFrom utils read.table read.csv write.csv head tail count.fields
 #' 
 #' @param file The name of the file which the data is to be read from.
-#' @param app_type character What app data export type produced this data? One of
-#' \code{c("explorer", "email", "pulvinar")}.
+#' @param data_type character What app data export type produced this data? One of
+#' \code{c("nexus", "explorer")}. Must be specified.
 #' @return Returns the file's content as an R \code{\link{data.frame}}.
 
-load_ace_file <- function(file, app_type) {
-  # read raw csv file
-  if (is_excel(file)) {
-    warning (file, " is Excel format, currently not supported ")
-    return (data.frame())
-    # raw_dat <- load_excel(file)
-  } 
+load_ace_file <- function(file, data_type) {
+
+  raw_dat <- load_csv(file)
   
-  raw_dat <- load_csv(file, app_type = app_type)
-  
-  if (app_type != "email") {
     out <- raw_dat %>%
-      transform_mid(file = file, app_type = app_type)
+      transform_mid(file = file, data_type = data_type)
 
-    if (is_pulvinar(file) | app_type == "pulvinar") {
-      out <- out %>%
-        transform_post_pulvinar()
-    }
     return (out)
-  } else if (app_type == "email") { # only if it hasn't already been loaded
-    raw_dat <- breakup_by_user(raw_dat)
-    
-    if (is.vector(raw_dat)) {
-      ortho_names = paste(file, names(raw_dat), sep = "-")
-      dfs = map2(ortho_names, raw_dat, ~attempt_transform_email(.x, .y))
-      out = plyr::rbind.fill(dfs)
-      return (out)
-    } else {
-      return (attempt_transform_email(file, raw_dat))
-    }
-  }
-}
 
-#' @keywords internal
-
-is_excel <- function (filename) {
-  # Remove this if you ever get Excel functionality back!
-  return (grepl("xls", filename))
-}
-
-#' @keywords internal
-
-is_pulvinar <- function (filename) {
-  return (grepl("pulvinar", filename, ignore.case = T))
-}
-
-#' @importFrom magrittr %>%
-#' @keywords internal
-
-attempt_transform_email <- function(file, raw_dat) {
-  # transform data to data frame
-  df = tryCatch ({
-    transformed = raw_dat %>% 
-      transform_pre_email() %>%
-      transform_mid(file = file, app_type = "email") %>%
-      transform_post_email()
-    # test if data is usable
-    st = paste(transformed, collapse = "")
-    # hacky workaround: newest edition of spatial span data DOES contain braces in "okay" datasets
-    if (grepl("}", st) & !grepl(SPATIAL_SPAN, file, ignore.case = TRUE)) {
-      warning(file, " contains invalid data ")
-      return (data.frame())
-    }
-    # technically a 'valid' file, BUT contains no data.
-    if (nrow(transformed) < 2) {
-      warning(file, "is valid, but contains no data!")
-      return (data.frame())
-    }
-    return (transformed)
-  }, error = function(e) {
-    warning("unable to load ", file)
-    return (data.frame())
-  })
-  return (df)
-}
-
-#' @importFrom magrittr %>%
-#' @keywords internal
-
-transform_pre_email <- function (raw_dat) {
-  if (nrow(raw_dat) == 0) return (data.frame())
-  
-  dat <- raw_dat %>%
-    # standardize raw data
-    standardize_raw_csv_data() %>%
-    # remove nondata rows
-    remove_nondata_rows() %>%
-    # move grouping rows into column
-    transform_grouping_rows() %>%
-    # standardize session info
-    standardize_session_info() %>%
-    # transform session info into columns
-    transform_session_info() %>%
-    # parse subsections
-    parse_subsections()
-  
-  return (dat)
-}
-
-#' @keywords internal
-
-transform_post_email <- function (dat) {
-  
-  try({ # so will fail silently if gender isn't in data
-    # this patch to propagate gender down has to be done for OLD files where gender was called "age1"
-    if (length(unique(dat[[COL_GENDER]])) > 1) {
-      if ("FEMALE" %in% unique(dat[[COL_GENDER]])) { 
-        this_gender = "FEMALE"
-      } else if ("MALE" %in% unique(dat[[COL_GENDER]])) {
-        this_gender = "MALE"
-      } else {this_gender = "OTHER"}
-      dat[[COL_GENDER]] = this_gender
-    }
-  }, silent = TRUE)
-  
-  return (dat)
 }
 
 #' @import dplyr
@@ -135,11 +28,11 @@ transform_post_email <- function (dat) {
 #' @importFrom rlang !! :=
 #' @keywords internal
 
-transform_mid <- function (dat, file, app_type) {
+transform_mid <- function (dat, file, data_type) {
   if (nrow(dat) == 0) return (data.frame())
   # This chunk same between email and pulvinar
   # standardize output
-  if (app_type == "pulvinar") data_type <- "explorer" else data_type <- app_type
+
   dat <- dat %>%
     standardize_names(data_type = data_type) %>%
     mutate(file = file)
@@ -150,7 +43,7 @@ transform_mid <- function (dat, file, app_type) {
   # module is now already in nexus data... EXCEPT demographics files
   # so this needs to run for that, and for legacy explorer data
   if (!(COL_MODULE %in% names(dat))) {
-    # assumes each pulvinar file should only contain one module
+    # assumes each file should only contain one module
     dat <- dat %>% 
       mutate(!!COL_MODULE := identify_module(file[1]))
   }
@@ -168,7 +61,7 @@ transform_mid <- function (dat, file, app_type) {
     standardize_ace_column_types() %>%
     # clean, standardize, possibly construct PID, BID, short BID
     standardize_ace_ids() %>% 
-    standardize_ace_values(app_type = app_type) %>% 
+    standardize_ace_values(data_type = data_type) %>% 
     # appends condition to module name for SAAT only
     # should not modify other modules
     # must be done after standardize_ace_values
@@ -207,11 +100,3 @@ transform_mid <- function (dat, file, app_type) {
   return (dat)
 }
 
-#' @keywords internal
-
-transform_post_pulvinar <- function (dat) {
-  if (COL_NAME %in% names(dat) & grepl("ADMIN-UCSF", dat[1, COL_PID])) { # this function expects a "name" column by which to do the matching
-    dat <- remove_nondata_rows_pulvinar(dat)
-  }
-  return (dat)
-}

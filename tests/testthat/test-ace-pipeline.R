@@ -2,40 +2,19 @@ context("Whole ACE pipeline from loading to post")
 
 raw_explorer <- load_ace_bulk(aceR_sample_data_path("explorer"), data_type = "explorer", verbose = F)
 
-raw_email <- load_ace_bulk(aceR_sample_data_path("email"),
-                           exclude = "bad-data",
-                           pattern = ".csv",
-                           data_type = "email",
-                           verbose = F)
-
 test_that("ACE data loads properly", {
   expect_s3_class(raw_explorer, "tbl_df")
-  expect_s3_class(raw_email, "tbl_df")
 })
 
 test_that("ACE loading errors when expected", {
   # when data_type not specified
   expect_error(load_ace_bulk(aceR_sample_data_path("explorer"), verbose = F))
-  expect_error(load_ace_bulk(aceR_sample_data_path("email"),
-                             exclude = "bad-data",
-                             pattern = ".csv",
-                             data_type = "classroom",
-                             verbose = F),
-               "not an allowed setting of data_type")
+
 })
 
 range_cutoff <- c(150, 2000)
 
 sd_cutoff <- 2
-
-trimmed_range_ace_email <- raw_email %>%
-  filter(!(module %in% c(SPATIAL_SPAN, BACK_SPATIAL_SPAN, ISHIHARA))) %>% 
-  mutate(rt_within_pre = map_int(data, ~sum(.x$rt >= range_cutoff[1] & .x$rt <= range_cutoff[2] & !is.na(.x$rt))),
-         rt_nogo_pre = map_int(data, ~sum(.x$rt == -99 & !is.na(.x$rt)))) %>%
-  trim_rt_trials_range(cutoff_min = range_cutoff[1], cutoff_max = range_cutoff[2]) %>%
-  mutate(rt_within_post = map_int(data, ~sum(.x$rt >= range_cutoff[1] & .x$rt <= range_cutoff[2] & !is.na(.x$rt))),
-         rt_without_post = map_int(data, ~sum((.x$rt < range_cutoff[1] | .x$rt > range_cutoff[2]) & !is.na(.x$rt))),
-         rt_nogo_post = map_int(data, ~sum(.x$rt == -99 & !is.na(.x$rt))))
 
 trimmed_range_ace_explorer <- raw_explorer %>%
   filter(!(module %in% c(DEMOS, SPATIAL_SPAN, BACK_SPATIAL_SPAN, ISHIHARA))) %>% 
@@ -68,10 +47,8 @@ test_that("trimming: throws warning when range min < 150 ms", {
 
 test_that("trimming: range cutoff behaves", {
   
-  expect_equal(trimmed_range_ace_email$rt_within_pre, trimmed_range_ace_email$rt_within_post)
   expect_equal(trimmed_range_ace_explorer$rt_within_pre, trimmed_range_ace_explorer$rt_within_post)
   
-  expect_equal(trimmed_range_ace_email$rt_without_post, trimmed_range_ace_email$rt_nogo_post)
   expect_equal(trimmed_range_ace_explorer$rt_without_post, trimmed_range_ace_explorer$rt_nogo_post)
   
 })
@@ -83,68 +60,10 @@ test_that("trimming: sd cutoff behaves", {
 })
 
 test_that("trimming: nogo trials are untouched", {
-  expect_equal(trimmed_range_ace_email$rt_nogo_pre, trimmed_range_ace_email$rt_nogo_post)
   expect_equal(trimmed_range_ace_explorer$rt_nogo_pre, trimmed_range_ace_explorer$rt_nogo_post)
 })
 
 test_that("trimming: first ns behave", {
-  
-  for (i in 1:nrow(raw_email)) {
-    if (raw_email$module[i] %in% c(FLANKER, STROOP, TASK_SWITCH)) {
-      # these are modules where condition isn't blocked
-      # thus trial_number doesn't restart with condition
-      # and incidentally is stored in another column name
-      # make dummy trial number col that is condition-specific
-      if (raw_email$module[i] == TASK_SWITCH) {
-        cond_col = sym("taskswitch_state")
-      } else {
-        cond_col = Q_COL_TRIAL_TYPE
-      }
-      expect_equal(raw_email$data[[i]] %>% 
-                     arrange(!!Q_COL_BID, trial_number) %>% 
-                     group_by(!!Q_COL_BID, !!cond_col) %>% 
-                     mutate(trial_number_temp = 0:(n()-1)) %>% 
-                     filter(trial_number_temp >= 10) %>% 
-                     nrow(),
-                   raw_email %>% 
-                     trim_initial_trials(n = 10, verbose = F) %>% 
-                     pull(data) %>% 
-                     pluck(raw_email$module[i]) %>% 
-                     nrow())
-      
-      expect_equal(raw_email$data[[i]] %>% 
-                     arrange(!!Q_COL_BID, trial_number) %>% 
-                     group_by(!!Q_COL_BID, !!cond_col) %>% 
-                     mutate(trial_number_temp = 0:(n()-1)) %>% 
-                     filter(trial_number_temp > .1*max(trial_number_temp)) %>% 
-                     nrow(),
-                   raw_email %>% 
-                     trim_initial_trials(n = .1, verbose = F) %>% 
-                     pull(data) %>% 
-                     pluck(raw_email$module[i]) %>% 
-                     nrow())
-    } else if (!(raw_email$module[i] %in% c(DEMOS, ISHIHARA, SPATIAL_SPAN, BACK_SPATIAL_SPAN))) {
-      expect_equal(raw_email$data[[i]] %>% 
-                     group_by(!!Q_COL_BID) %>% 
-                     filter(trial_number >= 10) %>% 
-                     nrow(),
-                   raw_email %>% 
-                     trim_initial_trials(n = 10, verbose = F) %>% 
-                     pull(data) %>% 
-                     pluck(raw_email$module[i]) %>% 
-                     nrow())
-      
-      expect_equal(raw_email$data[[i]] %>% 
-                     group_by(!!Q_COL_BID) %>% 
-                     filter(trial_number > .1*max(trial_number)) %>% 
-                     nrow(),
-                   raw_email %>% 
-                     trim_initial_trials(n = .1, verbose = F) %>% 
-                     pull(data) %>% 
-                     pluck(raw_email$module[i]) %>% 
-                     nrow())
-    }
-  }
   
   for (i in 1:nrow(raw_explorer)) {
     if (raw_explorer$module[i] %in% c(ADP, FLANKER, STROOP, SPATIAL_CUE, TASK_SWITCH)) {
@@ -205,15 +124,9 @@ test_that("trimming: first ns behave", {
     }
   }
 
-  # expect error if n > 1 and not integer
-  expect_error(trim_initial_trials(raw_email, n = 1.1))
 })
 
 test_that("nesting: unnesting is long", {
-  expect_false("list" %in% (raw_email %>%
-                              unnest_ace_raw(app_type = "classroom") %>%
-                              purrr::map_chr(rlang::type_of)))
-  
   expect_false("list" %in% (raw_explorer %>%
                               unnest_ace_raw(app_type = "explorer") %>%
                               purrr::map_chr(rlang::type_of)))
@@ -224,11 +137,6 @@ test_that("nesting: re-nesting yields identical", {
     unnest_ace_raw(app_type = "explorer") %>%
     nest_ace_raw(app_type = "explorer") %>% 
     arrange(module)
-  
-  renest_email <- raw_email %>%
-    unnest_ace_raw(app_type = "classroom") %>%
-    nest_ace_raw(app_type = "classroom") %>% 
-    arrange(!!Q_COL_MODULE)
   
   for (i in 1:nrow(raw_explorer)) {
     if (raw_explorer$module[i] == DEMOS) {
@@ -244,10 +152,6 @@ test_that("nesting: re-nesting yields identical", {
     }
   }
   
-  for (i in 1:nrow(raw_email)) {
-    expect_mapequal(raw_email$data[[raw_email$module[i]]], renest_email$data[[raw_email$module[i]]])
-    expect_mapequal(raw_email$demos[[raw_email$module[i]]], renest_email$demos[[raw_email$module[i]]])
-  }
 })
 
 test_that("module proc: ACE Ishihara works", {
@@ -326,7 +230,6 @@ test_that("module proc: ACE tap and trace works", {
 proc_explorer_long = proc_by_module(raw_explorer, app_type = "explorer", output = "long", verbose = F)
 proc_explorer_wide = proc_by_module(raw_explorer, app_type = "explorer", output = "wide", verbose = F)
 
-proc_email_wide = proc_by_module(raw_email, app_type = "classroom", output = "wide", verbose = F)
 
 test_that("module proc: ACE Explorer data bulk processes properly", {
   # Data exists
@@ -335,15 +238,6 @@ test_that("module proc: ACE Explorer data bulk processes properly", {
   # Make sure name binding did not duplicate names accidentally
   expect_false(any(endsWith(unlist(map(proc_explorer_long$proc, names), use.names = F), ".x") | endsWith(unlist(map(proc_explorer_long$proc, names), use.names = F), ".y")))
   expect_false(any(endsWith(names(proc_explorer_wide), ".x") | endsWith(names(proc_explorer_wide), ".y")))
-})
-
-test_that("module proc: ACE Classroom email data bulk processes properly", {
-  long = proc_by_module(raw_email, app_type = "classroom", output = "long", verbose = F)
-  wide = proc_by_module(raw_email, app_type = "classroom", output = "wide", verbose = F)
-  expect_gt(nrow(long), 0)
-  expect_gt(nrow(wide), 0)
-  expect_false(any(endsWith(unlist(map(long$proc, names), use.names = F), ".x") | endsWith(unlist(map(long$proc, names), use.names = F), ".y")))
-  expect_false(any(endsWith(names(wide), ".x") | endsWith(names(wide), ".y")))
 })
 
 test_that("module post-processing: reducing cols works", {
@@ -356,12 +250,6 @@ test_that("module post-processing: reducing cols works", {
                           demo_names = c("age", "gender", "handedness"),
                           metric_names = c("rt_", "dprime", "object_count_span"),
                           metric_names_exclude = "length")
-  
-  # test that it works with emailed data
-  expect_error(post_reduce_cols(proc_email_wide,
-                                demo_names = c("pid", "age", "gender", "handedness"),
-                                metric_names = c("bid", "rt_", "dprime", "object_count_span")), 
-               regexp = NA)
   
   # test that works when metric_names_exclude is empty
   expect_error(post_reduce_cols(proc_explorer_long,
@@ -431,10 +319,6 @@ test_that("module post-processing: cleaning below-chance trials works", {
   expect_identical(is.na(test_flanker_long$acc_mean.overall.y), test_flanker_long$below_cutoff)
   expect_identical(is.na(test_flanker_wide$FLANKER.acc_mean.overall.y), test_flanker_wide$below_cutoff)
   
-  # Just to test ACE Classroom not bonking
-  expect_error(post_clean_chance(proc_email_wide,
-                                 app_type = "classroom"),
-               regexp = NA)
 })
 
 test_that("module post-processing: cleaning below-chance trials handles extra demos", {
@@ -464,12 +348,7 @@ test_that("mega wrapper works", {
                                     data_type = "explorer",
                                     verbose = F),
                   "tbl_df")
-  expect_s3_class(proc_ace_complete(path_in = paste0(aceR_sample_data_path("email"), "/t3"),
-                                    path_out = NULL,
-                                    data_type = "email",
-                                    verbose = F),
-                  "tbl_df")
-  
+
   # With writing stuff out
   proc <- proc_ace_complete(path_in = aceR_sample_data_path("explorer"),
                             data_type = "explorer",
