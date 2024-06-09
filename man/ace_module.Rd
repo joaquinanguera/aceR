@@ -7,7 +7,6 @@
 \alias{BOXED}
 \alias{BRT}
 \alias{COLOR_SELECT}
-\alias{DISCRIMINATION}
 \alias{FLANKER}
 \alias{SAAT}
 \alias{SAAT_SUS}
@@ -58,9 +57,7 @@ An object of class \code{character} of length 1.
 
 An object of class \code{character} of length 1.
 
-An object of class \code{character} of length 1.
-
-An object of class \code{character} of length 18.
+An object of class \code{character} of length 17.
 }
 \usage{
 ADP
@@ -70,8 +67,6 @@ BOXED
 BRT
 
 COLOR_SELECT
-
-DISCRIMINATION
 
 FLANKER
 

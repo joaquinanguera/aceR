@@ -127,16 +127,6 @@ module_colorselection <- function(df) {
 #' @keywords internal
 #' @name ace_procs
 
-module_discrimination <- function(df) {
-  # TODO: Standardize correct? column name
-  gen = proc_generic_module(df, col_acc = Q_COL_CORRECT_RESPONSE, col_condition = rlang::sym("cue_type"))
-  rcs = proc_by_condition(df, c(Q_COL_CORRECT_RESPONSE, COL_RT), Q_COL_TRIAL_TYPE, FUN = ace_rcs)
-  return (left_join(gen, rcs, by = COL_BID))
-}
-
-#' @keywords internal
-#' @name ace_procs
-
 module_flanker <- function(df) {
   return (module_congruence(df))
 }

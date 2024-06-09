@@ -18,9 +18,6 @@ BRT <- "BRT"
 COLOR_SELECT <- "COLORSELECTION"
 
 #' @name ace_module
-DISCRIMINATION <- "DISCRIMINATION"
-
-#' @name ace_module
 FLANKER <- "FLANKER"
 
 #' @name ace_module
@@ -64,7 +61,6 @@ ALL_MODULES = c(ADP,
                 BOXED,
                 BRT,
                 COLOR_SELECT,
-                DISCRIMINATION,
                 FLANKER,
                 SAAT,
                 SAAT_SUS,

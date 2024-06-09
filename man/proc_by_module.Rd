@@ -6,10 +6,9 @@
 \usage{
 proc_by_module(
   df,
-  app_type = c("classroom", "explorer", "sea"),
+  app_type = c("nexus", "explorer", "sea"),
   modules = "all",
   output = "wide",
-  conditions = NULL,
   verbose = TRUE
 )
 }
@@ -31,9 +30,6 @@ to output data for. Defaults to all modules detected in data.}
 \item{output}{string indicating preferred output format. Can be \code{"wide"} (default),
 where one dataframe is output containing cols with data from all modules, or \code{"long"},
  where a dataframe is output, with a list-column containing dataframes with each module's data.}
-
-\item{conditions}{character vector. If data contains multiple study conditions
-(e.g. pre & post), specify their labels here. Case insensitive.}
 
 \item{verbose}{logical. Print details? Defaults to \code{FALSE}.}
 }

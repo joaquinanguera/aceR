@@ -6,7 +6,6 @@
 \alias{module_boxed}
 \alias{module_brt}
 \alias{module_colorselection}
-\alias{module_discrimination}
 \alias{module_flanker}
 \alias{module_saat}
 \alias{module_stroop}
@@ -23,11 +22,9 @@ module_adp(df)
 
 module_boxed(df)
 
-module_brt(df)
+module_brt(df, data_type)
 
 module_colorselection(df)
-
-module_discrimination(df)
 
 module_flanker(df)
 
