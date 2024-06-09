@@ -252,12 +252,6 @@ standardize_ace_ids <- function(dat) {
     bid_sep = "."
   }
   
-  # very band-aid: attempt to repair PID using name field if PID is empty stem or otherwise filler
-  if (all(unique(dat[[COL_PID]]) %in% c("ADMIN-UCSF-", "ADMIN-UCSF-0", "ADMIN-UCSF-0000")) & COL_NAME %in% names(dat)) {
-    dat <- dat %>%
-      mutate(!!COL_PID := paste0("ADMIN-UCSF-", !!Q_COL_NAME))
-  }
-  
   dat <- dat %>%
     # To comply with ACE Explorer
     mutate(!!COL_PID := stringr::str_replace_all(tolower(!!Q_COL_PID), "[^a-zA-Z0-9]+", ""),
@@ -299,32 +293,65 @@ standardize_ace_column_types <- function (df) {
     }, silent = TRUE)
   }
   
-  # No responses in classroom (pulvinar) are coded as "N/A"
-  # No responses in explorer and nexus are coded as 0
-  # Neither of these should fail on the other case
-  try({
-    df <- df %>%
-      mutate(!!COL_RT := as.numeric(!!Q_COL_RT),
-             !!COL_RT := na_if(!!Q_COL_RT, 0))
-  }, silent = TRUE)
+  # No response RTs in explorer and nexus are coded as 0
+  # No response RWs in both are coded as -1
   
-  try({
-    df <- df %>%
-    mutate(!!COL_RW := as.numeric(!!Q_COL_RW))
-  }, silent = TRUE)
+  df <- df %>%
+    mutate(across(any_of(c(COL_RT,
+                           COL_RW,
+                           "position_is_top",
+                           "is_valid_cue",
+                           "object_count",
+                           COL_AGE)),
+                  as.numeric),
+           # Nexus Ishihara numbers get read in as numeric but all other modules are char
+           # which prevents unnest_ace_raw later, for those who want to use it
+           across(any_of(c(COL_GENDER,
+                           "stimulus_displayed",
+                           "correct_answer",
+                           "participant_answer")),
+                  as.character),
+           across(any_of(c(COL_CONDITION,
+                           COL_TRIAL_TYPE,
+                           COL_HANDEDNESS,
+                           "cue_side",
+                           "cue_displayed",
+                           "right_expression",
+                           "left_expression")),
+                  tolower),
+           across(any_of(c(COL_CONDITION)),
+                  \(x) str_remove_all(x, " "))
+           )
+  
+  # skip the RT/RW/correct_answer recoding for demos, which don't have em
+  if (DEMOS %in% df[[COL_MODULE]]) return (df)
+  
+  # These below still needs to be in a try statement bc, e.g., demographics files don't have RT/RW
+  df <- df %>% 
+    mutate(!!COL_RT := na_if(!!Q_COL_RT, 0),
+           !!COL_RW := na_if(!!Q_COL_RW, -1))
   
   # code correct_button with words, not 0 and 1
-  # No responses in classroom (pulvinar) are coded as "N/A" in the RT column
-  # No responses in explorer are coded as 0 in the RT column
+  # No responses in explorer are coded as 0 (NA now) in the RT column
   # No responses in nexus are coded as "False" in the was_response_recorded column and 0 in the RT column
   # Neither of these should fail on the other case
-  try({
-    df <- df %>%
-      mutate(!!COL_CORRECT_BUTTON := dplyr::recode(!!Q_COL_CORRECT_BUTTON, `0` = "incorrect", `1` = "correct", .default = NA_character_))
-  }, silent = TRUE)
 
+  if (is.numeric(df[[COL_CORRECT_BUTTON]])) {
+    df <- df %>%
+      mutate(!!COL_CORRECT_BUTTON := dplyr::recode(!!Q_COL_CORRECT_BUTTON,
+                                                   `0` = "incorrect",
+                                                   `1` = "correct",
+                                                   .default = NA_character_))
+  } else {
+    df <- df %>%
+      mutate(!!COL_CORRECT_BUTTON := dplyr::recode(as.character(!!Q_COL_CORRECT_BUTTON),
+                                                   `FALSE` = "incorrect",
+                                                   `TRUE` = "correct",
+                                                   .default = NA_character_))
+  }
+  
   # Noticed this in ACE Explorer as of Jan 2020. Might have changed before then
-  # Needs to be in a separate try statement because Ishihara will fail this for not having RT
+  # Needs to be in a separate try statement because legacy Explorer Ishihara will fail this for not having RT
   # but we still want it recoded per above
   try({
     df <- df %>%
@@ -332,23 +359,6 @@ standardize_ace_column_types <- function (df) {
                                              "no_response",
                                              !!Q_COL_CORRECT_BUTTON))
   }, silent = TRUE)
-  
-  # various condition cols that should be numeric
-  suppressWarnings({
-    df <- df %>%
-      mutate(across(any_of(c("position_is_top",
-                             "is_valid_cue",
-                             "object_count",
-                             COL_AGE)), as.numeric))
-  })
-  
-  df <- df %>%
-    mutate(across(any_of(c(COL_CONDITION,
-                           COL_TRIAL_TYPE,
-                           "cue_side",
-                           "cue_displayed",
-                           "right_expression",
-                           "left_expression")), tolower))
   
   return (df)
 }
@@ -373,10 +383,7 @@ standardize_ace_values <- function(df, data_type) {
     df %<>%
       mutate(!!COL_MODULE := str_remove_all(!!Q_COL_MODULE, " "),
              # so task switch v2 gets the same module name as task switch v1. I presume that's fine?
-             !!COL_MODULE := str_remove(!!Q_COL_MODULE, "V2")) %>% 
-      # Ishihara numbers get read in as numeric but all other modules are char
-      # which prevents unnest_ace_raw later, for those who want to use it
-      mutate(across(any_of(c("stimulus_displayed", "correct_answer", "participant_answer")), as.character))
+             !!COL_MODULE := str_remove(!!Q_COL_MODULE, "V2"))
     
     # Nexus should only need the ADP construction to match what was originally requested for Explorer
     if (ADP %in% df[[COL_MODULE]]) {
@@ -385,23 +392,27 @@ standardize_ace_values <- function(df, data_type) {
                                         unlist(str_split(cue_displayed, "-"))[1],
                                         unlist(str_split(cue_displayed, "-"))[2]),
                !!COL_CONDITION := paste(!!COL_CONDITION, cue_expression, sep = "_"))
-      return (df)
-    } else {
-      return (df)
+    } else if (BRT %in% df[[COL_MODULE]]) {
+      df %<>%
+        recode_brt_condition_dominance()
     }
+    
+    if (COL_CORRECT_BUTTON %in% cols) {
+      df %<>%
+        # needs to be grouped to prevent previous_correct_button from bleeding over between records
+        group_by(!!Q_COL_BID) %>%
+        mutate(!!COL_PREV_CORRECT_BUTTON := make_lagged_col(!!Q_COL_CORRECT_BUTTON)) %>%
+        ungroup()
+    }
+    return (df)
   }
   
+  # Past this point data are assumed to be legacy Explorer
+  # because Nexus data would have returned by now
   # Important: This will scrub RTs below 150 ms for all ACE tasks by default!!!
   try({
     df %<>%
       mutate(!!COL_RT := if_else(!!Q_COL_RT >= 0 & !!Q_COL_RT < 150, NA_real_, !!Q_COL_RT))
-  }, silent = TRUE)
-  
-  # Should fail silently on data with no RT column
-  try({
-    df %<>%
-      # Noticed this in ACE Explorer as of Jan 2020. Might have changed before then
-      mutate(!!COL_CORRECT_BUTTON := if_else(!!Q_COL_RT == 0 | is.na(!!Q_COL_RT), "no_response", !!Q_COL_CORRECT_BUTTON))
   }, silent = TRUE)
   
   if (COL_LATE_RESPONSE %in% cols) {
@@ -423,8 +434,7 @@ standardize_ace_values <- function(df, data_type) {
     # TODO: If you want ALL_POSSIBLE_EXPLORE_DEMOS, it goes in here with ALL_POSSIBLE_DEMOS
     # But maybe this functionality should wait until the device stuff is faithfully only in the task data
     df %<>%
-      select(any_of(c(COL_MODULE, ALL_POSSIBLE_DEMOS, COL_TIME))) %>%
-      mutate(across(any_of(COL_GENDER), as.character))
+      select(any_of(c(COL_MODULE, ALL_POSSIBLE_DEMOS, COL_TIME)))
   }
   
   # Forcible recoding of accuracy and other things for various modules below
