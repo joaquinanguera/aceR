@@ -19,7 +19,7 @@ attempt_module <- function(df, module, app_type, verbose) {
   }
   out <- tryCatch({
     
-    if (module_function == SAAT) {
+    if (module_function %in% c(BRT, SAAT)) {
       df <- do.call(paste0("module_", tolower(module_function)), list(df = df, app_type = app_type)) 
     } else {
       df <- do.call(paste0("module_", tolower(module_function)), list(df = df)) 

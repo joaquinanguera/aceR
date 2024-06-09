@@ -36,18 +36,16 @@ NULL
 #' @param output string indicating preferred output format. Can be \code{"wide"} (default),
 #' where one dataframe is output containing cols with data from all modules, or \code{"long"},
 #'  where a dataframe is output, with a list-column containing dataframes with each module's data.
-#' @param conditions character vector. If data contains multiple study conditions
-#' (e.g. pre & post), specify their labels here. Case insensitive.
 #' @param verbose logical. Print details? Defaults to \code{FALSE}.
 #' @return Returns summary statistics for every unique module included in the 
 #' data as a list. Throws warnings for modules with undefined methods. 
 #' See \code{\link{ace_procs}} for a list of supported modules.
 
 proc_by_module <- function(df,
-                           app_type = c("classroom", "explorer", "sea"),
+                           app_type = c("nexus", "explorer", "sea"),
                            modules = "all",
                            output = "wide",
-                           conditions = NULL, verbose = TRUE) {
+                           verbose = TRUE) {
   stopifnot(length(app_type) == 1)
   # if data now comes in as list-columns of separate dfs per module, subset_by_col is deprecated
   
@@ -57,21 +55,19 @@ proc_by_module <- function(df,
       return (data.frame())
     }
     df <- df %>%
-      filter(module %in% modules)
+      filter(!!COL_MODULE %in% modules)
   }
   
-  if (any(df$module == "unknown")) {
+  if (any(df[[COL_MODULE]] == "unknown")) {
     warning(crayon::yellow("Unsupported modules found. They will not be processed."))
     df <- df %>%
-      filter(module != "unknown")
+      filter(!!COL_MODULE != "unknown")
   }
   
   # need this for proper specification of which demos and such to pull
   is_ace = app_type != "sea"
   
-  if (app_type == "classroom") {
-    all_these_demos = ALL_POSSIBLE_DEMOS
-  } else if (app_type == "explorer") {
+  if (app_type == "explorer") {
     # TODO: If you want ALL_POSSIBLE_EXPLORE_DEMOS, it goes in here with ALL_POSSIBLE_DEMOS
     # But maybe this functionality should wait until the device stuff is faithfully only in the task data
     all_these_demos = ALL_POSSIBLE_DEMOS
@@ -79,29 +75,27 @@ proc_by_module <- function(df,
     all_these_demos = ALL_POSSIBLE_SEA_DEMOS
   }
   
-  if (app_type != "sea") {
-    # If ACE Explorer, basically
-
+  
+  # If ACE Explorer, basically
+  
+  if (is_ace) {
+    out <- df %>%
+      # Put demos in another column, wide-ish, so it's next to every other module
+      mutate(demos = map(1:n(), ~df$data[df$module == DEMOS][[1]])) %>%
+      filter(module != DEMOS)
+    
     if (app_type == "explorer") {
-      out <- df %>%
-        # Put demos in another column, wide-ish, so it's next to every other module
-        mutate(demos = map(1:n(), ~df$data[df$module == DEMOS][[1]])) %>%
-        filter(module != DEMOS)
-    } else {
-      out <- df
+      out <- out %>%
+        # patch handedness from demos directly into brt data
+        mutate(data = pmap(list(data, module, demos), function(a, b, c) {
+          if (b == BRT) {
+            reconstruct_pid(a) %>%
+              left_join(c %>%
+                          select(COL_PID, COL_HANDEDNESS),
+                        by = COL_PID)
+          } else {a}
+        }))
     }
-    
-    out <- out %>%
-      # patch handedness from demos directly into brt data
-      mutate(data = pmap(list(data, module, demos), function(a, b, c) {
-        if (b == BRT) {
-          reconstruct_pid(a) %>%
-            left_join(c %>%
-                        select(COL_PID, COL_HANDEDNESS),
-                      by = COL_PID)
-        } else {a}
-      }))
-    
   } else {
     # This is now here for SEA compatibility
     out <- df %>%
@@ -112,15 +106,7 @@ proc_by_module <- function(df,
   }
   
   out <- out %>%
-    mutate(# this should extract between-subject study conditions from file names
-           demos = map(demos, function(x) {
-             if (!is.null(conditions)) {
-               return (label_study_conditions(x, conditions))
-             } else {
-               return (x)
-             }
-           }),
-           # remove any demo cols that appear to contain no info
+    mutate(# remove any demo cols that appear to contain no info
            demos = map(demos, ~remove_empty_cols(.x)),
            proc = pmap(list(data, module, verbose), function(a, b, c) {
              attempt_module(a, b, app_type = app_type, verbose = c)
@@ -130,7 +116,7 @@ proc_by_module <- function(df,
   
   # prepare for output
   
-  if (app_type == "explorer") {
+  if (is_ace) {
     # Try this: Ace Explore has demos collected at a separate date/time,
     # so BID will _basically never_ match up. Use PID to bind demos to proc
     demo_merge_col = COL_PID
@@ -149,7 +135,7 @@ proc_by_module <- function(df,
                            select(-any_of(COL_FILE)) %>%
                            distinct()))
     
-    if (app_type == "explorer") {
+    if (is_ace) {
       out <- out %>%
         mutate(proc = map2(proc, module, ~.x %>%
                              select(!!COL_BID, !!COL_PID, everything()) %>%
@@ -164,18 +150,7 @@ proc_by_module <- function(df,
                                          module = .y, .cols = -(!!COL_BID))))
     }
     
-    if (app_type == "classroom") {
-      # do not join module to module by full BID if ACE Classroom data
-      # because diff modules from same subj's session have diff timestamps
-      # disambiguate full bids from diff modules by prepending module name
-      out <- out %>%
-        mutate(proc = pmap(list(proc, demos, module), function (a, b, c) {
-          full_join(b, a, by = demo_merge_col) %>%
-            rename_with(.fn = paste_module_colname,
-                        module = c,
-                        .cols = any_of(c(COL_BID, COL_TIME)))
-        }))
-    } else if (app_type == "explorer") {
+    if (is_ace) {
       # ACE explorer data:
       # join demos to proc with pid
       # BUT, DO join module to module by full bid. now, with times gameplayed as the session identfier,
@@ -232,16 +207,6 @@ get_valid_demos = function(df, is_ace) {
 }
 
 #' @keywords internal
-
-label_study_conditions = function(info, conditions) {
-  info$study_condition = NA
-  for (cond in 1:length(conditions)) {
-    info[grepl(conditions[cond], info[, COL_FILE], ignore.case = T), COL_STUDY_COND] = tolower(conditions[cond])
-  }
-  return (info)
-}
-
-#' @keywords internal
 #' @importFrom dplyr mutate select everything
 #' @importFrom magrittr %>%
 #' @importFrom rlang !! :=
@@ -259,18 +224,6 @@ reconstruct_pid <- function (proc) {
 
 paste_module_colname <- function (col, module) {
   return (paste(toupper(module), col, sep = "."))
-}
-
-#' @keywords internal deprecated
-
-get_proc_info <- function(mod, proc, conditions) {
-  
-  valid_demos = get_valid_demos(mod)
-  info = mod[, valid_demos]
-  info = distinct(info)
-  
-  if (!missing(conditions)) {info = label_study_conditions(info, conditions)}
-  return (merge(info, proc, by = COL_BID))
 }
 
 #' @keywords internal deprecated

@@ -60,37 +60,18 @@ module_boxed <- function(df) {
 #' @keywords internal
 #' @name ace_procs
 
-module_brt <- function(df) {
-  if (COL_HANDEDNESS %in% names(df)) {
-    df <- df %>%
-      mutate(!!COL_HANDEDNESS := tolower(!!Q_COL_HANDEDNESS))
-    
-    if (!all(df[[COL_HANDEDNESS]] %in% c("right", "left"))) {
-      warning("Nonstandard handedness levels detected.\n",
-              "Handedness levels found in data (coerced to lowercase): ",
-              paste(unique(df[[COL_HANDEDNESS]]), collapse = " "),
-              "\n",
-              "Dominant hand recoding may be unknown for these levels")
+module_brt <- function(df, data_type) {
+  if (data_type == "explorer") {
+    if (COL_HANDEDNESS %in% names(df)) {
+      # Must have it here for legacy Explorer data bc handedness is only in the separate demos
+      # and thus this can't be done at load_ace_bulk
+      df <- df %>%
+        recode_brt_condition_dominance()
+    } else {
+      warning("No handedness data found. Unable to label BRT data by dominant hand")
     }
-    
-    df <- df %>%
-      mutate(condition_hand = case_when(
-        grepl("right", !!Q_COL_HANDEDNESS) ~ recode(!!Q_COL_CONDITION,
-                                                    right = "dominant",
-                                                    left = "nondominant",
-                                                    rightthumb="dominant.thumb",
-                                                    leftthumb="nondominant.thumb"),
-        grepl("left", !!Q_COL_HANDEDNESS) ~ recode(!!Q_COL_CONDITION,
-                                                   left = "dominant",
-                                                   right = "nondominant",
-                                                   leftthumb="dominant.thumb",
-                                                   rightthumb="nondominant.thumb"),
-        TRUE ~ !!Q_COL_CONDITION))
-    gen = proc_generic_module(df, col_condition = sym("condition_hand"))
-  } else {
-    warning("No handedness data found. Unable to label BRT data by dominant hand")
-    gen = proc_generic_module(df)
   }
+  gen = proc_generic_module(df)
   gen = select(gen, -starts_with(PROC_COL_OLD[1]), -starts_with(PROC_COL_OLD[2]))
   return (gen)
 }
@@ -157,10 +138,7 @@ module_discrimination <- function(df) {
 #' @name ace_procs
 
 module_flanker <- function(df) {
-  gen = proc_generic_module(df, col_condition = Q_COL_TRIAL_TYPE)
-  rcs = proc_by_condition(df, c(COL_CORRECT_BUTTON, COL_RT), Q_COL_TRIAL_TYPE, FUN = ace_rcs)
-  cost = multi_subtract(gen, "\\.incongruent", "\\.congruent", "\\.cost")
-  return (left_join(gen, rcs, by = COL_BID) %>% dplyr::bind_cols(cost))
+  return (module_congruence(df))
 }
 
 #' @import dplyr
@@ -171,7 +149,6 @@ module_flanker <- function(df) {
 #' @name ace_procs
 
 module_saat <- function(df, app_type) {
-  stopifnot(app_type %in% c("classroom", "explorer")) # Failsafe
   
   # df = replace_empty_values(df, COL_CONDITION, "saattype")
   df = mutate(df,
@@ -224,21 +201,20 @@ module_saat <- function(df, app_type) {
 #' @name ace_procs
 
 module_stroop <- function(df) {
-  gen = proc_generic_module(df, col_condition = Q_COL_TRIAL_TYPE)
-  rcs = proc_by_condition(df, c(COL_CORRECT_BUTTON, COL_RT), Q_COL_TRIAL_TYPE, FUN = ace_rcs)
-  cost = multi_subtract(gen, "\\.incongruent", "\\.congruent", "\\.cost")
-  return (left_join(gen, rcs, by = COL_BID) %>% dplyr::bind_cols(cost))
+  return (module_congruence(df))
 }
 
 #' @importFrom magrittr %>%
+#' @importFrom stringr str_remove
 #' @keywords internal
 #' @name ace_procs
 
 module_spatialspan <- function(df) {
   rt = proc_by_condition(df, COL_RT, Q_COL_CORRECT_BUTTON)
-  span = proc_by_condition(df, "object_count", Q_COL_CORRECT_BUTTON, FUN = ace_spatial_span) %>% 
-    mutate(object_count_span_modified.overall = (object_count_span.overall / object_count_length.overall) + object_count_span.correct) %>% 
-    select(!!Q_COL_BID, starts_with("object_count_span") & ends_with("overall"))
+  span = proc_by_condition(df, COL_CONDITION, Q_COL_CORRECT_BUTTON, FUN = ace_spatial_span) %>% 
+    rename_with(\(x) str_remove(x, paste0(COL_CONDITION, "_"))) %>% 
+    mutate(span_modified.overall = (span.overall / length.overall) + span.correct) %>% 
+    select(!!Q_COL_BID, starts_with("span") & ends_with("overall"))
   rt_block_half = proc_by_condition(df, COL_RT, factors = Q_COL_BLOCK_HALF, include_overall = F)
   analy = list(rt, span, rt_block_half)
   if (COL_PRACTICE_COUNT %in% names(df)) {
@@ -247,7 +223,7 @@ module_spatialspan <- function(df) {
   }
   merged = multi_merge(analy, by = COL_BID)
   # Assume that all subjects who return a span less than 3 are technical failures and scrub
-  merged = dplyr::filter(merged, object_count_span.overall >= 3)
+  merged = dplyr::filter(merged, span.overall >= 3)
   return (merged)
 }
 
@@ -255,7 +231,7 @@ module_spatialspan <- function(df) {
 #' @name ace_procs
 
 module_taskswitch <- function(df) {
-  df$taskswitch_state = plyr::mapvalues(df$taskswitch_state, from = c(0, 1 , 2), to = c("start", "switch", "stay"), warn_missing = FALSE)
+  df[[COL_CONDITION]] = plyr::mapvalues(df[[COL_CONDITION]], from = c(0, 1 , 2), to = c("start", "switch", "stay"), warn_missing = FALSE)
   gen = proc_generic_module(df, col_condition = rlang::sym("taskswitch_state"))
   rcs = proc_by_condition(df, c(COL_CORRECT_BUTTON, COL_RT), rlang::sym("taskswitch_state"), FUN = ace_rcs)
   cost = multi_subtract(gen, "\\.switch", "\\.stay", "\\.cost")
@@ -291,19 +267,7 @@ module_tnt <- function(df) {
 #' @name ace_procs
 
 module_backwardsspatialspan <- function(df) {
-  rt = proc_by_condition(df, COL_RT, Q_COL_CORRECT_BUTTON)
-  span = proc_by_condition(df, "object_count", Q_COL_CORRECT_BUTTON, FUN = ace_spatial_span) %>% 
-    mutate(object_count_span_modified.overall = (object_count_span.overall / object_count_length.overall) + object_count_span.correct) %>% 
-    select(!!Q_COL_BID, starts_with("object_count_span") & ends_with("overall"))
-  rt_block_half = proc_by_condition(df, COL_RT, factors = Q_COL_BLOCK_HALF, include_overall = F)
-  analy = list(rt, span, rt_block_half)
-  if (COL_PRACTICE_COUNT %in% names(df)) {
-    prac = proc_by_condition(df, COL_PRACTICE_COUNT, include_overall = FALSE, FUN = ace_practice_count)
-    analy = c(analy, list(prac))
-  }
-  merged = multi_merge(analy, by = COL_BID)
-  merged = dplyr::filter(merged, object_count_span.overall >= 3)
-  return (merged)
+  return (module_spatialspan(df))
 }
 
 #' @import dplyr
@@ -348,8 +312,11 @@ module_filter <- function(df) {
 #' @name ace_procs
 
 module_ishihara <- function(df) {
+  # I think this is for VERY old compatibility, like ACE Classroom era
+  # when there was not a COL_CORRECT_BUTTON column but only "rg_color_deficiency"
+  # which is essentially an "incorrect" column
   if (!("rg_color_deficiency" %in% names(df))) {
-    df$rg_color_deficiency = (df$trial_correct - 1L) * -1L
+    df$rg_color_deficiency = (df[[COL_CORRECT_BUTTON]] - 1L) * -1L
   }
   df = dplyr::group_by(df, !!Q_COL_BID)
   return (ungroup(ace_ishihara_dplyr(df, "rg_color_deficiency")))
@@ -359,8 +326,8 @@ module_ishihara <- function(df) {
 #' @name ace_procs
 
 module_spatialcueing <- function(df) {
-  gen = proc_generic_module(df, col_condition = Q_COL_TRIAL_TYPE)
-  rcs = proc_by_condition(df, c(COL_CORRECT_BUTTON, COL_RT), Q_COL_TRIAL_TYPE, FUN = ace_rcs)
+  gen = proc_generic_module(df, col_condition = Q_COL_CONDITION)
+  rcs = proc_by_condition(df, c(COL_CORRECT_BUTTON, COL_RT), Q_COL_CONDITION, FUN = ace_rcs)
   cost = multi_subtract(gen, "\\.incongruent", "\\.congruent", "\\.inc_con_cost")
   # This should only trigger for newer versions of ACE Explorer where a "neutral" condition was added
   if (any(grepl("neutral", names(gen)))) {
@@ -372,4 +339,11 @@ module_spatialcueing <- function(df) {
     cost_full = cost
   }
   return (left_join(gen, rcs, by = COL_BID) %>% dplyr::bind_cols(cost_full))
+}
+
+module_congruence <- function (df) {
+  gen = proc_generic_module(df)
+  rcs = proc_by_condition(df, c(COL_CORRECT_BUTTON, COL_RT), Q_COL_CONDITION, FUN = ace_rcs)
+  cost = multi_subtract(gen, "\\.incongruent", "\\.congruent", "\\.cost")
+  return (left_join(gen, rcs, by = COL_BID) %>% dplyr::bind_cols(cost))
 }

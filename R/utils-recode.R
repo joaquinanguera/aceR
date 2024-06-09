@@ -32,3 +32,36 @@ make_lagged_col <- function (col) {
   col = paste0("prev_", dplyr::lag(col))
   return (col)
 }
+
+#' @keywords internal
+
+recode_brt_condition_dominance <- function (df) {
+  
+  if (!all(df[[COL_HANDEDNESS]] %in% c("right", "left"))) {
+    warning("Nonstandard handedness levels detected.\n",
+            "Handedness levels found in data: ",
+            paste(unique(df[[COL_HANDEDNESS]]), collapse = " "),
+            "\n",
+            "Dominant hand recoding may be unknown for these levels")
+  }
+  
+  df <- df %>%
+    mutate(!!COL_CONDITION := case_when(
+      grepl("right", !!Q_COL_HANDEDNESS) ~ recode(!!Q_COL_CONDITION,
+                                                  right = "dominant.index",
+                                                  left = "nondominant.index",
+                                                  rightindex = "dominant.index",
+                                                  leftindex = "nondominant.index",
+                                                  rightthumb = "dominant.thumb",
+                                                  leftthumb = "nondominant.thumb"),
+      grepl("left", !!Q_COL_HANDEDNESS) ~ recode(!!Q_COL_CONDITION,
+                                                 left = "dominant.index",
+                                                 right = "nondominant.index",
+                                                 leftindex = "dominant.index",
+                                                 rightindex = "nondominant.index",
+                                                 leftthumb = "dominant.thumb",
+                                                 rightthumb = "nondominant.thumb"),
+      TRUE ~ !!Q_COL_CONDITION))
+  
+  return (df)
+}
