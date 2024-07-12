@@ -16,12 +16,10 @@ jobs:
       with:
         r-version: '4.0.5' # must be consistent with renv.lock
 
-    - name: Install renv
-      run: install.packages('renv')
-      shell: Rscript {0}
-
-    - name: Restore dependencies
-      run: renv::restore()
+    - name: Install dependencies
+      run: |
+        install.packages(c("remotes", "rcmdcheck"))
+        remotes::install_deps(dependencies = TRUE)
       shell: Rscript {0}
 
     - name: Run tests
