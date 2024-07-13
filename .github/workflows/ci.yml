@@ -20,6 +20,7 @@ jobs:
       run: |
         install.packages(c("remotes", "rcmdcheck"))
         remotes::install_deps(dependencies = TRUE)
+        remotes::install_local()
       shell: Rscript {0}
 
     - name: Run tests
